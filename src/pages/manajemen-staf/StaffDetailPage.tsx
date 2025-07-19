@@ -13,12 +13,9 @@ const StaffDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const staffId = parseInt(id || '', 10);
 
-  console.log('StaffDetailPage: Parsed staffId:', staffId);
-
   // Handle invalid staffId early
   if (isNaN(staffId)) {
     toast.error('ID staf tidak valid.');
-    console.error('StaffDetailPage: Invalid staffId detected:', id);
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -32,10 +29,6 @@ const StaffDetailPage: React.FC = () => {
   }
 
   const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
-
-  console.log('StaffDetailPage: isLoading:', isLoading);
-  console.log('StaffDetailPage: error:', error);
-  console.log('StaffDetailPage: staffData:', staffData);
 
   if (isLoading) {
     return (
@@ -53,7 +46,6 @@ const StaffDetailPage: React.FC = () => {
       errorMessage = (error as any).message;
     }
     toast.error(errorMessage);
-    console.error('StaffDetailPage: Error fetching data:', error);
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -68,7 +60,6 @@ const StaffDetailPage: React.FC = () => {
 
   // If staffData is null or undefined after loading and no error, it means staff was not found
   if (!staffData) {
-    console.warn('StaffDetailPage: staffData is null or undefined after loading.');
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -82,11 +73,8 @@ const StaffDetailPage: React.FC = () => {
   }
 
   // Access properties using optional chaining to prevent errors if nested objects are undefined
-  const employee = staffData.data.employee;
-  const roles = staffData.data.roles;
-
-  console.log('StaffDetailPage: Employee data:', employee);
-  console.log('StaffDetailPage: Roles data:', roles);
+  const employee = staffData.employee;
+  const roles = staffData.roles;
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -169,12 +157,12 @@ const StaffDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Tanggal Dibuat:</span>
-              <span className="text-gray-900">{staffData.data.created_at ? new Date(staffData.data.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+              <span className="text-gray-900">{staffData.created_at ? new Date(staffData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 last:border-b-0">
               <span className="font-semibold text-gray-700">Terakhir Diperbarui:</span>
-              <span className="text-gray-900">{staffData.data.updated_at ? new Date(staffData.data.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+              <span className="text-gray-900">{staffData.updated_at ? new Date(staffData.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
           </CardContent>
         </Card>
