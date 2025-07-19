@@ -73,51 +73,68 @@ const StaffDetailPage: React.FC = () => {
             <CardTitle>Informasi Pribadi</CardTitle>
             <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-              <div className="font-semibold">Nama Depan:</div>
-              <div>{staff.first_name}</div>
-
-              <div className="font-semibold">Nama Belakang:</div>
-              <div>{staff.last_name}</div>
-
-              <div className="font-semibold">Email:</div>
-              <div>{staff.email}</div>
-
-              <div className="font-semibold">Kode Staf:</div>
-              <div>{staff.code || '-'}</div>
-
-              <div className="font-semibold">NIK:</div>
-              <div>{staff.nik || '-'}</div>
-
-              <div className="font-semibold">Telepon:</div>
-              <div>{staff.phone || '-'}</div>
-
-              <div className="font-semibold">Alamat:</div>
-              <div>{staff.address || '-'}</div>
-
-              <div className="font-semibold">Kode Pos:</div>
-              <div>{staff.zip_code || '-'}</div>
-
-              {staff.photo && (
-                <>
-                  <div className="font-semibold">Foto:</div>
-                  <div>
-                    <img src={staff.photo} alt="Foto Staf" className="w-24 h-24 object-cover rounded-md" />
-                  </div>
-                </>
-              )}
-
-              {/* Catatan: Data peran tidak tersedia di struktur API detail yang diberikan */}
-              <div className="font-semibold col-span-full text-muted-foreground italic">
-                * Informasi peran tidak tersedia dalam detail staf ini.
+          <CardContent className="space-y-2"> {/* Changed to space-y for vertical spacing */}
+            {staff.photo && (
+              <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+                <span className="font-semibold text-gray-700">Foto:</span>
+                <div>
+                  <img src={staff.photo} alt="Foto Staf" className="w-24 h-24 object-cover rounded-md" />
+                </div>
               </div>
+            )}
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Nama Depan:</span>
+              <span className="text-gray-900">{staff.first_name}</span>
+            </div>
 
-              <div className="font-semibold">Tanggal Dibuat:</div>
-              <div>{new Date(staff.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Nama Belakang:</span>
+              <span className="text-gray-900">{staff.last_name}</span>
+            </div>
 
-              <div className="font-semibold">Terakhir Diperbarui:</div>
-              <div>{new Date(staff.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Email:</span>
+              <span className="text-gray-900">{staff.email}</span>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Kode Staf:</span>
+              <span className="text-gray-900">{staff.code || '-'}</span>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">NIK:</span>
+              <span className="text-gray-900">{staff.nik || '-'}</span>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Telepon:</span>
+              <span className="text-gray-900">{staff.phone || '-'}</span>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Alamat:</span>
+              <span className="text-gray-900">{staff.address || '-'}</span>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Kode Pos:</span>
+              <span className="text-gray-900">{staff.zip_code || '-'}</span>
+            </div>
+
+            {/* Catatan: Data peran tidak tersedia di struktur API detail yang diberikan */}
+            <div className="text-sm text-muted-foreground italic pt-2">
+              * Informasi peran tidak tersedia dalam detail staf ini.
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+              <span className="font-semibold text-gray-700">Tanggal Dibuat:</span>
+              <span className="text-gray-900">{new Date(staff.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 last:border-b-0"> {/* Removed border-b from last item */}
+              <span className="font-semibold text-gray-700">Terakhir Diperbarui:</span>
+              <span className="text-gray-900">{new Date(staff.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
           </CardContent>
         </Card>
