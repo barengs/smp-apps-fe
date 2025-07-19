@@ -161,12 +161,12 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
 // Footer component (reused from MadeWithDyad and basic footer structure)
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-800 text-white py-8 px-6 text-center">
+    <footer className="bg-gray-800 text-white py-4 px-6 text-center">
       <div className="container mx-auto">
-        <p className="text-lg mb-4">
+        <p className="text-sm mb-2">
           &copy; {new Date().getFullYear()} Pesantren Digital. All rights reserved.
         </p>
-        <p className="text-sm text-gray-400">
+        <p className="text-xs text-gray-400">
           Jl. Contoh No. 123, Kota Santri, Provinsi Damai
         </p>
         <MadeWithDyad />
