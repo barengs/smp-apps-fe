@@ -7,6 +7,7 @@ import {
   getPaginationRowModel,
   useReactTable,
   VisibilityState,
+  AccessorColumnDef, // Import AccessorColumnDef
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -132,23 +133,24 @@ const StaffTable: React.FC = () => {
   const handleExportPdf = () => {
     toast.info('Mengekspor data ke PDF...');
     const doc = new jsPDF();
-    const tableData = table.getRowModel().rows.map(row =>
-      row.getVisibleCells().map(cell => {
-        const content = flexRender(cell.column.columnDef.cell, cell.getContext());
-        if (typeof content === 'string' || typeof content === 'number') {
-          return String(content);
-        } else if (React.isValidElement(content)) {
-          return (content.props.children && typeof content.props.children === 'string') ? content.props.children : '';
-        }
-        return '';
-      })
+
+    // Filter out the 'actions' column and ensure remaining columns have accessorKey
+    const exportableColumns = columns.filter(
+      (col): col is AccessorColumnDef<Staff> => 'accessorKey' in col && col.id !== 'actions'
     );
 
-    const headers = table.getHeaderGroups()[0].headers.map(header =>
-      String(flexRender(header.column.columnDef.header, header.getContext()))
-    );
+    const headers = exportableColumns.map(col => {
+      return String(col.header);
+    });
 
-    (doc as any).autoTable({ // Cast doc to any to access autoTable
+    const tableData = table.getRowModel().rows.map(row => {
+      return exportableColumns.map(col => {
+        // Now 'col' is guaranteed to have 'accessorKey'
+        return String(row.original[col.accessorKey as keyof Staff]);
+      });
+    });
+
+    (doc as any).autoTable({
       head: [headers],
       body: tableData,
       startY: 20,
@@ -164,17 +166,15 @@ const StaffTable: React.FC = () => {
     toast.info('Mengekspor data ke Excel...');
     const dataToExport = table.getRowModel().rows.map(row => {
       const rowData: { [key: string]: any } = {};
-      row.getVisibleCells().forEach(cell => {
-        // Directly use cell.column.columnDef.header for the header string
-        const header = String(cell.column.columnDef.header);
-        const value = flexRender(cell.column.columnDef.cell, cell.getContext());
-        if (typeof value === 'string' || typeof value === 'number') {
-          rowData[header] = value;
-        } else if (React.isValidElement(value)) {
-          rowData[header] = (value.props.children && typeof value.props.children === 'string') ? value.props.children : '';
-        } else {
-          rowData[header] = '';
-        }
+      // Filter out the 'actions' column and ensure remaining columns have accessorKey
+      const exportableColumns = columns.filter(
+        (col): col is AccessorColumnDef<Staff> => 'accessorKey' in col && col.id !== 'actions'
+      );
+
+      exportableColumns.forEach(col => {
+        const header = String(col.header);
+        // Now 'col' is guaranteed to have 'accessorKey'
+        rowData[header] = String(row.original[col.accessorKey as keyof Staff]);
       });
       return rowData;
     });
