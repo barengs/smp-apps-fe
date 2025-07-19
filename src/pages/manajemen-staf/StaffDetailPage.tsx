@@ -45,11 +45,12 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  if (!staffData) {
+  // Check if staffData exists and if its nested properties are also present
+  if (!staffData || !staffData.employee || !staffData.roles) {
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
-          <p>Staf tidak ditemukan.</p>
+          <p>Data staf tidak ditemukan atau tidak lengkap.</p>
           <Button onClick={() => navigate(-1)} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
           </Button>
