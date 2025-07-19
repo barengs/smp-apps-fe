@@ -1,9 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { DataTable } from '../../components/DataTable';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import PeranForm from './PeranForm'; // Import the new form component
 
 interface Peran {
   id: string;
@@ -22,6 +40,47 @@ const dummyPeranData: Peran[] = [
 ];
 
 const PeranTable: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPeran, setEditingPeran] = useState<Peran | undefined>(undefined);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [peranToDelete, setPeranToDelete] = useState<Peran | undefined>(undefined);
+
+  const handleAddData = () => {
+    setEditingPeran(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEditData = (peran: Peran) => {
+    setEditingPeran(peran);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (peran: Peran) => {
+    setPeranToDelete(peran);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (peranToDelete) {
+      toast.success(`Peran "${peranToDelete.roleName}" berhasil dihapus.`);
+      // In a real app, you would perform the actual delete operation here
+      // and then refetch data or update state.
+      setPeranToDelete(undefined);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    setEditingPeran(undefined);
+    // In a real app, you would refetch data here
+  };
+
+  const handleFormCancel = () => {
+    setIsModalOpen(false);
+    setEditingPeran(undefined);
+  };
+
   const columns: ColumnDef<Peran>[] = useMemo(
     () => [
       {
@@ -49,14 +108,14 @@ const PeranTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => toast.info(`Mengedit peran: ${peran.roleName}`)}
+                onClick={() => handleEditData(peran)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => toast.error(`Menghapus peran: ${peran.roleName}`)}
+                onClick={() => handleDeleteClick(peran)}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -68,19 +127,48 @@ const PeranTable: React.FC = () => {
     []
   );
 
-  const handleAddData = () => {
-    toast.info('Membuka form tambah peran...');
-    // Implementasi logika untuk membuka form tambah data peran
-  };
-
   return (
-    <DataTable
-      columns={columns}
-      data={dummyPeranData}
-      exportFileName="data_peran"
-      exportTitle="Data Peran Pengguna"
-      onAddData={handleAddData}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={dummyPeranData}
+        exportFileName="data_peran"
+        exportTitle="Data Peran Pengguna"
+        onAddData={handleAddData}
+      />
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{editingPeran ? 'Edit Peran' : 'Tambah Peran Baru'}</DialogTitle>
+            <DialogDescription>
+              {editingPeran ? 'Ubah detail peran ini.' : 'Isi detail untuk peran baru.'}
+            </DialogDescription>
+          </DialogHeader>
+          <PeranForm
+            initialData={editingPeran}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus peran{' '}
+              <span className="font-semibold text-foreground">"{peranToDelete?.roleName}"</span> secara permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

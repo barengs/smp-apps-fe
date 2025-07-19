@@ -1,16 +1,34 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { DataTable } from '../../components/DataTable'; // Corrected import path
+import { DataTable } from '../../components/DataTable';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import StaffForm from './StaffForm'; // Import the new form component
 
 interface Staff {
   id: string;
   name: string;
   email: string;
   role: string;
-  status: string;
+  status: 'Aktif' | 'Cuti' | 'Tidak Aktif'; // Perbaikan: Menggunakan tipe literal union
 }
 
 const dummyStaffData: Staff[] = [
@@ -27,6 +45,47 @@ const dummyStaffData: Staff[] = [
 ];
 
 const StaffTable: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
+
+  const handleAddData = () => {
+    setEditingStaff(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEditData = (staff: Staff) => {
+    setEditingStaff(staff);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (staff: Staff) => {
+    setStaffToDelete(staff);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (staffToDelete) {
+      toast.success(`Staf "${staffToDelete.name}" berhasil dihapus.`);
+      // In a real app, you would perform the actual delete operation here
+      // and then refetch data or update state.
+      setStaffToDelete(undefined);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    setEditingStaff(undefined);
+    // In a real app, you would refetch data here
+  };
+
+  const handleFormCancel = () => {
+    setIsModalOpen(false);
+    setEditingStaff(undefined);
+  };
+
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
@@ -59,14 +118,14 @@ const StaffTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => toast.info(`Mengedit staf: ${staff.name}`)}
+                onClick={() => handleEditData(staff)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => toast.error(`Menghapus staf: ${staff.name}`)}
+                onClick={() => handleDeleteClick(staff)}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -78,19 +137,48 @@ const StaffTable: React.FC = () => {
     []
   );
 
-  const handleAddData = () => {
-    toast.info('Membuka form tambah data staf...');
-    // Implementasi logika untuk membuka form tambah data
-  };
-
   return (
-    <DataTable
-      columns={columns}
-      data={dummyStaffData}
-      exportFileName="data_staf"
-      exportTitle="Data Staf Pesantren"
-      onAddData={handleAddData}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={dummyStaffData}
+        exportFileName="data_staf"
+        exportTitle="Data Staf Pesantren"
+        onAddData={handleAddData}
+      />
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{editingStaff ? 'Edit Staf' : 'Tambah Staf Baru'}</DialogTitle>
+            <DialogDescription>
+              {editingStaff ? 'Ubah detail staf ini.' : 'Isi detail untuk staf baru.'}
+            </DialogDescription>
+          </DialogHeader>
+          <StaffForm
+            initialData={editingStaff}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus staf{' '}
+              <span className="font-semibold text-foreground">"{staffToDelete?.name}"</span> secara permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
