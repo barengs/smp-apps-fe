@@ -9,11 +9,11 @@ import WaliSantriDashboard from "./pages/WaliSantriDashboard";
 import AdministrasiDashboard from "./pages/AdministrasiDashboard";
 import Login from "./pages/Login";
 import Daftar from "./pages/Daftar";
-import StafPage from "./pages/StafPage";
+import StafPage from "./pages/manajemen-staf/StafPage"; // Removed .tsx extension
 import HakAksesPage from "./pages/HakAksesPage";
 import PeranPage from "./pages/PeranPage";
-import ManajemenSantriPage from "./pages/ManajemenSantriPage";
-import WaliSantriListPage from "./pages/WaliSantriListPage"; // Import WaliSantriListPage
+import ManajemenSantriPage from "./pages/manajemen-santri/ManajemenSantriPage"; // Removed .tsx extension
+import WaliSantriListPage from "./pages/WaliSantriListPage";
 import { ThemeProvider } from "./components/theme-provider";
 
 const queryClient = new QueryClient();
@@ -35,7 +35,7 @@ const App = () => (
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
-            <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} /> {/* Add route for WaliSantriListPage */}
+            <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
