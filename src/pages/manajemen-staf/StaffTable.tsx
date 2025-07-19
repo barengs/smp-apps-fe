@@ -65,6 +65,7 @@ import {
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 interface Staff {
   id: number;
@@ -80,6 +81,7 @@ interface Staff {
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
   const [deleteEmployee] = useDeleteEmployeeMutation();
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
@@ -167,6 +169,10 @@ const StaffTable: React.FC = () => {
     setEditingStaff(undefined);
   };
 
+  const handleRowClick = (staff: Staff) => {
+    navigate(`/dashboard/staf/${staff.id}`);
+  };
+
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
@@ -202,14 +208,20 @@ const StaffTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => handleEditData(staff)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click from firing
+                  handleEditData(staff);
+                }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => handleDeleteClick(staff)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click from firing
+                  handleDeleteClick(staff);
+                }}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -261,6 +273,7 @@ const StaffTable: React.FC = () => {
         exportFileName="data_staf"
         exportTitle="Data Staf Pesantren"
         onAddData={handleAddData}
+        onRowClick={handleRowClick} // Pass the new prop
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

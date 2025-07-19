@@ -13,6 +13,7 @@ import HakAksesPage from "@/pages/manajemen-staf/HakAksesPage";
 import PeranPage from "@/pages/manajemen-staf/PeranPage";
 import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
+import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage"; // Import StaffDetailPage
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
             <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
             <Route path="/dashboard/staf" element={<StafPage />} />
+            <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} /> {/* New route for staff detail */}
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />

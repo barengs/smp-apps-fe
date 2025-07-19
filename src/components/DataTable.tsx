@@ -40,12 +40,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export interface DataTableProps<TData, TValue> { // Ditambahkan 'export' di sini
+export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   exportFileName: string;
   exportTitle: string;
   onAddData?: () => void;
+  onRowClick?: (rowData: TData) => void; // New prop for row click handler
 }
 
 // Type guard to check if a column has accessorKey
@@ -61,6 +62,7 @@ export function DataTable<TData, TValue>({
   exportFileName,
   exportTitle,
   onAddData,
+  onRowClick, // Destructure new prop
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -241,6 +243,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => onRowClick && onRowClick(row.original)} // Add onClick handler
+                  className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""} // Add cursor and hover effect
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-2">
