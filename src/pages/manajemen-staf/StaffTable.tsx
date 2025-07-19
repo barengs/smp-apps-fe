@@ -1,9 +1,44 @@
 import React, { useMemo, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+  VisibilityState,
+} from '@tanstack/react-table';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, PlusCircle } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react'; // Ditambahkan Edit dan Trash2
 import { toast } from 'sonner';
-import { DataTable } from '../../components/DataTable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -22,33 +57,55 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import StaffForm from './StaffForm'; // Import the new form component
+import { Badge } from '@/components/ui/badge';
+import {
+  useGetEmployeesQuery,
+  useDeleteEmployeeMutation,
+} from '@/store/slices/employeeApi'; // Import RTK Query hooks for employees
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
+import { DataTableProps } from '@/components/DataTable'; // Ditambahkan impor DataTableProps
 
 interface Staff {
-  id: string;
-  name: string;
+  id: number;
+  first_name: string;
+  last_name: string;
   email: string;
-  role: string;
-  status: 'Aktif' | 'Cuti' | 'Tidak Aktif'; // Perbaikan: Menggunakan tipe literal union
+  roles: { id: number; name: string; guard_name: string }[]; // Match API response for roles
 }
 
-const dummyStaffData: Staff[] = [
-  { id: '1', name: 'Budi Santoso', email: 'budi.s@pesantren.com', role: 'Guru Fiqih', status: 'Aktif' },
-  { id: '2', name: 'Siti Aminah', email: 'siti.a@pesantren.com', role: 'Administrasi', status: 'Aktif' },
-  { id: '3', name: 'Ahmad Fauzi', email: 'ahmad.f@pesantren.com', role: 'Guru Tahfidz', status: 'Aktif' },
-  { id: '4', name: 'Dewi Lestari', email: 'dewi.l@pesantren.com', role: 'Bendahara', status: 'Aktif' },
-  { id: '5', name: 'Joko Susilo', email: 'joko.s@pesantren.com', role: 'Guru Bahasa Arab', status: 'Aktif' },
-  { id: '6', name: 'Nurul Huda', email: 'nurul.h@pesantren.com', role: 'Guru Hadits', status: 'Aktif' },
-  { id: '7', name: 'Rina Wijaya', email: 'rina.w@pesantren.com', role: 'Pustakawan', status: 'Aktif' },
-  { id: '8', name: 'Faisal Rahman', email: 'faisal.r@pesantren.com', role: 'Keamanan', status: 'Aktif' },
-  { id: '9', name: 'Linda Sari', email: 'linda.s@pesantren.com', role: 'Guru Matematika', status: 'Cuti' },
-  { id: '10', name: 'Hasan Basri', email: 'hasan.b@pesantren.com', role: 'Guru Sejarah Islam', status: 'Aktif' },
-];
+// Type guard to check if a column has accessorKey
+function hasAccessorKey<TData>(
+  column: ColumnDef<TData>
+): column is ColumnDef<TData> & { accessorKey: keyof TData } {
+  return 'accessorKey' in column;
+}
+
+// DataTable component definition (moved from here to src/components/DataTable.tsx)
+// This component is now imported from src/components/DataTable.tsx
 
 const StaffTable: React.FC = () => {
+  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
+  const [deleteEmployee] = useDeleteEmployeeMutation();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
+
+  // Map API data to frontend Staff interface
+  const employees: Staff[] = useMemo(() => {
+    if (employeesData?.data) {
+      return employeesData.data.map(apiEmployee => ({
+        id: apiEmployee.id,
+        first_name: apiEmployee.first_name,
+        last_name: apiEmployee.last_name,
+        email: apiEmployee.email,
+        roles: apiEmployee.roles,
+      }));
+    }
+    return [];
+  }, [employeesData]);
 
   const handleAddData = () => {
     setEditingStaff(undefined);
@@ -65,20 +122,50 @@ const StaffTable: React.FC = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (staffToDelete) {
-      toast.success(`Staf "${staffToDelete.name}" berhasil dihapus.`);
-      // In a real app, you would perform the actual delete operation here
-      // and then refetch data or update state.
-      setStaffToDelete(undefined);
-      setIsDeleteDialogOpen(false);
+      try {
+        await deleteEmployee(staffToDelete.id).unwrap();
+        toast.success(`Staf "${staffToDelete.first_name} ${staffToDelete.last_name}" berhasil dihapus.`);
+        setStaffToDelete(undefined);
+        setIsDeleteDialogOpen(false);
+      } catch (err: unknown) {
+        let errorMessage = 'Terjadi kesalahan tidak dikenal.';
+        if (typeof err === 'object' && err !== null) {
+          if ('status' in err) {
+            const fetchError = err as FetchBaseQueryError;
+            if (typeof fetchError.status === 'number') {
+              if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
+                errorMessage = (fetchError.data as { message: string }).message;
+              } else {
+                errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
+              }
+            } else if (typeof fetchError.status === 'string') { // Perbaikan di sini
+              // Hanya akses 'error' jika status adalah string literal dan properti 'error' ada
+              if ('error' in fetchError && typeof fetchError.error === 'string') {
+                errorMessage = fetchError.error;
+              } else {
+                errorMessage = `Error: ${fetchError.status} - ${JSON.stringify(fetchError)}`;
+              }
+            } else {
+              errorMessage = `Error: ${JSON.stringify(fetchError)}`;
+            }
+          } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
+            errorMessage = (err as SerializedError).message;
+          } else {
+            errorMessage = `Terjadi kesalahan: ${JSON.stringify(err)}`;
+          }
+        } else if (typeof err === 'string') {
+          errorMessage = err;
+        }
+        toast.error(`Gagal menghapus staf: ${errorMessage}`);
+      }
     }
   };
 
   const handleFormSuccess = () => {
     setIsModalOpen(false);
     setEditingStaff(undefined);
-    // In a real app, you would refetch data here
   };
 
   const handleFormCancel = () => {
@@ -89,8 +176,13 @@ const StaffTable: React.FC = () => {
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Nama',
+        accessorKey: 'first_name',
+        header: 'Nama Depan',
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: 'last_name',
+        header: 'Nama Belakang',
         cell: (info) => info.getValue(),
       },
       {
@@ -99,14 +191,17 @@ const StaffTable: React.FC = () => {
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: 'role',
+        accessorKey: 'roles',
         header: 'Peran',
-        cell: (info) => info.getValue(),
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: (info) => info.getValue(),
+        cell: ({ row }) => (
+          <div className="flex flex-wrap gap-1">
+            {row.original.roles.map((role) => (
+              <Badge key={role.id} variant="outline" className="text-xs">
+                {role.name}
+              </Badge>
+            ))}
+          </div>
+        ),
       },
       {
         id: 'actions',
@@ -137,11 +232,43 @@ const StaffTable: React.FC = () => {
     []
   );
 
+  if (isLoading) return <div>Memuat data staf...</div>;
+  if (error) {
+    let errorMessage = 'Terjadi kesalahan saat memuat data.';
+    if (typeof error === 'object' && error !== null) {
+      if ('status' in error) {
+        if (typeof (error as FetchBaseQueryError).status === 'number') {
+          const fetchError = error as FetchBaseQueryError;
+          if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
+            errorMessage = (fetchError.data as { message: string }).message;
+          } else {
+            errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
+          }
+        } else if (typeof (error as FetchBaseQueryError).status === 'string') { // Perbaikan di sini
+          if ('error' in error && typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else {
+            errorMessage = `Error: ${error.status} - ${JSON.stringify(error)}`;
+          }
+        } else {
+          errorMessage = `Terjadi kesalahan: ${JSON.stringify(error)}`;
+        }
+      } else if ('message' in error && typeof (error as SerializedError).message === 'string') {
+        errorMessage = (error as SerializedError).message;
+      } else {
+        errorMessage = `Terjadi kesalahan: ${JSON.stringify(error)}`;
+      }
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+    return <div>Error: {errorMessage}</div>;
+  }
+
   return (
     <>
       <DataTable
         columns={columns}
-        data={dummyStaffData}
+        data={employees}
         exportFileName="data_staf"
         exportTitle="Data Staf Pesantren"
         onAddData={handleAddData}
@@ -169,7 +296,7 @@ const StaffTable: React.FC = () => {
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
               Tindakan ini tidak dapat dibatalkan. Ini akan menghapus staf{' '}
-              <span className="font-semibold text-foreground">"{staffToDelete?.name}"</span> secara permanen.
+              <span className="font-semibold text-foreground">"{staffToDelete?.first_name} {staffToDelete?.last_name}"</span> secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

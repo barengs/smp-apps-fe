@@ -4,7 +4,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel, // Corrected typo here
+  getPaginationRowModel,
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> { // Ditambahkan 'export' di sini
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   exportFileName: string;

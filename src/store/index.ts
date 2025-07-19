@@ -4,6 +4,7 @@ import { smpApi } from './baseApi'; // Import baseApi
 // Import slices to ensure endpoints are injected
 import './slices/roleApi';
 import './slices/santriApi';
+import './slices/employeeApi'; // Import the new employeeApi slice
 
 export const store = configureStore({
   reducer: {
