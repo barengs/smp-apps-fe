@@ -30,7 +30,7 @@ import {
 import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable'; // Import jspdf-autotable to extend jsPDF
+import autoTable from 'jspdf-autotable'; // Mengimpor autoTable secara langsung
 import * as XLSX from 'xlsx';
 import {
   Select,
@@ -39,9 +39,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"; // Import Select components
-
-// Log untuk memeriksa apakah autoTable ditambahkan ke prototype jsPDF
-console.log('jsPDF.prototype.autoTable after import:', (jsPDF.prototype as any).autoTable);
 
 interface Staff {
   id: string;
@@ -180,7 +177,7 @@ const StaffTable: React.FC = () => {
       return;
     }
 
-    (doc as any).autoTable({ // Cast doc to any to access autoTable
+    autoTable(doc, { // Menggunakan autoTable sebagai fungsi terpisah
       head: [headers],
       body: tableData,
       startY: 20,
