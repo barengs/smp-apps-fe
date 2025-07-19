@@ -138,11 +138,7 @@ const PeranTable: React.FC = () => {
         header: 'Deskripsi',
         cell: (info) => info.getValue(),
       },
-      {
-        accessorKey: 'usersCount',
-        header: 'Jumlah Pengguna',
-        cell: (info) => info.getValue(),
-      },
+      // Kolom 'Jumlah Pengguna' dihapus
       {
         accessorKey: 'accessRights',
         header: 'Hak Akses',
