@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react'; // Ditambahkan Edit dan Trash2
+import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -56,33 +56,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import StaffForm from './StaffForm'; // Import the new form component
+import StaffForm from './StaffForm';
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
-} from '@/store/slices/employeeApi'; // Import RTK Query hooks for employees
+} from '@/store/slices/employeeApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { DataTableProps } from '@/components/DataTable'; // Ditambahkan impor DataTableProps
+import { DataTable } from '@/components/DataTable'; // Corrected import path for DataTable
 
 interface Staff {
   id: number;
   first_name: string;
   last_name: string;
   email: string;
-  roles: { id: number; name: string; guard_name: string }[]; // Match API response for roles
+  roles: { id: number; name: string; guard_name: string }[];
 }
-
-// Type guard to check if a column has accessorKey
-function hasAccessorKey<TData>(
-  column: ColumnDef<TData>
-): column is ColumnDef<TData> & { accessorKey: keyof TData } {
-  return 'accessorKey' in column;
-}
-
-// DataTable component definition (moved from here to src/components/DataTable.tsx)
-// This component is now imported from src/components/DataTable.tsx
 
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
@@ -93,7 +83,6 @@ const StaffTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
 
-  // Map API data to frontend Staff interface
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => ({
@@ -140,8 +129,7 @@ const StaffTable: React.FC = () => {
               } else {
                 errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
               }
-            } else if (typeof fetchError.status === 'string') { // Perbaikan di sini
-              // Hanya akses 'error' jika status adalah string literal dan properti 'error' ada
+            } else if (typeof fetchError.status === 'string') {
               if ('error' in fetchError && typeof fetchError.error === 'string') {
                 errorMessage = fetchError.error;
               } else {
@@ -244,7 +232,7 @@ const StaffTable: React.FC = () => {
           } else {
             errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
           }
-        } else if (typeof (error as FetchBaseQueryError).status === 'string') { // Perbaikan di sini
+        } else if (typeof (error as FetchBaseQueryError).status === 'string') {
           if ('error' in error && typeof error.error === 'string') {
             errorMessage = error.error;
           } else {
