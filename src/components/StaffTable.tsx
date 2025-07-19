@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search } from 'lucide-react';
+import { ChevronDown, FileDown, Search, PlusCircle } from 'lucide-react'; // Import PlusCircle icon
 import { toast } from 'sonner';
 
 interface Staff {
@@ -113,6 +113,11 @@ const StaffTable: React.FC = () => {
     // Contoh: const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Staf"); XLSX.writeFile(wb, "staf.xlsx");
   };
 
+  const handleAddData = () => {
+    toast.info('Membuka form tambah data...');
+    // Implementasi logika untuk membuka form tambah data
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -126,6 +131,9 @@ const StaffTable: React.FC = () => {
           />
         </div>
         <div className="flex space-x-2">
+          <Button onClick={handleAddData}> {/* Add new button here */}
+            <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
