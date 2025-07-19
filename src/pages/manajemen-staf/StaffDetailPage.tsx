@@ -31,7 +31,7 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
+  const { data: staffData.data, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   console.log('StaffDetailPage: isLoading:', isLoading);
   console.log('StaffDetailPage: error:', error);
