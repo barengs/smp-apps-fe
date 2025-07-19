@@ -7,7 +7,6 @@ import {
   getPaginationRowModel,
   useReactTable,
   VisibilityState,
-  AccessorColumnDef, // Import AccessorColumnDef
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -54,6 +53,18 @@ const dummyStaffData: Staff[] = [
   { id: '9', name: 'Linda Sari', email: 'linda.s@pesantren.com', role: 'Guru Matematika', status: 'Cuti' },
   { id: '10', name: 'Hasan Basri', email: 'hasan.b@pesantren.com', role: 'Guru Sejarah Islam', status: 'Aktif' },
 ];
+
+// Define a type that explicitly has accessorKey
+type ColumnWithAccessorKey<TData> = ColumnDef<TData> & {
+  accessorKey: keyof TData;
+};
+
+// Type guard to check if a column has accessorKey
+function hasAccessorKey<TData>(
+  column: ColumnDef<TData>
+): column is ColumnWithAccessorKey<TData> {
+  return 'accessorKey' in column;
+}
 
 const StaffTable: React.FC = () => {
   const [data] = useState<Staff[]>(dummyStaffData);
@@ -136,7 +147,8 @@ const StaffTable: React.FC = () => {
 
     // Filter out the 'actions' column and ensure remaining columns have accessorKey
     const exportableColumns = columns.filter(
-      (col): col is AccessorColumnDef<Staff> => 'accessorKey' in col && col.id !== 'actions'
+      (col): col is ColumnWithAccessorKey<Staff> =>
+        hasAccessorKey(col) && col.id !== 'actions'
     );
 
     const headers = exportableColumns.map(col => {
@@ -150,7 +162,7 @@ const StaffTable: React.FC = () => {
       });
     });
 
-    (doc as any).autoTable({
+    (doc as any).autoTable({ // Cast doc to any to access autoTable
       head: [headers],
       body: tableData,
       startY: 20,
@@ -168,7 +180,8 @@ const StaffTable: React.FC = () => {
       const rowData: { [key: string]: any } = {};
       // Filter out the 'actions' column and ensure remaining columns have accessorKey
       const exportableColumns = columns.filter(
-        (col): col is AccessorColumnDef<Staff> => 'accessorKey' in col && col.id !== 'actions'
+        (col): col is ColumnWithAccessorKey<Staff> =>
+          hasAccessorKey(col) && col.id !== 'actions'
       );
 
       exportableColumns.forEach(col => {
