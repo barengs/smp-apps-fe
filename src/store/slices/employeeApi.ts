@@ -28,25 +28,24 @@ interface GetEmployeesResponse {
   data: EmployeeApiData[];
 }
 
-interface EmployeeDetailNestedData { // Interface for the nested employee object in detail view
-  first_name: string;
-  last_name: string;
+// CORRECTED: Interface for single employee detail (from getEmployeeById)
+// Based on the latest structure provided by the user, employee details are flat
+// and roles are not included in this specific detail response.
+interface EmployeeDetailApiData {
+  id: number;
+  user_id: number;
+  code: string;
+  first_name: string; // Now directly on data
+  last_name: string;  // Now directly on data
   nik: string;
+  email: string;
   phone: string;
   address: string;
   zip_code: string;
   photo: string;
-}
-
-interface EmployeeDetailApiData { // Corrected interface for single employee detail (from getEmployeeById)
-  id: number;
-  user_id: number;
-  code: string;
-  email: string;
   created_at: string;
   updated_at: string;
-  employee: EmployeeDetailNestedData; // Nested employee object
-  roles: RoleApiData[]; // Array of role objects, directly on data
+  // Note: 'roles' array is not present in the provided detail API structure for this endpoint
 }
 
 export interface CreateUpdateEmployeeRequest {
