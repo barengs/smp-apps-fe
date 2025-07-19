@@ -27,10 +27,10 @@ const formSchema = z.object({
     message: 'Nama Peran harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
-  usersCount: z.number().min(0, {
-    message: 'Jumlah Pengguna tidak boleh negatif.',
-  }).default(0),
-  accessRights: z.array(z.string()).optional(), // New field for multiple select
+  // usersCount: z.number().min(0, { // Removed this field
+  //   message: 'Jumlah Pengguna tidak boleh negatif.',
+  // }).default(0),
+  accessRights: z.array(z.string()).optional(),
 });
 
 interface PeranFormProps {
@@ -38,8 +38,8 @@ interface PeranFormProps {
     id: string;
     roleName: string;
     description: string;
-    usersCount: number;
-    accessRights?: string[]; // Update interface for initialData
+    // usersCount: number; // Removed this field
+    accessRights?: string[];
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -50,12 +50,12 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
       ...initialData,
-      usersCount: initialData.usersCount,
-      accessRights: initialData.accessRights || [], // Ensure it's an array
+      // usersCount: initialData.usersCount, // Removed this line
+      accessRights: initialData.accessRights || [],
     } : {
       roleName: '',
       description: '',
-      usersCount: 0,
+      // usersCount: 0, // Removed this line
       accessRights: [],
     },
   });
@@ -103,24 +103,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="usersCount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Jumlah Pengguna</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Removed the usersCount FormField */}
         <FormField
           control={form.control}
           name="accessRights"
