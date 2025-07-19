@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle } from 'lucide-react'; // Import PlusCircle icon
+import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react'; // Import Edit and Trash2 icons
 import { toast } from 'sonner';
 
 interface Staff {
@@ -77,6 +77,31 @@ const StaffTable: React.FC = () => {
         accessorKey: 'status',
         header: 'Status',
         cell: (info) => info.getValue(),
+      },
+      {
+        id: 'actions',
+        header: 'Aksi',
+        cell: ({ row }) => {
+          const staff = row.original;
+          return (
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toast.info(`Mengedit staf: ${staff.name}`)}
+              >
+                <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => toast.error(`Menghapus staf: ${staff.name}`)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Hapus
+              </Button>
+            </div>
+          );
+        },
       },
     ],
     []
@@ -131,7 +156,7 @@ const StaffTable: React.FC = () => {
           />
         </div>
         <div className="flex space-x-2">
-          <Button onClick={handleAddData}> {/* Add new button here */}
+          <Button onClick={handleAddData}>
             <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
           </Button>
           <DropdownMenu>
