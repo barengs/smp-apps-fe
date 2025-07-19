@@ -22,6 +22,8 @@ import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import { dummyHakAksesData } from './HakAksesTable'; // Import dummy data for access rights
 import { useCreateRoleMutation, useUpdateRoleMutation } from '@/store/apiSlice'; // Import RTK Query mutations
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 const formSchema = z.object({
   name: z.string().min(2, { // Changed from roleName to name
@@ -68,26 +70,44 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (initialData) {
-        // For update, send 'name' from form values
         await updateRole({ id: initialData.id, data: { name: values.name } }).unwrap();
         toast.success(`Peran "${values.name}" berhasil diperbarui.`);
       } else {
-        // For create, send 'name' from form values
         await createRole({ name: values.name }).unwrap();
         toast.success(`Peran "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) { // Menggunakan 'unknown' untuk penanganan tipe yang lebih aman
       let errorMessage = 'Terjadi kesalahan tidak dikenal.';
+
       if (typeof err === 'object' && err !== null) {
-        if ('data' in err && err.data && typeof err.data === 'object' && 'message' in err.data) {
-          errorMessage = (err.data as { message: string }).message;
-        } else if ('error' in err && typeof err.error === 'string') {
-          errorMessage = err.error;
-        } else if ('message' in err && typeof err.message === 'string') {
-          errorMessage = err.message;
+        if ('status' in err) {
+          const fetchError = err as FetchBaseQueryError;
+          if (typeof fetchError.status === 'number') {
+            // HTTP error (e.g., 400, 500)
+            if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
+              errorMessage = (fetchError.data as { message: string }).message;
+            } else {
+              errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
+            }
+          } else if (typeof fetchError.status === 'string' && 'error' in fetchError) {
+            // RTK Query specific errors like 'FETCH_ERROR', 'PARSING_ERROR', 'TIMEOUT_ERROR'
+            errorMessage = fetchError.error;
+          } else {
+            // Fallback for other FetchBaseQueryError types if any, or unexpected structure
+            errorMessage = `Error: ${JSON.stringify(fetchError)}`;
+          }
+        } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
+          // SerializedError (internal Redux Toolkit Query error)
+          errorMessage = (err as SerializedError).message;
+        } else {
+          // Fallback for other unknown object errors
+          errorMessage = `Terjadi kesalahan: ${JSON.stringify(err)}`;
         }
+      } else if (typeof err === 'string') {
+        errorMessage = err;
       }
+
       toast.error(`Gagal menyimpan peran: ${errorMessage}`);
     }
   };
