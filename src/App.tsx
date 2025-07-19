@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-// import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Dihapus karena RTK Query akan menangani data fetching
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "@/pages/landing/Index.tsx";
 import NotFound from "@/pages/utility/NotFound.tsx";
@@ -20,7 +19,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Provider } from 'react-redux';
 import { store } from './store'; // Import the Redux store
 
-// const queryClient = new QueryClient(); // Dihapus
+// Import hooks from new slices (even if not directly used here, ensures injection)
+import { useGetSantriQuery } from './store/slices/santriApi'; // Corrected import path
+import { useGetRolesQuery } from './store/slices/roleApi'; // Corrected import path
+
 
 const App = () => (
   <Provider store={store}> {/* Membungkus aplikasi dengan Redux Provider */}

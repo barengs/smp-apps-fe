@@ -28,7 +28,7 @@ import {
   useCreateRoleMutation,
   useUpdateRoleMutation,
   useDeleteRoleMutation,
-} from '@/store/apiSlice'; // Import RTK Query hooks
+} from '../../store/slices/roleApi'; // Corrected import path
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 

@@ -1,5 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { smpApi } from './apiSlice';
+import { smpApi } from './baseApi'; // Import baseApi
+
+// Import slices to ensure endpoints are injected
+import './slices/roleApi';
+import './slices/santriApi';
 
 export const store = configureStore({
   reducer: {
