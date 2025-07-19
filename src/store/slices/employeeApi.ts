@@ -9,6 +9,10 @@ interface RoleApiData {
   updated_at: string;
 }
 
+interface DataApi {
+  data: array
+}
+
 interface EmployeeNestedData { // This interface is still used for the list of employees (getEmployees)
   first_name: string;
   last_name: string;
