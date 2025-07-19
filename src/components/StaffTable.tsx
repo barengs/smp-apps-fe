@@ -152,6 +152,11 @@ const StaffTable: React.FC = () => {
     toast.info('Mengekspor data ke PDF...');
     const doc = new jsPDF();
     const title = "Data Staf Pesantren"; // Judul untuk PDF
+    const date = new Date().toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }); // Tanggal cetak
 
     // Filter out the 'actions' column and ensure remaining columns have accessorKey
     const exportableColumns = columns.filter(
@@ -182,10 +187,15 @@ const StaffTable: React.FC = () => {
     doc.setFontSize(18);
     doc.text(title, 14, 15); // Posisi judul (x, y)
 
+    // Tambahkan tanggal cetak
+    doc.setFontSize(10);
+    doc.setTextColor(100); // Warna teks abu-abu
+    doc.text(`Tanggal Cetak: ${date}`, 14, 22); // Posisi tanggal cetak (x, y)
+
     autoTable(doc, { // Menggunakan autoTable sebagai fungsi terpisah
       head: [headers],
       body: tableData,
-      startY: 25, // Sesuaikan startY agar tidak menimpa judul
+      startY: 30, // Sesuaikan startY agar tidak menimpa judul dan tanggal
       headStyles: { fillColor: [41, 128, 185] },
       styles: { fontSize: 8, cellPadding: 3 },
       margin: { top: 10, right: 10, bottom: 10, left: 10 },
