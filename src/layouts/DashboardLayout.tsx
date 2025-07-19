@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound } from 'lucide-react';
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -23,6 +23,7 @@ interface SidebarNavItem {
   children?: {
     title: string;
     href: string;
+    icon?: React.ReactNode; // Menambahkan properti icon untuk children
   }[];
 }
 
@@ -47,14 +48,17 @@ const Sidebar: React.FC = () => {
         {
           title: "Staf",
           href: "/dashboard/staf",
+          icon: <UsersRound className="h-4 w-4" />, // Ikon untuk Staf
         },
         {
           title: "Hak Akses",
           href: "/dashboard/hak-akses",
+          icon: <Key className="h-4 w-4" />, // Ikon untuk Hak Akses
         },
         {
           title: "Peran",
           href: "/dashboard/peran",
+          icon: <UserCog className="h-4 w-4" />, // Ikon untuk Peran
         },
       ],
     },
@@ -123,7 +127,8 @@ const Sidebar: React.FC = () => {
                           : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       )}
                     >
-                      {child.title}
+                      {child.icon} {/* Menampilkan ikon untuk sub-menu */}
+                      <span className="ml-3">{child.title}</span>
                     </Link>
                   ))}
                 </AccordionContent>
