@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut } from 'lucide-react'; // Import LogOut icon
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon } from 'lucide-react'; // Import Sun and Moon icons
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MadeWithDyad } from '@/components/made-with-dyad';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'; // Import DropdownMenu components
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { useTheme } from 'next-themes'; // Import useTheme hook
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -50,7 +51,7 @@ const Sidebar: React.FC = () => {
     <nav className={cn("flex flex-col p-4 space-y-2 h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
       <div className="flex items-center justify-center py-4 border-b border-sidebar-border">
         <Link to="/" className="flex items-center">
-          <BookOpenText className="h-10 w-10 mr-2 text-sidebar-primary-foreground" /> {/* Replaced img with icon */}
+          <BookOpenText className="h-10 w-10 mr-2 text-sidebar-primary-foreground" />
           <span className="text-2xl font-bold text-sidebar-primary-foreground">SMP</span>
         </Link>
       </div>
@@ -78,6 +79,7 @@ const Sidebar: React.FC = () => {
 // DashboardHeader component (moved inside DashboardLayout for consolidation)
 const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
   const isMobile = useIsMobile();
+  const { setTheme } = useTheme(); // Use useTheme hook
 
   return (
     <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-border">
@@ -96,12 +98,35 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
           </Sheet>
         )}
         <Link to="/" className="flex items-center">
-          <BookOpenText className="h-8 w-8 mr-2 text-primary" /> {/* Replaced img with icon */}
+          <BookOpenText className="h-8 w-8 mr-2 text-primary" />
           <span className="text-xl font-bold text-primary hidden sm:block">SMP</span>
         </Link>
         <h1 className="text-2xl font-semibold ml-6 hidden md:block">{title}</h1>
       </div>
       <div className="flex items-center space-x-4">
+        {/* Theme Toggle Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setTheme("light")}>
+              Light
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("dark")}>
+              Dark
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("system")}>
+              System
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* User Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
