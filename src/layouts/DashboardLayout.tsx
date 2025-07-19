@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon } from 'lucide-react'; // Import Sun and Moon icons
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound } from 'lucide-react'; // Import Briefcase, Key, UsersRound icons
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -9,17 +9,28 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useTheme } from 'next-themes'; // Import useTheme hook
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Import Accordion components
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
 }
 
+interface SidebarNavItem {
+  title: string;
+  href?: string;
+  icon: React.ReactNode;
+  children?: {
+    title: string;
+    href: string;
+  }[];
+}
+
 // Sidebar component (moved inside DashboardLayout for consolidation)
 const Sidebar: React.FC = () => {
   const location = useLocation();
 
-  const sidebarNavItems = [
+  const sidebarNavItems: SidebarNavItem[] = [
     {
       title: "Dashboard",
       href: "/dashboard",
@@ -29,6 +40,24 @@ const Sidebar: React.FC = () => {
       title: "Manajemen Santri",
       href: "/dashboard/santri",
       icon: <Users className="h-5 w-5" />,
+    },
+    {
+      title: "Manajemen Staf",
+      icon: <Briefcase className="h-5 w-5" />,
+      children: [
+        {
+          title: "Staf",
+          href: "/dashboard/staf",
+        },
+        {
+          title: "Hak Akses",
+          href: "/dashboard/hak-akses",
+        },
+        {
+          title: "Peran",
+          href: "/dashboard/peran",
+        },
+      ],
     },
     {
       title: "Manajemen Pelajaran",
@@ -56,21 +85,55 @@ const Sidebar: React.FC = () => {
         </Link>
       </div>
       <div className="flex-grow pt-4">
-        {sidebarNavItems.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors",
-              location.pathname.startsWith(item.href)
-                ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            )}
-          >
-            {item.icon}
-            <span className="ml-3">{item.title}</span>
-          </Link>
-        ))}
+        <Accordion type="single" collapsible className="w-full">
+          {sidebarNavItems.map((item) => (
+            item.children ? (
+              <AccordionItem value={item.title} key={item.title}>
+                <AccordionTrigger 
+                  className={cn(
+                    "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    item.children.some(child => location.pathname.startsWith(child.href))
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : ""
+                  )}
+                >
+                  {item.icon}
+                  <span className="ml-3 flex-grow text-left">{item.title}</span>
+                </AccordionTrigger>
+                <AccordionContent className="pl-8">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      to={child.href}
+                      className={cn(
+                        "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                        location.pathname.startsWith(child.href)
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                    >
+                      {child.title}
+                    </Link>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            ) : (
+              <Link
+                key={item.href}
+                to={item.href || "#"}
+                className={cn(
+                  "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                  location.pathname.startsWith(item.href || "")
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                {item.icon}
+                <span className="ml-3">{item.title}</span>
+              </Link>
+            )
+          ))}
+        </Accordion>
       </div>
     </nav>
   );
