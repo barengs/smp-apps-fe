@@ -68,10 +68,13 @@ import { DataTable } from '@/components/DataTable';
 
 interface Staff {
   id: number;
-  first_name: string;
-  last_name: string;
+  employee: { // Nested employee object
+    first_name: string;
+    last_name: string;
+  };
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
+  fullName: string; // Added for easier display and filtering
 }
 
 const StaffTable: React.FC = () => {
@@ -87,10 +90,13 @@ const StaffTable: React.FC = () => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => ({
         id: apiEmployee.id,
-        first_name: apiEmployee.first_name,
-        last_name: apiEmployee.last_name,
+        employee: {
+          first_name: apiEmployee.employee.first_name,
+          last_name: apiEmployee.employee.last_name,
+        },
         email: apiEmployee.email,
         roles: apiEmployee.roles,
+        fullName: `${apiEmployee.employee.first_name} ${apiEmployee.employee.last_name}`, // Create fullName
       }));
     }
     return [];
@@ -115,7 +121,7 @@ const StaffTable: React.FC = () => {
     if (staffToDelete) {
       try {
         await deleteEmployee(staffToDelete.id).unwrap();
-        toast.success(`Staf "${staffToDelete.first_name} ${staffToDelete.last_name}" berhasil dihapus.`);
+        toast.success(`Staf "${staffToDelete.fullName}" berhasil dihapus.`); // Use fullName for toast
         setStaffToDelete(undefined);
         setIsDeleteDialogOpen(false);
       } catch (err: unknown) {
@@ -164,11 +170,10 @@ const StaffTable: React.FC = () => {
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
-        accessorKey: 'first_name', // Tetap gunakan accessorKey ini untuk filter/sort jika diperlukan
+        accessorKey: 'fullName', // Use fullName for filtering/sorting
         header: 'Nama Lengkap',
-        cell: ({ row }) => `${row.original.first_name} ${row.original.last_name}`, // Menggabungkan nama depan dan belakang
+        cell: ({ row }) => row.original.fullName, // Display fullName
       },
-      // Kolom 'last_name' dihapus karena sudah digabungkan
       {
         accessorKey: 'email',
         header: 'Email',
@@ -280,7 +285,7 @@ const StaffTable: React.FC = () => {
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
               Tindakan ini tidak dapat dibatalkan. Ini akan menghapus staf{' '}
-              <span className="font-semibold text-foreground">"{staffToDelete?.first_name} {staffToDelete?.last_name}"</span> secara permanen.
+              <span className="font-semibold text-foreground">"{staffToDelete?.fullName}"</span> secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

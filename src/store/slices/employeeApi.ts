@@ -9,10 +9,14 @@ interface RoleApiData {
   updated_at: string;
 }
 
-interface EmployeeApiData {
-  id: number;
+interface EmployeeNestedData { // New interface for the nested employee object
   first_name: string;
   last_name: string;
+}
+
+interface EmployeeApiData {
+  id: number;
+  employee: EmployeeNestedData; // Nested employee object
   email: string;
   roles: RoleApiData[]; // Array of role objects
   created_at: string;
@@ -24,11 +28,11 @@ interface GetEmployeesResponse {
   data: EmployeeApiData[];
 }
 
-export interface CreateUpdateEmployeeRequest { // Ditambahkan 'export' di sini
-  first_name: string;
-  last_name: string;
+export interface CreateUpdateEmployeeRequest {
+  first_name: string; // Still flat for request
+  last_name: string;  // Still flat for request
   email: string;
-  role_ids: number[]; // Assuming API expects an array of role IDs
+  role_ids: number[];
 }
 
 export const employeeApi = smpApi.injectEndpoints({

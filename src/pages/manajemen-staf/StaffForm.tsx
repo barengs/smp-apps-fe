@@ -46,10 +46,13 @@ const formSchema = z.object({
 interface StaffFormProps {
   initialData?: {
     id: number;
-    first_name: string;
-    last_name: string;
+    employee: { // Updated to match nested structure
+      first_name: string;
+      last_name: string;
+    };
     email: string;
     roles: { id: number; name: string; guard_name: string }[];
+    fullName: string; // Also include fullName if it's passed from table
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -63,8 +66,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
-      first_name: initialData.first_name,
-      last_name: initialData.last_name,
+      first_name: initialData.employee.first_name, // Access nested employee
+      last_name: initialData.employee.last_name,   // Access nested employee
       email: initialData.email,
       role_ids: initialData.roles.map(role => role.id), // Map existing roles to their IDs
     } : {
@@ -142,7 +145,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           name="last_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nama Belakang</FormLabel>
+              <FormLabel>Nama Belakang</FormLabel> {/* Corrected closing tag */}
               <FormControl>
                 <Input placeholder="Contoh: Santoso" {...field} />
               </FormControl>
