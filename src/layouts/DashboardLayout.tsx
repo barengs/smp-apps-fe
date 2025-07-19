@@ -137,9 +137,10 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
               <AccordionItem value={item.title} key={item.title}>
                 <AccordionTrigger
                   className={cn(
-                    "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
+                    "hover:bg-gray-100 dark:hover:bg-gray-700", // Flat gray hover
                     item.children.some(child => location.pathname.startsWith(child.href))
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      ? "bg-gray-200 dark:bg-gray-600 text-sidebar-primary-foreground" // Flat gray active
                       : ""
                   )}
                 >
@@ -152,10 +153,10 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
                       key={child.href}
                       to={child.href}
                       className={cn(
-                        "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                        "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
                         location.pathname.startsWith(child.href)
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                          : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                          ? "bg-gray-200 dark:bg-gray-600 text-sidebar-primary-foreground" // Flat gray active
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700" // Flat gray hover
                       )}
                     >
                       {child.icon}
@@ -169,10 +170,10 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
                 key={item.href}
                 to={item.href || "#"}
                 className={cn(
-                  "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors",
+                  "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
                   location.pathname.startsWith(item.href || "")
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-gray-200 dark:bg-gray-600 text-sidebar-primary-foreground" // Flat gray active
+                    : "hover:bg-gray-100 dark:hover:bg-gray-700" // Flat gray hover
                 )}
               >
                 {item.icon}
@@ -285,7 +286,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
     <div className="flex min-h-screen bg-gray-50">
       {!isMobile && (
         <aside className="w-64 flex-shrink-0">
-          <Sidebar role={role} /> {/* Meneruskan role ke Sidebar */}
+          <Sidebar role={role} />
         </aside>
       )}
       <div className="flex flex-col flex-grow">
