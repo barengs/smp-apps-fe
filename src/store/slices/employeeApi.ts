@@ -9,7 +9,7 @@ interface RoleApiData {
   updated_at: string;
 }
 
-interface EmployeeNestedData { // New interface for the nested employee object
+interface EmployeeNestedData { // This interface is still used for the list of employees (getEmployees)
   first_name: string;
   last_name: string;
 }
@@ -28,25 +28,24 @@ interface GetEmployeesResponse {
   data: EmployeeApiData[];
 }
 
-interface EmployeeDetailNestedData { // Updated interface for the nested employee object in detail view
-  first_name: string;
-  last_name: string;
+// UPDATED: Interface for single employee detail (from getEmployeeById)
+// Based on the new structure provided by the user, employee details are flat
+// and roles are not included in this specific detail response.
+interface EmployeeDetailApiData {
+  id: number;
+  user_id: number;
+  code: string;
+  first_name: string; // Now directly on data
+  last_name: string;  // Now directly on data
   nik: string;
+  email: string;
   phone: string;
   address: string;
   zip_code: string;
   photo: string;
-}
-
-interface EmployeeDetailApiData { // Updated interface for single employee detail (from getEmployeeById)
-  id: number;
-  user_id: number;
-  code: string;
-  email: string;
   created_at: string;
   updated_at: string;
-  employee: EmployeeDetailNestedData; // Nested employee object
-  roles: RoleApiData[]; // Array of role objects
+  // Note: 'roles' array is not present in the provided detail API structure
 }
 
 export interface CreateUpdateEmployeeRequest {
@@ -62,7 +61,7 @@ export const employeeApi = smpApi.injectEndpoints({
       query: () => 'employee',
       providesTags: ['Employee'],
     }),
-    getEmployeeById: builder.query<EmployeeDetailApiData, number>({ // New endpoint for single employee
+    getEmployeeById: builder.query<EmployeeDetailApiData, number>({ // Updated return type
       query: (id) => `employee/${id}`,
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
@@ -94,7 +93,7 @@ export const employeeApi = smpApi.injectEndpoints({
 
 export const {
   useGetEmployeesQuery,
-  useGetEmployeeByIdQuery, // Export the new hook
+  useGetEmployeeByIdQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,

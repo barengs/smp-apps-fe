@@ -13,7 +13,7 @@ const StaffDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const staffId = parseInt(id || '', 10);
 
-  const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId, {
+  const { data: staff, error, isLoading } = useGetEmployeeByIdQuery(staffId, {
     skip: !staffId, // Skip query if staffId is not valid
   });
 
@@ -45,7 +45,7 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  if (!staffData) {
+  if (!staff) {
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -58,7 +58,8 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  const { employee, roles, email, code, created_at, updated_at } = staffData;
+  // Destructure directly from staff, as per the new API structure
+  const { first_name, last_name, email, code, nik, phone, address, zip_code, photo, created_at, updated_at } = staff;
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -67,7 +68,7 @@ const StaffDetailPage: React.FC = () => {
           <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h2 className="text-3xl font-bold">Detail Staf: {employee.first_name} {employee.last_name}</h2>
+          <h2 className="text-3xl font-bold">Detail Staf: {first_name} {last_name}</h2>
         </div>
 
         <Card className="w-full">
@@ -76,22 +77,22 @@ const StaffDetailPage: React.FC = () => {
             <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {employee.photo && (
+            {photo && (
               <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
                 <span className="font-semibold text-gray-700">Foto:</span>
                 <div>
-                  <img src={employee.photo} alt="Foto Staf" className="w-24 h-24 object-cover rounded-md" />
+                  <img src={photo} alt="Foto Staf" className="w-24 h-24 object-cover rounded-md" />
                 </div>
               </div>
             )}
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Nama Depan:</span>
-              <span className="text-gray-900">{employee.first_name}</span>
+              <span className="text-gray-900">{first_name}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Nama Belakang:</span>
-              <span className="text-gray-900">{employee.last_name}</span>
+              <span className="text-gray-900">{last_name}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -106,37 +107,27 @@ const StaffDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">NIK:</span>
-              <span className="text-gray-900">{employee.nik || '-'}</span>
+              <span className="text-gray-900">{nik || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Telepon:</span>
-              <span className="text-gray-900">{employee.phone || '-'}</span>
+              <span className="text-gray-900">{phone || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Alamat:</span>
-              <span className="text-gray-900">{employee.address || '-'}</span>
+              <span className="text-gray-900">{address || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Kode Pos:</span>
-              <span className="text-gray-900">{employee.zip_code || '-'}</span>
+              <span className="text-gray-900">{zip_code || '-'}</span>
             </div>
 
-            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
-              <span className="font-semibold text-gray-700">Peran:</span>
-              <div className="flex flex-wrap gap-1">
-                {roles && roles.length > 0 ? (
-                  roles.map((role) => (
-                    <Badge key={role.id} variant="outline" className="text-xs">
-                      {role.name}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-gray-500 italic">Tidak ada peran</span>
-                )}
-              </div>
+            {/* Removed roles display as it's not in the provided detail API structure */}
+            <div className="text-sm text-muted-foreground italic pt-2">
+              * Informasi peran tidak tersedia dalam detail staf ini.
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
