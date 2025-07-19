@@ -28,24 +28,31 @@ interface GetEmployeesResponse {
   data: EmployeeApiData[];
 }
 
-// CORRECTED: Interface for single employee detail (from getEmployeeById)
-// Based on the latest structure provided by the user, employee details are flat
-// and roles are not included in this specific detail response.
-interface EmployeeDetailApiData {
-  id: number;
-  user_id: number;
-  code: string;
-  first_name: string; // Now directly on data
-  last_name: string;  // Now directly on data
+// CORRECTED AGAIN: Interface for single employee detail (from getEmployeeById)
+// Based on the latest clarification: nested 'employee' object and 'roles' array with 'name' only.
+interface EmployeeDetailNestedDataForDetail { // Specific for the detail endpoint's nested employee
+  first_name: string;
+  last_name: string;
   nik: string;
-  email: string;
   phone: string;
+  email: string; // Email is now nested inside employee for detail endpoint
   address: string;
   zip_code: string;
   photo: string;
+}
+
+interface RoleNameOnly { // For roles array in detail endpoint, only 'name' is provided
+  name: string;
+}
+
+interface EmployeeDetailApiData { // Corrected interface for single employee detail (from getEmployeeById)
+  id: number;
+  user_id: number;
+  code: string;
   created_at: string;
   updated_at: string;
-  // Note: 'roles' array is not present in the provided detail API structure for this endpoint
+  employee: EmployeeDetailNestedDataForDetail; // Nested employee object
+  roles: RoleNameOnly[]; // Array of role objects with only 'name'
 }
 
 export interface CreateUpdateEmployeeRequest {
@@ -84,7 +91,7 @@ export const employeeApi = smpApi.injectEndpoints({
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
         url: `employee/${id}`,
-        method: 'DELETE',
+        method: 'DELETE', // Fixed: Changed backtick to single quote
       }),
       invalidatesTags: ['Employee'],
     }),
