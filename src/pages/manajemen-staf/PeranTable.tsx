@@ -32,7 +32,7 @@ interface Peran {
   accessRights: string[]; // New field for access rights
 }
 
-const dummyPeranData: Peran[] = [
+export const dummyPeranData: Peran[] = [ // Ditambahkan 'export' di sini
   { id: 'P001', roleName: 'Administrasi', description: 'Mengelola seluruh sistem pesantren.', usersCount: 3, accessRights: ['Full Access', 'Manage Users', 'Manage Settings'] },
   { id: 'P002', roleName: 'Guru', description: 'Mengajar dan mengelola nilai serta absensi santri.', usersCount: 25, accessRights: ['View Pelajaran', 'Edit Nilai', 'Manage Absensi'] },
   { id: 'P003', roleName: 'Wali Santri', description: 'Memantau perkembangan santri dan berkomunikasi dengan pesantren.', usersCount: 500, accessRights: ['View Santri Info', 'View Absensi', 'View Nilai'] },

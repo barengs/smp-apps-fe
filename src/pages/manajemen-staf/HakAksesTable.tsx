@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, PlusCircle } from 'lucide-react';
-import { toast } from 'sonner'; // Perbaikan: Menghapus angka '2' yang salah
+import { toast } from 'sonner';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -24,20 +24,21 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import HakAksesForm from './HakAksesForm'; // Import the new form component
+import { Badge } from '@/components/ui/badge'; // Import Badge component
 
 interface HakAkses {
   id: string;
-  roleName: string;
+  roleName: string[]; // Changed to array of strings
   permission: string;
   description: string;
 }
 
 export const dummyHakAksesData: HakAkses[] = [
-  { id: 'HA001', roleName: 'Administrasi', permission: 'Full Access', description: 'Akses penuh ke semua modul manajemen.' },
-  { id: 'HA002', roleName: 'Guru', permission: 'View & Edit Pelajaran, Nilai', description: 'Melihat dan mengedit data pelajaran dan nilai santri.' },
-  { id: 'HA003', roleName: 'Wali Santri', permission: 'View Santri Info, Absensi, Nilai', description: 'Melihat informasi santri, absensi, dan nilai anak.' },
-  { id: 'HA004', roleName: 'Bendahara', permission: 'Manage Keuangan', description: 'Mengelola data keuangan dan pembayaran.' },
-  { id: 'HA005', roleName: 'Pustakawan', permission: 'Manage Buku', description: 'Mengelola inventaris buku dan peminjaman.' },
+  { id: 'HA001', roleName: ['Administrasi'], permission: 'Full Access', description: 'Akses penuh ke semua modul manajemen.' },
+  { id: 'HA002', roleName: ['Guru', 'Administrasi'], permission: 'View & Edit Pelajaran, Nilai', description: 'Melihat dan mengedit data pelajaran dan nilai santri.' },
+  { id: 'HA003', roleName: ['Wali Santri'], permission: 'View Santri Info, Absensi, Nilai', description: 'Melihat informasi santri, absensi, dan nilai anak.' },
+  { id: 'HA004', roleName: ['Bendahara'], permission: 'Manage Keuangan', description: 'Mengelola data keuangan dan pembayaran.' },
+  { id: 'HA005', roleName: ['Pustakawan'], permission: 'Manage Buku', description: 'Mengelola inventaris buku dan peminjaman.' },
 ];
 
 const HakAksesTable: React.FC = () => {
@@ -63,7 +64,7 @@ const HakAksesTable: React.FC = () => {
 
   const handleConfirmDelete = () => {
     if (hakAksesToDelete) {
-      toast.success(`Hak akses untuk "${hakAksesToDelete.roleName}" berhasil dihapus.`);
+      toast.success(`Hak akses untuk "${hakAksesToDelete.roleName.join(', ')}" berhasil dihapus.`);
       // In a real app, you would perform the actual delete operation here
       // and then refetch data or update state.
       setHakAksesToDelete(undefined);
@@ -87,7 +88,15 @@ const HakAksesTable: React.FC = () => {
       {
         accessorKey: 'roleName',
         header: 'Nama Peran',
-        cell: (info) => info.getValue(),
+        cell: ({ row }) => ( // Render as badges
+          <div className="flex flex-wrap gap-1">
+            {row.original.roleName.map((role) => (
+              <Badge key={role} variant="outline" className="text-xs">
+                {role}
+              </Badge>
+            ))}
+          </div>
+        ),
       },
       {
         accessorKey: 'permission',
@@ -160,7 +169,7 @@ const HakAksesTable: React.FC = () => {
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
               Tindakan ini tidak dapat dibatalkan. Ini akan menghapus hak akses{' '}
-              <span className="font-semibold text-foreground">"{hakAksesToDelete?.roleName}"</span> secara permanen.
+              <span className="font-semibold text-foreground">"{hakAksesToDelete?.roleName.join(', ')}"</span> secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
