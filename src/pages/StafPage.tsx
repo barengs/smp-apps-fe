@@ -1,10 +1,10 @@
 import React from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
+import DashboardLayout from '../layouts/DashboardLayout.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const StafPage: React.FC = () => {
   return (
-    <DashboardLayout title="Manajemen Staf">
+    <DashboardLayout title="Manajemen Staf" role="administrasi">
       <div className="container mx-auto py-6">
         <h2 className="text-3xl font-bold mb-6">Daftar Staf</h2>
         <Card>

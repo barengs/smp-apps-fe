@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const WaliSantriDashboard: React.FC = () => {
   return (
-    <DashboardLayout title="Dashboard Wali Santri">
+    <DashboardLayout title="Dashboard Wali Santri" role="wali-santri">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>

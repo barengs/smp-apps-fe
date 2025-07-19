@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog } from 'lucide-react';
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -14,6 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
+  role: 'wali-santri' | 'administrasi'; // Menambahkan properti role
 }
 
 interface SidebarNavItem {
@@ -23,17 +24,17 @@ interface SidebarNavItem {
   children?: {
     title: string;
     href: string;
-    icon?: React.ReactNode; // Menambahkan properti icon untuk children
+    icon?: React.ReactNode;
   }[];
 }
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) => {
   const location = useLocation();
 
-  const sidebarNavItems: SidebarNavItem[] = [
+  const adminSidebarNavItems: SidebarNavItem[] = [
     {
       title: "Dashboard",
-      href: "/dashboard",
+      href: "/dashboard/administrasi", // Mengarahkan ke dashboard administrasi
       icon: <LayoutDashboard className="h-5 w-5" />,
     },
     {
@@ -48,17 +49,17 @@ const Sidebar: React.FC = () => {
         {
           title: "Staf",
           href: "/dashboard/staf",
-          icon: <UsersRound className="h-4 w-4" />, // Ikon untuk Staf
+          icon: <UsersRound className="h-4 w-4" />,
         },
         {
           title: "Hak Akses",
           href: "/dashboard/hak-akses",
-          icon: <Key className="h-4 w-4" />, // Ikon untuk Hak Akses
+          icon: <Key className="h-4 w-4" />,
         },
         {
           title: "Peran",
           href: "/dashboard/peran",
-          icon: <UserCog className="h-4 w-4" />, // Ikon untuk Peran
+          icon: <UserCog className="h-4 w-4" />,
         },
       ],
     },
@@ -78,6 +79,36 @@ const Sidebar: React.FC = () => {
       icon: <Settings className="h-5 w-5" />,
     },
   ];
+
+  const waliSantriSidebarNavItems: SidebarNavItem[] = [
+    {
+      title: "Dashboard",
+      href: "/dashboard/wali-santri", // Mengarahkan ke dashboard wali santri
+      icon: <LayoutDashboard className="h-5 w-5" />,
+    },
+    {
+      title: "Informasi Santri",
+      href: "/dashboard/informasi-santri", // Contoh rute untuk informasi santri
+      icon: <User className="h-5 w-5" />,
+    },
+    {
+      title: "Nilai & Absensi",
+      href: "/dashboard/nilai-absensi", // Contoh rute untuk nilai & absensi
+      icon: <BookOpenText className="h-5 w-5" />,
+    },
+    {
+      title: "Pengumuman",
+      href: "/dashboard/pengumuman", // Contoh rute untuk pengumuman
+      icon: <Megaphone className="h-5 w-5" />,
+    },
+    {
+      title: "Pengaturan",
+      href: "/dashboard/settings",
+      icon: <Settings className="h-5 w-5" />,
+    },
+  ];
+
+  const sidebarNavItems = role === 'administrasi' ? adminSidebarNavItems : waliSantriSidebarNavItems;
 
   // Determine which accordion item should be open by default
   const defaultOpenItem = React.useMemo(() => {
@@ -127,7 +158,7 @@ const Sidebar: React.FC = () => {
                           : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       )}
                     >
-                      {child.icon} {/* Menampilkan ikon untuk sub-menu */}
+                      {child.icon}
                       <span className="ml-3">{child.title}</span>
                     </Link>
                   ))}
@@ -171,7 +202,7 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
-              <Sidebar />
+              <Sidebar role="administrasi" /> {/* Default role for mobile sidebar, will be overridden by specific page */}
             </SheetContent>
           </Sheet>
         )}
@@ -247,14 +278,14 @@ const Footer: React.FC = () => {
   );
 };
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role }) => {
   const isMobile = useIsMobile();
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {!isMobile && (
         <aside className="w-64 flex-shrink-0">
-          <Sidebar />
+          <Sidebar role={role} /> {/* Meneruskan role ke Sidebar */}
         </aside>
       )}
       <div className="flex flex-col flex-grow">
