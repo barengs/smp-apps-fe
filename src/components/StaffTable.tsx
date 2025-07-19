@@ -151,6 +151,7 @@ const StaffTable: React.FC = () => {
   const handleExportPdf = () => {
     toast.info('Mengekspor data ke PDF...');
     const doc = new jsPDF();
+    const title = "Data Staf Pesantren"; // Judul untuk PDF
 
     // Filter out the 'actions' column and ensure remaining columns have accessorKey
     const exportableColumns = columns.filter(
@@ -177,10 +178,14 @@ const StaffTable: React.FC = () => {
       return;
     }
 
+    // Tambahkan judul ke dokumen PDF
+    doc.setFontSize(18);
+    doc.text(title, 14, 15); // Posisi judul (x, y)
+
     autoTable(doc, { // Menggunakan autoTable sebagai fungsi terpisah
       head: [headers],
       body: tableData,
-      startY: 20,
+      startY: 25, // Sesuaikan startY agar tidak menimpa judul
       headStyles: { fillColor: [41, 128, 185] },
       styles: { fontSize: 8, cellPadding: 3 },
       margin: { top: 10, right: 10, bottom: 10, left: 10 },
