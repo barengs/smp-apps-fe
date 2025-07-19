@@ -29,8 +29,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import jsPDF from 'jspdf'; // Import jspdf
-import * as XLSX from 'xlsx'; // Import xlsx
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // Import jspdf-autotable to extend jsPDF
+import * as XLSX from 'xlsx';
 
 interface Staff {
   id: string;
@@ -132,14 +133,11 @@ const StaffTable: React.FC = () => {
     toast.info('Mengekspor data ke PDF...');
     const doc = new jsPDF();
     const tableData = table.getRowModel().rows.map(row =>
-      row.getVisibleCells().map(cell =>
-        flexRender(cell.column.columnDef.cell, cell.getContext())
-      ).map(content => {
-        // Convert React nodes to string for PDF
+      row.getVisibleCells().map(cell => {
+        const content = flexRender(cell.column.columnDef.cell, cell.getContext());
         if (typeof content === 'string' || typeof content === 'number') {
           return String(content);
         } else if (React.isValidElement(content)) {
-          // For elements like buttons, extract text content if possible
           return (content.props.children && typeof content.props.children === 'string') ? content.props.children : '';
         }
         return '';
@@ -147,10 +145,10 @@ const StaffTable: React.FC = () => {
     );
 
     const headers = table.getHeaderGroups()[0].headers.map(header =>
-      flexRender(header.column.columnDef.header, header.getContext())
-    ).map(content => String(content));
+      String(flexRender(header.column.columnDef.header, header.getContext()))
+    );
 
-    doc.autoTable({
+    (doc as any).autoTable({ // Cast doc to any to access autoTable
       head: [headers],
       body: tableData,
       startY: 20,
@@ -167,7 +165,8 @@ const StaffTable: React.FC = () => {
     const dataToExport = table.getRowModel().rows.map(row => {
       const rowData: { [key: string]: any } = {};
       row.getVisibleCells().forEach(cell => {
-        const header = String(flexRender(cell.column.columnDef.header, cell.getContext()));
+        // Directly use cell.column.columnDef.header for the header string
+        const header = String(cell.column.columnDef.header);
         const value = flexRender(cell.column.columnDef.cell, cell.getContext());
         if (typeof value === 'string' || typeof value === 'number') {
           rowData[header] = value;
