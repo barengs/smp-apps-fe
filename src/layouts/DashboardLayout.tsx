@@ -140,7 +140,7 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
                     "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
                     "hover:bg-gray-100 dark:hover:bg-gray-700", // Flat gray hover
                     item.children.some(child => location.pathname.startsWith(child.href))
-                      ? "bg-gray-300 dark:bg-gray-700 text-sidebar-primary-foreground" // Flat gray active, made darker
+                      ? "bg-gray-400 dark:bg-gray-800 text-sidebar-primary-foreground" // Flat gray active, made darker
                       : ""
                   )}
                 >
@@ -155,7 +155,7 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
                         location.pathname.startsWith(child.href)
-                          ? "bg-gray-300 dark:bg-gray-700 text-sidebar-primary-foreground" // Flat gray active, made darker
+                          ? "bg-gray-400 dark:bg-gray-800 text-sidebar-primary-foreground" // Flat gray active, made darker
                           : "hover:bg-gray-100 dark:hover:bg-gray-700" // Flat gray hover
                       )}
                     >
@@ -172,7 +172,7 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
                 className={cn(
                   "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
                   location.pathname.startsWith(item.href || "")
-                    ? "bg-gray-300 dark:bg-gray-700 text-sidebar-primary-foreground" // Flat gray active, made darker
+                    ? "bg-gray-400 dark:bg-gray-800 text-sidebar-primary-foreground" // Flat gray active, made darker
                     : "hover:bg-gray-100 dark:hover:bg-gray-700" // Flat gray hover
                 )}
               >
