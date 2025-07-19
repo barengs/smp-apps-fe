@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { ChevronDown, FileDown, Search, PlusCircle, Edit } from 'lucide-react'; // Menghapus Trash2
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -45,20 +45,21 @@ interface Santri {
   name: string;
   nis: string; // Nomor Induk Santri
   class: string;
+  dormitory: string; // Kolom baru: Asrama
   status: string;
 }
 
 const dummySantriData: Santri[] = [
-  { id: 'S001', name: 'Fatimah Az-Zahra', nis: '2023001', class: 'VII A', status: 'Aktif' },
-  { id: 'S002', name: 'Muhammad Al-Fatih', nis: '2023002', class: 'VII B', status: 'Aktif' },
-  { id: 'S003', name: 'Aisyah Humaira', nis: '2023003', class: 'VIII A', status: 'Aktif' },
-  { id: 'S004', name: 'Abdullah bin Umar', nis: '2023004', class: 'VIII B', status: 'Aktif' },
-  { id: 'S005', name: 'Khadijah Kubra', nis: '2023005', class: 'IX A', status: 'Aktif' },
-  { id: 'S006', name: 'Ali bin Abi Thalib', nis: '2023006', class: 'IX B', status: 'Aktif' },
-  { id: 'S007', name: 'Zainab binti Muhammad', nis: '2023007', class: 'X IPA', status: 'Aktif' },
-  { id: 'S008', name: 'Umar bin Khattab', nis: '2023008', class: 'X IPS', status: 'Aktif' },
-  { id: 'S009', name: 'Ruqayyah binti Muhammad', nis: '2023009', class: 'XI IPA', status: 'Cuti' },
-  { id: 'S010', name: 'Utsman bin Affan', nis: '2023010', class: 'XI IPS', status: 'Aktif' },
+  { id: 'S001', name: 'Fatimah Az-Zahra', nis: '2023001', class: 'VII A', dormitory: 'Putri A', status: 'Aktif' },
+  { id: 'S002', name: 'Muhammad Al-Fatih', nis: '2023002', class: 'VII B', dormitory: 'Putra B', status: 'Aktif' },
+  { id: 'S003', name: 'Aisyah Humaira', nis: '2023003', class: 'VIII A', dormitory: 'Putri C', status: 'Aktif' },
+  { id: 'S004', name: 'Abdullah bin Umar', nis: '2023004', class: 'VIII B', dormitory: 'Putra A', status: 'Aktif' },
+  { id: 'S005', name: 'Khadijah Kubra', nis: '2023005', class: 'IX A', dormitory: 'Putri B', status: 'Aktif' },
+  { id: 'S006', name: 'Ali bin Abi Thalib', nis: '2023006', class: 'IX B', dormitory: 'Putra C', status: 'Aktif' },
+  { id: 'S007', name: 'Zainab binti Muhammad', nis: '2023007', class: 'X IPA', dormitory: 'Putri A', status: 'Aktif' },
+  { id: 'S008', name: 'Umar bin Khattab', nis: '2023008', class: 'X IPS', dormitory: 'Putra B', status: 'Aktif' },
+  { id: 'S009', name: 'Ruqayyah binti Muhammad', nis: '2023009', class: 'XI IPA', dormitory: 'Putri C', status: 'Cuti' },
+  { id: 'S010', name: 'Utsman bin Affan', nis: '2023010', class: 'XI IPS', dormitory: 'Putra A', status: 'Aktif' },
 ];
 
 type ColumnWithAccessorKey<TData> = ColumnDef<TData> & {
@@ -94,6 +95,11 @@ const SantriTable: React.FC = () => {
         cell: (info) => info.getValue(),
       },
       {
+        accessorKey: 'dormitory', // Kolom baru
+        header: 'Asrama', // Header untuk kolom baru
+        cell: (info) => info.getValue(),
+      },
+      {
         accessorKey: 'status',
         header: 'Status',
         cell: (info) => info.getValue(),
@@ -112,13 +118,7 @@ const SantriTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => toast.error(`Menghapus santri: ${santri.name}`)}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
-              </Button>
+              {/* Tombol Hapus dihilangkan */}
             </div>
           );
         },
