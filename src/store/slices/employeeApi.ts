@@ -16,6 +16,7 @@ interface EmployeeNestedData { // This interface is still used for the list of e
 
 interface EmployeeApiData { // Structure for the list of employees (from getEmployees)
   id: number;
+  data: [];
   employee: EmployeeNestedData; // Nested employee object
   email: string;
   roles: RoleApiData[]; // Array of role objects
