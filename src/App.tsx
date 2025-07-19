@@ -7,7 +7,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import WaliSantriDashboard from "./pages/WaliSantriDashboard";
 import AdministrasiDashboard from "./pages/AdministrasiDashboard";
-import Login from "./pages/Login"; // Import the new Login page
+import Login from "./pages/Login";
+import Daftar from "./pages/Daftar"; // Import the new Daftar page
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} /> {/* New Login Route */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/daftar" element={<Daftar />} /> {/* New Daftar Route */}
           <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
           <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
