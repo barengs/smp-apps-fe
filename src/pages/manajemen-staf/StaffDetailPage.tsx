@@ -103,7 +103,7 @@ const StaffDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Kode Staf:</span>
-              <span className="text-gray-900">{code || '-'}</span>
+              <span className="text-gray-900">{employee.code || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
