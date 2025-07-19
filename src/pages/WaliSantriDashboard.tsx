@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import DashboardLayout from '../layouts/DashboardLayout.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const WaliSantriDashboard: React.FC = () => {
