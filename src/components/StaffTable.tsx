@@ -32,6 +32,13 @@ import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'; // Import jspdf-autotable to extend jsPDF
 import * as XLSX from 'xlsx';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Import Select components
 
 interface Staff {
   id: string;
@@ -311,6 +318,33 @@ const StaffTable: React.FC = () => {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex items-center space-x-2">
+          <p className="text-sm font-medium">Baris per halaman</p>
+          <Select
+            value={`${table.getState().pagination.pageSize}`}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value));
+            }}
+          >
+            <SelectTrigger className="h-8 w-[70px]">
+              <SelectValue placeholder={table.getState().pagination.pageSize} />
+            </SelectTrigger>
+            <SelectContent side="top">
+              {[5, 10, 20, 50].map((pageSize) => (
+                <SelectItem key={pageSize} value={`${pageSize}`}>
+                  {pageSize}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+          Halaman{' '}
+          <strong>
+            {table.getState().pagination.pageIndex + 1} dari{' '}
+            {table.getPageCount()}
+          </strong>
+        </span>
         <Button
           variant="outline"
           size="sm"
@@ -327,13 +361,6 @@ const StaffTable: React.FC = () => {
         >
           Berikutnya
         </Button>
-        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-          Halaman{' '}
-          <strong>
-            {table.getState().pagination.pageIndex + 1} dari{' '}
-            {table.getPageCount()}
-          </strong>
-        </span>
       </div>
     </div>
   );
