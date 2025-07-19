@@ -169,6 +169,14 @@ const StaffTable: React.FC = () => {
       });
     });
 
+    console.log("PDF Headers:", headers);
+    console.log("PDF Table Data:", tableData);
+
+    if (tableData.length === 0) {
+      toast.error('Tidak ada data untuk diekspor ke PDF.');
+      return;
+    }
+
     (doc as any).autoTable({ // Cast doc to any to access autoTable
       head: [headers],
       body: tableData,
