@@ -46,7 +46,7 @@ const StaffDetailPage: React.FC = () => {
   }
 
   // Check if staffData exists and if its nested properties are also present
-  if (!staffData || !staffData.employee || !staffData.roles) {
+  if (!staffData) {
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -60,7 +60,7 @@ const StaffDetailPage: React.FC = () => {
   }
 
   // Destructure from staffData, accessing nested employee and roles directly
-  const { employee, roles, code, created_at, updated_at } = staffData;
+  const { employee, roles, created_at, updated_at } = staffData;
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
