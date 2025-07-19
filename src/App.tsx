@@ -1,14 +1,14 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Dihapus karena RTK Query akan menangani data fetching
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "@/pages/landing/Index.tsx"; // Menggunakan alias @/
-import NotFound from "@/pages/utility/NotFound.tsx"; // Menggunakan alias @/
-import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard.tsx"; // Menggunakan alias @/
-import AdministrasiDashboard from "@/pages/dashboard/AdministrasiDashboard.tsx"; // Menggunakan alias @/
-import Login from "@/pages/auth/Login.tsx"; // Menggunakan alias @/
-import Daftar from "@/pages/auth/Daftar.tsx"; // Menggunakan alias @/
+import Index from "@/pages/landing/Index.tsx";
+import NotFound from "@/pages/utility/NotFound.tsx";
+import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard.tsx";
+import AdministrasiDashboard from "@/pages/dashboard/AdministrasiDashboard.tsx";
+import Login from "@/pages/auth/Login.tsx";
+import Daftar from "@/pages/auth/Daftar.tsx";
 import StafPage from "@/pages/manajemen-staf/StafPage";
 import HakAksesPage from "@/pages/manajemen-staf/HakAksesPage";
 import PeranPage from "@/pages/manajemen-staf/PeranPage";
@@ -16,10 +16,14 @@ import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const queryClient = new QueryClient();
+// Redux imports
+import { Provider } from 'react-redux';
+import { store } from './store'; // Import the Redux store
+
+// const queryClient = new QueryClient(); // Dihapus
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <Provider store={store}> {/* Membungkus aplikasi dengan Redux Provider */}
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <TooltipProvider>
         <Toaster />
@@ -42,7 +46,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
-  </QueryClientProvider>
+  </Provider>
 );
 
 export default App;
