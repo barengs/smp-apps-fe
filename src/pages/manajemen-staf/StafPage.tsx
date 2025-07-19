@@ -1,7 +1,7 @@
 import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import StaffTable from '@/components/StaffTable'; // Import StaffTable
+import StaffTable from './StaffTable'; // Updated import path
 
 const StafPage: React.FC = () => {
   return (

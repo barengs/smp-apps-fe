@@ -1,7 +1,7 @@
 import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import SantriTable from '@/components/SantriTable'; // Import SantriTable
+import SantriTable from './SantriTable'; // Updated import path
 
 const ManajemenSantriPage: React.FC = () => {
   return (

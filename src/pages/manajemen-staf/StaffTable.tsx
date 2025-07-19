@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DataTable } from './DataTable'; // Import the new DataTable component
+import { DataTable } from '../../components/DataTable'; // Corrected import path
 
 interface Staff {
   id: string;
