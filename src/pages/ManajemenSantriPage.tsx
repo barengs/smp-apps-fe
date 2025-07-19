@@ -1,6 +1,7 @@
 import React from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import SantriTable from '@/components/SantriTable'; // Import SantriTable
 
 const ManajemenSantriPage: React.FC = () => {
   return (
@@ -12,10 +13,7 @@ const ManajemenSantriPage: React.FC = () => {
             <CardTitle>Informasi Santri</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Di sini akan ditampilkan daftar santri pesantren.</p>
-            <div className="mt-4 p-4 border rounded-md bg-gray-50">
-              <p className="text-gray-600">Fitur daftar santri akan segera hadir.</p>
-            </div>
+            <SantriTable /> {/* Render the SantriTable component */}
           </CardContent>
         </Card>
       </div>
