@@ -13,9 +13,12 @@ const StaffDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const staffId = parseInt(id || '', 10);
 
+  console.log('StaffDetailPage: Parsed staffId:', staffId);
+
   // Handle invalid staffId early
   if (isNaN(staffId)) {
     toast.error('ID staf tidak valid.');
+    console.error('StaffDetailPage: Invalid staffId detected:', id);
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -29,6 +32,10 @@ const StaffDetailPage: React.FC = () => {
   }
 
   const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
+
+  console.log('StaffDetailPage: isLoading:', isLoading);
+  console.log('StaffDetailPage: error:', error);
+  console.log('StaffDetailPage: staffData:', staffData);
 
   if (isLoading) {
     return (
@@ -46,6 +53,7 @@ const StaffDetailPage: React.FC = () => {
       errorMessage = (error as any).message;
     }
     toast.error(errorMessage);
+    console.error('StaffDetailPage: Error fetching data:', error);
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -60,6 +68,7 @@ const StaffDetailPage: React.FC = () => {
 
   // If staffData is null or undefined after loading and no error, it means staff was not found
   if (!staffData) {
+    console.warn('StaffDetailPage: staffData is null or undefined after loading.');
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -75,6 +84,9 @@ const StaffDetailPage: React.FC = () => {
   // Access properties using optional chaining to prevent errors if nested objects are undefined
   const employee = staffData.employee;
   const roles = staffData.roles;
+
+  console.log('StaffDetailPage: Employee data:', employee);
+  console.log('StaffDetailPage: Roles data:', roles);
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
