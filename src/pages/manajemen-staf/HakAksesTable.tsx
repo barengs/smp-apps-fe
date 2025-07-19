@@ -12,6 +12,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import HakAksesForm from './HakAksesForm'; // Import the new form component
 
 interface HakAkses {
@@ -32,6 +43,8 @@ const dummyHakAksesData: HakAkses[] = [
 const HakAksesTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHakAkses, setEditingHakAkses] = useState<HakAkses | undefined>(undefined);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [hakAksesToDelete, setHakAksesToDelete] = useState<HakAkses | undefined>(undefined);
 
   const handleAddData = () => {
     setEditingHakAkses(undefined); // Clear any previous editing data
@@ -41,6 +54,21 @@ const HakAksesTable: React.FC = () => {
   const handleEditData = (hakAkses: HakAkses) => {
     setEditingHakAkses(hakAkses);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (hakAkses: HakAkses) => {
+    setHakAksesToDelete(hakAkses);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (hakAksesToDelete) {
+      toast.success(`Hak akses untuk "${hakAksesToDelete.roleName}" berhasil dihapus.`);
+      // In a real app, you would perform the actual delete operation here
+      // and then refetch data or update state.
+      setHakAksesToDelete(undefined);
+      setIsDeleteDialogOpen(false);
+    }
   };
 
   const handleFormSuccess = () => {
@@ -88,7 +116,7 @@ const HakAksesTable: React.FC = () => {
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => toast.error(`Menghapus hak akses untuk: ${hakAkses.roleName}`)}
+                onClick={() => handleDeleteClick(hakAkses)}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -111,7 +139,7 @@ const HakAksesTable: React.FC = () => {
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px]"> {/* Make modal wider */}
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{editingHakAkses ? 'Edit Hak Akses' : 'Tambah Hak Akses Baru'}</DialogTitle>
             <DialogDescription>
@@ -125,6 +153,22 @@ const HakAksesTable: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus hak akses{' '}
+              <span className="font-semibold text-foreground">"{hakAksesToDelete?.roleName}"</span> secara permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
