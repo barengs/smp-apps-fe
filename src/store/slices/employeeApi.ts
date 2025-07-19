@@ -14,7 +14,7 @@ interface EmployeeNestedData { // New interface for the nested employee object
   last_name: string;
 }
 
-interface EmployeeApiData { // Structure for the list of employees
+interface EmployeeApiData { // Structure for the list of employees (from getEmployees)
   id: number;
   employee: EmployeeNestedData; // Nested employee object
   email: string;
@@ -28,20 +28,25 @@ interface GetEmployeesResponse {
   data: EmployeeApiData[];
 }
 
-interface EmployeeDetailApiData { // New interface for single employee detail
-  id: number;
-  user_id: number;
-  code: string;
+interface EmployeeDetailNestedData { // Updated interface for the nested employee object in detail view
   first_name: string;
   last_name: string;
   nik: string;
-  email: string;
   phone: string;
   address: string;
   zip_code: string;
   photo: string;
+}
+
+interface EmployeeDetailApiData { // Updated interface for single employee detail (from getEmployeeById)
+  id: number;
+  user_id: number;
+  code: string;
+  email: string;
   created_at: string;
   updated_at: string;
+  employee: EmployeeDetailNestedData; // Nested employee object
+  roles: RoleApiData[]; // Array of role objects
 }
 
 export interface CreateUpdateEmployeeRequest {
