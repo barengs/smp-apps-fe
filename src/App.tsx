@@ -3,18 +3,18 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import WaliSantriDashboard from "./pages/WaliSantriDashboard";
-import AdministrasiDashboard from "./pages/AdministrasiDashboard";
-import Login from "./pages/Login";
-import Daftar from "./pages/Daftar";
-import StafPage from "./pages/manajemen-staf/StafPage"; // Removed .tsx extension
-import HakAksesPage from "./pages/HakAksesPage";
-import PeranPage from "./pages/PeranPage";
-import ManajemenSantriPage from "./pages/manajemen-santri/ManajemenSantriPage"; // Removed .tsx extension
-import WaliSantriListPage from "./pages/WaliSantriListPage";
-import { ThemeProvider } from "./components/theme-provider";
+import Index from "@/pages/landing/Index.tsx"; // Menggunakan alias @/
+import NotFound from "@/pages/utility/NotFound.tsx"; // Menggunakan alias @/
+import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard.tsx"; // Menggunakan alias @/
+import AdministrasiDashboard from "@/pages/dashboard/AdministrasiDashboard.tsx"; // Menggunakan alias @/
+import Login from "@/pages/auth/Login.tsx"; // Menggunakan alias @/
+import Daftar from "@/pages/auth/Daftar.tsx"; // Menggunakan alias @/
+import StafPage from "@/pages/manajemen-staf/StafPage";
+import HakAksesPage from "@/pages/manajemen-staf/HakAksesPage";
+import PeranPage from "@/pages/manajemen-staf/PeranPage";
+import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
+import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const queryClient = new QueryClient();
 

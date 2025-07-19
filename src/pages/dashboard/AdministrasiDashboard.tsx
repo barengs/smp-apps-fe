@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardLayout from '../layouts/DashboardLayout.tsx';
+import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Users, Calendar } from 'lucide-react';

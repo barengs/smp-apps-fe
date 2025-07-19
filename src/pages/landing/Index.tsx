@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import LandingLayout from '../layouts/LandingLayout';
+import LandingLayout from '../../layouts/LandingLayout';
 import { BookOpenText, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';

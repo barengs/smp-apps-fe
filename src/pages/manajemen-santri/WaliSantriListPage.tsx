@@ -1,7 +1,7 @@
 import React from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
+import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import WaliSantriTable from './manajemen-santri/WaliSantriTable'; // Import the new WaliSantriTable
+import WaliSantriTable from './WaliSantriTable'; // Import the new WaliSantriTable
 
 const WaliSantriListPage: React.FC = () => {
   return (
