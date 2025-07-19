@@ -13,9 +13,22 @@ const StaffDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const staffId = parseInt(id || '', 10);
 
-  const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId, {
-    skip: !staffId, // Skip query if staffId is not valid
-  });
+  // Handle invalid staffId early
+  if (isNaN(staffId)) {
+    toast.error('ID staf tidak valid.');
+    return (
+      <DashboardLayout title="Detail Staf" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <p className="text-red-500">ID staf tidak valid.</p>
+          <Button onClick={() => navigate(-1)} className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   if (isLoading) {
     return (
@@ -45,12 +58,12 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  // Check if staffData exists and if its nested properties are also present
+  // If staffData is null or undefined after loading and no error, it means staff was not found
   if (!staffData) {
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
-          <p>Data staf tidak ditemukan atau tidak lengkap.</p>
+          <p>Staf tidak ditemukan.</p>
           <Button onClick={() => navigate(-1)} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
           </Button>
@@ -59,8 +72,9 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  // Destructure from staffData, accessing nested employee and roles directly
-  const { employee, roles, created_at, updated_at } = staffData;
+  // Access properties using optional chaining to prevent errors if nested objects are undefined
+  const employee = staffData.employee;
+  const roles = staffData.roles;
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -69,7 +83,7 @@ const StaffDetailPage: React.FC = () => {
           <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h2 className="text-3xl font-bold">Detail Staf: {employee.first_name} {employee.last_name}</h2>
+          <h2 className="text-3xl font-bold">Detail Staf: {employee?.first_name} {employee?.last_name}</h2>
         </div>
 
         <Card className="w-full">
@@ -78,7 +92,7 @@ const StaffDetailPage: React.FC = () => {
             <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {employee.photo && (
+            {employee?.photo && (
               <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
                 <span className="font-semibold text-gray-700">Foto:</span>
                 <div>
@@ -88,42 +102,42 @@ const StaffDetailPage: React.FC = () => {
             )}
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Nama Depan:</span>
-              <span className="text-gray-900">{employee.first_name}</span>
+              <span className="text-gray-900">{employee?.first_name || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Nama Belakang:</span>
-              <span className="text-gray-900">{employee.last_name}</span>
+              <span className="text-gray-900">{employee?.last_name || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Email:</span>
-              <span className="text-gray-900">{employee.email}</span>
+              <span className="text-gray-900">{employee?.email || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Kode Staf:</span>
-              <span className="text-gray-900">{employee.code || '-'}</span>
+              <span className="text-gray-900">{staffData.code || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">NIK:</span>
-              <span className="text-gray-900">{employee.nik || '-'}</span>
+              <span className="text-gray-900">{employee?.nik || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Telepon:</span>
-              <span className="text-gray-900">{employee.phone || '-'}</span>
+              <span className="text-gray-900">{employee?.phone || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Alamat:</span>
-              <span className="text-gray-900">{employee.address || '-'}</span>
+              <span className="text-gray-900">{employee?.address || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Kode Pos:</span>
-              <span className="text-gray-900">{employee.zip_code || '-'}</span>
+              <span className="text-gray-900">{employee?.zip_code || '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -143,12 +157,12 @@ const StaffDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Tanggal Dibuat:</span>
-              <span className="text-gray-900">{new Date(created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span className="text-gray-900">{staffData.created_at ? new Date(staffData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 last:border-b-0">
               <span className="font-semibold text-gray-700">Terakhir Diperbarui:</span>
-              <span className="text-gray-900">{new Date(updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span className="text-gray-900">{staffData.updated_at ? new Date(staffData.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
           </CardContent>
         </Card>
