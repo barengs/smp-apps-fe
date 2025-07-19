@@ -14,6 +14,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { ChevronDown } from 'lucide-react';
+import { dummyHakAksesData } from './HakAksesTable'; // Import dummy data for access rights
 
 const formSchema = z.object({
   roleName: z.string().min(2, {
@@ -23,6 +30,7 @@ const formSchema = z.object({
   usersCount: z.number().min(0, {
     message: 'Jumlah Pengguna tidak boleh negatif.',
   }).default(0),
+  accessRights: z.array(z.string()).optional(), // New field for multiple select
 });
 
 interface PeranFormProps {
@@ -31,6 +39,7 @@ interface PeranFormProps {
     roleName: string;
     description: string;
     usersCount: number;
+    accessRights?: string[]; // Update interface for initialData
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -41,13 +50,20 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
       ...initialData,
-      usersCount: initialData.usersCount, // Ensure number type
+      usersCount: initialData.usersCount,
+      accessRights: initialData.accessRights || [], // Ensure it's an array
     } : {
       roleName: '',
       description: '',
       usersCount: 0,
+      accessRights: [],
     },
   });
+
+  const availableAccessRights = dummyHakAksesData.map(ha => ({
+    value: ha.permission,
+    label: ha.permission,
+  }));
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (initialData) {
@@ -101,6 +117,80 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="accessRights"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Hak Akses</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        !field.value?.length && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value && field.value.length > 0
+                        ? (
+                            <div className="flex flex-wrap gap-1">
+                              {field.value.map((item) => (
+                                <Badge key={item} variant="secondary">
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          )
+                        : "Pilih hak akses..."}
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  <Command>
+                    <CommandInput placeholder="Cari hak akses..." />
+                    <CommandEmpty>Tidak ada hak akses ditemukan.</CommandEmpty>
+                    <CommandGroup>
+                      {availableAccessRights.map((option) => (
+                        <CommandItem
+                          key={option.value}
+                          onSelect={() => {
+                            const currentValues = new Set(field.value);
+                            if (currentValues.has(option.value)) {
+                              currentValues.delete(option.value);
+                            } else {
+                              currentValues.add(option.value);
+                            }
+                            field.onChange(Array.from(currentValues));
+                          }}
+                        >
+                          <Checkbox
+                            checked={field.value?.includes(option.value)}
+                            onCheckedChange={(checked) => {
+                              const currentValues = new Set(field.value);
+                              if (checked) {
+                                currentValues.add(option.value);
+                              } else {
+                                currentValues.delete(option.value);
+                              }
+                              field.onChange(Array.from(currentValues));
+                            }}
+                            className="mr-2"
+                          />
+                          {option.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <FormMessage />
             </FormItem>
           )}

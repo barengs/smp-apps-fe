@@ -22,21 +22,23 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import PeranForm from './PeranForm'; // Import the new form component
+import { Badge } from '@/components/ui/badge'; // Import Badge component
 
 interface Peran {
   id: string;
   roleName: string;
   description: string;
   usersCount: number;
+  accessRights: string[]; // New field for access rights
 }
 
 const dummyPeranData: Peran[] = [
-  { id: 'P001', roleName: 'Administrasi', description: 'Mengelola seluruh sistem pesantren.', usersCount: 3 },
-  { id: 'P002', roleName: 'Guru', description: 'Mengajar dan mengelola nilai serta absensi santri.', usersCount: 25 },
-  { id: 'P003', roleName: 'Wali Santri', description: 'Memantau perkembangan santri dan berkomunikasi dengan pesantren.', usersCount: 500 },
-  { id: 'P004', roleName: 'Bendahara', description: 'Mengelola keuangan pesantren.', usersCount: 2 },
-  { id: 'P005', roleName: 'Pustakawan', description: 'Mengelola perpustakaan pesantren.', usersCount: 1 },
-  { id: 'P006', roleName: 'Keamanan', description: 'Menjaga keamanan lingkungan pesantren.', usersCount: 5 },
+  { id: 'P001', roleName: 'Administrasi', description: 'Mengelola seluruh sistem pesantren.', usersCount: 3, accessRights: ['Full Access', 'Manage Users', 'Manage Settings'] },
+  { id: 'P002', roleName: 'Guru', description: 'Mengajar dan mengelola nilai serta absensi santri.', usersCount: 25, accessRights: ['View Pelajaran', 'Edit Nilai', 'Manage Absensi'] },
+  { id: 'P003', roleName: 'Wali Santri', description: 'Memantau perkembangan santri dan berkomunikasi dengan pesantren.', usersCount: 500, accessRights: ['View Santri Info', 'View Absensi', 'View Nilai'] },
+  { id: 'P004', roleName: 'Bendahara', description: 'Mengelola keuangan pesantren.', usersCount: 2, accessRights: ['Manage Keuangan', 'View Laporan'] },
+  { id: 'P005', roleName: 'Pustakawan', description: 'Mengelola perpustakaan pesantren.', usersCount: 1, accessRights: ['Manage Buku', 'Manage Peminjaman'] },
+  { id: 'P006', roleName: 'Keamanan', description: 'Menjaga keamanan lingkungan pesantren.', usersCount: 5, accessRights: ['View Log Keamanan', 'Manage Akses Area'] },
 ];
 
 const PeranTable: React.FC = () => {
@@ -97,6 +99,19 @@ const PeranTable: React.FC = () => {
         accessorKey: 'usersCount',
         header: 'Jumlah Pengguna',
         cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: 'accessRights',
+        header: 'Hak Akses',
+        cell: ({ row }) => (
+          <div className="flex flex-wrap gap-1">
+            {row.original.accessRights.map((right) => (
+              <Badge key={right} variant="outline" className="text-xs">
+                {right}
+              </Badge>
+            ))}
+          </div>
+        ),
       },
       {
         id: 'actions',

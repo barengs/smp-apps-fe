@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, PlusCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'sonner'; // Perbaikan: Menghapus angka '2' yang salah
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -32,7 +32,7 @@ interface HakAkses {
   description: string;
 }
 
-const dummyHakAksesData: HakAkses[] = [
+export const dummyHakAksesData: HakAkses[] = [
   { id: 'HA001', roleName: 'Administrasi', permission: 'Full Access', description: 'Akses penuh ke semua modul manajemen.' },
   { id: 'HA002', roleName: 'Guru', permission: 'View & Edit Pelajaran, Nilai', description: 'Melihat dan mengedit data pelajaran dan nilai santri.' },
   { id: 'HA003', roleName: 'Wali Santri', permission: 'View Santri Info, Absensi, Nilai', description: 'Melihat informasi santri, absensi, dan nilai anak.' },
