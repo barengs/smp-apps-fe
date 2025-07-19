@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Globe, BookOpenText } from 'lucide-react';
+import { Globe, BookOpenText, Info } from 'lucide-react'; // Import Info icon
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import type { CarouselApi } from '@/components/ui/carousel'; // Import CarouselApi type
+
 import { MadeWithDyad } from '@/components/made-with-dyad';
 
 const LandingLayout: React.FC = () => {
@@ -17,6 +19,24 @@ const LandingLayout: React.FC = () => {
     "Fitur baru akan segera hadir!",
     "Dukungan penuh untuk pengguna.",
   ];
+
+  const [api, setApi] = useState<CarouselApi>(); // State untuk menyimpan API carousel
+  const autoplayInterval = 3000; // 3 detik
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      api.scrollNext();
+    }, autoplayInterval);
+
+    // Bersihkan interval saat komponen di-unmount atau API berubah
+    return () => {
+      clearInterval(timer);
+    };
+  }, [api, autoplayInterval]); // Dependensi pada api dan autoplayInterval
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -58,16 +78,19 @@ const LandingLayout: React.FC = () => {
             </p>
           </div>
 
-          <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl"> {/* Adjusted max-w for smaller overall size */}
+          <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl">
+            <div className="flex justify-center mb-2">
+              <Info className="h-8 w-8 text-gray-700" /> {/* Ikon Info */}
+            </div>
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Informasi Singkat</h2>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-4"> {/* Adjusted margin for spacing */}
+            <Carousel className="w-full" setApi={setApi}> {/* Meneruskan setApi ke Carousel */}
+              <CarouselContent className="-ml-4">
                 {infoSlides.map((slide, index) => (
-                  <CarouselItem key={index} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"> {/* Adjusted basis for 3 cards */}
+                  <CarouselItem key={index} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                     <div className="p-1">
                       <Card>
-                        <CardContent className="flex aspect-square items-center justify-center p-6 bg-blue-100 rounded-lg"> {/* Changed aspect-video to aspect-square for smaller height */}
-                          <span className="text-lg font-semibold text-blue-800 text-center">{slide}</span> {/* Reduced text size */}
+                        <CardContent className="flex aspect-square items-center justify-center p-6 bg-blue-100 rounded-lg">
+                          <span className="text-lg font-semibold text-blue-800 text-center">{slide}</span>
                         </CardContent>
                       </Card>
                     </div>
