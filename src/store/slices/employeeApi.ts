@@ -49,6 +49,7 @@ interface RoleNameOnly { // For roles array in detail endpoint, only 'name' is p
 
 interface EmployeeDetailApiData { // Corrected interface for single employee detail (from getEmployeeById)
   id: number;
+  data: [];
   user_id: number;
   code: string;
   created_at: string;
