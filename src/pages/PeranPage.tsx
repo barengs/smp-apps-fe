@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const PeranPage: React.FC = () => {
   return (
     <DashboardLayout title="Manajemen Peran" role="administrasi">
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-4"> {/* Changed py-6 to py-4 */}
         <h2 className="text-3xl font-bold mb-6">Daftar Peran Pengguna</h2>
         <Card>
           <CardHeader>
