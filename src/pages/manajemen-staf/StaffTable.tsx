@@ -64,7 +64,7 @@ import {
 } from '@/store/slices/employeeApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { DataTable } from '@/components/DataTable'; // Corrected import path for DataTable
+import { DataTable } from '@/components/DataTable';
 
 interface Staff {
   id: number;
@@ -164,15 +164,11 @@ const StaffTable: React.FC = () => {
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
-        accessorKey: 'first_name',
-        header: 'Nama Depan',
-        cell: (info) => info.getValue(),
+        accessorKey: 'first_name', // Tetap gunakan accessorKey ini untuk filter/sort jika diperlukan
+        header: 'Nama Lengkap',
+        cell: ({ row }) => `${row.original.first_name} ${row.original.last_name}`, // Menggabungkan nama depan dan belakang
       },
-      {
-        accessorKey: 'last_name',
-        header: 'Nama Belakang',
-        cell: (info) => info.getValue(),
-      },
+      // Kolom 'last_name' dihapus karena sudah digabungkan
       {
         accessorKey: 'email',
         header: 'Email',
