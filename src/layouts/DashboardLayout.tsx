@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText } from 'lucide-react'; // Import BookOpenText
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut } from 'lucide-react'; // Import LogOut icon
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MadeWithDyad } from '@/components/made-with-dyad';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'; // Import DropdownMenu components
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -101,10 +102,31 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
         <h1 className="text-2xl font-semibold ml-6 hidden md:block">{title}</h1>
       </div>
       <div className="flex items-center space-x-4">
-        <Avatar>
-          <AvatarImage src="/avatar-placeholder.png" alt="User Avatar" />
-          <AvatarFallback><User /></AvatarFallback>
-        </Avatar>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar>
+                <AvatarImage src="/avatar-placeholder.png" alt="User Avatar" />
+                <AvatarFallback><User /></AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" />
+              <span>Profil</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Pengaturan</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => console.log("Go Out clicked")}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Go Out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <span className="font-medium hidden sm:block">Nama Pengguna</span>
       </div>
     </header>
