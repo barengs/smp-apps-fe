@@ -73,8 +73,8 @@ const StaffDetailPage: React.FC = () => {
   }
 
   // Access properties using optional chaining to prevent errors if nested objects are undefined
-  const employee = staffData.employee;
-  const roles = staffData.roles;
+  const employee = staffData.data.employee;
+  const roles = staffData.data.roles;
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
