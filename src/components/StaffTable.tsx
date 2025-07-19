@@ -27,8 +27,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react'; // Import Edit and Trash2 icons
+import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf'; // Import jspdf
+import * as XLSX from 'xlsx'; // Import xlsx
 
 interface Staff {
   id: string;
@@ -128,14 +130,61 @@ const StaffTable: React.FC = () => {
 
   const handleExportPdf = () => {
     toast.info('Mengekspor data ke PDF...');
-    // Implementasi ekspor PDF di sini (membutuhkan library tambahan seperti jspdf)
-    // Contoh: const doc = new jsPDF(); doc.text("Data Staf", 10, 10); doc.save("staf.pdf");
+    const doc = new jsPDF();
+    const tableData = table.getRowModel().rows.map(row =>
+      row.getVisibleCells().map(cell =>
+        flexRender(cell.column.columnDef.cell, cell.getContext())
+      ).map(content => {
+        // Convert React nodes to string for PDF
+        if (typeof content === 'string' || typeof content === 'number') {
+          return String(content);
+        } else if (React.isValidElement(content)) {
+          // For elements like buttons, extract text content if possible
+          return (content.props.children && typeof content.props.children === 'string') ? content.props.children : '';
+        }
+        return '';
+      })
+    );
+
+    const headers = table.getHeaderGroups()[0].headers.map(header =>
+      flexRender(header.column.columnDef.header, header.getContext())
+    ).map(content => String(content));
+
+    doc.autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 20,
+      headStyles: { fillColor: [41, 128, 185] },
+      styles: { fontSize: 8, cellPadding: 3 },
+      margin: { top: 10, right: 10, bottom: 10, left: 10 },
+    });
+    doc.save("data_staf.pdf");
+    toast.success('Data berhasil diekspor ke PDF!');
   };
 
   const handleExportExcel = () => {
     toast.info('Mengekspor data ke Excel...');
-    // Implementasi ekspor Excel di sini (membutuhkan library tambahan seperti xlsx)
-    // Contoh: const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Staf"); XLSX.writeFile(wb, "staf.xlsx");
+    const dataToExport = table.getRowModel().rows.map(row => {
+      const rowData: { [key: string]: any } = {};
+      row.getVisibleCells().forEach(cell => {
+        const header = String(flexRender(cell.column.columnDef.header, cell.getContext()));
+        const value = flexRender(cell.column.columnDef.cell, cell.getContext());
+        if (typeof value === 'string' || typeof value === 'number') {
+          rowData[header] = value;
+        } else if (React.isValidElement(value)) {
+          rowData[header] = (value.props.children && typeof value.props.children === 'string') ? value.props.children : '';
+        } else {
+          rowData[header] = '';
+        }
+      });
+      return rowData;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Staf");
+    XLSX.writeFile(wb, "data_staf.xlsx");
+    toast.success('Data berhasil diekspor ke Excel!');
   };
 
   const handleAddData = () => {
