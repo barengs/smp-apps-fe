@@ -268,7 +268,7 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-800 text-white py-2 px-6 text-center">
+    <footer className="bg-gray-800 text-white py-1 px-6 text-center"> {/* Changed py-2 to py-1 */}
       <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center text-xs">
         <p className="mb-1 sm:mb-0 sm:mr-2">
           &copy; {new Date().getFullYear()} Pesantren Digital. All rights reserved. Jl. Contoh No. 123, Kota Santri, Provinsi Damai.
