@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const StafPage: React.FC = () => {
   return (
     <DashboardLayout title="Manajemen Staf" role="administrasi">
-      <div className="container mx-auto py-4"> {/* Changed py-6 to py-4 */}
+      <div className="container mx-auto py-4 px-4"> {/* Added px-4 to reduce horizontal padding */}
         <h2 className="text-3xl font-bold mb-6">Daftar Staf</h2>
         <Card>
           <CardHeader>
