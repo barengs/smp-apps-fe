@@ -24,7 +24,7 @@ import { dummyHakAksesData } from './HakAksesTable'; // Import dummy data for ac
 import { useCreateRoleMutation, useUpdateRoleMutation } from '@/store/apiSlice'; // Import RTK Query mutations
 
 const formSchema = z.object({
-  roleName: z.string().min(2, {
+  name: z.string().min(2, { // Changed from roleName to name
     message: 'Nama Peran harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
@@ -33,10 +33,10 @@ const formSchema = z.object({
 
 interface PeranFormProps {
   initialData?: {
-    id: number; // Changed to number
-    roleName: string;
+    id: number;
+    roleName: string; // Still roleName here for mapping from PeranTable
     description: string;
-    usersCount: number; // Still present in initialData for display purposes, but not sent to API
+    usersCount: number;
     accessRights: string[];
   };
   onSuccess: () => void;
@@ -50,11 +50,11 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
-      roleName: initialData.roleName,
+      name: initialData.roleName, // Map initialData.roleName to form's name
       description: initialData.description,
       accessRights: initialData.accessRights || [],
     } : {
-      roleName: '',
+      name: '', // Changed from roleName to name
       description: '',
       accessRights: [],
     },
@@ -68,13 +68,13 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (initialData) {
-        // For update, send only 'name' as per API structure
-        await updateRole({ id: initialData.id, data: { name: values.roleName } }).unwrap();
-        toast.success(`Peran "${values.roleName}" berhasil diperbarui.`);
+        // For update, send 'name' from form values
+        await updateRole({ id: initialData.id, data: { name: values.name } }).unwrap();
+        toast.success(`Peran "${values.name}" berhasil diperbarui.`);
       } else {
-        // For create, send only 'name' as per API structure
-        await createRole({ name: values.roleName }).unwrap();
-        toast.success(`Peran "${values.roleName}" berhasil ditambahkan.`);
+        // For create, send 'name' from form values
+        await createRole({ name: values.name }).unwrap();
+        toast.success(`Peran "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: any) {
@@ -99,7 +99,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="roleName"
+          name="name" // Changed from roleName to name
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nama Peran</FormLabel>
