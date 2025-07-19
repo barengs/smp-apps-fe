@@ -21,41 +21,41 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import { dummyHakAksesData } from './HakAksesTable'; // Import dummy data for access rights
+import { useCreateRoleMutation, useUpdateRoleMutation } from '@/store/apiSlice'; // Import RTK Query mutations
 
 const formSchema = z.object({
   roleName: z.string().min(2, {
     message: 'Nama Peran harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
-  // usersCount: z.number().min(0, { // Removed this field
-  //   message: 'Jumlah Pengguna tidak boleh negatif.',
-  // }).default(0),
   accessRights: z.array(z.string()).optional(),
 });
 
 interface PeranFormProps {
   initialData?: {
-    id: string;
+    id: number; // Changed to number
     roleName: string;
     description: string;
-    // usersCount: number; // Removed this field
-    accessRights?: string[];
+    usersCount: number; // Still present in initialData for display purposes, but not sent to API
+    accessRights: string[];
   };
   onSuccess: () => void;
   onCancel: () => void;
 }
 
 const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel }) => {
+  const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
+  const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
-      ...initialData,
-      // usersCount: initialData.usersCount, // Removed this line
+      roleName: initialData.roleName,
+      description: initialData.description,
       accessRights: initialData.accessRights || [],
     } : {
       roleName: '',
       description: '',
-      // usersCount: 0, // Removed this line
       accessRights: [],
     },
   });
@@ -65,14 +65,34 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     label: ha.permission,
   }));
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (initialData) {
-      toast.success(`Peran "${values.roleName}" berhasil diperbarui.`);
-    } else {
-      toast.success(`Peran "${values.roleName}" berhasil ditambahkan.`);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (initialData) {
+        // For update, send only 'name' as per API structure
+        await updateRole({ id: initialData.id, data: { name: values.roleName } }).unwrap();
+        toast.success(`Peran "${values.roleName}" berhasil diperbarui.`);
+      } else {
+        // For create, send only 'name' as per API structure
+        await createRole({ name: values.roleName }).unwrap();
+        toast.success(`Peran "${values.roleName}" berhasil ditambahkan.`);
+      }
+      onSuccess();
+    } catch (err: any) {
+      let errorMessage = 'Terjadi kesalahan tidak dikenal.';
+      if (typeof err === 'object' && err !== null) {
+        if ('data' in err && err.data && typeof err.data === 'object' && 'message' in err.data) {
+          errorMessage = (err.data as { message: string }).message;
+        } else if ('error' in err && typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if ('message' in err && typeof err.message === 'string') {
+          errorMessage = err.message;
+        }
+      }
+      toast.error(`Gagal menyimpan peran: ${errorMessage}`);
     }
-    onSuccess();
   };
+
+  const isSubmitting = isCreating || isUpdating;
 
   return (
     <Form {...form}>
@@ -103,7 +123,6 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
             </FormItem>
           )}
         />
-        {/* Removed the usersCount FormField */}
         <FormField
           control={form.control}
           name="accessRights"
@@ -179,11 +198,11 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
           )}
         />
         <div className="flex justify-end space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit">
-            {initialData ? 'Simpan Perubahan' : 'Tambah Peran'}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Peran')}
           </Button>
         </div>
       </form>
