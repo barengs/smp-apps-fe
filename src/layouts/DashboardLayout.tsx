@@ -291,7 +291,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
       )}
       <div className="flex flex-col flex-grow">
         <DashboardHeader title={title} />
-        <main className="flex-grow p-6 mt-20">
+        <main className="flex-grow p-4 mt-20">
           {children}
         </main>
         <Footer />
