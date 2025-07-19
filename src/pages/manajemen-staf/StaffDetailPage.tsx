@@ -169,12 +169,12 @@ const StaffDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Tanggal Dibuat:</span>
-              <span className="text-gray-900">{staffData.created_at ? new Date(staffData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+              <span className="text-gray-900">{staffData.data.created_at ? new Date(staffData.data.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 last:border-b-0">
               <span className="font-semibold text-gray-700">Terakhir Diperbarui:</span>
-              <span className="text-gray-900">{staffData.updated_at ? new Date(staffData.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+              <span className="text-gray-900">{staffData.data.updated_at ? new Date(staffData.data.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
           </CardContent>
         </Card>
