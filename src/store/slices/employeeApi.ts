@@ -33,6 +33,7 @@ interface GetEmployeesResponse {
 interface EmployeeDetailNestedDataForDetail { // Specific for the detail endpoint's nested employee
   first_name: string;
   last_name: string;
+  code: string;
   nik: string;
   phone: string;
   email: string; // Email is now nested inside employee for detail endpoint
