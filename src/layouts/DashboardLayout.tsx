@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone } from 'lucide-react';
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -39,8 +39,19 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
     },
     {
       title: "Manajemen Santri",
-      href: "/dashboard/santri",
       icon: <Users className="h-5 w-5" />,
+      children: [
+        {
+          title: "Santri",
+          href: "/dashboard/santri",
+          icon: <UserCheck className="h-4 w-4" />,
+        },
+        {
+          title: "Wali Santri",
+          href: "/dashboard/wali-santri-list", // Rute baru untuk daftar wali santri
+          icon: <UserPlus className="h-4 w-4" />,
+        },
+      ],
     },
     {
       title: "Manajemen Staf",

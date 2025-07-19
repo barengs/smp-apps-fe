@@ -12,7 +12,8 @@ import Daftar from "./pages/Daftar";
 import StafPage from "./pages/StafPage";
 import HakAksesPage from "./pages/HakAksesPage";
 import PeranPage from "./pages/PeranPage";
-import ManajemenSantriPage from "./pages/ManajemenSantriPage"; // Import ManajemenSantriPage
+import ManajemenSantriPage from "./pages/ManajemenSantriPage";
+import WaliSantriListPage from "./pages/WaliSantriListPage"; // Import WaliSantriListPage
 import { ThemeProvider } from "./components/theme-provider";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,8 @@ const App = () => (
             <Route path="/dashboard/staf" element={<StafPage />} />
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
-            <Route path="/dashboard/santri" element={<ManajemenSantriPage />} /> {/* Add route for ManajemenSantriPage */}
+            <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
+            <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} /> {/* Add route for WaliSantriListPage */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
