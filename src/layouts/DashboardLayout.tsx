@@ -50,7 +50,7 @@ const Sidebar: React.FC = () => {
       <div className="flex items-center justify-center py-4 border-b border-sidebar-border">
         <Link to="/" className="flex items-center">
           <BookOpenText className="h-10 w-10 mr-2 text-sidebar-primary-foreground" /> {/* Replaced img with icon */}
-          <span className="text-2xl font-bold text-sidebar-primary-foreground">Pesantren App</span>
+          <span className="text-2xl font-bold text-sidebar-primary-foreground">SMP</span>
         </Link>
       </div>
       <div className="flex-grow pt-4">
@@ -96,7 +96,7 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
         )}
         <Link to="/" className="flex items-center">
           <BookOpenText className="h-8 w-8 mr-2 text-primary" /> {/* Replaced img with icon */}
-          <span className="text-xl font-bold text-primary hidden sm:block">Pesantren App</span>
+          <span className="text-xl font-bold text-primary hidden sm:block">SMP</span>
         </Link>
         <h1 className="text-2xl font-semibold ml-6 hidden md:block">{title}</h1>
       </div>
