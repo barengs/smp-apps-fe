@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound } from 'lucide-react'; // Import Briefcase, Key, UsersRound icons
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { useTheme } from 'next-themes'; // Import useTheme hook
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Import Accordion components
+import { useTheme } from 'next-themes';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -26,7 +26,6 @@ interface SidebarNavItem {
   }[];
 }
 
-// Sidebar component (moved inside DashboardLayout for consolidation)
 const Sidebar: React.FC = () => {
   const location = useLocation();
 
@@ -76,6 +75,18 @@ const Sidebar: React.FC = () => {
     },
   ];
 
+  // Determine which accordion item should be open by default
+  const defaultOpenItem = React.useMemo(() => {
+    for (const item of sidebarNavItems) {
+      if (item.children) {
+        if (item.children.some(child => location.pathname.startsWith(child.href))) {
+          return item.title;
+        }
+      }
+    }
+    return undefined;
+  }, [location.pathname, sidebarNavItems]);
+
   return (
     <nav className={cn("flex flex-col p-4 space-y-2 h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
       <div className="flex items-center justify-center py-4 border-b border-sidebar-border">
@@ -85,11 +96,11 @@ const Sidebar: React.FC = () => {
         </Link>
       </div>
       <div className="flex-grow pt-4">
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full" defaultValue={defaultOpenItem}>
           {sidebarNavItems.map((item) => (
             item.children ? (
               <AccordionItem value={item.title} key={item.title}>
-                <AccordionTrigger 
+                <AccordionTrigger
                   className={cn(
                     "flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     item.children.some(child => location.pathname.startsWith(child.href))
@@ -139,10 +150,9 @@ const Sidebar: React.FC = () => {
   );
 };
 
-// DashboardHeader component (moved inside DashboardLayout for consolidation)
 const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
   const isMobile = useIsMobile();
-  const { setTheme } = useTheme(); // Use useTheme hook
+  const { setTheme } = useTheme();
 
   return (
     <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-border">
@@ -167,7 +177,6 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
         <h1 className="text-2xl font-semibold ml-6 hidden md:block">{title}</h1>
       </div>
       <div className="flex items-center space-x-4">
-        {/* Theme Toggle Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -189,7 +198,6 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* User Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -221,7 +229,6 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
   );
 };
 
-// Footer component (reused from MadeWithDyad and basic footer structure)
 const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-800 text-white py-2 px-6 text-center">
@@ -234,7 +241,6 @@ const Footer: React.FC = () => {
     </footer>
   );
 };
-
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) => {
   const isMobile = useIsMobile();
