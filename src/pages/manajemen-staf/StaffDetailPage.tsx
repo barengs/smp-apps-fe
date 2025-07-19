@@ -31,7 +31,7 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  const { data: staffData.data, error, isLoading } = useGetEmployeeByIdQuery(staffId);
+  const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   console.log('StaffDetailPage: isLoading:', isLoading);
   console.log('StaffDetailPage: error:', error);
@@ -82,8 +82,8 @@ const StaffDetailPage: React.FC = () => {
   }
 
   // Access properties using optional chaining to prevent errors if nested objects are undefined
-  const employee = staffData.employee;
-  const roles = staffData.roles;
+  const employee = staffData.data.employee;
+  const roles = staffData.data.roles;
 
   console.log('StaffDetailPage: Employee data:', employee);
   console.log('StaffDetailPage: Roles data:', roles);
