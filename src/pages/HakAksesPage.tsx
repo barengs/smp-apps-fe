@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const HakAksesPage: React.FC = () => {
   return (
     <DashboardLayout title="Manajemen Hak Akses" role="administrasi">
-      <div className="container mx-auto py-4">
+      <div className="container mx-auto py-4 px-4"> {/* Added px-4 to reduce horizontal padding */}
         <h2 className="text-3xl font-bold mb-6">Pengaturan Hak Akses</h2>
         <Card>
           <CardHeader>
