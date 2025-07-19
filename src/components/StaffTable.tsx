@@ -40,6 +40,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"; // Import Select components
 
+// Log untuk memeriksa apakah autoTable ditambahkan ke prototype jsPDF
+console.log('jsPDF.prototype.autoTable after import:', (jsPDF.prototype as any).autoTable);
+
 interface Staff {
   id: string;
   name: string;
