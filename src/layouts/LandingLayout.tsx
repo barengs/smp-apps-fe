@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Globe } from 'lucide-react';
+import { Globe, BookOpenText } from 'lucide-react'; // Import BookOpenText
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { MadeWithDyad } from '@/components/made-with-dyad';
@@ -21,7 +21,7 @@ const LandingLayout: React.FC = () => {
       {/* Header */}
       <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center">
-          <img src="/placeholder-logo.png" alt="Pesantren Logo" className="h-10 mr-4" />
+          <BookOpenText className="h-10 w-10 mr-4 text-primary" /> {/* Replaced img with icon */}
           <span className="text-2xl font-bold text-primary">Pesantren App</span>
         </div>
         <nav className="flex items-center space-x-6">
@@ -47,7 +47,7 @@ const LandingLayout: React.FC = () => {
       <main className="flex-grow">
         <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pt-24 pb-12">
           <div className="text-center mb-12">
-            <img src="/large-pesantren-logo.png" alt="Large Pesantren Logo" className="h-48 mx-auto mb-8" />
+            <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" /> {/* Replaced img with icon */}
             <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
               Selamat Datang di Pesantren Digital
             </h1>
