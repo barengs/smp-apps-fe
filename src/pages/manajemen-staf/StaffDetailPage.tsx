@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useGetEmployeesQuery } from '@/store/slices/employeeApi';
+import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi'; // Use the new hook
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -13,14 +13,9 @@ const StaffDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const staffId = parseInt(id || '', 10);
 
-  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
-
-  const staff = useMemo(() => {
-    if (employeesData?.data && staffId) {
-      return employeesData.data.find(emp => emp.id === staffId);
-    }
-    return undefined;
-  }, [employeesData, staffId]);
+  const { data: staff, error, isLoading } = useGetEmployeeByIdQuery(staffId, {
+    skip: !staffId, // Skip query if staffId is not valid
+  });
 
   if (isLoading) {
     return (
@@ -70,7 +65,7 @@ const StaffDetailPage: React.FC = () => {
           <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h2 className="text-3xl font-bold">Detail Staf: {staff.employee.first_name} {staff.employee.last_name}</h2>
+          <h2 className="text-3xl font-bold">Detail Staf: {staff.first_name} {staff.last_name}</h2>
         </div>
 
         <Card className="w-full">
@@ -79,23 +74,43 @@ const StaffDetailPage: React.FC = () => {
             <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
               <div className="font-semibold">Nama Depan:</div>
-              <div>{staff.employee.first_name}</div>
+              <div>{staff.first_name}</div>
 
               <div className="font-semibold">Nama Belakang:</div>
-              <div>{staff.employee.last_name}</div>
+              <div>{staff.last_name}</div>
 
               <div className="font-semibold">Email:</div>
               <div>{staff.email}</div>
 
-              <div className="font-semibold">Peran:</div>
-              <div className="flex flex-wrap gap-1">
-                {staff.roles.map((role) => (
-                  <Badge key={role.id} variant="outline">
-                    {role.name}
-                  </Badge>
-                ))}
+              <div className="font-semibold">Kode Staf:</div>
+              <div>{staff.code || '-'}</div>
+
+              <div className="font-semibold">NIK:</div>
+              <div>{staff.nik || '-'}</div>
+
+              <div className="font-semibold">Telepon:</div>
+              <div>{staff.phone || '-'}</div>
+
+              <div className="font-semibold">Alamat:</div>
+              <div>{staff.address || '-'}</div>
+
+              <div className="font-semibold">Kode Pos:</div>
+              <div>{staff.zip_code || '-'}</div>
+
+              {staff.photo && (
+                <>
+                  <div className="font-semibold">Foto:</div>
+                  <div>
+                    <img src={staff.photo} alt="Foto Staf" className="w-24 h-24 object-cover rounded-md" />
+                  </div>
+                </>
+              )}
+
+              {/* Catatan: Data peran tidak tersedia di struktur API detail yang diberikan */}
+              <div className="font-semibold col-span-full text-muted-foreground italic">
+                * Informasi peran tidak tersedia dalam detail staf ini.
               </div>
 
               <div className="font-semibold">Tanggal Dibuat:</div>

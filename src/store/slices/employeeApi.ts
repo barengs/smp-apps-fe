@@ -14,7 +14,7 @@ interface EmployeeNestedData { // New interface for the nested employee object
   last_name: string;
 }
 
-interface EmployeeApiData {
+interface EmployeeApiData { // Structure for the list of employees
   id: number;
   employee: EmployeeNestedData; // Nested employee object
   email: string;
@@ -26,6 +26,22 @@ interface EmployeeApiData {
 interface GetEmployeesResponse {
   message: string;
   data: EmployeeApiData[];
+}
+
+interface EmployeeDetailApiData { // New interface for single employee detail
+  id: number;
+  user_id: number;
+  code: string;
+  first_name: string;
+  last_name: string;
+  nik: string;
+  email: string;
+  phone: string;
+  address: string;
+  zip_code: string;
+  photo: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateUpdateEmployeeRequest {
@@ -40,6 +56,10 @@ export const employeeApi = smpApi.injectEndpoints({
     getEmployees: builder.query<GetEmployeesResponse, void>({
       query: () => 'employee',
       providesTags: ['Employee'],
+    }),
+    getEmployeeById: builder.query<EmployeeDetailApiData, number>({ // New endpoint for single employee
+      query: (id) => `employee/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
     createEmployee: builder.mutation<EmployeeApiData, CreateUpdateEmployeeRequest>({
       query: (newEmployee) => ({
@@ -69,6 +89,7 @@ export const employeeApi = smpApi.injectEndpoints({
 
 export const {
   useGetEmployeesQuery,
+  useGetEmployeeByIdQuery, // Export the new hook
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
