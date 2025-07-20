@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
-  <div className="grid grid-cols-[120px_1fr] items-start gap-x-4 py-2 border-b last:border-b-0">
+  <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
     <span className="font-semibold text-gray-700">{label}:</span>
     <div className="text-gray-900 break-words">{value || '-'}</div>
   </div>
@@ -55,7 +55,7 @@ const StaffDetailPage: React.FC = () => {
               </div>
               <div className="lg:col-span-2 space-y-4">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                  <div key={i} className="grid grid-cols-[150px_1fr] items-center gap-x-4">
                     <Skeleton className="h-5 w-24" />
                     <Skeleton className="h-5 w-full" />
                   </div>
