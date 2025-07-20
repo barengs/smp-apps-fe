@@ -8,6 +8,7 @@ import './slices/employeeApi';
 import './slices/permissionApi';
 import './slices/studentApi';
 import './slices/parentApi';
+import './slices/dashboardApi'; // Import the new dashboard slice
 
 export const store = configureStore({
   reducer: {

@@ -44,17 +44,14 @@ const SantriDetailPage: React.FC = () => {
 
   const cardComponentRef = useRef<HTMLDivElement>(null);
 
-  const reactToPrintHook = useReactToPrint({
+  const handlePrint = useReactToPrint({
     documentTitle: `Kartu-Santri-${responseData?.data.nis || santriId}`,
     onAfterPrint: () => {
       toast.success('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
+    content: () => cardComponentRef.current,
   });
-
-  const handlePrint = () => {
-    reactToPrintHook(() => cardComponentRef.current);
-  };
 
   if (isLoading) {
     return (
@@ -130,8 +127,6 @@ const SantriDetailPage: React.FC = () => {
 
   const parentsNames = getParentNames(santri.parents);
 
-  const parentName = `${santri.parents.first_name} ${santri.parents.last_name ?? ''}`
-
   return (
     <>
       <DashboardLayout title="Detail Santri" role="administrasi">
@@ -178,7 +173,7 @@ const SantriDetailPage: React.FC = () => {
                   <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
                   <DetailRow label="Telepon" value={santri.phone} />
                   <DetailRow label="Alamat" value={santri.address} />
-                  <DetailRow label="Nama Orang Tua" value={parentName} />
+                  <DetailRow label="Nama Orang Tua" value={parentsNames} />
                   <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
                   <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
                 </CardContent>
