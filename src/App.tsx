@@ -12,22 +12,18 @@ import HakAksesPage from "@/pages/manajemen-staf/HakAksesPage";
 import PeranPage from "@/pages/manajemen-staf/PeranPage";
 import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
-import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage"; // Import StaffDetailPage
-import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage"; // Import SantriDetailPage
-import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage.tsx"; // Import ProvinsiPage
+import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
+import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
+import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage.tsx";
+import KotaPage from "@/pages/data-wilayah/KotaPage.tsx"; // Import KotaPage
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
 import { Provider } from 'react-redux';
-import { store } from './store'; // Import the Redux store
-
-// Import hooks from new slices (even if not directly used here, ensures injection)
-import { useGetSantriQuery } from './store/slices/santriApi'; // Corrected import path
-import { useGetRolesQuery } from './store/slices/roleApi'; // Corrected import path
-
+import { store } from './store';
 
 const App = () => (
-  <Provider store={store}> {/* Membungkus aplikasi dengan Redux Provider */}
+  <Provider store={store}>
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <TooltipProvider>
         <Sonner position="top-right" />
@@ -39,13 +35,14 @@ const App = () => (
             <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
             <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
             <Route path="/dashboard/staf" element={<StafPage />} />
-            <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} /> {/* New route for staff detail */}
+            <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
-            <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} /> {/* New route for santri detail */}
+            <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
+            <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
