@@ -26,11 +26,11 @@ const SantriTable: React.FC = () => {
     if (studentsData?.data) {
       return studentsData.data.map(student => ({
         id: student.id,
-        fullName: `${student.first_name} ${student.last_name}`,
+        fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
         nik: student.nik,
         period: student.period,
-        gender: student.gender,
+        gender: student.gender === 'L' ? 'Laki-Laki' : student.gender === 'P' ? 'Perempuan' : 'Tidak Diketahui',
         status: student.status,
         programName: student.program.name,
       }));
