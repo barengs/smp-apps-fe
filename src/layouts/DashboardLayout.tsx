@@ -230,7 +230,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-border">
+    <header className="bg-white dark:bg-gray-900 shadow-sm py-4 px-6 flex justify-between items-center border-b border-border">
       <div className="flex items-center">
         {isMobile && (
           <Sheet>
@@ -299,7 +299,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-background">
+    <div className="flex h-screen bg-gray-50 dark:bg-background">
       {!isMobile && (
         <aside className={cn("flex-shrink-0 transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
           <TooltipProvider delayDuration={0}>
@@ -307,9 +307,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
           </TooltipProvider>
         </aside>
       )}
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <DashboardHeader title={title} role={role} isMobile={isMobile} />
-        <main className="flex-grow p-4 mt-20">
+        <main className="flex-1 overflow-y-auto p-4">
           {children}
         </main>
         <Footer />
