@@ -151,8 +151,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
                       )}
                     >
-                      {item.icon}
-                      <span className="ml-3 flex-grow text-left">{item.title}</span>
+                      <div className="flex items-center flex-grow">
+                        {item.icon}
+                        <span className="ml-3">{item.title}</span>
+                      </div>
                     </AccordionTrigger>
                     <AccordionContent className="pl-6 pt-1 space-y-1">
                       {item.children.map((child) => (
