@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { DataTable } from '../../components/DataTable';
 import {
@@ -11,18 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import ProvinsiForm from './ProvinsiForm.tsx';
-import { useGetProvincesQuery, useDeleteProvinceMutation } from '@/store/slices/provinceApi';
+import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
@@ -34,12 +24,9 @@ interface Provinsi {
 
 const ProvinsiTable: React.FC = () => {
   const { data: provincesData, error, isLoading } = useGetProvincesQuery();
-  const [deleteProvince] = useDeleteProvinceMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProvinsi, setEditingProvinsi] = useState<Provinsi | undefined>(undefined);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [provinsiToDelete, setProvinsiToDelete] = useState<Provinsi | undefined>(undefined);
 
   // Data is now a direct array, no need to access .data
   const provinces: Provinsi[] = useMemo(() => {
@@ -54,27 +41,6 @@ const ProvinsiTable: React.FC = () => {
   const handleEditData = (provinsi: Provinsi) => {
     setEditingProvinsi(provinsi);
     setIsModalOpen(true);
-  };
-
-  const handleDeleteClick = (provinsi: Provinsi) => {
-    setProvinsiToDelete(provinsi);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (provinsiToDelete) {
-      try {
-        await deleteProvince(provinsiToDelete.id).unwrap();
-        toast.success(`Provinsi "${provinsiToDelete.name}" berhasil dihapus.`);
-      } catch (err) {
-        const fetchError = err as FetchBaseQueryError;
-        const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus provinsi.';
-        toast.error(errorMessage);
-      } finally {
-        setProvinsiToDelete(undefined);
-        setIsDeleteDialogOpen(false);
-      }
-    }
   };
 
   const handleFormSuccess = () => {
@@ -110,13 +76,6 @@ const ProvinsiTable: React.FC = () => {
                 onClick={() => handleEditData(provinsi)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDeleteClick(provinsi)}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
             </div>
           );
@@ -158,22 +117,6 @@ const ProvinsiTable: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus provinsi{' '}
-              <span className="font-semibold text-foreground">"{provinsiToDelete?.name}"</span> secara permanen.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };
