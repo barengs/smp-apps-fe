@@ -28,6 +28,7 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface Provinsi {
   id: number;
+  code: string;
   name: string;
 }
 
@@ -40,14 +41,9 @@ const ProvinsiTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [provinsiToDelete, setProvinsiToDelete] = useState<Provinsi | undefined>(undefined);
 
+  // Data is now a direct array, no need to access .data
   const provinces: Provinsi[] = useMemo(() => {
-    if (provincesData?.data) {
-      return provincesData.data.map(apiProvince => ({
-        id: apiProvince.id,
-        name: apiProvince.name,
-      }));
-    }
-    return [];
+    return provincesData || [];
   }, [provincesData]);
 
   const handleAddData = () => {
@@ -94,6 +90,10 @@ const ProvinsiTable: React.FC = () => {
   const columns: ColumnDef<Provinsi>[] = useMemo(
     () => [
       {
+        accessorKey: 'code',
+        header: 'Kode',
+      },
+      {
         accessorKey: 'name',
         header: 'Nama Provinsi',
       },
@@ -126,7 +126,7 @@ const ProvinsiTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={2} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
@@ -148,7 +148,7 @@ const ProvinsiTable: React.FC = () => {
           <DialogHeader>
             <DialogTitle>{editingProvinsi ? 'Edit Provinsi' : 'Tambah Provinsi Baru'}</DialogTitle>
             <DialogDescription>
-              {editingProvinsi ? 'Ubah nama provinsi ini.' : 'Isi nama untuk provinsi baru.'}
+              {editingProvinsi ? 'Ubah detail provinsi ini.' : 'Isi detail untuk provinsi baru.'}
             </DialogDescription>
           </DialogHeader>
           <ProvinsiForm

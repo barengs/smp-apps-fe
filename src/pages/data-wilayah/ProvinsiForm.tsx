@@ -18,6 +18,9 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
 const formSchema = z.object({
+  code: z.string().min(1, {
+    message: 'Kode Provinsi tidak boleh kosong.',
+  }),
   name: z.string().min(2, {
     message: 'Nama Provinsi harus minimal 2 karakter.',
   }),
@@ -26,6 +29,7 @@ const formSchema = z.object({
 interface ProvinsiFormProps {
   initialData?: {
     id: number;
+    code: string;
     name: string;
   };
   onSuccess: () => void;
@@ -39,12 +43,14 @@ const ProvinsiForm: React.FC<ProvinsiFormProps> = ({ initialData, onSuccess, onC
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
+      code: '',
       name: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateProvinceRequest = {
+      code: values.code,
       name: values.name,
     };
 
@@ -80,6 +86,19 @@ const ProvinsiForm: React.FC<ProvinsiFormProps> = ({ initialData, onSuccess, onC
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kode Provinsi</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: 32" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="name"
