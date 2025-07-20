@@ -70,7 +70,7 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
           </div>
           <div className="grid grid-cols-[50px_auto]">
             <span className="font-semibold">Program</span>
-            <span className="truncate">: {santri.program.name}</span>
+            <span className="truncate">: {santri.program?.name || '-'}</span>
           </div>
           <div className="grid grid-cols-[50px_auto]">
             <span className="font-semibold">Status</span>
