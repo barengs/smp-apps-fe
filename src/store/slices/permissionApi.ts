@@ -27,12 +27,12 @@ export interface CreateUpdatePermissionRequest {
 export const permissionApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getPermissions: builder.query<GetPermissionsResponse, void>({
-      query: () => 'permission',
+      query: () => 'master/permission',
       providesTags: ['Permission'],
     }),
     createPermission: builder.mutation<PermissionApiData, CreateUpdatePermissionRequest>({
       query: (newPermission) => ({
-        url: 'permission',
+        url: 'master/permission',
         method: 'POST',
         body: newPermission,
       }),
@@ -40,7 +40,7 @@ export const permissionApi = smpApi.injectEndpoints({
     }),
     updatePermission: builder.mutation<PermissionApiData, { id: number; data: CreateUpdatePermissionRequest }>({
       query: ({ id, data }) => ({
-        url: `permission/${id}`,
+        url: `master/permission/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -48,7 +48,7 @@ export const permissionApi = smpApi.injectEndpoints({
     }),
     deletePermission: builder.mutation<void, number>({
       query: (id) => ({
-        url: `permission/${id}`,
+        url: `master/permission/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Permission'],
