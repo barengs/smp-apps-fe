@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit } from 'lucide-react';
+import { Printer, Edit, Users, UserCheck, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useReactToPrint } from 'react-to-print';
 import SantriCard from './SantriCard';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -28,16 +29,8 @@ const SantriDetailPage: React.FC = () => {
 
   if (isNaN(santriId)) {
     toast.error('ID santri tidak valid.');
-    return (
-      <DashboardLayout title="Detail Santri" role="administrasi">
-        <div className="container mx-auto py-4 px-4">
-          <p className="text-red-500">ID santri tidak valid.</p>
-          <Button onClick={() => navigate(-1)} className="mt-4">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
-          </Button>
-        </div>
-      </DashboardLayout>
-    );
+    navigate('/dashboard/santri');
+    return null;
   }
 
   const { data: responseData, error, isLoading } = useGetStudentByIdQuery(santriId);
@@ -60,10 +53,20 @@ const SantriDetailPage: React.FC = () => {
     toast.info('Fitur edit santri akan segera tersedia.');
   };
 
+  const santri = responseData?.data;
+  const fullName = santri ? `${santri.first_name} ${santri.last_name || ''}`.trim() : 'Detail Santri';
+
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
+    { label: 'Daftar Santri', href: '/dashboard/santri', icon: <UserCheck className="h-4 w-4" /> },
+    { label: fullName, icon: <User className="h-4 w-4" /> },
+  ];
+
   if (isLoading) {
     return (
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto py-4 px-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
               <Card>
@@ -95,39 +98,18 @@ const SantriDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !responseData?.data) {
-    const errorMessage = 'Gagal memuat detail santri atau santri tidak ditemukan.';
-    toast.error(errorMessage);
-    return (
-      <DashboardLayout title="Detail Santri" role="administrasi">
-        <div className="container mx-auto py-4 px-4">
-          <p className="text-red-500">{errorMessage}</p>
-          <Button onClick={() => navigate(-1)} className="mt-4">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
-          </Button>
-        </div>
-      </DashboardLayout>
-    );
+  if (error || !santri) {
+    toast.error('Gagal memuat detail santri atau santri tidak ditemukan.');
+    navigate('/dashboard/santri');
+    return null;
   }
-
-  const santri = responseData.data;
-  const fullName = `${santri.first_name} ${santri.last_name || ''}`.trim();
   
   const getParentNames = (parentsData: any): string => {
-    if (!parentsData) {
-      return 'Data tidak tersedia';
-    }
+    if (!parentsData) return 'Data tidak tersedia';
     const parentsArray = Array.isArray(parentsData) ? parentsData : Object.values(parentsData);
-    if (parentsArray.length === 0) {
-      return 'Tidak ada data orang tua';
-    }
+    if (parentsArray.length === 0) return 'Tidak ada data orang tua';
     return parentsArray
-      .map(parent => {
-        if (parent && typeof parent === 'object' && parent.first_name) {
-          return `${parent.first_name} ${parent.last_name || ''}`.trim();
-        }
-        return null;
-      })
+      .map(p => (p && typeof p === 'object' && p.first_name) ? `${p.first_name} ${p.last_name || ''}`.trim() : null)
       .filter(Boolean)
       .join(', ');
   };
@@ -138,13 +120,7 @@ const SantriDetailPage: React.FC = () => {
     <>
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto pb-4 px-4">
-          <div className="flex items-center mb-4">
-            <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h2 className="text-2xl font-bold">Detail Santri</h2>
-          </div>
-
+          <CustomBreadcrumb items={breadcrumbItems} />
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
               <div className="max-w-[240px] mx-auto lg:mx-0">
@@ -160,19 +136,11 @@ const SantriDetailPage: React.FC = () => {
                       <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        onClick={handleEdit}
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
+                      <Button variant="outline" onClick={handleEdit}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsPrintDialogOpen(true)}
-                      >
-                        <Printer className="mr-2 h-4 w-4" />
-                        Cetak Kartu
+                      <Button variant="outline" onClick={() => setIsPrintDialogOpen(true)}>
+                        <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
                       </Button>
                     </div>
                   </div>
@@ -210,8 +178,7 @@ const SantriDetailPage: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Batal</Button>
             <Button onClick={handlePrint}>
-              <Printer className="mr-2 h-4 w-4" />
-              Cetak
+              <Printer className="mr-2 h-4 w-4" /> Cetak
             </Button>
           </DialogFooter>
         </DialogContent>

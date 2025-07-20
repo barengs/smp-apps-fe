@@ -2,12 +2,19 @@ import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DesaTable from './DesaTable.tsx';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
+import { Map, Home } from 'lucide-react';
 
 const DesaPage: React.FC = () => {
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: 'Data Wilayah', href: '/dashboard/wilayah/provinsi', icon: <Map className="h-4 w-4" /> },
+    { label: 'Desa', icon: <Home className="h-4 w-4" /> },
+  ];
+
   return (
     <DashboardLayout title="Manajemen Desa" role="administrasi">
       <div className="container mx-auto py-4 px-4">
-        <h2 className="text-2xl font-bold mb-4">Daftar Desa</h2>
+        <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
             <CardTitle>Informasi Desa</CardTitle>

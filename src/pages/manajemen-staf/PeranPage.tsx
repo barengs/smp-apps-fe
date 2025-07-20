@@ -1,19 +1,26 @@
 import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PeranTable from './PeranTable'; // Import the new PeranTable
+import PeranTable from './PeranTable';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
+import { Briefcase, UserCog } from 'lucide-react';
 
 const PeranPage: React.FC = () => {
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
+    { label: 'Peran', icon: <UserCog className="h-4 w-4" /> },
+  ];
+
   return (
     <DashboardLayout title="Manajemen Peran" role="administrasi">
       <div className="container mx-auto py-4 px-4">
-        <h2 className="text-2xl font-bold mb-4">Daftar Peran Pengguna</h2>
+        <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
             <CardTitle>Definisi Peran</CardTitle>
           </CardHeader>
           <CardContent>
-            <PeranTable /> {/* Render the PeranTable component */}
+            <PeranTable />
           </CardContent>
         </Card>
       </div>
