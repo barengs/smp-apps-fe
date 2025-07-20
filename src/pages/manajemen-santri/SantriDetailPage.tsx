@@ -44,14 +44,17 @@ const SantriDetailPage: React.FC = () => {
 
   const cardComponentRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({
+  const reactToPrintHook = useReactToPrint({
     documentTitle: `Kartu-Santri-${responseData?.data.nis || santriId}`,
     onAfterPrint: () => {
       toast.success('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
-    content: () => cardComponentRef.current,
   });
+
+  const handlePrint = () => {
+    reactToPrintHook(() => cardComponentRef.current);
+  };
 
   if (isLoading) {
     return (
