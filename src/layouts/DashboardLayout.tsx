@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MadeWithDyad } from '@/components/made-with-dyad';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { useTheme } from 'next-themes';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -82,27 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
     return undefined;
   }, [location.pathname, sidebarNavItems, isCollapsed]);
 
-  const NavItemLink: React.FC<{ item: SidebarNavItem }> = ({ item }) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Link
-          to={item.href || "#"}
-          className={cn(
-            "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
-            location.pathname.startsWith(item.href || "___")
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "hover:bg-sidebar-accent/80",
-            isCollapsed && "justify-center"
-          )}
-        >
-          {item.icon}
-          {!isCollapsed && <span className="ml-3">{item.title}</span>}
-        </Link>
-      </TooltipTrigger>
-      {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
-    </Tooltip>
-  );
-
   return (
     <TooltipProvider delayDuration={0}>
       <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
@@ -113,48 +92,96 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
           </Link>
         </div>
         <div className="flex-grow p-2 pt-4 space-y-1">
-          <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={defaultOpenItem}>
-            {sidebarNavItems.map((item) =>
-              item.children ? (
-                <AccordionItem value={item.title} key={item.title} className="border-none">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+          <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={isCollapsed ? 'collapsed' : 'expanded'}>
+            {sidebarNavItems.map((item) => {
+              const isActive = item.children?.some(c => location.pathname.startsWith(c.href)) ?? location.pathname.startsWith(item.href ?? '___');
+
+              if (item.children) {
+                if (isCollapsed) {
+                  return (
+                    <DropdownMenu key={item.title}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant={isActive ? "secondary" : "ghost"}
+                              className="w-full flex h-9 w-9 items-center justify-center rounded-lg p-0"
+                              size="icon"
+                            >
+                              {item.icon}
+                              <span className="sr-only">{item.title}</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">{item.title}</TooltipContent>
+                      </Tooltip>
+                      <DropdownMenuContent side="right" align="start" className="w-48">
+                        <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {item.children.map((child) => (
+                          <DropdownMenuItem key={child.href} asChild>
+                            <Link to={child.href} className={cn(location.pathname.startsWith(child.href) && "bg-accent")}>
+                              {child.icon && <div className="mr-2">{child.icon}</div>}
+                              <span>{child.title}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  );
+                } else {
+                  return (
+                    <AccordionItem value={item.title} key={item.title} className="border-none">
                       <AccordionTrigger
-                        disabled={isCollapsed}
                         className={cn(
                           "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
-                          item.children.some(c => location.pathname.startsWith(c.href)) && "bg-sidebar-accent text-sidebar-accent-foreground",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                        )}
+                      >
+                        {item.icon}
+                        <span className="ml-3 flex-grow text-left">{item.title}</span>
+                      </AccordionTrigger>
+                      <AccordionContent className="pl-6 pt-1 space-y-1">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            to={child.href}
+                            className={cn(
+                              "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                              location.pathname.startsWith(child.href)
+                                ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
+                                : "hover:bg-sidebar-accent/80"
+                            )}
+                          >
+                            {child.icon}
+                            <span className="ml-3">{child.title}</span>
+                          </Link>
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                }
+              } else {
+                return (
+                  <Tooltip key={item.title}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={item.href || "#"}
+                        className={cn(
+                          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                          isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
                           isCollapsed && "justify-center"
                         )}
                       >
                         {item.icon}
-                        {!isCollapsed && <span className="ml-3 flex-grow text-left">{item.title}</span>}
-                      </AccordionTrigger>
+                        {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                      </Link>
                     </TooltipTrigger>
                     {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
                   </Tooltip>
-                  <AccordionContent className="pl-6 pt-1 space-y-1">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        to={child.href}
-                        className={cn(
-                          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
-                          location.pathname.startsWith(child.href)
-                            ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
-                            : "hover:bg-sidebar-accent/80"
-                        )}
-                      >
-                        {child.icon}
-                        <span className="ml-3">{child.title}</span>
-                      </Link>
-                    ))}
-                  </AccordionContent>
-                </AccordionItem>
-              ) : (
-                <NavItemLink item={item} key={item.title} />
-              )
-            )}
+                );
+              }
+            })}
           </Accordion>
         </div>
         <div className="mt-auto p-4 border-t border-sidebar-border">
