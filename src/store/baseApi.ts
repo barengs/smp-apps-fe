@@ -5,6 +5,6 @@ const BASE_URL = 'https://api.smp.barengsaya.com/api';
 export const smpApi = createApi({
   reducerPath: 'smpApi',
   baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
-  tagTypes: ['Role', 'Santri', 'Employee', 'Permission', 'Student', 'Parent', 'Dashboard', 'Province', 'City', 'District', 'Village'], // Menambahkan tagTypes yang relevan
+  tagTypes: ['Role', 'Santri', 'Employee', 'Permission', 'Student', 'Parent', 'Dashboard', 'Province', 'City', 'District', 'Village', 'Program'], // Menambahkan tagTypes yang relevan
   endpoints: () => ({}), // Endpoint akan diinjeksikan dari file lain
 });

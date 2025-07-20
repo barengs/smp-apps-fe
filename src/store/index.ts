@@ -13,6 +13,7 @@ import './slices/provinceApi';
 import './slices/cityApi';
 import './slices/districtApi';
 import './slices/villageApi'; // Import the new village slice
+import './slices/programApi'; // Import the new program slice
 
 export const store = configureStore({
   reducer: {

@@ -1,12 +1,12 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "@/pages/landing/Index.tsx";
-import NotFound from "@/pages/utility/NotFound.tsx";
-import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard.tsx";
-import AdministrasiDashboard from "@/pages/dashboard/AdministrasiDashboard.tsx";
-import Login from "@/pages/auth/Login.tsx";
-import Daftar from "@/pages/auth/Daftar.tsx";
+import Index from "@/pages/landing/Index";
+import NotFound from "@/pages/utility/NotFound";
+import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard";
+import AdministrasiDashboard from "@/pages/dashboard/AdministrasiDashboard";
+import Login from "@/pages/auth/Login";
+import Daftar from "@/pages/auth/Daftar";
 import StafPage from "@/pages/manajemen-staf/StafPage";
 import HakAksesPage from "@/pages/manajemen-staf/HakAksesPage";
 import PeranPage from "@/pages/manajemen-staf/PeranPage";
@@ -14,11 +14,12 @@ import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
 import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
-import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage.tsx";
-import KotaPage from "@/pages/data-wilayah/KotaPage.tsx";
-import KecamatanPage from "@/pages/data-wilayah/KecamatanPage.tsx";
-import DesaPage from "@/pages/data-wilayah/DesaPage.tsx";
-import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage.tsx";
+import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage";
+import KotaPage from "@/pages/data-wilayah/KotaPage";
+import KecamatanPage from "@/pages/data-wilayah/KecamatanPage";
+import DesaPage from "@/pages/data-wilayah/DesaPage";
+import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage";
+import ProgramPage from "@/pages/manajemen-pendidikan/ProgramPage";
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
             <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
+            <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
