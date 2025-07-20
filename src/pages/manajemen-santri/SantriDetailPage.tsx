@@ -130,6 +130,8 @@ const SantriDetailPage: React.FC = () => {
 
   const parentsNames = getParentNames(santri.parents);
 
+  const parentName = `${santri.parents.first_name} ${santri.parents.last_name ?? ''}`
+
   return (
     <>
       <DashboardLayout title="Detail Santri" role="administrasi">
@@ -176,7 +178,7 @@ const SantriDetailPage: React.FC = () => {
                   <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
                   <DetailRow label="Telepon" value={santri.phone} />
                   <DetailRow label="Alamat" value={santri.address} />
-                  <DetailRow label="Nama Orang Tua" value={santri.parents.first_name} />
+                  <DetailRow label="Nama Orang Tua" value={parentName} />
                   <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
                   <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
                 </CardContent>
