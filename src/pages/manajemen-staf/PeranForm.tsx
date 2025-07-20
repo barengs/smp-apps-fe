@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,8 +20,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
-import { dummyHakAksesData } from './HakAksesTable'; // Import dummy data for access rights
-import { useCreateRoleMutation, useUpdateRoleMutation } from '../../store/slices/roleApi'; // Corrected import path
+import { useCreateRoleMutation, useUpdateRoleMutation } from '../../store/slices/roleApi';
+import { useGetPermissionsQuery } from '@/store/slices/permissionApi'; // Import hook to get permissions
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
@@ -48,6 +48,7 @@ interface PeranFormProps {
 const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
+  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,10 +63,13 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     },
   });
 
-  const availableAccessRights = dummyHakAksesData.map(ha => ({
-    value: ha.permission,
-    label: ha.permission,
-  }));
+  const availableAccessRights = useMemo(() => {
+    if (!permissionsData?.data) return [];
+    return permissionsData.data.map(p => ({
+      value: p.name,
+      label: p.name,
+    }));
+  }, [permissionsData]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -154,18 +158,21 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
                         "w-full justify-between",
                         !field.value?.length && "text-muted-foreground"
                       )}
+                      disabled={isLoadingPermissions}
                     >
-                      {field.value && field.value.length > 0
-                        ? (
-                            <div className="flex flex-wrap gap-1">
-                              {field.value.map((item) => (
-                                <Badge key={item} variant="secondary">
-                                  {item}
-                                </Badge>
-                              ))}
-                            </div>
-                          )
-                        : "Pilih hak akses..."}
+                      {isLoadingPermissions ? "Memuat hak akses..." : (
+                        field.value && field.value.length > 0
+                          ? (
+                              <div className="flex flex-wrap gap-1">
+                                {field.value.map((item) => (
+                                  <Badge key={item} variant="secondary">
+                                    {item}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )
+                          : "Pilih hak akses..."
+                      )}
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>

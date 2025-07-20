@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, PlusCircle } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { DataTable } from '../../components/DataTable';
 import {
@@ -10,7 +10,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -21,34 +20,39 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import HakAksesForm from './HakAksesForm'; // Import the new form component
-import { Badge } from '@/components/ui/badge'; // Import Badge component
+import HakAksesForm from './HakAksesForm';
+import { useGetPermissionsQuery, useDeletePermissionMutation } from '@/store/slices/permissionApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 interface HakAkses {
-  id: string;
-  roleName: string[]; // Changed to array of strings
-  permission: string;
+  id: number;
+  name: string;
   description: string;
 }
 
-export const dummyHakAksesData: HakAkses[] = [
-  { id: 'HA001', roleName: ['Administrasi'], permission: 'Full Access', description: 'Akses penuh ke semua modul manajemen.' },
-  { id: 'HA002', roleName: ['Guru', 'Administrasi'], permission: 'View & Edit Pelajaran, Nilai', description: 'Melihat dan mengedit data pelajaran dan nilai santri.' },
-  { id: 'HA003', roleName: ['Wali Santri'], permission: 'View Santri Info, Absensi, Nilai', description: 'Melihat informasi santri, absensi, dan nilai anak.' },
-  { id: 'HA004', roleName: ['Bendahara'], permission: 'Manage Keuangan', description: 'Mengelola data keuangan dan pembayaran.' },
-  { id: 'HA005', roleName: ['Pustakawan'], permission: 'Manage Buku', description: 'Mengelola inventaris buku dan peminjaman.' },
-];
-
 const HakAksesTable: React.FC = () => {
+  const { data: permissionsData, error, isLoading } = useGetPermissionsQuery();
+  const [deletePermission] = useDeletePermissionMutation();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHakAkses, setEditingHakAkses] = useState<HakAkses | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [hakAksesToDelete, setHakAksesToDelete] = useState<HakAkses | undefined>(undefined);
 
+  const permissions: HakAkses[] = useMemo(() => {
+    if (permissionsData?.data) {
+      return permissionsData.data.map(apiPermission => ({
+        id: apiPermission.id,
+        name: apiPermission.name,
+        description: apiPermission.description || 'Tidak ada deskripsi',
+      }));
+    }
+    return [];
+  }, [permissionsData]);
+
   const handleAddData = () => {
-    setEditingHakAkses(undefined); // Clear any previous editing data
+    setEditingHakAkses(undefined);
     setIsModalOpen(true);
   };
 
@@ -62,20 +66,25 @@ const HakAksesTable: React.FC = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (hakAksesToDelete) {
-      toast.success(`Hak akses untuk "${hakAksesToDelete.roleName.join(', ')}" berhasil dihapus.`);
-      // In a real app, you would perform the actual delete operation here
-      // and then refetch data or update state.
-      setHakAksesToDelete(undefined);
-      setIsDeleteDialogOpen(false);
+      try {
+        await deletePermission(hakAksesToDelete.id).unwrap();
+        toast.success(`Hak akses "${hakAksesToDelete.name}" berhasil dihapus.`);
+      } catch (err) {
+        const fetchError = err as FetchBaseQueryError;
+        const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus hak akses.';
+        toast.error(errorMessage);
+      } finally {
+        setHakAksesToDelete(undefined);
+        setIsDeleteDialogOpen(false);
+      }
     }
   };
 
   const handleFormSuccess = () => {
     setIsModalOpen(false);
     setEditingHakAkses(undefined);
-    // In a real app, you would refetch data here
   };
 
   const handleFormCancel = () => {
@@ -86,22 +95,9 @@ const HakAksesTable: React.FC = () => {
   const columns: ColumnDef<HakAkses>[] = useMemo(
     () => [
       {
-        accessorKey: 'roleName',
-        header: 'Nama Peran',
-        cell: ({ row }) => ( // Render as badges
-          <div className="flex flex-wrap gap-1">
-            {row.original.roleName.map((role) => (
-              <Badge key={role} variant="outline" className="text-xs">
-                {role}
-              </Badge>
-            ))}
-          </div>
-        ),
-      },
-      {
-        accessorKey: 'permission',
-        header: 'Hak Akses',
-        cell: (info) => info.getValue(),
+        accessorKey: 'name',
+        header: 'Nama Hak Akses',
+        cell: (info) => <span className="font-mono bg-muted p-1 rounded">{info.getValue() as string}</span>,
       },
       {
         accessorKey: 'description',
@@ -137,11 +133,14 @@ const HakAksesTable: React.FC = () => {
     []
   );
 
+  if (isLoading) return <div>Memuat data hak akses...</div>;
+  if (error) return <div>Error: Gagal memuat data.</div>;
+
   return (
     <>
       <DataTable
         columns={columns}
-        data={dummyHakAksesData}
+        data={permissions}
         exportFileName="data_hak_akses"
         exportTitle="Data Hak Akses Pengguna"
         onAddData={handleAddData}
@@ -169,7 +168,7 @@ const HakAksesTable: React.FC = () => {
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
               Tindakan ini tidak dapat dibatalkan. Ini akan menghapus hak akses{' '}
-              <span className="font-semibold text-foreground">"{hakAksesToDelete?.roleName.join(', ')}"</span> secara permanen.
+              <span className="font-semibold text-foreground">"{hakAksesToDelete?.name}"</span> secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
