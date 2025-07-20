@@ -15,7 +15,8 @@ import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
 import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
 import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage.tsx";
-import KotaPage from "@/pages/data-wilayah/KotaPage.tsx"; // Import KotaPage
+import KotaPage from "@/pages/data-wilayah/KotaPage.tsx";
+import KecamatanPage from "@/pages/data-wilayah/KecamatanPage.tsx"; // Import KecamatanPage
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
+            <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
