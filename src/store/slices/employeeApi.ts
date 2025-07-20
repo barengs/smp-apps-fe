@@ -10,20 +10,19 @@ interface RoleApiData {
 }
 
 interface DataApi {
-  data: array
+  data: any[];
 }
 
-interface EmployeeNestedData { // This interface is still used for the list of employees (getEmployees)
+interface EmployeeNestedData {
   first_name: string;
   last_name: string;
 }
 
-interface EmployeeApiData { // Structure for the list of employees (from getEmployees)
+interface EmployeeApiData {
   id: number;
-  data: [];
-  employee: EmployeeNestedData; // Nested employee object
+  employee: EmployeeNestedData;
   email: string;
-  roles: RoleApiData[]; // Array of role objects
+  roles: RoleApiData[];
   created_at: string;
   updated_at: string;
 }
@@ -33,38 +32,44 @@ interface GetEmployeesResponse {
   data: EmployeeApiData[];
 }
 
-// CORRECTED AGAIN: Interface for single employee detail (from getEmployeeById)
-// Based on the latest clarification: nested 'employee' object and 'roles' array with 'name' only.
-interface EmployeeDetailNestedDataForDetail { // Specific for the detail endpoint's nested employee
+// --- Types for Single Employee Detail ---
+
+interface EmployeeDetailNestedDataForDetail {
   first_name: string;
   last_name: string;
   code: string;
   nik: string;
   phone: string;
-  email: string; // Email is now nested inside employee for detail endpoint
+  email: string;
   address: string;
   zip_code: string;
   photo: string;
 }
 
-interface RoleNameOnly { // For roles array in detail endpoint, only 'name' is provided
+interface RoleNameOnly {
   name: string;
 }
 
-interface EmployeeDetailApiData { // Corrected interface for single employee detail (from getEmployeeById)
+// This is the object inside the "data" property of the response
+interface EmployeeDetailData {
   id: number;
-  data: [];
   user_id: number;
   code: string;
   created_at: string;
   updated_at: string;
-  employee: EmployeeDetailNestedDataForDetail; // Nested employee object
-  roles: RoleNameOnly[]; // Array of role objects with only 'name'
+  employee: EmployeeDetailNestedDataForDetail;
+  roles: RoleNameOnly[];
+}
+
+// This is the full response from the API
+interface GetEmployeeByIdResponse {
+  message: string;
+  data: EmployeeDetailData;
 }
 
 export interface CreateUpdateEmployeeRequest {
-  first_name: string; // Still flat for request
-  last_name: string;  // Still flat for request
+  first_name: string;
+  last_name: string;
   email: string;
   role_ids: number[];
 }
@@ -75,7 +80,7 @@ export const employeeApi = smpApi.injectEndpoints({
       query: () => 'employee',
       providesTags: ['Employee'],
     }),
-    getEmployeeById: builder.query<EmployeeDetailApiData, number>({ // Updated return type
+    getEmployeeById: builder.query<GetEmployeeByIdResponse, number>({
       query: (id) => `employee/${id}`,
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
@@ -98,7 +103,7 @@ export const employeeApi = smpApi.injectEndpoints({
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
         url: `employee/${id}`,
-        method: 'DELETE', // Fixed: Changed backtick to single quote
+        method: 'DELETE',
       }),
       invalidatesTags: ['Employee'],
     }),

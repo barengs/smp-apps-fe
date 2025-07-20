@@ -28,7 +28,7 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  const { data: staffData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
+  const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   if (isLoading) {
     return (
@@ -57,6 +57,8 @@ const StaffDetailPage: React.FC = () => {
       </DashboardLayout>
     );
   }
+  
+  const staffData = responseData?.data;
 
   // If staffData is null or undefined after loading and no error, it means staff was not found
   if (!staffData) {
@@ -73,8 +75,8 @@ const StaffDetailPage: React.FC = () => {
   }
 
   // Access properties using optional chaining to prevent errors if nested objects are undefined
-  const employee = staffData.data.employee;
-  const roles = staffData.data.roles;
+  const employee = staffData.employee;
+  const roles = staffData.roles;
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -157,12 +159,12 @@ const StaffDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
               <span className="font-semibold text-gray-700">Tanggal Dibuat:</span>
-              <span className="text-gray-900">{staffData.data.created_at ? new Date(staffData.data.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+              <span className="text-gray-900">{staffData.created_at ? new Date(staffData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
 
             <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 py-2 last:border-b-0">
               <span className="font-semibold text-gray-700">Terakhir Diperbarui:</span>
-              <span className="text-gray-900">{staffData.data.updated_at ? new Date(staffData.data.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+              <span className="text-gray-900">{staffData.updated_at ? new Date(staffData.updated_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
             </div>
           </CardContent>
         </Card>
