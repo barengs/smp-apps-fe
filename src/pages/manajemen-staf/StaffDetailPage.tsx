@@ -47,13 +47,13 @@ const StaffDetailPage: React.FC = () => {
               <Skeleton className="h-7 w-1/3" />
               <Skeleton className="h-4 w-2/3" />
             </CardHeader>
-            <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="lg:col-span-1 flex flex-col items-center">
                 <Skeleton className="aspect-[3/4] w-full max-w-[240px] rounded-lg" />
                 <Skeleton className="h-6 w-3/4 mt-4" />
                 <Skeleton className="h-4 w-1/2 mt-2" />
               </div>
-              <div className="lg:col-span-2 space-y-4">
+              <div className="lg:col-span-3 space-y-4">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="grid grid-cols-[150px_1fr] items-center gap-x-4">
                     <Skeleton className="h-5 w-24" />
@@ -103,7 +103,7 @@ const StaffDetailPage: React.FC = () => {
             <CardTitle>Informasi Staf</CardTitle>
             <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Photo Section */}
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
@@ -122,7 +122,7 @@ const StaffDetailPage: React.FC = () => {
             </div>
 
             {/* Details Section */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
               <DetailRow label="Nama Depan" value={employee?.first_name} />
               <DetailRow label="Nama Belakang" value={employee?.last_name} />
               <DetailRow label="Email" value={employee?.email} />
