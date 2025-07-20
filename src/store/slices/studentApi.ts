@@ -28,6 +28,15 @@ interface GetStudentsResponse {
 }
 
 // --- Types for Single Student Detail ---
+
+// Structure for a parent object within the student detail response
+interface ParentDetailData {
+  id: number;
+  first_name: string;
+  last_name: string | null;
+  parent_as?: string;
+}
+
 interface StudentDetailData {
   id: number;
   first_name: string;
@@ -38,6 +47,7 @@ interface StudentDetailData {
   gender: 'L' | 'P';
   status: string;
   program: ProgramApiData;
+  parents: ParentDetailData[]; // Added parents array
   born_in?: string;
   born_at?: string;
   address?: string;
