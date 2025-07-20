@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -55,6 +55,16 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
         { title: "Staf", href: "/dashboard/staf", icon: <UsersRound className="h-4 w-4" /> },
         { title: "Hak Akses", href: "/dashboard/hak-akses", icon: <Key className="h-4 w-4" /> },
         { title: "Peran", href: "/dashboard/peran", icon: <UserCog className="h-4 w-4" /> },
+      ],
+    },
+    {
+      title: "Data Wilayah",
+      icon: <Map className="h-5 w-5" />,
+      children: [
+        { title: "Provinsi", href: "/dashboard/wilayah/provinsi", icon: <Landmark className="h-4 w-4" /> },
+        { title: "Kota", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
+        { title: "Kecamatan", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
+        { title: "Desa", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
       ],
     },
     { title: "Manajemen Pelajaran", href: "/dashboard/pelajaran", icon: <Book className="h-5 w-5" /> },
@@ -170,7 +180,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
                         className={cn(
                           "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
                           isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
-                          isCollapsed && "justify-center"
+                          isCollapsed && "justify-center",
+                          item.title === 'Manajemen Pelajaran' && !isCollapsed && "mt-2 border-t border-sidebar-border pt-3"
                         )}
                       >
                         {item.icon}
