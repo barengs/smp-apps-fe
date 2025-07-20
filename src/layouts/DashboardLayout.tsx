@@ -57,6 +57,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
         { title: "Peran", href: "/dashboard/peran", icon: <UserCog className="h-4 w-4" /> },
       ],
     },
+    { title: "Manajemen Pelajaran", href: "/dashboard/pelajaran", icon: <Book className="h-5 w-5" /> },
+    { title: "Jadwal Kegiatan", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
     {
       title: "Data Wilayah",
       icon: <Map className="h-5 w-5" />,
@@ -67,8 +69,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
         { title: "Desa", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
       ],
     },
-    { title: "Manajemen Pelajaran", href: "/dashboard/pelajaran", icon: <Book className="h-5 w-5" /> },
-    { title: "Jadwal Kegiatan", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
     { title: "Pengaturan", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
 
