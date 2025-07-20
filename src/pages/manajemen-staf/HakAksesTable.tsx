@@ -134,7 +134,12 @@ const HakAksesTable: React.FC = () => {
   );
 
   if (isLoading) return <div>Memuat data hak akses...</div>;
-  if (error) return <div>Error: Gagal memuat data.</div>;
+
+  // Treat 404 error as empty data, but show other errors
+  const isNotFound = error && (error as FetchBaseQueryError).status === 404;
+  if (error && !isNotFound) {
+    return <div>Error: Gagal memuat data. Silakan coba lagi nanti.</div>;
+  }
 
   return (
     <>
