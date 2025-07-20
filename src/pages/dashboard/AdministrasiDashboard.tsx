@@ -53,25 +53,25 @@ const AdministrasiDashboard: React.FC = () => {
           <>
             <StatCard
               title="Total Santri"
-              value={stats?.total_santri ?? 0}
+              value={stats?.santri ?? 0}
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
               description="Jumlah santri aktif saat ini"
             />
             <StatCard
               title="Total Asatidz"
-              value={stats?.total_asatidz ?? 0}
+              value={stats?.asatidz ?? 0}
               icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
               description="Jumlah staf pengajar"
             />
             <StatCard
               title="Total Alumni"
-              value={stats?.total_alumni ?? 0}
+              value={stats?.alumni ?? 0}
               icon={<GraduationCap className="h-4 w-4 text-muted-foreground" />}
               description="Jumlah santri yang telah lulus"
             />
             <StatCard
               title="Guru Tugas"
-              value={stats?.total_tugasan ?? 0}
+              value={stats?.tugasan ?? 0}
               icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
               description="Santri yang sedang magang"
             />
