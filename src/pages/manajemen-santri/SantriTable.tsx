@@ -7,6 +7,7 @@ import { DataTable } from '../../components/DataTable';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useNavigate } from 'react-router-dom';
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -22,6 +23,7 @@ interface Santri {
 
 const SantriTable: React.FC = () => {
   const { data: studentsData, error, isLoading } = useGetStudentsQuery();
+  const navigate = useNavigate();
 
   const santriList: Santri[] = useMemo(() => {
     if (studentsData?.data) {
@@ -38,6 +40,10 @@ const SantriTable: React.FC = () => {
     }
     return [];
   }, [studentsData]);
+
+  const handleRowClick = (santri: Santri) => {
+    navigate(`/dashboard/santri/${santri.id}`);
+  };
 
   const columns: ColumnDef<Santri>[] = useMemo(
     () => [
@@ -79,7 +85,10 @@ const SantriTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => toast.info(`Mengedit santri: ${santri.fullName}`)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast.info(`Mengedit santri: ${santri.fullName}`);
+                }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
@@ -88,7 +97,7 @@ const SantriTable: React.FC = () => {
         },
       },
     ],
-    []
+    [navigate]
   );
 
   const handleAddData = () => {
@@ -110,6 +119,7 @@ const SantriTable: React.FC = () => {
       exportFileName="data_santri"
       exportTitle="Data Santri Pesantren"
       onAddData={handleAddData}
+      onRowClick={handleRowClick}
     />
   );
 };

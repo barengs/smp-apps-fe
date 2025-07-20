@@ -27,14 +27,42 @@ interface GetStudentsResponse {
   data: StudentApiData[];
 }
 
+// --- Types for Single Student Detail ---
+interface StudentDetailData {
+  id: number;
+  first_name: string;
+  last_name: string | null;
+  nis: string;
+  nik: string;
+  period: string;
+  gender: 'L' | 'P';
+  status: string;
+  program: ProgramApiData;
+  date_of_birth?: string;
+  address?: string;
+  phone?: string;
+  photo?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface GetStudentByIdResponse {
+  message: string;
+  data: StudentDetailData;
+}
+
+
 export const studentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getStudents: builder.query<GetStudentsResponse, void>({
       query: () => 'student',
       providesTags: ['Student'],
     }),
-    // CRUD endpoints can be added here later
+    getStudentById: builder.query<GetStudentByIdResponse, number>({
+      query: (id) => `student/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Student', id }],
+    }),
   }),
 });
 
-export const { useGetStudentsQuery } = studentApi;
+export const { useGetStudentsQuery, useGetStudentByIdQuery } = studentApi;

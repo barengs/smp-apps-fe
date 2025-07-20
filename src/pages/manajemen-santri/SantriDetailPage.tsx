@@ -1,0 +1,119 @@
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import DashboardLayout from '../../layouts/DashboardLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
+  <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
+    <span className="font-semibold text-gray-700">{label}:</span>
+    <span className="text-gray-900">{value || '-'}</span>
+  </div>
+);
+
+const SantriDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const santriId = parseInt(id || '', 10);
+
+  if (isNaN(santriId)) {
+    toast.error('ID santri tidak valid.');
+    return (
+      <DashboardLayout title="Detail Santri" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <p className="text-red-500">ID santri tidak valid.</p>
+          <Button onClick={() => navigate(-1)} className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const { data: responseData, error, isLoading } = useGetStudentByIdQuery(santriId);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Detail Santri" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="grid grid-cols-[150px_1fr] items-center gap-x-4">
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-5 w-full" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !responseData?.data) {
+    const errorMessage = 'Gagal memuat detail santri atau santri tidak ditemukan.';
+    toast.error(errorMessage);
+    return (
+      <DashboardLayout title="Detail Santri" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <p className="text-red-500">{errorMessage}</p>
+          <Button onClick={() => navigate(-1)} className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const santri = responseData.data;
+  const fullName = `${santri.first_name} ${santri.last_name || ''}`.trim();
+
+  return (
+    <DashboardLayout title="Detail Santri" role="administrasi">
+      <div className="container mx-auto pb-4 px-4">
+        <div className="flex items-center mb-6">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h2 className="text-3xl font-bold">Detail Santri: {fullName}</h2>
+        </div>
+
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Informasi Pribadi</CardTitle>
+            <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {santri.photo && (
+              <DetailRow label="Foto" value={<img src={santri.photo} alt="Foto Santri" className="w-24 h-24 object-cover rounded-md" />} />
+            )}
+            <DetailRow label="Nama Lengkap" value={fullName} />
+            <DetailRow label="NIS" value={santri.nis} />
+            <DetailRow label="NIK" value={santri.nik} />
+            <DetailRow label="Jenis Kelamin" value={santri.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
+            <DetailRow label="Status" value={<Badge variant="outline">{santri.status}</Badge>} />
+            <DetailRow label="Program" value={santri.program?.name} />
+            <DetailRow label="Periode" value={santri.period} />
+            <DetailRow label="Tanggal Lahir" value={santri.date_of_birth ? new Date(santri.date_of_birth).toLocaleDateString('id-ID') : '-'} />
+            <DetailRow label="Telepon" value={santri.phone} />
+            <DetailRow label="Alamat" value={santri.address} />
+            <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
+            <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default SantriDetailPage;

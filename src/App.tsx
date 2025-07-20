@@ -14,6 +14,7 @@ import PeranPage from "@/pages/manajemen-staf/PeranPage";
 import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage"; // Import StaffDetailPage
+import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage"; // Import SantriDetailPage
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
+            <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} /> {/* New route for santri detail */}
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
