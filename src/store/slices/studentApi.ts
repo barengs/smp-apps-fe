@@ -38,7 +38,8 @@ interface StudentDetailData {
   gender: 'L' | 'P';
   status: string;
   program: ProgramApiData;
-  date_of_birth?: string;
+  born_in?: string;
+  born_at?: string;
   address?: string;
   phone?: string;
   photo?: string;

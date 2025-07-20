@@ -104,7 +104,8 @@ const SantriDetailPage: React.FC = () => {
             <DetailRow label="Status" value={<Badge variant="outline">{santri.status}</Badge>} />
             <DetailRow label="Program" value={santri.program?.name} />
             <DetailRow label="Periode" value={santri.period} />
-            <DetailRow label="Tanggal Lahir" value={santri.date_of_birth ? new Date(santri.date_of_birth).toLocaleDateString('id-ID') : '-'} />
+            <DetailRow label="Tempat Lahir" value={santri.born_in} />
+            <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
             <DetailRow label="Telepon" value={santri.phone} />
             <DetailRow label="Alamat" value={santri.address} />
             <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
