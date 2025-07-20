@@ -32,10 +32,9 @@ interface SidebarNavItem {
 interface SidebarProps {
   role: 'wali-santri' | 'administrasi';
   isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) => {
+const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const location = useLocation();
 
   const adminSidebarNavItems: SidebarNavItem[] = [
@@ -96,7 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
     <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
       <div className={cn(
         "flex items-center h-16 shrink-0 border-b border-sidebar-border px-4",
-        isCollapsed ? "justify-center" : "justify-between"
+        isCollapsed ? "justify-center" : "justify-start"
       )}>
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
           <BookOpenText className="h-8 w-8 text-primary shrink-0" />
@@ -104,14 +103,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
             <span className="text-xl font-bold text-primary whitespace-nowrap">SMP</span>
           )}
         </Link>
-        <Button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-        >
-          {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
-        </Button>
       </div>
       <div className="flex-grow p-2 pt-4 space-y-1 overflow-y-auto">
         <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={isCollapsed ? 'collapsed' : 'expanded'}>
@@ -211,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
   );
 };
 
-const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administrasi'; isMobile: boolean; }> = ({ title, role, isMobile }) => {
+const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administrasi'; isMobile: boolean; isCollapsed: boolean; setIsCollapsed: (collapsed: boolean) => void; }> = ({ title, role, isMobile, isCollapsed, setIsCollapsed }) => {
   const { setTheme } = useTheme();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -232,7 +223,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm h-16 px-6 flex justify-between items-center border-b border-border">
       <div className="flex items-center">
-        {isMobile && (
+        {isMobile ? (
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="mr-4">
@@ -241,9 +232,18 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
-              <Sidebar role={role} isCollapsed={false} setIsCollapsed={() => {}} />
+              <Sidebar role={role} isCollapsed={false} />
             </SheetContent>
           </Sheet>
+        ) : (
+          <Button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            variant="ghost"
+            size="icon"
+            className="mr-4"
+          >
+            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+          </Button>
         )}
         <h1 className="text-2xl font-semibold hidden md:block">{title}</h1>
       </div>
@@ -303,12 +303,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
       {!isMobile && (
         <aside className={cn("flex-shrink-0 transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
           <TooltipProvider delayDuration={0}>
-            <Sidebar role={role} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+            <Sidebar role={role} isCollapsed={isCollapsed} />
           </TooltipProvider>
         </aside>
       )}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <DashboardHeader title={title} role={role} isMobile={isMobile} />
+        <DashboardHeader title={title} role={role} isMobile={isMobile} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         <main className="flex-1 overflow-y-auto p-4">
           {children}
         </main>
