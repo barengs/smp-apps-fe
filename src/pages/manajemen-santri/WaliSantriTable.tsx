@@ -7,6 +7,7 @@ import { DataTable } from '../../components/DataTable';
 import { useGetParentsQuery } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useNavigate } from 'react-router-dom';
 
 // Interface for the data displayed in the table
 interface WaliSantri {
@@ -21,6 +22,7 @@ interface WaliSantri {
 
 const WaliSantriTable: React.FC = () => {
   const { data: parentsData, error, isLoading } = useGetParentsQuery();
+  const navigate = useNavigate();
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsData?.data) {
@@ -36,6 +38,10 @@ const WaliSantriTable: React.FC = () => {
     }
     return [];
   }, [parentsData]);
+
+  const handleRowClick = (wali: WaliSantri) => {
+    navigate(`/dashboard/wali-santri/${wali.id}`);
+  };
 
   const columns: ColumnDef<WaliSantri>[] = useMemo(
     () => [
@@ -73,14 +79,20 @@ const WaliSantriTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => toast.info(`Mengedit wali santri: ${waliSantri.fullName}`)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast.info(`Mengedit wali santri: ${waliSantri.fullName}`);
+                }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => toast.error(`Menghapus wali santri: ${waliSantri.fullName}`)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast.error(`Menghapus wali santri: ${waliSantri.fullName}`);
+                }}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -111,6 +123,7 @@ const WaliSantriTable: React.FC = () => {
       exportFileName="data_wali_santri"
       exportTitle="Data Wali Santri Pesantren"
       onAddData={handleAddData}
+      onRowClick={handleRowClick}
     />
   );
 };

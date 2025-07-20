@@ -17,7 +17,8 @@ import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
 import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage.tsx";
 import KotaPage from "@/pages/data-wilayah/KotaPage.tsx";
 import KecamatanPage from "@/pages/data-wilayah/KecamatanPage.tsx";
-import DesaPage from "@/pages/data-wilayah/DesaPage.tsx"; // Import DesaPage
+import DesaPage from "@/pages/data-wilayah/DesaPage.tsx";
+import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage.tsx";
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
+            <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
