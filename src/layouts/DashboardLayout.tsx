@@ -93,123 +93,121 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
   }, [location.pathname, sidebarNavItems, isCollapsed]);
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
-        <div className={cn(
-          "flex items-center py-4 border-b border-sidebar-border",
-          isCollapsed ? "px-2 flex-col gap-y-4" : "px-4 justify-between"
-        )}>
-          <Link to="/" className="flex items-center">
-            <BookOpenText className={cn("h-10 w-10 text-sidebar-primary-foreground transition-all", !isCollapsed && "mr-2")} />
-            {!isCollapsed && <span className="text-2xl font-bold text-sidebar-primary-foreground">SMP</span>}
-          </Link>
-          <Button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-          >
-            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
-          </Button>
-        </div>
-        <div className="flex-grow p-2 pt-4 space-y-1">
-          <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={isCollapsed ? 'collapsed' : 'expanded'}>
-            {sidebarNavItems.map((item) => {
-              const isActive = item.children?.some(c => location.pathname.startsWith(c.href)) ?? location.pathname.startsWith(item.href ?? '___');
+    <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
+      <div className={cn(
+        "flex items-center h-16 shrink-0 border-b border-sidebar-border px-4",
+        isCollapsed ? "justify-center" : "justify-between"
+      )}>
+        <Link to="/" className="flex items-center gap-2 overflow-hidden">
+          <BookOpenText className="h-8 w-8 text-primary shrink-0" />
+          {!isCollapsed && (
+            <span className="text-xl font-bold text-primary whitespace-nowrap">SMP</span>
+          )}
+        </Link>
+        <Button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+        >
+          {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+        </Button>
+      </div>
+      <div className="flex-grow p-2 pt-4 space-y-1 overflow-y-auto">
+        <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={isCollapsed ? 'collapsed' : 'expanded'}>
+          {sidebarNavItems.map((item) => {
+            const isActive = item.children?.some(c => location.pathname.startsWith(c.href)) ?? location.pathname.startsWith(item.href ?? '___');
 
-              if (item.children) {
-                if (isCollapsed) {
-                  return (
-                    <DropdownMenu key={item.title}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant={isActive ? "secondary" : "ghost"}
-                              className="w-full flex h-9 w-9 items-center justify-center rounded-lg p-0"
-                              size="icon"
-                            >
-                              {item.icon}
-                              <span className="sr-only">{item.title}</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">{item.title}</TooltipContent>
-                      </Tooltip>
-                      <DropdownMenuContent side="right" align="start" className="w-48">
-                        <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {item.children.map((child) => (
-                          <DropdownMenuItem key={child.href} asChild>
-                            <Link to={child.href} className={cn(location.pathname.startsWith(child.href) && "bg-accent")}>
-                              {child.icon && <div className="mr-2">{child.icon}</div>}
-                              <span>{child.title}</span>
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  );
-                } else {
-                  return (
-                    <AccordionItem value={item.title} key={item.title} className="border-none">
-                      <AccordionTrigger
-                        className={cn(
-                          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
-                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
-                        )}
-                      >
-                        {item.icon}
-                        <span className="ml-3 flex-grow text-left">{item.title}</span>
-                      </AccordionTrigger>
-                      <AccordionContent className="pl-6 pt-1 space-y-1">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            to={child.href}
-                            className={cn(
-                              "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
-                              location.pathname.startsWith(child.href)
-                                ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
-                                : "hover:bg-sidebar-accent/80"
-                            )}
+            if (item.children) {
+              if (isCollapsed) {
+                return (
+                  <DropdownMenu key={item.title}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant={isActive ? "secondary" : "ghost"}
+                            className="w-full flex h-9 w-9 items-center justify-center rounded-lg p-0"
+                            size="icon"
                           >
-                            {child.icon}
-                            <span className="ml-3">{child.title}</span>
+                            {item.icon}
+                            <span className="sr-only">{item.title}</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">{item.title}</TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent side="right" align="start" className="w-48">
+                      <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {item.children.map((child) => (
+                        <DropdownMenuItem key={child.href} asChild>
+                          <Link to={child.href} className={cn(location.pathname.startsWith(child.href) && "bg-accent")}>
+                            {child.icon && <div className="mr-2">{child.icon}</div>}
+                            <span>{child.title}</span>
                           </Link>
-                        ))}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                }
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
               } else {
                 return (
-                  <Tooltip key={item.title}>
-                    <TooltipTrigger asChild>
-                      <Link
-                        to={item.href || "#"}
-                        className={cn(
-                          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
-                          isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
-                          isCollapsed && "justify-center",
-                          item.title === 'Manajemen Pelajaran' && !isCollapsed && "mt-2 border-t border-sidebar-border pt-3"
-                        )}
-                      >
-                        {item.icon}
-                        {!isCollapsed && <span className="ml-3">{item.title}</span>}
-                      </Link>
-                    </TooltipTrigger>
-                    {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
-                  </Tooltip>
+                  <AccordionItem value={item.title} key={item.title} className="border-none">
+                    <AccordionTrigger
+                      className={cn(
+                        "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
+                        isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                      )}
+                    >
+                      {item.icon}
+                      <span className="ml-3 flex-grow text-left">{item.title}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pl-6 pt-1 space-y-1">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          to={child.href}
+                          className={cn(
+                            "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                            location.pathname.startsWith(child.href)
+                              ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
+                              : "hover:bg-sidebar-accent/80"
+                          )}
+                        >
+                          {child.icon}
+                          <span className="ml-3">{child.title}</span>
+                        </Link>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
                 );
               }
-            })}
-          </Accordion>
-        </div>
-        <div className="mt-auto p-4 border-t border-sidebar-border">
-        </div>
-      </nav>
-    </TooltipProvider>
+            } else {
+              return (
+                <Tooltip key={item.title}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.href || "#"}
+                      className={cn(
+                        "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
+                        isCollapsed && "justify-center",
+                        item.title === 'Manajemen Pelajaran' && !isCollapsed && "mt-2 border-t border-sidebar-border pt-3"
+                      )}
+                    >
+                      {item.icon}
+                      {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                    </Link>
+                  </TooltipTrigger>
+                  {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+                </Tooltip>
+              );
+            }
+          })}
+        </Accordion>
+      </div>
+    </nav>
   );
 };
 
@@ -304,7 +302,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
     <div className="flex min-h-screen bg-gray-50 dark:bg-background">
       {!isMobile && (
         <aside className={cn("flex-shrink-0 transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
-          <Sidebar role={role} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <TooltipProvider delayDuration={0}>
+            <Sidebar role={role} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          </TooltipProvider>
         </aside>
       )}
       <div className="flex flex-col flex-grow">
