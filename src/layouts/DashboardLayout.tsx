@@ -181,9 +181,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     <Link
                       to={item.href || "#"}
                       className={cn(
-                        "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                        "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                         isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
-                        isCollapsed && "justify-center",
+                        isCollapsed ? "justify-center" : "px-4",
                         item.title === 'Manajemen Pelajaran' && !isCollapsed && "mt-2 border-t border-sidebar-border pt-3"
                       )}
                     >
