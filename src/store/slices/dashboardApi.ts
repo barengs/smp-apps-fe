@@ -2,10 +2,10 @@ import { smpApi } from '../baseApi';
 
 // Define the structure of the dashboard statistics data
 interface DashboardStats {
-  total_santri: number;
-  total_asatidz: number;
-  total_alumni: number;
-  total_tugasan: number;
+  santri: number;
+  asatidz: number;
+  alumni: number;
+  tugasan: number;
 }
 
 // Define the full API response structure
