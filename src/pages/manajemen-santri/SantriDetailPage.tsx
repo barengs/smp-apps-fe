@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
@@ -54,6 +54,10 @@ const SantriDetailPage: React.FC = () => {
 
   const handlePrint = () => {
     reactToPrintHook(() => cardComponentRef.current);
+  };
+
+  const handleEdit = () => {
+    toast.info('Fitur edit santri akan segera tersedia.');
   };
 
   if (isLoading) {
@@ -155,13 +159,22 @@ const SantriDetailPage: React.FC = () => {
                       <CardTitle>Informasi Pribadi</CardTitle>
                       <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsPrintDialogOpen(true)}
-                    >
-                      <Printer className="mr-2 h-4 w-4" />
-                      Cetak Kartu
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        onClick={handleEdit}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsPrintDialogOpen(true)}
+                      >
+                        <Printer className="mr-2 h-4 w-4" />
+                        Cetak Kartu
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
