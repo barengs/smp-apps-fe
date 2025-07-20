@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -56,7 +56,17 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { title: "Peran", href: "/dashboard/peran", icon: <UserCog className="h-4 w-4" /> },
       ],
     },
-    { title: "Manajemen Pelajaran", href: "/dashboard/pelajaran", icon: <Book className="h-5 w-5" /> },
+    {
+      title: "Manajemen Pendidikan",
+      icon: <GraduationCap className="h-5 w-5" />,
+      children: [
+        { title: "Jenjang Pendidikan", href: "/dashboard/pendidikan/jenjang", icon: <Network className="h-4 w-4" /> },
+        { title: "Kelas", href: "/dashboard/pendidikan/kelas", icon: <School className="h-4 w-4" /> },
+        { title: "Rombel", href: "/dashboard/pendidikan/rombel", icon: <Users className="h-4 w-4" /> },
+        { title: "Asrama", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
+        { title: "Program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
+      ],
+    },
     { title: "Jadwal Kegiatan", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
     {
       title: "Data Wilayah",
