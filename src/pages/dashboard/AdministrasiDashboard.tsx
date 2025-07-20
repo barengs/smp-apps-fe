@@ -35,7 +35,7 @@ const StatCardSkeleton: React.FC = () => (
 const AdministrasiDashboard: React.FC = () => {
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
 
-  const stats = dashboardData;
+  const stats = dashboardData?.data;
 
   return (
     <DashboardLayout title="Dashboard Administrasi" role="administrasi">
