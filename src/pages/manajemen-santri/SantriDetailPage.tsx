@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
@@ -110,8 +110,19 @@ const SantriDetailPage: React.FC = () => {
           <div className="lg:col-span-3">
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>Informasi Pribadi</CardTitle>
-                <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle>Informasi Pribadi</CardTitle>
+                    <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => toast.info('Fitur cetak kartu sedang dalam pengembangan.')}
+                  >
+                    <Printer className="mr-2 h-4 w-4" />
+                    Cetak Kartu
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <DetailRow label="Nama Lengkap" value={fullName} />
