@@ -31,6 +31,7 @@ import {
 } from '../../store/slices/roleApi'; // Corrected import path
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface Peran {
   id: number; // Changed to number to match API
@@ -181,7 +182,7 @@ const PeranTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <div>Memuat data peran...</div>;
+  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
   if (error) {
     let errorMessage = 'Terjadi kesalahan saat memuat data.';
     if (typeof error === 'object' && error !== null) {

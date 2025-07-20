@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { DataTable } from '../../components/DataTable';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -95,7 +96,7 @@ const SantriTable: React.FC = () => {
     // Logic to open add student form will be implemented later
   };
 
-  if (isLoading) return <div>Memuat data santri...</div>;
+  if (isLoading) return <TableLoadingSkeleton numCols={8} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {

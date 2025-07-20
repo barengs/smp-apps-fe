@@ -24,6 +24,7 @@ import {
 import HakAksesForm from './HakAksesForm';
 import { useGetPermissionsQuery, useDeletePermissionMutation } from '@/store/slices/permissionApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface HakAkses {
   id: number;
@@ -133,7 +134,7 @@ const HakAksesTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <div>Memuat data hak akses...</div>;
+  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
 
   // Treat 404 error as empty data, but show other errors
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { DataTable } from '../../components/DataTable';
 import { useGetParentsQuery } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 // Interface for the data displayed in the table
 interface WaliSantri {
@@ -96,7 +97,7 @@ const WaliSantriTable: React.FC = () => {
     // Implementasi logika untuk membuka form tambah data wali santri
   };
 
-  if (isLoading) return <div>Memuat data wali santri...</div>;
+  if (isLoading) return <TableLoadingSkeleton numCols={7} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {

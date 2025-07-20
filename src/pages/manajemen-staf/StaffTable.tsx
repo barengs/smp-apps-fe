@@ -66,6 +66,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface Staff {
   id: number;
@@ -233,7 +234,7 @@ const StaffTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <div>Memuat data staf...</div>;
+  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
   if (error) {
     let errorMessage = 'Terjadi kesalahan saat memuat data.';
     if (typeof error === 'object' && error !== null) {
