@@ -3,59 +3,64 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DataTable } from '../../components/DataTable'; // Corrected import path
+import { DataTable } from '../../components/DataTable';
+import { useGetParentsQuery } from '@/store/slices/parentApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
+// Interface for the data displayed in the table
 interface WaliSantri {
-  id: string;
-  name: string;
+  id: number;
+  fullName: string;
   email: string;
-  phone: string;
-  address: string;
-  relatedSantri: string; // Santri yang diwakili
-  status: string;
+  kk: string;
+  nik: string;
+  gender: string;
+  parentAs: string;
 }
 
-const dummyWaliSantriData: WaliSantri[] = [
-  { id: 'W001', name: 'Bapak Joko', email: 'joko.wali@example.com', phone: '081234567890', address: 'Jl. Merdeka No. 10', relatedSantri: 'Fatimah Az-Zahra', status: 'Aktif' },
-  { id: 'W002', name: 'Ibu Ani', email: 'ani.wali@example.com', phone: '081298765432', address: 'Jl. Pahlawan No. 25', relatedSantri: 'Muhammad Al-Fatih', status: 'Aktif' },
-  { id: 'W003', name: 'Bapak Budi', email: 'budi.wali@example.com', phone: '085678901234', address: 'Jl. Sudirman No. 5', relatedSantri: 'Aisyah Humaira', status: 'Aktif' },
-  { id: 'W004', name: 'Ibu Siti', email: 'siti.wali@example.com', phone: '087812345678', address: 'Jl. Diponegoro No. 12', relatedSantri: 'Abdullah bin Umar', status: 'Aktif' },
-  { id: 'W005', name: 'Bapak Ahmad', email: 'ahmad.wali@example.com', phone: '081345678901', address: 'Jl. Gajah Mada No. 30', relatedSantri: 'Khadijah Kubra', status: 'Tidak Aktif' },
-  { id: 'W006', name: 'Ibu Nurul', email: 'nurul.wali@example.com', phone: '081122334455', address: 'Jl. Kartini No. 8', relatedSantri: 'Ali bin Abi Thalib', status: 'Aktif' },
-];
-
 const WaliSantriTable: React.FC = () => {
+  const { data: parentsData, error, isLoading } = useGetParentsQuery();
+
+  const waliSantriList: WaliSantri[] = useMemo(() => {
+    if (parentsData?.data) {
+      return parentsData.data.map(parent => ({
+        id: parent.id,
+        fullName: `${parent.parent.first_name} ${parent.parent.last_name || ''}`.trim(),
+        email: parent.email,
+        kk: parent.parent.kk,
+        nik: parent.parent.nik,
+        gender: parent.parent.gender === 'L' ? 'Laki-Laki' : parent.parent.gender === 'P' ? 'Perempuan' : 'Tidak Diketahui',
+        parentAs: parent.parent.parent_as,
+      }));
+    }
+    return [];
+  }, [parentsData]);
+
   const columns: ColumnDef<WaliSantri>[] = useMemo(
     () => [
       {
-        accessorKey: 'name',
+        accessorKey: 'fullName',
         header: 'Nama Wali',
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: 'email',
         header: 'Email',
-        cell: (info) => info.getValue(),
       },
       {
-        accessorKey: 'phone',
-        header: 'Telepon',
-        cell: (info) => info.getValue(),
+        accessorKey: 'kk',
+        header: 'No. KK',
       },
       {
-        accessorKey: 'address',
-        header: 'Alamat',
-        cell: (info) => info.getValue(),
+        accessorKey: 'nik',
+        header: 'NIK',
       },
       {
-        accessorKey: 'relatedSantri',
-        header: 'Santri Terkait',
-        cell: (info) => info.getValue(),
+        accessorKey: 'gender',
+        header: 'Jenis Kelamin',
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: (info) => info.getValue(),
+        accessorKey: 'parentAs',
+        header: 'Status Wali',
       },
       {
         id: 'actions',
@@ -67,14 +72,14 @@ const WaliSantriTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => toast.info(`Mengedit wali santri: ${waliSantri.name}`)}
+                onClick={() => toast.info(`Mengedit wali santri: ${waliSantri.fullName}`)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => toast.error(`Menghapus wali santri: ${waliSantri.name}`)}
+                onClick={() => toast.error(`Menghapus wali santri: ${waliSantri.fullName}`)}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -91,10 +96,17 @@ const WaliSantriTable: React.FC = () => {
     // Implementasi logika untuk membuka form tambah data wali santri
   };
 
+  if (isLoading) return <div>Memuat data wali santri...</div>;
+
+  const isNotFound = error && (error as FetchBaseQueryError).status === 404;
+  if (error && !isNotFound) {
+    return <div>Error: Gagal memuat data wali santri.</div>;
+  }
+
   return (
     <DataTable
       columns={columns}
-      data={dummyWaliSantriData}
+      data={waliSantriList}
       exportFileName="data_wali_santri"
       exportTitle="Data Wali Santri Pesantren"
       onAddData={handleAddData}

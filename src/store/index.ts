@@ -7,6 +7,7 @@ import './slices/santriApi';
 import './slices/employeeApi';
 import './slices/permissionApi';
 import './slices/studentApi';
+import './slices/parentApi';
 
 export const store = configureStore({
   reducer: {
