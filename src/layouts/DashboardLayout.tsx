@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize } from 'lucide-react';
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -10,11 +10,12 @@ import { MadeWithDyad } from '@/components/made-with-dyad';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useTheme } from 'next-themes';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
-  role: 'wali-santri' | 'administrasi'; // Menambahkan properti role
+  role: 'wali-santri' | 'administrasi';
 }
 
 interface SidebarNavItem {
@@ -28,207 +29,169 @@ interface SidebarNavItem {
   }[];
 }
 
-const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) => {
+interface SidebarProps {
+  role: 'wali-santri' | 'administrasi';
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
 
   const adminSidebarNavItems: SidebarNavItem[] = [
-    {
-      title: "Dashboard",
-      href: "/dashboard/administrasi", // Mengarahkan ke dashboard administrasi
-      icon: <LayoutDashboard className="h-5 w-5" />,
-    },
+    { title: "Dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
     {
       title: "Manajemen Santri",
       icon: <Users className="h-5 w-5" />,
       children: [
-        {
-          title: "Santri",
-          href: "/dashboard/santri",
-          icon: <UserCheck className="h-4 w-4" />,
-        },
-        {
-          title: "Wali Santri",
-          href: "/dashboard/wali-santri-list", // Rute baru untuk daftar wali santri
-          icon: <UserPlus className="h-4 w-4" />,
-        },
+        { title: "Santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
+        { title: "Wali Santri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
       ],
     },
     {
       title: "Manajemen Staf",
       icon: <Briefcase className="h-5 w-5" />,
       children: [
-        {
-          title: "Staf",
-          href: "/dashboard/staf",
-          icon: <UsersRound className="h-4 w-4" />,
-        },
-        {
-          title: "Hak Akses",
-          href: "/dashboard/hak-akses",
-          icon: <Key className="h-4 w-4" />,
-        },
-        {
-          title: "Peran",
-          href: "/dashboard/peran",
-          icon: <UserCog className="h-4 w-4" />,
-        },
+        { title: "Staf", href: "/dashboard/staf", icon: <UsersRound className="h-4 w-4" /> },
+        { title: "Hak Akses", href: "/dashboard/hak-akses", icon: <Key className="h-4 w-4" /> },
+        { title: "Peran", href: "/dashboard/peran", icon: <UserCog className="h-4 w-4" /> },
       ],
     },
-    {
-      title: "Manajemen Pelajaran",
-      href: "/dashboard/pelajaran",
-      icon: <Book className="h-5 w-5" />,
-    },
-    {
-      title: "Jadwal Kegiatan",
-      href: "/dashboard/jadwal",
-      icon: <Calendar className="h-5 w-5" />,
-    },
-    {
-      title: "Pengaturan",
-      href: "/dashboard/settings",
-      icon: <Settings className="h-5 w-5" />,
-    },
+    { title: "Manajemen Pelajaran", href: "/dashboard/pelajaran", icon: <Book className="h-5 w-5" /> },
+    { title: "Jadwal Kegiatan", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
+    { title: "Pengaturan", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
 
   const waliSantriSidebarNavItems: SidebarNavItem[] = [
-    {
-      title: "Dashboard",
-      href: "/dashboard/wali-santri", // Mengarahkan ke dashboard wali santri
-      icon: <LayoutDashboard className="h-5 w-5" />,
-    },
-    {
-      title: "Informasi Santri",
-      href: "/dashboard/informasi-santri", // Contoh rute untuk informasi santri
-      icon: <User className="h-5 w-5" />,
-    },
-    {
-      title: "Nilai & Absensi",
-      href: "/dashboard/nilai-absensi", // Contoh rute untuk nilai & absensi
-      icon: <BookOpenText className="h-5 w-5" />,
-    },
-    {
-      title: "Pengumuman",
-      href: "/dashboard/pengumuman", // Contoh rute untuk pengumuman
-      icon: <Megaphone className="h-5 w-5" />,
-    },
-    {
-      title: "Pengaturan",
-      href: "/dashboard/settings",
-      icon: <Settings className="h-5 w-5" />,
-    },
+    { title: "Dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { title: "Informasi Santri", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
+    { title: "Nilai & Absensi", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
+    { title: "Pengumuman", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
+    { title: "Pengaturan", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
 
   const sidebarNavItems = role === 'administrasi' ? adminSidebarNavItems : waliSantriSidebarNavItems;
 
-  // Determine which accordion item should be open by default
   const defaultOpenItem = React.useMemo(() => {
+    if (isCollapsed) return undefined;
     for (const item of sidebarNavItems) {
-      if (item.children) {
-        if (item.children.some(child => location.pathname.startsWith(child.href))) {
-          return item.title;
-        }
+      if (item.children?.some(child => location.pathname.startsWith(child.href))) {
+        return item.title;
       }
     }
     return undefined;
-  }, [location.pathname, sidebarNavItems]);
+  }, [location.pathname, sidebarNavItems, isCollapsed]);
+
+  const NavItemLink: React.FC<{ item: SidebarNavItem }> = ({ item }) => (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link
+          to={item.href || "#"}
+          className={cn(
+            "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+            location.pathname.startsWith(item.href || "___")
+              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+              : "hover:bg-sidebar-accent/80",
+            isCollapsed && "justify-center"
+          )}
+        >
+          {item.icon}
+          {!isCollapsed && <span className="ml-3">{item.title}</span>}
+        </Link>
+      </TooltipTrigger>
+      {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+    </Tooltip>
+  );
 
   return (
-    <nav className={cn("flex flex-col p-4 space-y-2 h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
-      <div className="flex items-center justify-center py-4 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center">
-          <BookOpenText className="h-10 w-10 mr-2 text-sidebar-primary-foreground" />
-          <span className="text-2xl font-bold text-sidebar-primary-foreground">SMP</span>
-        </Link>
-      </div>
-      <div className="flex-grow pt-4">
-        <Accordion type="single" collapsible className="w-full" defaultValue={defaultOpenItem}>
-          {sidebarNavItems.map((item) => (
-            item.children ? (
-              <AccordionItem value={item.title} key={item.title}>
-                <AccordionTrigger
-                  className={cn(
-                    "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
-                    "hover:bg-gray-100 dark:hover:bg-gray-700", // Flat gray hover
-                    item.children.some(child => location.pathname.startsWith(child.href))
-                      ? "bg-gray-400 dark:bg-gray-800 text-sidebar-primary-foreground" // Flat gray active, made darker
-                      : ""
-                  )}
-                >
-                  {item.icon}
-                  <span className="ml-3 flex-grow text-left">{item.title}</span>
-                </AccordionTrigger>
-                <AccordionContent className="pl-8">
-                  {item.children.map((child) => (
-                    <Link
-                      key={child.href}
-                      to={child.href}
-                      className={cn(
-                        "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
-                        location.pathname.startsWith(child.href)
-                          ? "bg-gray-400 dark:bg-gray-800 text-sidebar-primary-foreground" // Flat gray active, made darker
-                          : "hover:bg-gray-100 dark:hover:bg-gray-700" // Flat gray hover
-                      )}
-                    >
-                      {child.icon}
-                      <span className="ml-3">{child.title}</span>
-                    </Link>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            ) : (
-              <Link
-                key={item.href}
-                to={item.href || "#"}
-                className={cn(
-                  "flex items-center px-4 py-2 text-sm font-medium transition-colors", // Removed rounded-md
-                  location.pathname.startsWith(item.href || "")
-                    ? "bg-gray-400 dark:bg-gray-800 text-sidebar-primary-foreground" // Flat gray active, made darker
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700" // Flat gray hover
-                )}
-              >
-                {item.icon}
-                <span className="ml-3">{item.title}</span>
-              </Link>
-            )
-          ))}
-        </Accordion>
-      </div>
-    </nav>
+    <TooltipProvider delayDuration={0}>
+      <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
+        <div className={cn("flex items-center py-4 border-b border-sidebar-border", isCollapsed ? "justify-center" : "px-4 justify-between")}>
+          <Link to="/" className="flex items-center">
+            <BookOpenText className={cn("h-10 w-10 text-sidebar-primary-foreground transition-all", !isCollapsed && "mr-2")} />
+            {!isCollapsed && <span className="text-2xl font-bold text-sidebar-primary-foreground">SMP</span>}
+          </Link>
+        </div>
+        <div className="flex-grow p-2 pt-4 space-y-1">
+          <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={defaultOpenItem}>
+            {sidebarNavItems.map((item) =>
+              item.children ? (
+                <AccordionItem value={item.title} key={item.title} className="border-none">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AccordionTrigger
+                        disabled={isCollapsed}
+                        className={cn(
+                          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
+                          item.children.some(c => location.pathname.startsWith(c.href)) && "bg-sidebar-accent text-sidebar-accent-foreground",
+                          isCollapsed && "justify-center"
+                        )}
+                      >
+                        {item.icon}
+                        {!isCollapsed && <span className="ml-3 flex-grow text-left">{item.title}</span>}
+                      </AccordionTrigger>
+                    </TooltipTrigger>
+                    {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+                  </Tooltip>
+                  <AccordionContent className="pl-6 pt-1 space-y-1">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        to={child.href}
+                        className={cn(
+                          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                          location.pathname.startsWith(child.href)
+                            ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-accent/80"
+                        )}
+                      >
+                        {child.icon}
+                        <span className="ml-3">{child.title}</span>
+                      </Link>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              ) : (
+                <NavItemLink item={item} key={item.title} />
+              )
+            )}
+          </Accordion>
+        </div>
+        <div className="mt-auto p-4 border-t border-sidebar-border">
+          <Button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            variant="ghost"
+            className="w-full"
+          >
+            {!isCollapsed && <span className="mr-2">Ciutkan</span>}
+            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+          </Button>
+        </div>
+      </nav>
+    </TooltipProvider>
   );
 };
 
-const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
-  const isMobile = useIsMobile();
+const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administrasi'; isMobile: boolean; }> = ({ title, role, isMobile }) => {
   const { setTheme } = useTheme();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
+    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    };
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((err) => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-      });
+      document.documentElement.requestFullscreen().catch(console.error);
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+      document.exitFullscreen();
     }
   };
 
   return (
-    <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-border">
+    <header className="bg-white dark:bg-gray-900 shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-border">
       <div className="flex items-center">
         {isMobile && (
           <Sheet>
@@ -239,26 +202,17 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
-              <Sidebar role="administrasi" /> {/* Default role for mobile sidebar, will be overridden by specific page */}
+              <Sidebar role={role} isCollapsed={false} setIsCollapsed={() => {}} />
             </SheetContent>
           </Sheet>
         )}
-        <Link to="/" className="flex items-center">
-          <BookOpenText className="h-8 w-8 mr-2 text-primary" />
-          <span className="text-xl font-bold text-primary hidden sm:block">SMP</span>
-        </Link>
-        <h1 className="text-2xl font-semibold ml-6 hidden md:block">{title}</h1>
+        <h1 className="text-2xl font-semibold hidden md:block">{title}</h1>
       </div>
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
-          {isFullscreen ? (
-            <Minimize className="h-[1.2rem] w-[1.2rem]" />
-          ) : (
-            <Maximize className="h-[1.2rem] w-[1.2rem]" />
-          )}
+          {isFullscreen ? <Minimize className="h-[1.2rem] w-[1.2rem]" /> : <Maximize className="h-[1.2rem] w-[1.2rem]" />}
           <span className="sr-only">Toggle Fullscreen</span>
         </Button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -268,41 +222,22 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              System
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar>
-                <AvatarImage src="/avatar-placeholder.png" alt="User Avatar" />
-                <AvatarFallback><User /></AvatarFallback>
-              </Avatar>
+              <Avatar><AvatarImage src="/avatar-placeholder.png" alt="User Avatar" /><AvatarFallback><User /></AvatarFallback></Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profil</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Pengaturan</span>
-            </DropdownMenuItem>
+            <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>Profil</span></DropdownMenuItem>
+            <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Pengaturan</span></DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => console.log("Go Out clicked")}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Go Out</span>
-            </DropdownMenuItem>
+            <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>Keluar</span></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <span className="font-medium hidden sm:block">Nama Pengguna</span>
@@ -311,31 +246,28 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
   );
 };
 
-const Footer: React.FC = () => {
-  return (
-    <footer className="bg-gray-800 text-white py-1 px-6 text-center"> {/* Changed py-2 to py-1 */}
-      <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center text-xs">
-        <p className="mb-1 sm:mb-0 sm:mr-2">
-          &copy; {new Date().getFullYear()} Pesantren Digital. All rights reserved. Jl. Contoh No. 123, Kota Santri, Provinsi Damai.
-        </p>
-        <MadeWithDyad />
-      </div>
-    </footer>
-  );
-};
+const Footer: React.FC = () => (
+  <footer className="bg-gray-800 text-white py-1 px-6 text-center">
+    <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center text-xs">
+      <p className="mb-1 sm:mb-0 sm:mr-2">&copy; {new Date().getFullYear()} Pesantren Digital. All rights reserved.</p>
+      <MadeWithDyad />
+    </div>
+  </footer>
+);
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role }) => {
   const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-background">
       {!isMobile && (
-        <aside className="w-64 flex-shrink-0">
-          <Sidebar role={role} />
+        <aside className={cn("flex-shrink-0 transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
+          <Sidebar role={role} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         </aside>
       )}
       <div className="flex flex-col flex-grow">
-        <DashboardHeader title={title} />
+        <DashboardHeader title={title} role={role} isMobile={isMobile} />
         <main className="flex-grow p-4 mt-20">
           {children}
         </main>
