@@ -138,11 +138,11 @@ const SantriDetailPage: React.FC = () => {
     <>
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto pb-4 px-4">
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-4">
             <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h2 className="text-3xl font-bold">Detail Santri</h2>
+            <h2 className="text-2xl font-bold">Detail Santri</h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">

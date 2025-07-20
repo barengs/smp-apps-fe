@@ -41,7 +41,7 @@ const StaffDetailPage: React.FC = () => {
     return (
       <DashboardLayout title="Detail Staf" role="administrasi">
         <div className="container mx-auto py-4 px-4">
-          <Skeleton className="h-8 w-1/2 mb-6" />
+          <Skeleton className="h-8 w-1/2 mb-4" />
           <Card>
             <CardHeader>
               <Skeleton className="h-7 w-1/3" />
@@ -91,11 +91,11 @@ const StaffDetailPage: React.FC = () => {
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
       <div className="container mx-auto pb-4 px-4">
-        <div className="flex items-center mb-6">
+        <div className="flex items-center mb-4">
           <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h2 className="text-3xl font-bold">Detail Staf</h2>
+          <h2 className="text-2xl font-bold">Detail Staf</h2>
         </div>
 
         <Card className="w-full">

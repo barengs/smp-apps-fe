@@ -7,7 +7,7 @@ const WaliSantriListPage: React.FC = () => {
   return (
     <DashboardLayout title="Manajemen Wali Santri" role="administrasi">
       <div className="container mx-auto pb-4 px-4">
-        <h2 className="text-3xl font-bold mb-6">Daftar Wali Santri</h2>
+        <h2 className="text-2xl font-bold mb-4">Daftar Wali Santri</h2>
         <Card>
           <CardHeader>
             <CardTitle>Informasi Wali Santri</CardTitle>
