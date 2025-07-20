@@ -95,11 +95,22 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
   return (
     <TooltipProvider delayDuration={0}>
       <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
-        <div className={cn("flex items-center py-4 border-b border-sidebar-border", isCollapsed ? "justify-center" : "px-4 justify-between")}>
+        <div className={cn(
+          "flex items-center py-4 border-b border-sidebar-border",
+          isCollapsed ? "px-2 flex-col gap-y-4" : "px-4 justify-between"
+        )}>
           <Link to="/" className="flex items-center">
             <BookOpenText className={cn("h-10 w-10 text-sidebar-primary-foreground transition-all", !isCollapsed && "mr-2")} />
             {!isCollapsed && <span className="text-2xl font-bold text-sidebar-primary-foreground">SMP</span>}
           </Link>
+          <Button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+          >
+            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+          </Button>
         </div>
         <div className="flex-grow p-2 pt-4 space-y-1">
           <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={isCollapsed ? 'collapsed' : 'expanded'}>
@@ -196,14 +207,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed, setIsCollapsed }) 
           </Accordion>
         </div>
         <div className="mt-auto p-4 border-t border-sidebar-border">
-          <Button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            variant="ghost"
-            className="w-full"
-          >
-            {!isCollapsed && <span className="mr-2">Ciutkan</span>}
-            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
-          </Button>
         </div>
       </nav>
     </TooltipProvider>
