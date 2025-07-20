@@ -42,14 +42,11 @@ const ProgramTable: React.FC = () => {
   const [programToDelete, setProgramToDelete] = useState<Program | undefined>(undefined);
 
   const programs: Program[] = useMemo(() => {
-    if (programsData?.data) {
-      return programsData.data.map(apiProgram => ({
-        id: apiProgram.id,
-        name: apiProgram.name,
-        description: apiProgram.description || 'Tidak ada deskripsi',
-      }));
-    }
-    return [];
+    // The API now returns a direct array
+    return (programsData || []).map(p => ({
+      ...p,
+      description: p.description || 'Tidak ada deskripsi',
+    }));
   }, [programsData]);
 
   const handleAddData = () => {

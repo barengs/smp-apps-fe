@@ -2,20 +2,15 @@ import { smpApi } from '../baseApi';
 
 // --- API Response and Request Types ---
 
-// Structure for a single program object from the API
+// Structure for a single program object from the API, as per user feedback
 interface ProgramApiData {
   id: number;
   name: string;
   description: string;
-  created_at: string;
-  updated_at: string;
 }
 
-// Structure for the GET /program response
-interface GetProgramsResponse {
-  message: string;
-  data: ProgramApiData[];
-}
+// The GET response is a direct array
+type GetProgramsResponse = ProgramApiData[];
 
 // Structure for the POST/PUT request body
 export interface CreateUpdateProgramRequest {
