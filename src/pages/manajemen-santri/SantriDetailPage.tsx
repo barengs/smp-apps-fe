@@ -67,32 +67,26 @@ const SantriDetailPage: React.FC = () => {
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto py-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <Card>
-                <CardContent className="p-6 flex flex-col items-center justify-center">
-                  <Skeleton className="h-40 w-40 rounded-full mb-4" />
-                  <Skeleton className="h-6 w-3/4" />
-                </CardContent>
-              </Card>
-            </div>
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <Skeleton className="h-8 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="grid grid-cols-[150px_1fr] items-center gap-x-4">
-                      <Skeleton className="h-5 w-24" />
-                      <Skeleton className="h-5 w-full" />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-8 w-1/3" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-1 flex flex-col items-center">
+                <Skeleton className="aspect-[3/4] w-full max-w-[240px] rounded-lg" />
+                <Skeleton className="h-6 w-3/4 mt-4" />
+              </div>
+              <div className="lg:col-span-3 space-y-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="grid grid-cols-[150px_1fr] items-center gap-x-4">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-full" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </DashboardLayout>
     );
@@ -121,49 +115,47 @@ const SantriDetailPage: React.FC = () => {
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto pb-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            <div className="lg:col-span-1">
-              <div className="max-w-[240px] mx-auto lg:mx-0">
-                <SantriPhotoCard photoUrl={santri.photo} name={fullName} />
+          <Card className="w-full">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>Informasi Santri</CardTitle>
+                  <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" onClick={handleEdit}>
+                    <Edit className="mr-2 h-4 w-4" /> Edit
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsPrintDialogOpen(true)}>
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="lg:col-span-3">
-              <Card className="w-full">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>Informasi Pribadi</CardTitle>
-                      <CardDescription>Detail lengkap mengenai santri ini.</CardDescription>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" onClick={handleEdit}>
-                        <Edit className="mr-2 h-4 w-4" /> Edit
-                      </Button>
-                      <Button variant="outline" onClick={() => setIsPrintDialogOpen(true)}>
-                        <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <DetailRow label="Nama Lengkap" value={fullName} />
-                  <DetailRow label="NIS" value={santri.nis} />
-                  <DetailRow label="NIK" value={santri.nik} />
-                  <DetailRow label="Jenis Kelamin" value={santri.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
-                  <DetailRow label="Status" value={<Badge variant="outline">{santri.status}</Badge>} />
-                  <DetailRow label="Program" value={santri.program?.name} />
-                  <DetailRow label="Periode" value={santri.period} />
-                  <DetailRow label="Tempat Lahir" value={santri.born_in} />
-                  <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
-                  <DetailRow label="Telepon" value={santri.phone} />
-                  <DetailRow label="Alamat" value={santri.address} />
-                  <DetailRow label="Nama Orang Tua" value={parentsNames} />
-                  <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
-                  <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-1 flex flex-col items-center text-center">
+                <div className="w-full max-w-[240px]">
+                  <SantriPhotoCard photoUrl={santri.photo} name={fullName} />
+                </div>
+              </div>
+              <div className="lg:col-span-3">
+                <DetailRow label="Nama Lengkap" value={fullName} />
+                <DetailRow label="NIS" value={santri.nis} />
+                <DetailRow label="NIK" value={santri.nik} />
+                <DetailRow label="Jenis Kelamin" value={santri.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
+                <DetailRow label="Status" value={<Badge variant="outline">{santri.status}</Badge>} />
+                <DetailRow label="Program" value={santri.program?.name} />
+                <DetailRow label="Periode" value={santri.period} />
+                <DetailRow label="Tempat Lahir" value={santri.born_in} />
+                <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
+                <DetailRow label="Telepon" value={santri.phone} />
+                <DetailRow label="Alamat" value={santri.address} />
+                <DetailRow label="Nama Orang Tua" value={parentsNames} />
+                <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
+                <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </DashboardLayout>
 
