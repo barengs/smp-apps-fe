@@ -15,6 +15,7 @@ import './slices/districtApi';
 import './slices/villageApi'; // Import the new village slice
 import './slices/programApi'; // Import the new program slice
 import './slices/hostelApi';
+import './slices/educationApi';
 
 export const store = configureStore({
   reducer: {
