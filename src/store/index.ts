@@ -11,7 +11,8 @@ import './slices/parentApi';
 import './slices/dashboardApi'; // Import the new dashboard slice
 import './slices/provinceApi';
 import './slices/cityApi';
-import './slices/districtApi'; // Import the new district slice
+import './slices/districtApi';
+import './slices/villageApi'; // Import the new village slice
 
 export const store = configureStore({
   reducer: {
