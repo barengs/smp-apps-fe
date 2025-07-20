@@ -101,9 +101,9 @@ const SantriDetailPage: React.FC = () => {
           <h2 className="text-3xl font-bold">Detail Santri</h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-1">
-            <div className="max-w-xs mx-auto lg:mx-0">
+            <div className="max-w-[240px] mx-auto lg:mx-0">
               <SantriPhotoCard photoUrl={santri.photo} name={fullName} />
             </div>
           </div>
