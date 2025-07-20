@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus } from 'lucide-react';
+import { Home, Users, Book, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -201,6 +201,31 @@ const Sidebar: React.FC<{ role: 'wali-santri' | 'administrasi' }> = ({ role }) =
 const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
   const isMobile = useIsMobile();
   const { setTheme } = useTheme();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50 border-b border-border">
@@ -225,6 +250,15 @@ const DashboardHeader: React.FC<{ title: string }> = ({ title }) => {
         <h1 className="text-2xl font-semibold ml-6 hidden md:block">{title}</h1>
       </div>
       <div className="flex items-center space-x-4">
+        <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
+          {isFullscreen ? (
+            <Minimize className="h-[1.2rem] w-[1.2rem]" />
+          ) : (
+            <Maximize className="h-[1.2rem] w-[1.2rem]" />
+          )}
+          <span className="sr-only">Toggle Fullscreen</span>
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
