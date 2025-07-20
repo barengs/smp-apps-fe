@@ -47,7 +47,7 @@ interface StudentDetailData {
   gender: 'L' | 'P';
   status: string;
   program: ProgramApiData;
-  parents: ParentDetailData[]; // Added parents array
+  parents: ParentDetailData[] | { [key: string]: ParentDetailData }; // Can be array or object
   born_in?: string;
   born_at?: string;
   address?: string;

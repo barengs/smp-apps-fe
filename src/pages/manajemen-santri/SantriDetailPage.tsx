@@ -108,9 +108,27 @@ const SantriDetailPage: React.FC = () => {
 
   const santri = responseData.data;
   const fullName = `${santri.first_name} ${santri.last_name || ''}`.trim();
-  const parentsNames = santri.parents?.map(parent => 
-    `${parent.first_name} ${parent.last_name || ''}`.trim()
-  ).join(', ');
+  
+  const getParentNames = (parentsData: any): string => {
+    if (!parentsData) {
+      return 'Data tidak tersedia';
+    }
+    const parentsArray = Array.isArray(parentsData) ? parentsData : Object.values(parentsData);
+    if (parentsArray.length === 0) {
+      return 'Tidak ada data orang tua';
+    }
+    return parentsArray
+      .map(parent => {
+        if (parent && typeof parent === 'object' && parent.first_name) {
+          return `${parent.first_name} ${parent.last_name || ''}`.trim();
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .join(', ');
+  };
+
+  const parentsNames = getParentNames(santri.parents);
 
   return (
     <>
