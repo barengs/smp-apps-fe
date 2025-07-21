@@ -138,7 +138,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="max-w-md"> {/* Reduced width */}
               <FormLabel>Email Wali</FormLabel>
               <FormControl>
                 <Input placeholder="contoh@email.com" {...field} />
@@ -196,7 +196,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           control={form.control}
           name="phone"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="max-w-md"> {/* Reduced width */}
               <FormLabel>Telepon Wali (Opsional)</FormLabel>
               <FormControl>
                 <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
@@ -209,7 +209,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           control={form.control}
           name="card_address"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="max-w-md"> {/* Reduced width */}
               <FormLabel>Alamat Wali (Opsional)</FormLabel>
               <FormControl>
                 <Textarea placeholder="Alamat lengkap wali..." {...field} value={field.value || ''} />
@@ -222,7 +222,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           control={form.control}
           name="photo"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="max-w-md"> {/* Reduced width */}
               <FormLabel>URL Foto Wali (Opsional)</FormLabel>
               <FormControl>
                 <Input placeholder="https://example.com/foto_wali.jpg" {...field} value={field.value || ''} />
