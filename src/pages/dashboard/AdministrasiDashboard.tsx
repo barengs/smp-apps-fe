@@ -23,7 +23,7 @@ const StatCardSkeleton: React.FC = () => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <Skeleton className="h-4 w-2/3" />
-      <Skeleton className="h-4 w-4" />
+      <Skeleton className="h-6 w-6" />
     </CardHeader>
     <CardContent>
       <Skeleton className="h-7 w-1/3 mb-2" />
@@ -52,25 +52,25 @@ const AdministrasiDashboard: React.FC = () => {
             <StatCard
               title="Total Santri"
               value={dashboardData?.santri ?? 0}
-              icon={<Users className="h-4 w-4 text-muted-foreground" />}
+              icon={<Users className="h-6 w-6 text-muted-foreground" />}
               description="Jumlah santri aktif saat ini"
             />
             <StatCard
               title="Total Asatidz"
               value={dashboardData?.asatidz ?? 0}
-              icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
+              icon={<Briefcase className="h-6 w-6 text-muted-foreground" />}
               description="Jumlah staf pengajar"
             />
             <StatCard
               title="Total Alumni"
               value={dashboardData?.alumni ?? 0}
-              icon={<GraduationCap className="h-4 w-4 text-muted-foreground" />}
+              icon={<GraduationCap className="h-6 w-6 text-muted-foreground" />}
               description="Jumlah santri yang telah lulus"
             />
             <StatCard
               title="Guru Tugas"
               value={dashboardData?.tugasan ?? 0}
-              icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
+              icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
               description="Santri yang sedang magang"
             />
           </>
