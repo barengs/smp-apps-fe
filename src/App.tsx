@@ -24,7 +24,9 @@ import AsramaPage from "@/pages/manajemen-pendidikan/AsramaPage";
 import JenjangPendidikanPage from "@/pages/manajemen-pendidikan/JenjangPendidikanPage";
 import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
 import JadwalKegiatanPage from "@/pages/manajemen-pendidikan/JadwalKegiatanPage";
-import RombelPage from "@/pages/manajemen-pendidikan/RombelPage"; // Import RombelPage
+import RombelPage from "@/pages/manajemen-pendidikan/RombelPage";
+import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
+import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -59,8 +61,10 @@ const App = () => (
             <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
             <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
             <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
-            <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} /> {/* Add Rombel route */}
+            <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
             <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
+            <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
+            <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
