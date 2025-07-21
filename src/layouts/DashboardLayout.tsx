@@ -281,9 +281,15 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Bahasa Indonesia</DropdownMenuItem>
-            <DropdownMenuItem>English</DropdownMenuItem>
-            <DropdownMenuItem>العربية</DropdownMenuItem>
+            <DropdownMenuItem>
+              <span className="mr-2">🇮🇩</span> Bahasa Indonesia
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <span className="mr-2">🇬🇧</span> English
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <span className="mr-2">🇸🇦</span> العربية
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>
