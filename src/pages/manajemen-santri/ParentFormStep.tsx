@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import SelectedPhotoCard from '@/components/SelectedPhotoCard'; // Import the new component
 
 export const parentFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -73,6 +74,23 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
   });
 
   const parentAsOptions = ['Ayah', 'Ibu', 'Wali'];
+
+  // State for photo preview
+  const [photoPreviewFile, setPhotoPreviewFile] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialData?.photo instanceof File) {
+      setPhotoPreviewFile(initialData.photo);
+      setPhotoPreviewUrl(null);
+    } else if (typeof initialData?.photo === 'string') {
+      setPhotoPreviewUrl(initialData.photo);
+      setPhotoPreviewFile(null);
+    } else {
+      setPhotoPreviewFile(null);
+      setPhotoPreviewUrl(null);
+    }
+  }, [initialData?.photo]);
 
   return (
     <Form {...form}>
@@ -209,50 +227,54 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="card_address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alamat Wali (Opsional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Alamat lengkap wali..." {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Foto */}
-        <FormField
-          control={form.control}
-          name="photo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Foto Wali (Opsional)</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      field.onChange(e.target.files[0]);
-                    } else {
-                      field.onChange(null);
-                    }
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-              {field.value instanceof File && (
-                <p className="text-sm text-muted-foreground mt-1">File dipilih: {field.value.name}</p>
+        
+        {/* Alamat dan Foto berdampingan */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="card_address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alamat Wali (Opsional)</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Alamat lengkap wali..." {...field} value={field.value || ''} className="min-h-[120px]" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col gap-4">
+            <FormField
+              control={form.control}
+              name="photo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Foto Wali (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          const file = e.target.files[0];
+                          field.onChange(file);
+                          setPhotoPreviewFile(file);
+                          setPhotoPreviewUrl(null);
+                        } else {
+                          field.onChange(null);
+                          setPhotoPreviewFile(null);
+                          setPhotoPreviewUrl(null);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              {typeof field.value === 'string' && field.value && (
-                <p className="text-sm text-muted-foreground mt-1">URL foto saat ini: {field.value}</p>
-              )}
-            </FormItem>
-          )}
-        />
+            />
+            <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} />
+          </div>
+        </div>
 
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
