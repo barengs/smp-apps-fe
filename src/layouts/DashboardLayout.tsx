@@ -305,6 +305,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  useEffect(() => {
+    document.title = `SMP | ${title}`;
+  }, [title]);
+
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-background">
       {!isMobile && (

@@ -4,7 +4,7 @@ import RegisterForm from '../../components/RegisterForm';
 
 const Daftar: React.FC = () => {
   return (
-    <LandingLayout>
+    <LandingLayout title="Daftar">
       <RegisterForm />
     </LandingLayout>
   );

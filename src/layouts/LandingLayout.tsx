@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -7,9 +7,14 @@ import { MadeWithDyad } from '@/components/made-with-dyad';
 
 interface LandingLayoutProps {
   children: React.ReactNode;
+  title: string;
 }
 
-const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
+const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
+  useEffect(() => {
+    document.title = `SMP | ${title}`;
+  }, [title]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}

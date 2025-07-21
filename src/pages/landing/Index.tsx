@@ -34,7 +34,7 @@ const Index = () => {
   }, [api, autoplayInterval]);
 
   return (
-    <LandingLayout>
+    <LandingLayout title="Selamat Datang">
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
         <div className="text-center mb-12">
           <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
