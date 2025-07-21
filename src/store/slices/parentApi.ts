@@ -62,6 +62,20 @@ interface GetParentByIdResponse {
   data: ParentDetailData;
 }
 
+// New: Structure for the POST/PUT request body for Parent
+export interface CreateUpdateParentRequest {
+  first_name: string;
+  last_name?: string | null;
+  email: string;
+  kk: string;
+  nik: string;
+  gender: 'L' | 'P';
+  parent_as: string;
+  phone?: string | null;
+  card_address?: string | null;
+  photo?: string | null;
+}
+
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getParents: builder.query<GetParentsResponse, void>({
@@ -72,8 +86,26 @@ export const parentApi = smpApi.injectEndpoints({
       query: (id) => `parent/${id}`,
       providesTags: (result, error, id) => [{ type: 'Parent', id }],
     }),
+    // New: Create Parent mutation
+    createParent: builder.mutation<ParentApiData, CreateUpdateParentRequest>({
+      query: (newParent) => ({
+        url: 'parent',
+        method: 'POST',
+        body: newParent,
+      }),
+      invalidatesTags: ['Parent'],
+    }),
+    // New: Update Parent mutation
+    updateParent: builder.mutation<ParentApiData, { id: number; data: CreateUpdateParentRequest }>({
+      query: ({ id, data }) => ({
+        url: `parent/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Parent'],
+    }),
     // CRUD endpoints for parents can be added here later
   }),
 });
 
-export const { useGetParentsQuery, useGetParentByIdQuery } = parentApi;
+export const { useGetParentsQuery, useGetParentByIdQuery, useCreateParentMutation, useUpdateParentMutation } = parentApi;

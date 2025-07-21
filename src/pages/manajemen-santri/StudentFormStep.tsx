@@ -26,14 +26,10 @@ import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
-import { toast } from 'sonner';
-import { useCreateStudentMutation, useUpdateStudentMutation, type CreateUpdateStudentRequest } from '@/store/slices/studentApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { SerializedError } from '@reduxjs/toolkit';
-import { Label } from '@/components/ui/label';
+import type { CreateUpdateStudentRequest } from '@/store/slices/studentApi';
 
-const formSchema = z.object({
+export const studentFormSchema = z.object({
   first_name: z.string().min(2, {
     message: 'Nama depan harus minimal 2 karakter.',
   }),
@@ -61,125 +57,39 @@ const formSchema = z.object({
   photo: z.string().url({ message: 'URL foto tidak valid.' }).nullable().optional(),
 });
 
-interface SantriFormProps {
-  initialData?: {
-    id: number;
-    first_name: string;
-    last_name: string | null;
-    nis: string;
-    nik: string | null;
-    period: string;
-    gender: 'L' | 'P';
-    status: string;
-    program: { id: number; name: string }; // Nested program object
-    born_in?: string | null; // Updated to allow undefined
-    born_at?: string | null; // Updated to allow undefined
-    address?: string | null; // Updated to allow undefined
-    phone?: string | null; // Updated to allow undefined
-    photo?: string | null; // Updated to allow undefined
-  };
-  onSuccess: () => void;
-  onCancel: () => void;
+type StudentFormValues = z.infer<typeof studentFormSchema>;
+
+interface StudentFormStepProps {
+  initialData?: Partial<StudentFormValues>; // Changed type here
+  onBack: () => void;
+  onSubmit: (data: StudentFormValues) => void;
+  isSubmitting: boolean;
 }
 
-const SantriForm: React.FC<SantriFormProps> = ({ initialData, onSuccess, onCancel }) => {
-  const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation();
-  const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
+const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, onSubmit, isSubmitting }) => {
   const { data: programsData, isLoading: isLoadingPrograms } = useGetProgramsQuery();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialData ? {
-      first_name: initialData.first_name,
-      last_name: initialData.last_name,
-      nis: initialData.nis,
-      nik: initialData.nik,
-      period: initialData.period,
-      gender: initialData.gender,
-      status: initialData.status,
-      program_id: initialData.program.id,
-      born_in: initialData.born_in,
-      born_at: initialData.born_at ? new Date(initialData.born_at) : null,
-      address: initialData.address,
-      phone: initialData.phone,
-      photo: initialData.photo,
-    } : {
-      first_name: '',
-      last_name: null,
-      nis: '',
-      nik: null,
-      period: '',
-      gender: 'L', // Default to Male
-      status: 'Aktif', // Default status
-      program_id: undefined,
-      born_in: null,
-      born_at: null,
-      address: null,
-      phone: null,
-      photo: null,
+  const form = useForm<StudentFormValues>({
+    resolver: zodResolver(studentFormSchema),
+    defaultValues: {
+      first_name: initialData?.first_name || '',
+      last_name: initialData?.last_name || null,
+      nis: initialData?.nis || '',
+      nik: initialData?.nik || null,
+      period: initialData?.period || '',
+      gender: initialData?.gender || 'L',
+      status: initialData?.status || 'Aktif',
+      program_id: initialData?.program_id,
+      born_in: initialData?.born_in || null,
+      born_at: initialData?.born_at ? new Date(initialData.born_at) : null,
+      address: initialData?.address || null,
+      phone: initialData?.phone || null,
+      photo: initialData?.photo || null,
     },
   });
 
   const availablePrograms = programsData || [];
   const studentStatuses = ['Aktif', 'Non-Aktif', 'Lulus', 'Cuti'];
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const payload: CreateUpdateStudentRequest = {
-      first_name: values.first_name,
-      last_name: values.last_name,
-      nis: values.nis,
-      nik: values.nik,
-      period: values.period,
-      gender: values.gender,
-      status: values.status,
-      program_id: values.program_id,
-      born_in: values.born_in,
-      born_at: values.born_at ? format(values.born_at, 'yyyy-MM-dd') : null,
-      address: values.address,
-      phone: values.phone,
-      photo: values.photo,
-    };
-
-    try {
-      if (initialData) {
-        await updateStudent({ id: initialData.id, data: payload }).unwrap();
-        toast.success(`Data santri "${values.first_name} ${values.last_name || ''}" berhasil diperbarui.`);
-      } else {
-        await createStudent(payload).unwrap();
-        toast.success(`Santri "${values.first_name} ${values.last_name || ''}" berhasil ditambahkan.`);
-      }
-      onSuccess();
-    } catch (err: unknown) {
-      let errorMessage = 'Terjadi kesalahan tidak dikenal.';
-
-      if (typeof err === 'object' && err !== null) {
-        if ('status' in err) {
-          const fetchError = err as FetchBaseQueryError;
-          if (typeof fetchError.status === 'number') {
-            if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
-              errorMessage = (fetchError.data as { message: string }).message;
-            } else {
-              errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
-            }
-          } else if (typeof fetchError.status === 'string' && 'error' in fetchError) {
-            errorMessage = fetchError.error;
-          } else {
-            errorMessage = `Error: ${JSON.stringify(fetchError)}`;
-          }
-        } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
-          errorMessage = (err as SerializedError).message;
-        } else {
-          errorMessage = `Terjadi kesalahan: ${JSON.stringify(err)}`;
-        }
-      } else if (typeof err === 'string') {
-        errorMessage = err;
-      }
-
-      toast.error(`Gagal menyimpan data santri: ${errorMessage}`);
-    }
-  };
-
-  const isSubmitting = isCreating || isUpdating;
 
   return (
     <Form {...form}>
@@ -231,7 +141,7 @@ const SantriForm: React.FC<SantriFormProps> = ({ initialData, onSuccess, onCance
             name="nik"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>NIK (Opsional)</FormLabel> {/* Fixed: Added closing tag */}
+                <FormLabel>NIK (Opsional)</Label>
                 <FormControl>
                   <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} value={field.value || ''} />
                 </FormControl>
@@ -402,7 +312,7 @@ const SantriForm: React.FC<SantriFormProps> = ({ initialData, onSuccess, onCance
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Telepon (Opsional)</FormLabel> {/* Fixed: Added closing tag */}
+                <FormLabel>Telepon (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
                 </FormControl>
@@ -415,7 +325,7 @@ const SantriForm: React.FC<SantriFormProps> = ({ initialData, onSuccess, onCance
             name="photo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL Foto (Opsional)</FormLabel> {/* Fixed: Added closing tag */}
+                <FormLabel>URL Foto (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="https://example.com/foto.jpg" {...field} value={field.value || ''} />
                 </FormControl>
@@ -425,11 +335,11 @@ const SantriForm: React.FC<SantriFormProps> = ({ initialData, onSuccess, onCance
           />
         </div>
         <div className="flex justify-end space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            Batal
+          <Button type="button" variant="outline" onClick={onBack} disabled={isSubmitting}>
+            Kembali
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Santri')}
+            {isSubmitting ? 'Menyimpan...' : 'Tambah Santri'}
           </Button>
         </div>
       </form>
@@ -437,4 +347,4 @@ const SantriForm: React.FC<SantriFormProps> = ({ initialData, onSuccess, onCance
   );
 };
 
-export default SantriForm;
+export default StudentFormStep;
