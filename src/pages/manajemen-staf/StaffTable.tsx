@@ -3,7 +3,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -12,21 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import StaffForm from './StaffForm';
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
-  useDeleteEmployeeMutation,
 } from '@/store/slices/employeeApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -48,13 +37,10 @@ interface Staff {
 
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading, refetch } = useGetEmployeesQuery();
-  const [deleteEmployee] = useDeleteEmployeeMutation();
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const employees: Staff[] = useMemo(() => {
@@ -81,51 +67,6 @@ const StaffTable: React.FC = () => {
   const handleEditData = (staff: Staff) => {
     setEditingStaff(staff);
     setIsModalOpen(true);
-  };
-
-  const handleDeleteClick = (staff: Staff) => {
-    setStaffToDelete(staff);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (staffToDelete) {
-      try {
-        await deleteEmployee(staffToDelete.id).unwrap();
-        toast.success(`Staf "${staffToDelete.fullName}" berhasil dihapus.`);
-        setStaffToDelete(undefined);
-        setIsDeleteDialogOpen(false);
-      } catch (err: unknown) {
-        let errorMessage = 'Terjadi kesalahan tidak dikenal.';
-        if (typeof err === 'object' && err !== null) {
-          if ('status' in err) {
-            const fetchError = err as FetchBaseQueryError;
-            if (typeof fetchError.status === 'number') {
-              if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
-                errorMessage = (fetchError.data as { message: string }).message;
-              } else {
-                errorMessage = `Error ${fetchError.status}: ${JSON.stringify(fetchError.data || {})}`;
-              }
-            } else if (typeof fetchError.status === 'string') {
-              if ('error' in fetchError && typeof fetchError.error === 'string') {
-                errorMessage = fetchError.error;
-              } else {
-                errorMessage = `Error: ${fetchError.status} - ${JSON.stringify(fetchError)}`;
-              }
-            } else {
-              errorMessage = `Error: ${JSON.stringify(fetchError)}`;
-            }
-          } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
-            errorMessage = (err as SerializedError).message;
-          } else {
-            errorMessage = `Terjadi kesalahan: ${JSON.stringify(err)}`;
-          }
-        } else if (typeof err === 'string') {
-          errorMessage = err;
-        }
-        toast.error(`Gagal menghapus staf: ${errorMessage}`);
-      }
-    }
   };
 
   const handleFormSuccess = () => {
@@ -188,16 +129,6 @@ const StaffTable: React.FC = () => {
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
-              </Button>
-              <Button
-                variant="destructive"
-                className="h-8 px-2 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(staff);
-                }}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
             </div>
           );
@@ -272,22 +203,6 @@ const StaffTable: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus staf{' '}
-              <span className="font-semibold text-foreground">"{staffToDelete?.fullName}"</span> secara permanen.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };
