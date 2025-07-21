@@ -30,11 +30,12 @@ import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import SettingsPage from "@/pages/utility/SettingsPage";
-import { ThemeProvider } from "@/components/theme-provider";
+import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage"; 
 
 // Redux imports
 import { Provider } from 'react-redux';
 import { store } from './store';
+import { ThemeProvider } from '@/components/theme-provider'; // Import ThemeProvider
 
 const App = () => (
   <Provider store={store}>
@@ -53,6 +54,8 @@ const App = () => (
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
+            <Route path="/dashboard/santri/add" element={<SantriFormPage />} />
+            <Route path="/dashboard/santri/edit/:id" element={<SantriFormPage />} />
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />

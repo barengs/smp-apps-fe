@@ -87,7 +87,7 @@ const SantriTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.info(`Mengedit santri: ${santri.fullName}`);
+                  navigate(`/dashboard/santri/edit/${santri.id}`);
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
@@ -101,8 +101,7 @@ const SantriTable: React.FC = () => {
   );
 
   const handleAddData = () => {
-    toast.info('Membuka form tambah data santri...');
-    // Logic to open add student form will be implemented later
+    navigate('/dashboard/santri/add');
   };
 
   if (isLoading) return <TableLoadingSkeleton numCols={8} />;

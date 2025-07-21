@@ -62,6 +62,22 @@ interface GetStudentByIdResponse {
   data: StudentDetailData;
 }
 
+// --- Request Types for Create/Update Student ---
+export interface CreateUpdateStudentRequest {
+  first_name: string;
+  last_name?: string | null;
+  nis: string;
+  nik?: string | null;
+  period: string;
+  gender: 'L' | 'P';
+  status: string;
+  program_id: number;
+  born_in?: string | null;
+  born_at?: string | null; // Date string (e.g., YYYY-MM-DD)
+  address?: string | null;
+  phone?: string | null;
+  photo?: string | null; // URL for photo
+}
 
 export const studentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -73,7 +89,30 @@ export const studentApi = smpApi.injectEndpoints({
       query: (id) => `student/${id}`,
       providesTags: (result, error, id) => [{ type: 'Student', id }],
     }),
+    createStudent: builder.mutation<StudentApiData, CreateUpdateStudentRequest>({
+      query: (newStudent) => ({
+        url: 'student',
+        method: 'POST',
+        body: newStudent,
+      }),
+      invalidatesTags: ['Student'],
+    }),
+    updateStudent: builder.mutation<StudentApiData, { id: number; data: CreateUpdateStudentRequest }>({
+      query: ({ id, data }) => ({
+        url: `student/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Student'],
+    }),
+    deleteStudent: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `student/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Student'],
+    }),
   }),
 });
 
-export const { useGetStudentsQuery, useGetStudentByIdQuery } = studentApi;
+export const { useGetStudentsQuery, useGetStudentByIdQuery, useCreateStudentMutation, useUpdateStudentMutation, useDeleteStudentMutation } = studentApi;
