@@ -58,12 +58,14 @@ const AdministrasiDashboard: React.FC = () => {
                 description="Jumlah santri aktif saat ini"
               />
             </Link>
-            <StatCard
-              title="Total Asatidz"
-              value={dashboardData?.asatidz ?? 0}
-              icon={<Briefcase className="h-6 w-6 text-muted-foreground" />}
-              description="Jumlah staf pengajar"
-            />
+            <Link to="/dashboard/staf">
+              <StatCard
+                title="Total Asatidz"
+                value={dashboardData?.asatidz ?? 0}
+                icon={<Briefcase className="h-6 w-6 text-muted-foreground" />}
+                description="Jumlah staf pengajar"
+              />
+            </Link>
             <StatCard
               title="Total Alumni"
               value={dashboardData?.alumni ?? 0}
