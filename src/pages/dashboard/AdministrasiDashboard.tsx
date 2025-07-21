@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck } from 'lucide-react';
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Link } from 'react-router-dom';
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
-  <Card>
+  <Card className="transition-all hover:shadow-md">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
       {icon}
@@ -49,12 +50,14 @@ const AdministrasiDashboard: React.FC = () => {
           <div className="col-span-full text-red-500">Gagal memuat data statistik.</div>
         ) : (
           <>
-            <StatCard
-              title="Total Santri"
-              value={dashboardData?.santri ?? 0}
-              icon={<Users className="h-6 w-6 text-muted-foreground" />}
-              description="Jumlah santri aktif saat ini"
-            />
+            <Link to="/dashboard/santri">
+              <StatCard
+                title="Total Santri"
+                value={dashboardData?.santri ?? 0}
+                icon={<Users className="h-6 w-6 text-muted-foreground" />}
+                description="Jumlah santri aktif saat ini"
+              />
+            </Link>
             <StatCard
               title="Total Asatidz"
               value={dashboardData?.asatidz ?? 0}
