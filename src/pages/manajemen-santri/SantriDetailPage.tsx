@@ -102,8 +102,16 @@ const SantriDetailPage: React.FC = () => {
     if (!parentsData) return 'Data tidak tersedia';
     const parentsArray = Array.isArray(parentsData) ? parentsData : Object.values(parentsData);
     if (parentsArray.length === 0) return 'Tidak ada data orang tua';
+    
     return parentsArray
-      .map(p => (p && typeof p === 'object' && p.first_name) ? `${p.first_name} ${p.last_name || ''}`.trim() : null)
+      .map(p => {
+        // Data wali santri memiliki detail yang bersarang di dalam properti 'parent'
+        const parentDetails = p?.parent;
+        if (parentDetails && typeof parentDetails === 'object' && parentDetails.first_name) {
+          return `${parentDetails.first_name} ${parentDetails.last_name || ''}`.trim();
+        }
+        return null;
+      })
       .filter(Boolean)
       .join(', ');
   };
