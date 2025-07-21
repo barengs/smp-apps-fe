@@ -101,8 +101,12 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  const handleExportPdf = () => {
-    toast.info(`Mengekspor data ke PDF...`);
+  const exportToPdf = (allData: boolean) => {
+    const exportData = allData ? data : table.getRowModel().rows.map(row => row.original);
+    const fileNameSuffix = allData ? '_semua' : '';
+    const toastMessage = allData ? 'Mengekspor semua data ke PDF...' : 'Mengekspor tampilan saat ini ke PDF...';
+
+    toast.info(toastMessage);
     const doc = new jsPDF();
     const date = new Date().toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -117,8 +121,11 @@ export function DataTable<TData, TValue>({
 
     const headers = exportableColumns.map(col => String(col.header));
 
-    const tableData = table.getRowModel().rows.map(row => {
-      return exportableColumns.map(col => String(row.original[col.accessorKey]));
+    const tableData = exportData.map(item => {
+      return exportableColumns.map(col => {
+        const value = item[col.accessorKey];
+        return value !== null && value !== undefined ? String(value) : '';
+      });
     });
 
     if (tableData.length === 0) {
@@ -128,7 +135,6 @@ export function DataTable<TData, TValue>({
 
     doc.setFontSize(18);
     doc.text(exportTitle, 14, 15);
-
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Tanggal Cetak: ${date}`, 14, 22);
@@ -141,13 +147,17 @@ export function DataTable<TData, TValue>({
       styles: { fontSize: 8, cellPadding: 3 },
       margin: { top: 10, right: 10, bottom: 10, left: 10 },
     });
-    doc.save(`${exportFileName}.pdf`);
+    doc.save(`${exportFileName}${fileNameSuffix}.pdf`);
     toast.success('Data berhasil diekspor ke PDF!');
   };
 
-  const handleExportExcel = () => {
-    toast.info(`Mengekspor data ke Excel...`);
-    const dataToExport = table.getRowModel().rows.map(row => {
+  const exportToExcel = (allData: boolean) => {
+    const exportData = allData ? data : table.getRowModel().rows.map(row => row.original);
+    const fileNameSuffix = allData ? '_semua' : '';
+    const toastMessage = allData ? 'Mengekspor semua data ke Excel...' : 'Mengekspor tampilan saat ini ke Excel...';
+
+    toast.info(toastMessage);
+    const dataToExport = exportData.map(item => {
       const rowData: { [key: string]: any } = {};
       const exportableColumns = columns.filter(
         (col): col is ColumnDef<TData> & { accessorKey: keyof TData } =>
@@ -156,15 +166,21 @@ export function DataTable<TData, TValue>({
 
       exportableColumns.forEach(col => {
         const header = String(col.header);
-        rowData[header] = String(row.original[col.accessorKey]);
+        const value = item[col.accessorKey];
+        rowData[header] = value !== null && value !== undefined ? String(value) : '';
       });
       return rowData;
     });
 
+    if (dataToExport.length === 0) {
+      toast.error('Tidak ada data untuk diekspor ke Excel.');
+      return;
+    }
+
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportTitle);
-    XLSX.writeFile(wb, `${exportFileName}.xlsx`);
+    XLSX.writeFile(wb, `${exportFileName}${fileNameSuffix}.xlsx`);
     toast.success('Data berhasil diekspor ke Excel!');
   };
 
@@ -255,13 +271,20 @@ export function DataTable<TData, TValue>({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Ekspor Data</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleExportPdf}>
+              <DropdownMenuLabel>Ekspor Tampilan Saat Ini</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => exportToPdf(false)}>
                 Ekspor ke PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportExcel}>
+              <DropdownMenuItem onClick={() => exportToExcel(false)}>
                 Ekspor ke Excel
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Ekspor Semua Data</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => exportToPdf(true)}>
+                Ekspor Semua ke PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToExcel(true)}>
+                Ekspor Semua ke Excel
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
