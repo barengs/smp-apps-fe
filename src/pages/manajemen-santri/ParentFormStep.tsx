@@ -81,34 +81,6 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="first_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Depan Wali</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Budi" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="last_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Belakang Wali (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Santoso" {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
             name="kk"
             render={({ field }) => (
               <FormItem>
@@ -128,6 +100,34 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
                 <FormLabel>NIK Wali</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Depan Wali</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: Budi" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Belakang Wali (Opsional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: Santoso" {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
