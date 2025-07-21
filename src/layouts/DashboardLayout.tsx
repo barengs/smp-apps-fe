@@ -143,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant={isActive ? "secondary" : "ghost"}
-                            className="w-full flex h-9 w-9 items-center justify-center rounded-lg p-0"
+                            className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg p-0"
                             size="icon"
                           >
                             {item.icon}
