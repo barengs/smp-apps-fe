@@ -107,7 +107,6 @@ const SantriDetailPage: React.FC = () => {
     
     return parentsArray
       .map(p => {
-        // Akses langsung properti first_name dan last_name dari objek p
         if (p && typeof p === 'object' && p.first_name) {
           return `${p.first_name} ${p.last_name || ''}`.trim();
         }
