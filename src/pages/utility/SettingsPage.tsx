@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Palette, User, Shield } from 'lucide-react';
+import { Settings, Palette, Shield, BookOpenText } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
@@ -13,9 +13,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
+
+  const handleSaveChanges = () => {
+    toast.success("Perubahan berhasil disimpan! (Simulasi)");
+  };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Pengaturan', icon: <Settings className="h-4 w-4" /> },
@@ -54,21 +61,39 @@ const SettingsPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Pengaturan Profil */}
+          {/* Pengaturan Profil Aplikasi */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Profil Pengguna
+                <BookOpenText className="h-5 w-5" />
+                Profil Aplikasi
               </CardTitle>
               <CardDescription>
-                Kelola informasi profil Anda.
+                Kelola informasi dasar mengenai aplikasi Anda.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">Nama: Nama Pengguna</p>
-              <p className="text-sm text-muted-foreground">Email: pengguna@example.com</p>
-              <Button variant="outline">Edit Profil</Button>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center shrink-0">
+                  <BookOpenText className="w-12 h-12 text-muted-foreground" />
+                </div>
+                <div className="space-y-2 w-full">
+                  <Label htmlFor="logo-upload">Logo Aplikasi</Label>
+                  <Input id="logo-upload" type="file" className="max-w-xs" />
+                  <p className="text-xs text-muted-foreground">Unggah file PNG atau JPG. Ukuran maks 1MB.</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="app-name">Nama Aplikasi</Label>
+                <Input id="app-name" defaultValue="Sistem Manajemen Pesantren" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="app-description">Deskripsi Aplikasi</Label>
+                <Textarea id="app-description" defaultValue="Aplikasi komprehensif untuk mengelola semua aspek operasional pesantren secara digital." />
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={handleSaveChanges}>Simpan Perubahan</Button>
+              </div>
             </CardContent>
           </Card>
 
