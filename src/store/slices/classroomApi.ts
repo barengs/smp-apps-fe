@@ -6,15 +6,20 @@ import { smpApi } from '../baseApi';
 interface ClassroomApiData {
   id: number;
   name: string;
+  parent_id: number | null;
   description: string;
 }
 
-// The GET response is a direct array
-type GetClassroomsResponse = ClassroomApiData[];
+// The GET response is an object with a 'data' property
+interface GetClassroomsResponse {
+  message: string;
+  data: ClassroomApiData[];
+}
 
 // Structure for the POST/PUT request body
 export interface CreateUpdateClassroomRequest {
-  name: string;
+  name:string;
+  parent_id?: number | null;
   description?: string;
 }
 

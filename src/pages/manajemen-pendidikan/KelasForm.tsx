@@ -13,8 +13,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useCreateClassroomMutation, useUpdateClassroomMutation, type CreateUpdateClassroomRequest } from '@/store/slices/classroomApi';
+import { useCreateClassroomMutation, useUpdateClassroomMutation, useGetClassroomsQuery, type CreateUpdateClassroomRequest } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
@@ -22,6 +29,7 @@ const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Nama Kelas harus diisi.',
   }),
+  parent_id: z.number().nullable().optional(),
   description: z.string().optional(),
 });
 
@@ -29,6 +37,7 @@ interface KelasFormProps {
   initialData?: {
     id: number;
     name: string;
+    parent_id: number | null;
     description: string;
   };
   onSuccess: () => void;
@@ -38,12 +47,18 @@ interface KelasFormProps {
 const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createClassroom, { isLoading: isCreating }] = useCreateClassroomMutation();
   const [updateClassroom, { isLoading: isUpdating }] = useUpdateClassroomMutation();
+  const { data: classroomsData, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      name: initialData.name,
+      description: initialData.description,
+      parent_id: initialData.parent_id,
+    } : {
       name: '',
       description: '',
+      parent_id: null,
     },
   });
 
@@ -51,6 +66,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
     const payload: CreateUpdateClassroomRequest = {
       name: values.name,
       description: values.description,
+      parent_id: values.parent_id,
     };
 
     try {
@@ -94,6 +110,41 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
               <FormControl>
                 <Input placeholder="Contoh: Kelas 7A" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="parent_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Induk Kelas</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(value ? parseInt(value, 10) : null)}
+                defaultValue={field.value ? String(field.value) : ""}
+                disabled={isLoadingClassrooms}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih induk kelas (opsional)..." />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="">Tidak ada induk</SelectItem>
+                  {isLoadingClassrooms ? (
+                    <div className="p-2">Memuat kelas...</div>
+                  ) : (
+                    classroomsData?.data
+                      .filter(c => !initialData || c.id !== initialData.id)
+                      .map((classroom) => (
+                        <SelectItem key={classroom.id} value={String(classroom.id)}>
+                          {classroom.name}
+                        </SelectItem>
+                      ))
+                  )}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
