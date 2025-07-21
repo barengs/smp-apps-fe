@@ -121,8 +121,8 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
             <FormItem>
               <FormLabel>Induk Kelas</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(value ? parseInt(value, 10) : null)}
-                defaultValue={field.value ? String(field.value) : ""}
+                onValueChange={(value) => field.onChange(value === 'none' ? null : parseInt(value, 10))}
+                defaultValue={field.value ? String(field.value) : 'none'}
                 disabled={isLoadingClassrooms}
               >
                 <FormControl>
@@ -131,7 +131,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">Tidak ada induk</SelectItem>
+                  <SelectItem value="none">Tidak ada induk</SelectItem>
                   {isLoadingClassrooms ? (
                     <div className="p-2">Memuat kelas...</div>
                   ) : (
