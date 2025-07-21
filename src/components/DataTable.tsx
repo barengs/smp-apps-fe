@@ -173,14 +173,9 @@ export function DataTable<TData, TValue>({
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
             </Button>
           )}
-          {onImportData && (
-            <Button variant="outline" onClick={onImportData}>
-              <Upload className="mr-2 h-4 w-4" /> Impor
-            </Button>
-          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="outline">
                 Kolom <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -204,6 +199,12 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+          
+          {onImportData && (
+            <Button variant="outline" onClick={onImportData}>
+              <Upload className="mr-2 h-4 w-4" /> Impor
+            </Button>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
