@@ -136,7 +136,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
                     <div className="p-2">Memuat kelas...</div>
                   ) : (
                     classroomsData?.data
-                      .filter(c => !initialData || c.id !== initialData.id)
+                      ?.filter(c => !initialData || c.id !== initialData.id)
                       .map((classroom) => (
                         <SelectItem key={classroom.id} value={String(classroom.id)}>
                           {classroom.name}
