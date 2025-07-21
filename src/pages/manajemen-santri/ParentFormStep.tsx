@@ -30,12 +30,12 @@ export const parentFormSchema = z.object({
   email: z.string().email({
     message: 'Email tidak valid.',
   }),
-  kk: z.string().min(1, {
-    message: 'Nomor KK tidak boleh kosong.',
-  }),
-  nik: z.string().min(1, {
-    message: 'NIK tidak boleh kosong.',
-  }),
+  kk: z.string()
+    .regex(/^\d+$/, { message: 'Nomor KK hanya boleh angka.' })
+    .length(16, { message: 'Nomor KK harus 16 digit.' }),
+  nik: z.string()
+    .regex(/^\d+$/, { message: 'NIK hanya boleh angka.' })
+    .length(16, { message: 'NIK harus 16 digit.' }),
   gender: z.enum(['L', 'P'], {
     required_error: 'Jenis kelamin harus dipilih.',
   }),
