@@ -37,6 +37,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Bahasa Indonesia</DropdownMenuItem>
               <DropdownMenuItem>English</DropdownMenuItem>
+              <DropdownMenuItem>العربية</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>

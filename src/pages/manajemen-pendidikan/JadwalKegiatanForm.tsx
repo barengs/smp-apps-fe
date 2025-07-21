@@ -14,18 +14,20 @@ import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { Kegiatan } from './JadwalKegiatanPage';
 
+// The schema is the single source of truth.
 const formSchema = z.object({
   title: z.string().min(3, { message: 'Judul harus memiliki minimal 3 karakter.' }),
   description: z.string().optional(),
   date: z.date({ required_error: 'Tanggal kegiatan harus diisi.' }),
 });
 
+// We infer the type from the schema.
 type FormValues = z.infer<typeof formSchema>;
 
 interface JadwalKegiatanFormProps {
   initialData?: Kegiatan;
   selectedDate?: Date;
-  onSuccess: (data: Omit<Kegiatan, 'id'>) => void;
+  onSuccess: (data: FormValues) => void;
   onCancel: () => void;
 }
 
