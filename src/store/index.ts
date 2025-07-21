@@ -17,6 +17,7 @@ import './slices/programApi'; // Import the new program slice
 import './slices/hostelApi';
 import './slices/educationApi';
 import './slices/classroomApi';
+import './slices/classGroupApi';
 
 export const store = configureStore({
   reducer: {

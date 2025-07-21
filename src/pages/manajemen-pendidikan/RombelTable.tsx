@@ -1,0 +1,184 @@
+import React, { useMemo, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { Button } from '@/components/ui/button';
+import { Edit, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { DataTable } from '../../components/DataTable';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import RombelForm from './RombelForm';
+import { useGetClassGroupsQuery, useDeleteClassGroupMutation } from '@/store/slices/classGroupApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+
+interface Rombel {
+  id: number;
+  name: string;
+  classroom_id: number;
+  classroom: {
+    name: string;
+  };
+}
+
+const RombelTable: React.FC = () => {
+  const { data: classGroupsData, error, isLoading } = useGetClassGroupsQuery();
+  const [deleteClassGroup] = useDeleteClassGroupMutation();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingRombel, setEditingRombel] = useState<Rombel | undefined>(undefined);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [rombelToDelete, setRombelToDelete] = useState<Rombel | undefined>(undefined);
+
+  const rombels: Rombel[] = useMemo(() => {
+    return classGroupsData?.data || [];
+  }, [classGroupsData]);
+
+  const handleAddData = () => {
+    setEditingRombel(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEditData = (rombel: Rombel) => {
+    setEditingRombel(rombel);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (rombel: Rombel) => {
+    setRombelToDelete(rombel);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (rombelToDelete) {
+      try {
+        await deleteClassGroup(rombelToDelete.id).unwrap();
+        toast.success(`Rombel "${rombelToDelete.name}" berhasil dihapus.`);
+      } catch (err) {
+        const fetchError = err as FetchBaseQueryError;
+        const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus rombel.';
+        toast.error(errorMessage);
+      } finally {
+        setRombelToDelete(undefined);
+        setIsDeleteDialogOpen(false);
+      }
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    setEditingRombel(undefined);
+  };
+
+  const handleFormCancel = () => {
+    setIsModalOpen(false);
+    setEditingRombel(undefined);
+  };
+
+  const columns: ColumnDef<Rombel>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Nama Rombel',
+      },
+      {
+        accessorFn: row => row.classroom.name,
+        id: 'classroomName',
+        header: 'Kelas',
+      },
+      {
+        id: 'actions',
+        header: 'Aksi',
+        cell: ({ row }) => {
+          const rombel = row.original;
+          return (
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleEditData(rombel)}
+              >
+                <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="destructive"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleDeleteClick(rombel)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Hapus
+              </Button>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
+
+  const isNotFound = error && (error as FetchBaseQueryError).status === 404;
+  if (error && !isNotFound) {
+    return <div>Error: Gagal memuat data. Silakan coba lagi nanti.</div>;
+  }
+
+  return (
+    <>
+      <DataTable
+        columns={columns}
+        data={rombels}
+        exportFileName="data_rombel"
+        exportTitle="Data Rombongan Belajar"
+        onAddData={handleAddData}
+      />
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{editingRombel ? 'Edit Rombel' : 'Tambah Rombel Baru'}</DialogTitle>
+            <DialogDescription>
+              {editingRombel ? 'Ubah detail rombel ini.' : 'Isi detail untuk rombel baru.'}
+            </DialogDescription>
+          </DialogHeader>
+          <RombelForm
+            initialData={editingRombel}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus rombel{' '}
+              <span className="font-semibold text-foreground">"{rombelToDelete?.name}"</span> secara permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};
+
+export default RombelTable;
