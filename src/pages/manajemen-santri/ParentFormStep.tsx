@@ -106,19 +106,6 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Wali</FormLabel>
-              <FormControl>
-                <Input placeholder="contoh@email.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -147,6 +134,19 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             )}
           />
         </div>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email Wali</FormLabel>
+              <FormControl>
+                <Input placeholder="contoh@email.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
