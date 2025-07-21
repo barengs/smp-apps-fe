@@ -13,7 +13,7 @@ i18n
     debug: false,
     detection: {
       order: ['queryString', 'cookie'],
-      cache: ['cookie'],
+      caches: ['cookie'],
     },
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
