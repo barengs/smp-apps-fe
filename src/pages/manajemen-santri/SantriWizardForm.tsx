@@ -9,8 +9,8 @@ import { useCreateParentMutation, type CreateUpdateParentRequest } from '@/store
 import { useCreateStudentMutation, type CreateUpdateStudentRequest } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import * as z from 'zod'; // Added import for zod
-import { format } from 'date-fns'; // Added import for format
+import * as z from 'zod';
+import { format } from 'date-fns';
 
 type ParentData = z.infer<typeof parentFormSchema>;
 type StudentData = z.infer<typeof studentFormSchema>;
@@ -41,6 +41,28 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
     const loadingToast = toast.loading('Menyimpan data santri dan wali...');
 
     try {
+      let photoUrl: string | null = null;
+      if (parentFormData.photo instanceof File) {
+        const fileToUpload = parentFormData.photo; // Capture the File object here
+        // Simulate file upload and get a URL
+        // In a real application, you would send this file to your backend/storage service
+        // and get the actual URL back.
+        // For example, using FormData and fetch:
+        // const formData = new FormData();
+        // formData.append('file', fileToUpload);
+        // const uploadResponse = await fetch('/api/upload-photo', { method: 'POST', body: formData });
+        // const uploadData = await uploadResponse.json();
+        // photoUrl = uploadData.url;
+        
+        // For now, we'll use a placeholder URL
+        photoUrl = await new Promise(resolve => setTimeout(() => {
+          console.log(`Simulating upload of file: ${fileToUpload.name}`);
+          resolve('https://via.placeholder.com/150/0000FF/FFFFFF?text=Uploaded');
+        }, 1500));
+      } else if (typeof parentFormData.photo === 'string') {
+        photoUrl = parentFormData.photo; // Keep existing URL if it's an edit scenario
+      }
+
       // 1. Create Parent
       const parentPayload: CreateUpdateParentRequest = {
         first_name: parentFormData.first_name!,
@@ -52,7 +74,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
         parent_as: parentFormData.parent_as!,
         phone: parentFormData.phone,
         card_address: parentFormData.card_address,
-        photo: parentFormData.photo,
+        photo: photoUrl, // Use the obtained URL
       };
       const parentResponse = await createParent(parentPayload).unwrap();
       const newParentId = parentResponse.id; // Assuming API returns the ID of the new parent

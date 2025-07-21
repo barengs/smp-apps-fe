@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { CreateUpdateParentRequest } from '@/store/slices/parentApi';
 
 export const parentFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -44,13 +43,13 @@ export const parentFormSchema = z.object({
   }),
   phone: z.string().nullable().optional(),
   card_address: z.string().nullable().optional(),
-  photo: z.string().url({ message: 'URL foto tidak valid.' }).nullable().optional(),
+  photo: z.instanceof(File).nullable().optional().or(z.string().url().nullable().optional()),
 });
 
 type ParentFormValues = z.infer<typeof parentFormSchema>;
 
 interface ParentFormStepProps {
-  initialData?: Partial<CreateUpdateParentRequest>;
+  initialData?: Partial<ParentFormValues>;
   onNext: (data: ParentFormValues) => void;
   onCancel: () => void;
   isSubmitting: boolean;
@@ -230,11 +229,27 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           name="photo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>URL Foto Wali (Opsional)</FormLabel>
+              <FormLabel>Foto Wali (Opsional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/foto_wali.jpg" {...field} value={field.value || ''} />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      field.onChange(e.target.files[0]);
+                    } else {
+                      field.onChange(null);
+                    }
+                  }}
+                />
               </FormControl>
               <FormMessage />
+              {field.value instanceof File && (
+                <p className="text-sm text-muted-foreground mt-1">File dipilih: {field.value.name}</p>
+              )}
+              {typeof field.value === 'string' && field.value && (
+                <p className="text-sm text-muted-foreground mt-1">URL foto saat ini: {field.value}</p>
+              )}
             </FormItem>
           )}
         />
