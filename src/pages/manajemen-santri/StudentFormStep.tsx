@@ -60,7 +60,7 @@ export const studentFormSchema = z.object({
 type StudentFormValues = z.infer<typeof studentFormSchema>;
 
 interface StudentFormStepProps {
-  initialData?: Partial<StudentFormValues>; // Changed type here
+  initialData?: Partial<StudentFormValues>;
   onBack: () => void;
   onSubmit: (data: StudentFormValues) => void;
   isSubmitting: boolean;
@@ -141,7 +141,7 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
             name="nik"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>NIK (Opsional)</Label>
+                <FormLabel>NIK (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} value={field.value || ''} />
                 </FormControl>
