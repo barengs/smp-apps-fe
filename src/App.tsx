@@ -22,6 +22,7 @@ import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage"
 import ProgramPage from "@/pages/manajemen-pendidikan/ProgramPage";
 import AsramaPage from "@/pages/manajemen-pendidikan/AsramaPage";
 import JenjangPendidikanPage from "@/pages/manajemen-pendidikan/JenjangPendidikanPage";
+import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
 import { ThemeProvider } from "@/components/theme-provider";
 
 // Redux imports
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
             <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
             <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
+            <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
