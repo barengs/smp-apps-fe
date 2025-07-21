@@ -99,21 +99,31 @@ const SantriDetailPage: React.FC = () => {
   }
   
   const getParentNames = (parentsData: any): string => {
-    if (!parentsData) return 'Data tidak tersedia';
-    
-    const parentsArray = Array.isArray(parentsData) ? parentsData : Object.values(parentsData);
-    
-    if (parentsArray.length === 0) return 'Tidak ada data orang tua';
-    
-    return parentsArray
-      .map(p => {
-        if (p && typeof p === 'object' && p.first_name) {
+    if (!parentsData || typeof parentsData !== 'object' || Object.keys(parentsData).length === 0) {
+      return 'Tidak ada data orang tua';
+    }
+  
+    // Case 1: It's a single parent object directly.
+    if (typeof parentsData.first_name === 'string') {
+      return `${parentsData.first_name} ${parentsData.last_name || ''}`.trim();
+    }
+  
+    // Case 2: It's an array of parent objects or an object of parent objects.
+    const parentsArray = Object.values(parentsData);
+    const names = parentsArray
+      .map((p: any) => {
+        if (p && typeof p === 'object' && typeof p.first_name === 'string') {
           return `${p.first_name} ${p.last_name || ''}`.trim();
         }
         return null;
       })
-      .filter(Boolean)
-      .join(', ');
+      .filter(Boolean);
+  
+    if (names.length > 0) {
+      return names.join(', ');
+    }
+  
+    return 'Format data orang tua tidak dikenali';
   };
 
   const parentsNames = getParentNames(santri.parents);
