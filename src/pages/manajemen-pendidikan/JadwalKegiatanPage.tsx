@@ -1,15 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
 import JadwalKegiatanForm from './JadwalKegiatanForm';
-import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { toast } from 'sonner';
+import EventCalendar from '../../components/EventCalendar';
 
 export interface Kegiatan {
   id: number;
@@ -31,27 +29,20 @@ const JadwalKegiatanPage: React.FC = () => {
     { label: 'Jadwal Kegiatan', icon: <CalendarIcon className="h-4 w-4" /> },
   ];
 
-  const handleAddKegiatan = (kegiatan: Omit<Kegiatan, 'id'>) => {
+  const handleSaveKegiatan = (kegiatan: Omit<Kegiatan, 'id'>) => {
+    // This function will handle both add and edit in the future
     const newKegiatan = { ...kegiatan, id: Date.now() };
     setKegiatanList([...kegiatanList, newKegiatan]);
     toast.success(`Kegiatan "${newKegiatan.title}" berhasil ditambahkan.`);
     setIsDialogOpen(false);
+    setEditingKegiatan(undefined);
   };
 
-  const handleOpenDialog = (date?: Date) => {
+  const handleDateClick = (date: Date) => {
     setEditingKegiatan(undefined);
-    setSelectedDate(date || new Date());
+    setSelectedDate(date);
     setIsDialogOpen(true);
   };
-
-  const kegiatanPadaTanggalTerpilih = useMemo(() => {
-    if (!selectedDate) return [];
-    return kegiatanList.filter(
-      (k) => format(k.date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
-    );
-  }, [selectedDate, kegiatanList]);
-
-  const eventDates = useMemo(() => kegiatanList.map(k => k.date), [kegiatanList]);
 
   return (
     <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
@@ -64,46 +55,13 @@ const JadwalKegiatanPage: React.FC = () => {
                 <CardTitle>Kalender Kegiatan</CardTitle>
                 <CardDescription>Lihat dan kelola jadwal kegiatan pesantren.</CardDescription>
               </div>
-              <Button onClick={() => handleOpenDialog()}>
+              <Button onClick={() => handleDateClick(new Date())}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Tambah Kegiatan
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 flex justify-center">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-md border"
-                locale={id}
-                modifiers={{ event: eventDates }}
-                modifiersStyles={{
-                  event: {
-                    border: '2px solid currentColor',
-                    borderRadius: '50%',
-                    borderColor: 'hsl(var(--primary))',
-                  },
-                }}
-              />
-            </div>
-            <div className="md:col-span-1">
-              <h3 className="text-lg font-semibold mb-4">
-                Kegiatan pada {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: id }) : '...'}
-              </h3>
-              <div className="space-y-4">
-                {kegiatanPadaTanggalTerpilih.length > 0 ? (
-                  kegiatanPadaTanggalTerpilih.map((kegiatan) => (
-                    <div key={kegiatan.id} className="p-3 bg-muted rounded-lg">
-                      <p className="font-bold">{kegiatan.title}</p>
-                      <p className="text-sm text-muted-foreground">{kegiatan.description}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">Tidak ada kegiatan pada tanggal ini.</p>
-                )}
-              </div>
-            </div>
+          <CardContent>
+            <EventCalendar kegiatanList={kegiatanList} onDateClick={handleDateClick} />
           </CardContent>
         </Card>
       </div>
@@ -118,7 +76,8 @@ const JadwalKegiatanPage: React.FC = () => {
           </DialogHeader>
           <JadwalKegiatanForm
             selectedDate={selectedDate}
-            onSuccess={handleAddKegiatan}
+            initialData={editingKegiatan}
+            onSuccess={handleSaveKegiatan}
             onCancel={() => setIsDialogOpen(false)}
           />
         </DialogContent>

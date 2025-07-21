@@ -20,6 +20,8 @@ const formSchema = z.object({
   date: z.date({ required_error: 'Tanggal kegiatan harus diisi.' }),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface JadwalKegiatanFormProps {
   initialData?: Kegiatan;
   selectedDate?: Date;
@@ -28,7 +30,7 @@ interface JadwalKegiatanFormProps {
 }
 
 const JadwalKegiatanForm: React.FC<JadwalKegiatanFormProps> = ({ initialData, selectedDate, onSuccess, onCancel }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: initialData?.title || '',
@@ -37,7 +39,7 @@ const JadwalKegiatanForm: React.FC<JadwalKegiatanFormProps> = ({ initialData, se
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormValues) => {
     onSuccess(values);
   };
 
