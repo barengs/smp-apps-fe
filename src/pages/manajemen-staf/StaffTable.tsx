@@ -1,44 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import {
   ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  useReactTable,
-  VisibilityState,
 } from '@tanstack/react-table';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -65,29 +31,31 @@ import {
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import StaffImportDialog from './StaffImportDialog';
 
 interface Staff {
   id: number;
-  employee: { // Nested employee object
+  employee: {
     first_name: string;
     last_name: string;
   };
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
-  fullName: string; // Added for easier display and filtering
+  fullName: string;
 }
 
 const StaffTable: React.FC = () => {
-  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
+  const { data: employeesData, error, isLoading, refetch } = useGetEmployeesQuery();
   const [deleteEmployee] = useDeleteEmployeeMutation();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
@@ -99,7 +67,7 @@ const StaffTable: React.FC = () => {
         },
         email: apiEmployee.email,
         roles: apiEmployee.roles,
-        fullName: `${apiEmployee.employee.first_name} ${apiEmployee.employee.last_name}`, // Create fullName
+        fullName: `${apiEmployee.employee.first_name} ${apiEmployee.employee.last_name}`,
       }));
     }
     return [];
@@ -124,7 +92,7 @@ const StaffTable: React.FC = () => {
     if (staffToDelete) {
       try {
         await deleteEmployee(staffToDelete.id).unwrap();
-        toast.success(`Staf "${staffToDelete.fullName}" berhasil dihapus.`); // Use fullName for toast
+        toast.success(`Staf "${staffToDelete.fullName}" berhasil dihapus.`);
         setStaffToDelete(undefined);
         setIsDeleteDialogOpen(false);
       } catch (err: unknown) {
@@ -174,12 +142,17 @@ const StaffTable: React.FC = () => {
     navigate(`/dashboard/staf/${staff.id}`);
   };
 
+  const handleImportSuccess = () => {
+    setIsImportDialogOpen(false);
+    refetch();
+  };
+
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
-        accessorKey: 'fullName', // Use fullName for filtering/sorting
+        accessorKey: 'fullName',
         header: 'Nama Lengkap',
-        cell: ({ row }) => row.original.fullName, // Display fullName
+        cell: ({ row }) => row.original.fullName,
       },
       {
         accessorKey: 'email',
@@ -210,7 +183,7 @@ const StaffTable: React.FC = () => {
                 variant="outline"
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent row click from firing
+                  e.stopPropagation();
                   handleEditData(staff);
                 }}
               >
@@ -220,7 +193,7 @@ const StaffTable: React.FC = () => {
                 variant="destructive"
                 size="sm"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent row click from firing
+                  e.stopPropagation();
                   handleDeleteClick(staff);
                 }}
               >
@@ -274,7 +247,14 @@ const StaffTable: React.FC = () => {
         exportFileName="data_staf"
         exportTitle="Data Staf Pesantren"
         onAddData={handleAddData}
-        onRowClick={handleRowClick} // Pass the new prop
+        onImportData={() => setIsImportDialogOpen(true)}
+        onRowClick={handleRowClick}
+      />
+
+      <StaffImportDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onSuccess={handleImportSuccess}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

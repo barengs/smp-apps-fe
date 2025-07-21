@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle } from 'lucide-react';
+import { ChevronDown, FileDown, Search, PlusCircle, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -46,7 +46,8 @@ export interface DataTableProps<TData, TValue> {
   exportFileName: string;
   exportTitle: string;
   onAddData?: () => void;
-  onRowClick?: (rowData: TData) => void; // New prop for row click handler
+  onImportData?: () => void; // New prop for import
+  onRowClick?: (rowData: TData) => void;
 }
 
 // Type guard to check if a column has accessorKey
@@ -62,7 +63,8 @@ export function DataTable<TData, TValue>({
   exportFileName,
   exportTitle,
   onAddData,
-  onRowClick, // Destructure new prop
+  onImportData, // Destructure new prop
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -171,6 +173,11 @@ export function DataTable<TData, TValue>({
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
             </Button>
           )}
+          {onImportData && (
+            <Button variant="outline" onClick={onImportData}>
+              <Upload className="mr-2 h-4 w-4" /> Impor
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -243,8 +250,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  onClick={() => onRowClick && onRowClick(row.original)} // Add onClick handler
-                  className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""} // Add cursor and hover effect
+                  onClick={() => onRowClick && onRowClick(row.original)}
+                  className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-2">
