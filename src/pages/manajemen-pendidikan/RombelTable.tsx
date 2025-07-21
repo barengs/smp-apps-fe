@@ -92,13 +92,13 @@ const RombelTable: React.FC = () => {
   const columns: ColumnDef<Rombel>[] = useMemo(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Nama Rombel',
-      },
-      {
         accessorFn: row => row.classroom.name,
         id: 'classroomName',
         header: 'Kelas',
+      },
+      {
+        accessorKey: 'name',
+        header: 'Nama Rombel',
       },
       {
         id: 'actions',
