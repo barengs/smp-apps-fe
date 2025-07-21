@@ -27,6 +27,7 @@ import JadwalKegiatanPage from "@/pages/manajemen-pendidikan/JadwalKegiatanPage"
 import RombelPage from "@/pages/manajemen-pendidikan/RombelPage";
 import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
+import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
             <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
             <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
+            <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
             <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

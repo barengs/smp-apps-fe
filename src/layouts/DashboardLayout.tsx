@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -60,6 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       title: "Kurikulum",
       icon: <BookCopy className="h-5 w-5" />,
       children: [
+        { title: "Mata Pelajaran", href: "/dashboard/manajemen-kurikulum/mata-pelajaran", icon: <BookMarked className="h-4 w-4" /> },
         { title: "Kenaikan Kelas", href: "/dashboard/manajemen-kurikulum/kenaikan-kelas", icon: <TrendingUp className="h-4 w-4" /> },
         { title: "Jadwal Pelajaran", href: "/dashboard/manajemen-kurikulum/jadwal-pelajaran", icon: <CalendarClock className="h-4 w-4" /> },
       ],
