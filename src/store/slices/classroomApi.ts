@@ -2,21 +2,28 @@ import { smpApi } from '../baseApi';
 
 // --- API Response and Request Types ---
 
-// Structure for a single classroom object from the API
+// Menambahkan tipe untuk data class_groups yang bersarang
+interface ClassGroupNested {
+  id: number;
+  name: string;
+}
+
+// Struktur untuk satu objek classroom dari API
 interface ClassroomApiData {
   id: number;
   name: string;
   parent_id: number | null;
   description: string;
+  class_groups: ClassGroupNested[]; // Menambahkan field ini
 }
 
-// The GET response is an object with a 'data' property
+// Respons GET adalah objek dengan properti 'data'
 interface GetClassroomsResponse {
   message: string;
   data: ClassroomApiData[];
 }
 
-// Structure for the POST/PUT request body
+// Struktur untuk body request POST/PUT
 export interface CreateUpdateClassroomRequest {
   name:string;
   parent_id?: number | null;

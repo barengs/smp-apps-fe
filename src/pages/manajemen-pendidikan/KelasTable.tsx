@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, ChevronDown } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -25,12 +25,15 @@ import { useGetClassroomsQuery, useDeleteClassroomMutation } from '@/store/slice
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
 
 interface Kelas {
   id: number;
   name: string;
   parent_id: number | null;
   description: string;
+  class_groups: { name: string }[];
 }
 
 const KelasTable: React.FC = () => {
@@ -49,6 +52,7 @@ const KelasTable: React.FC = () => {
         name: c.name,
         parent_id: c.parent_id,
         description: c.description || 'Tidak ada deskripsi',
+        class_groups: c.class_groups || [],
       }));
     }
     return [];
@@ -102,13 +106,37 @@ const KelasTable: React.FC = () => {
         header: 'Nama Kelas',
       },
       {
-        accessorKey: 'parent_id',
-        header: 'Induk Kelas',
+        accessorKey: 'class_groups',
+        header: 'Rombel',
         cell: ({ row }) => {
-          const parentId = row.original.parent_id;
-          if (!parentId) return '-';
-          const parent = classrooms.find(c => c.id === parentId);
-          return parent ? parent.name : `ID: ${parentId}`;
+          const rombels = row.original.class_groups;
+          if (!rombels || rombels.length === 0) {
+            return <span className="text-muted-foreground">-</span>;
+          }
+
+          if (rombels.length === 1) {
+            return <Badge variant="outline">{rombels[0].name}</Badge>;
+          }
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8">
+                  {rombels.length} Rombel
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <div className="space-y-1">
+                  {rombels.map((rombel, index) => (
+                    <Badge key={index} variant="secondary" className="block w-full text-left font-normal whitespace-normal">
+                      {rombel.name}
+                    </Badge>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          );
         },
       },
       {
@@ -141,7 +169,7 @@ const KelasTable: React.FC = () => {
         },
       },
     ],
-    [classrooms]
+    []
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={4} />;
