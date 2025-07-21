@@ -78,6 +78,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onNext)} className="space-y-4">
+        {/* Identifikasi */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -106,6 +107,8 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             )}
           />
         </div>
+
+        {/* Informasi Pribadi */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -133,21 +136,6 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
               </FormItem>
             )}
           />
-        </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="max-w-md"> {/* Reduced width */}
-              <FormLabel>Email Wali</FormLabel>
-              <FormControl>
-                <Input placeholder="contoh@email.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="gender"
@@ -192,24 +180,41 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem className="max-w-md"> {/* Reduced width */}
-              <FormLabel>Telepon Wali (Opsional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
+        {/* Informasi Kontak */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Wali</FormLabel>
+                <FormControl>
+                  <Input placeholder="contoh@email.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telepon Wali (Opsional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="card_address"
           render={({ field }) => (
-            <FormItem className="max-w-md"> {/* Reduced width */}
+            <FormItem>
               <FormLabel>Alamat Wali (Opsional)</FormLabel>
               <FormControl>
                 <Textarea placeholder="Alamat lengkap wali..." {...field} value={field.value || ''} />
@@ -218,11 +223,13 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             </FormItem>
           )}
         />
+
+        {/* Foto */}
         <FormField
           control={form.control}
           name="photo"
           render={({ field }) => (
-            <FormItem className="max-w-md"> {/* Reduced width */}
+            <FormItem>
               <FormLabel>URL Foto Wali (Opsional)</FormLabel>
               <FormControl>
                 <Input placeholder="https://example.com/foto_wali.jpg" {...field} value={field.value || ''} />
@@ -231,6 +238,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             </FormItem>
           )}
         />
+
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
