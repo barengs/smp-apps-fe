@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Palette, Shield, BookOpenText } from 'lucide-react';
+import { Settings, Palette, Shield, BookOpenText, Globe } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
@@ -16,12 +16,18 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  const { i18n } = useTranslation();
 
   const handleSaveChanges = () => {
     toast.success("Perubahan berhasil disimpan! (Simulasi)");
+  };
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -44,7 +50,7 @@ const SettingsPage: React.FC = () => {
                 Sesuaikan tampilan aplikasi sesuai preferensi Anda.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <Label htmlFor="theme-select" className="text-base">Tema Aplikasi</Label>
                 <Select value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
@@ -55,6 +61,19 @@ const SettingsPage: React.FC = () => {
                     <SelectItem value="light">Terang</SelectItem>
                     <SelectItem value="dark">Gelap</SelectItem>
                     <SelectItem value="system">Sistem</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="language-select" className="text-base">Bahasa</Label>
+                <Select value={i18n.language} onValueChange={changeLanguage}>
+                  <SelectTrigger id="language-select" className="w-[180px]">
+                    <SelectValue placeholder="Pilih bahasa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="id">Bahasa Indonesia</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="ar">العربية</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
