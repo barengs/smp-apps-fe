@@ -30,7 +30,6 @@ interface JenjangPendidikan {
   id: number;
   name: string;
   description: string;
-  educationClassName: string;
 }
 
 const JenjangPendidikanTable: React.FC = () => {
@@ -38,7 +37,7 @@ const JenjangPendidikanTable: React.FC = () => {
   const [deleteEducationLevel] = useDeleteEducationLevelMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingData, setEditingData] = useState<Omit<JenjangPendidikan, 'educationClassName'> | undefined>(undefined);
+  const [editingData, setEditingData] = useState<JenjangPendidikan | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [dataToDelete, setDataToDelete] = useState<JenjangPendidikan | undefined>(undefined);
 
@@ -48,7 +47,6 @@ const JenjangPendidikanTable: React.FC = () => {
         id: item.id,
         name: item.name,
         description: item.description || 'Tidak ada deskripsi',
-        educationClassName: item.education_class?.name || 'N/A',
       }));
     }
     return [];
@@ -60,7 +58,7 @@ const JenjangPendidikanTable: React.FC = () => {
   };
 
   const handleEditData = (data: JenjangPendidikan) => {
-    setEditingData({ id: data.id, name: data.name, description: data.description });
+    setEditingData(data);
     setIsModalOpen(true);
   };
 
@@ -102,10 +100,6 @@ const JenjangPendidikanTable: React.FC = () => {
         header: 'Nama Jenjang',
       },
       {
-        accessorKey: 'educationClassName',
-        header: 'Kelas',
-      },
-      {
         accessorKey: 'description',
         header: 'Deskripsi',
       },
@@ -138,7 +132,7 @@ const JenjangPendidikanTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
