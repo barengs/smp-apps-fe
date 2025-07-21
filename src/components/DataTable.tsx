@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   ColumnDef,
   flexRender,
@@ -7,6 +7,9 @@ import {
   getPaginationRowModel,
   useReactTable,
   VisibilityState,
+  ColumnFiltersState,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -40,17 +43,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface FilterableColumn {
+  placeholder: string;
+}
+
 export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   exportFileName: string;
   exportTitle: string;
   onAddData?: () => void;
-  onImportData?: () => void; // New prop for import
+  onImportData?: () => void;
   onRowClick?: (rowData: TData) => void;
+  filterableColumns?: Record<string, FilterableColumn>;
 }
 
-// Type guard to check if a column has accessorKey
 function hasAccessorKey<TData>(
   column: ColumnDef<TData>
 ): column is ColumnDef<TData> & { accessorKey: keyof TData } {
@@ -63,10 +70,12 @@ export function DataTable<TData, TValue>({
   exportFileName,
   exportTitle,
   onAddData,
-  onImportData, // Destructure new prop
+  onImportData,
   onRowClick,
+  filterableColumns = {},
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
@@ -75,12 +84,16 @@ export function DataTable<TData, TValue>({
     state: {
       globalFilter,
       columnVisibility,
+      columnFilters,
     },
     onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     initialState: {
       pagination: {
         pageSize: 5,
@@ -158,14 +171,43 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cari..."
-            value={globalFilter ?? ''}
-            onChange={(event) => setGlobalFilter(event.target.value)}
-            className="pl-9"
-          />
+        <div className="flex items-center space-x-2">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cari..."
+              value={globalFilter ?? ''}
+              onChange={(event) => setGlobalFilter(event.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {Object.keys(filterableColumns).map((columnId) => {
+            const column = table.getColumn(columnId);
+            if (!column) return null;
+
+            const facetedValues = column.getFacetedUniqueValues();
+            const sortedValues = Array.from(facetedValues.keys()).sort();
+
+            return (
+              <Select
+                key={columnId}
+                onValueChange={(value) => column.setFilterValue(value === 'all' ? undefined : value)}
+                value={(column.getFilterValue() as string) ?? 'all'}
+              >
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder={filterableColumns[columnId].placeholder} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua</SelectItem>
+                  {sortedValues.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            );
+          })}
         </div>
         <div className="flex space-x-2">
           {onAddData && (

@@ -120,6 +120,11 @@ const SantriTable: React.FC = () => {
       exportTitle="Data Santri Pesantren"
       onAddData={handleAddData}
       onRowClick={handleRowClick}
+      filterableColumns={{
+        programName: {
+          placeholder: 'Filter berdasarkan program...',
+        },
+      }}
     />
   );
 };
