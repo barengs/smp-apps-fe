@@ -125,7 +125,7 @@ const JenjangPendidikanTable: React.FC = () => {
               </Button>
               <Button
                 variant="destructive"
-                size="sm"
+                className="h-8 px-2 text-xs"
                 onClick={() => handleDeleteClick(data)}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus

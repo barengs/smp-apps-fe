@@ -88,7 +88,7 @@ const WaliSantriTable: React.FC = () => {
               </Button>
               <Button
                 variant="destructive"
-                size="sm"
+                className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
                   toast.error(`Menghapus wali santri: ${waliSantri.fullName}`);
