@@ -48,7 +48,7 @@ interface ParentDetailData {
     gender: 'L' | 'P';
     parent_as: string;
     phone?: string;
-    address?: string;
+    card_address?: string;
     photo?: string | null;
   };
   students: AssociatedStudent[]; // Array of their children
