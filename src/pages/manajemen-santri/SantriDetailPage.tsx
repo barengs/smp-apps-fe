@@ -102,16 +102,8 @@ const SantriDetailPage: React.FC = () => {
     if (!parentsData) return 'Data tidak tersedia';
     const parentsArray = Array.isArray(parentsData) ? parentsData : Object.values(parentsData);
     if (parentsArray.length === 0) return 'Tidak ada data orang tua';
-    
     return parentsArray
-      .map(p => {
-        // Data wali santri memiliki detail yang bersarang di dalam properti 'parent'
-        const parentDetails = p?.parent;
-        if (parentDetails && typeof parentDetails === 'object' && parentDetails.first_name) {
-          return `${parentDetails.first_name} ${parentDetails.last_name || ''}`.trim();
-        }
-        return null;
-      })
+      .map(p => (p && typeof p === 'object' && p.first_name) ? `${p.first_name} ${p.last_name || ''}`.trim() : null)
       .filter(Boolean)
       .join(', ');
   };
@@ -158,7 +150,7 @@ const SantriDetailPage: React.FC = () => {
                 <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
                 <DetailRow label="Telepon" value={santri.phone} />
                 <DetailRow label="Alamat" value={santri.address} />
-                <DetailRow label="Nama Orang Tua" value={parentsNames} />
+                <DetailRow label="Nama Orang Tua" value={`${parentsNames.first_name}`} />
                 <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
                 <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
               </div>
