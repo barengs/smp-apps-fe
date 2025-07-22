@@ -179,9 +179,7 @@ const NavigationManagementPage: React.FC = () => {
                 <CardTitle>Daftar Item Navigasi</CardTitle>
                 <CardDescription>Kelola item-item navigasi yang muncul di sidebar dan menu lainnya.</CardDescription>
               </div>
-              <Button onClick={handleAddData}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
-              </Button>
+              {/* Tombol 'Tambah Data' yang duplikat telah dihapus dari sini */}
             </div>
           </CardHeader>
           <CardContent>
@@ -190,7 +188,7 @@ const NavigationManagementPage: React.FC = () => {
               data={menuItems}
               exportFileName="data_navigasi"
               exportTitle="Data Item Navigasi"
-              onAddData={handleAddData}
+              onAddData={handleAddData} 
             />
           </CardContent>
         </Card>
