@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
-const SettingsPage: React.FC = () => {
+const SystemSettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { i18n } = useTranslation();
 
@@ -31,11 +31,12 @@ const SettingsPage: React.FC = () => {
   };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Pengaturan', icon: <Settings className="h-4 w-4" /> },
+    { label: 'Pengaturan', href: '/dashboard/settings/system', icon: <Settings className="h-4 w-4" /> },
+    { label: 'Sistem', icon: <Settings className="h-4 w-4" /> },
   ];
 
   return (
-    <DashboardLayout title="Pengaturan" role="administrasi">
+    <DashboardLayout title="Pengaturan Sistem" role="administrasi">
       <div className="container mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="space-y-8 max-w-3xl mx-auto">
@@ -137,4 +138,4 @@ const SettingsPage: React.FC = () => {
   );
 };
 
-export default SettingsPage;
+export default SystemSettingsPage;
