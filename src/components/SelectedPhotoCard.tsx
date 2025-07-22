@@ -24,8 +24,8 @@ const SelectedPhotoCard: React.FC<SelectedPhotoCardProps> = ({ photoFile, photoU
   }, [photoFile, photoUrl]);
 
   return (
-    <Card className="overflow-hidden flex flex-col w-[76px] h-[113px] p-0 border rounded-sm"> {/* Apply dimensions, p-0, border, rounded-sm to Card */}
-      <CardContent className="flex-grow bg-muted flex items-center justify-center p-0"> {/* Make CardContent fill and have no padding */}
+    <Card className="overflow-hidden flex flex-col w-[76px] h-[113px] p-0 border rounded-sm">
+      <CardContent className="flex-grow bg-muted flex items-center justify-center p-0">
         {previewSrc ? (
           <img
             src={previewSrc}
@@ -36,11 +36,6 @@ const SelectedPhotoCard: React.FC<SelectedPhotoCardProps> = ({ photoFile, photoU
           <User className="h-10 w-10 text-muted-foreground" />
         )}
       </CardContent>
-      <div className="p-2 text-center border-t"> {/* Separate div for text, with its own padding */}
-        <p className="text-sm text-muted-foreground">
-          {photoFile ? photoFile.name : (photoUrl ? 'Foto Tersedia' : 'Tidak ada foto')}
-        </p>
-      </div>
     </Card>
   );
 };
