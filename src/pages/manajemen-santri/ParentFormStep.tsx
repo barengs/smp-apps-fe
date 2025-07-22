@@ -249,7 +249,8 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Foto Wali (Opsional)</FormLabel>
-                <div className="flex gap-4 items-start"> {/* Flex container for input and card */}
+                <div className="flex gap-4 items-start"> {/* Flex container for card and input */}
+                  <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} />
                   <div className="flex-1"> {/* Input takes remaining space */}
                     <FormControl>
                       <Input
@@ -271,7 +272,6 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
                     </FormControl>
                     <FormMessage /> {/* Message below the input */}
                   </div>
-                  <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} />
                 </div>
               </FormItem>
             )}
