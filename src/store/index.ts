@@ -18,6 +18,7 @@ import './slices/hostelApi';
 import './slices/educationApi';
 import './slices/classroomApi';
 import './slices/classGroupApi';
+import './slices/menuApi'; // Import the new menu slice
 
 export const store = configureStore({
   reducer: {

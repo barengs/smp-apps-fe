@@ -29,8 +29,8 @@ import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
-import SystemSettingsPage from "@/pages/utility/SystemSettingsPage"; // Updated import
-import NavigationSettingsPage from "@/pages/utility/NavigationSettingsPage"; // New import
+import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
+import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; // Updated import
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage"; 
 
 // Redux imports
@@ -74,8 +74,8 @@ const App = () => (
             <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
             <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
             <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
-            <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} /> {/* Updated route */}
-            <Route path="/dashboard/settings/navigation" element={<NavigationSettingsPage />} /> {/* New route */}
+            <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
+            <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} /> {/* Updated route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
