@@ -160,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
                       <TooltipContent side="right">{item.title}</TooltipContent>
-                    </DropdownMenu>
+                    </Tooltip>
                     <DropdownMenuContent side="right" align="start" className="w-48">
                       <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
