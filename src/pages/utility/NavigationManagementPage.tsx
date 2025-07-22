@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -12,6 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronDown } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import MenuForm from './MenuForm'; // Import the new form
 
 interface MenuItem {
   id: number;
@@ -28,6 +36,9 @@ interface MenuItem {
 
 const NavigationManagementPage: React.FC = () => {
   const { data: menuData, error, isLoading } = useGetMenuQuery();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | undefined>(undefined);
 
   const menuItems: MenuItem[] = useMemo(() => {
     if (menuData?.data) {
@@ -49,8 +60,23 @@ const NavigationManagementPage: React.FC = () => {
   ];
 
   const handleAddData = () => {
-    // Implementasi logika untuk menambah data navigasi
-    console.log('Tambah data navigasi');
+    setEditingMenuItem(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEditData = (item: MenuItem) => {
+    setEditingMenuItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    setEditingMenuItem(undefined);
+  };
+
+  const handleFormCancel = () => {
+    setIsModalOpen(false);
+    setEditingMenuItem(undefined);
   };
 
   const columns: ColumnDef<MenuItem>[] = useMemo(
@@ -123,7 +149,7 @@ const NavigationManagementPage: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => console.log('Edit:', item)}
+                onClick={() => handleEditData(item)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
@@ -148,8 +174,15 @@ const NavigationManagementPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
-            <CardTitle>Daftar Item Navigasi</CardTitle>
-            <CardDescription>Kelola item-item navigasi yang muncul di sidebar dan menu lainnya.</CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Daftar Item Navigasi</CardTitle>
+                <CardDescription>Kelola item-item navigasi yang muncul di sidebar dan menu lainnya.</CardDescription>
+              </div>
+              <Button onClick={handleAddData}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <DataTable
@@ -162,6 +195,22 @@ const NavigationManagementPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{editingMenuItem ? 'Edit Item Navigasi' : 'Tambah Item Navigasi Baru'}</DialogTitle>
+            <DialogDescription>
+              {editingMenuItem ? 'Ubah detail item navigasi ini.' : 'Isi detail untuk item navigasi baru.'}
+            </DialogDescription>
+          </DialogHeader>
+          <MenuForm
+            initialData={editingMenuItem}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

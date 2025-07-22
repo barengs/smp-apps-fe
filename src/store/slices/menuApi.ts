@@ -20,14 +20,34 @@ interface GetMenuResponse {
   data: MenuItem[];
 }
 
+export interface CreateUpdateMenuRequest {
+  title: string;
+  description?: string | null;
+  icon?: string;
+  route: string;
+  type: string;
+  position: string;
+  status: string;
+  order?: number | null;
+  // child items are usually managed separately or added after creation for simplicity
+}
+
 export const menuApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getMenu: builder.query<GetMenuResponse, void>({
       query: () => 'master/menu',
       providesTags: ['Menu'],
     }),
-    // Add mutations for create, update, delete if needed later
+    createMenu: builder.mutation<MenuItem, CreateUpdateMenuRequest>({
+      query: (newMenu) => ({
+        url: 'master/menu',
+        method: 'POST',
+        body: newMenu,
+      }),
+      invalidatesTags: ['Menu'],
+    }),
+    // Add mutations for update, delete if needed later
   }),
 });
 
-export const { useGetMenuQuery } = menuApi;
+export const { useGetMenuQuery, useCreateMenuMutation } = menuApi;
