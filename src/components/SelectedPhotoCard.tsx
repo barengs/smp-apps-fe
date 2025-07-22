@@ -25,7 +25,7 @@ const SelectedPhotoCard: React.FC<SelectedPhotoCardProps> = ({ photoFile, photoU
 
   return (
     <Card className="overflow-hidden flex flex-col">
-      <div className="w-[60px] h-[100px] bg-muted flex items-center justify-center overflow-hidden mx-auto mt-4 border rounded-sm">
+      <div className="w-[60px] h-[100px] bg-muted flex items-center justify-center overflow-hidden border rounded-sm">
         {previewSrc ? (
           <img
             src={previewSrc}

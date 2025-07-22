@@ -243,37 +243,39 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
               </FormItem>
             )}
           />
-          <div className="flex flex-col gap-4">
-            <FormField
-              control={form.control}
-              name="photo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Foto Wali (Opsional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files.length > 0) {
-                          const file = e.target.files[0];
-                          field.onChange(file);
-                          setPhotoPreviewFile(file);
-                          setPhotoPreviewUrl(null);
-                        } else {
-                          field.onChange(null);
-                          setPhotoPreviewFile(null);
-                          setPhotoPreviewUrl(null);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} />
-          </div>
+          <FormField
+            control={form.control}
+            name="photo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Foto Wali (Opsional)</FormLabel>
+                <div className="flex gap-4 items-start"> {/* Flex container for input and card */}
+                  <div className="flex-1"> {/* Input takes remaining space */}
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const file = e.target.files[0];
+                            field.onChange(file);
+                            setPhotoPreviewFile(file);
+                            setPhotoPreviewUrl(null);
+                          } else {
+                            field.onChange(null);
+                            setPhotoPreviewFile(null);
+                            setPhotoPreviewUrl(null);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage /> {/* Message below the input */}
+                  </div>
+                  <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} />
+                </div>
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">
