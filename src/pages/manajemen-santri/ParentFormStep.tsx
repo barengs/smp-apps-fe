@@ -27,6 +27,7 @@ import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
 import { useGetVillagesQuery } from '@/store/slices/villageApi';
 import SelectedPhotoCard from '@/components/SelectedPhotoCard';
+import { UploadCloud } from 'lucide-react'; // Import UploadCloud icon
 
 export const parentFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -390,10 +391,46 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
               <div className="flex gap-4 items-start">
                 <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} name="Foto Wali" />
                 <div className="flex-1">
+                  <div
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-md cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.classList.add('border-primary', 'bg-gray-100', 'dark:bg-gray-700');
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.classList.remove('border-primary', 'bg-gray-100', 'dark:bg-gray-700');
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.classList.remove('border-primary', 'bg-gray-100', 'dark:bg-gray-700');
+                      const files = e.dataTransfer.files;
+                      if (files && files.length > 0) {
+                        const file = files[0];
+                        field.onChange(file);
+                        setPhotoPreviewFile(file);
+                        setPhotoPreviewUrl(null);
+                      }
+                    }}
+                    onClick={() => document.getElementById('parent-photo-upload')?.click()}
+                  >
+                    <UploadCloud className="h-8 w-8 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      Seret & lepas file di sini atau <span className="font-medium text-primary">Pilih file</span>
+                    </p>
+                    {photoPreviewFile && (
+                      <p className="text-xs text-muted-foreground mt-1">{photoPreviewFile.name}</p>
+                    )}
+                  </div>
                   <FormControl>
                     <Input
+                      id="parent-photo-upload"
                       type="file"
                       accept="image/*"
+                      className="hidden" // Hide the actual input
                       onChange={(e) => {
                         if (e.target.files && e.target.files.length > 0) {
                           const file = e.target.files[0];
