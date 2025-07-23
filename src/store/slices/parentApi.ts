@@ -24,8 +24,7 @@ interface GetParentsResponse {
   data: ParentApiData[];
 }
 
-// --- Types for Single Parent Detail ---
-
+// --- Types for Single Parent Detail (used by getParentById) ---
 // Structure for a single student associated with the parent
 interface AssociatedStudent {
   id: number;
@@ -35,7 +34,7 @@ interface AssociatedStudent {
   status: string;
 }
 
-// Structure for the detailed parent data
+// Structure for the detailed parent data (used by getParentById)
 interface ParentDetailData {
   id: number;
   email: string;
@@ -56,13 +55,39 @@ interface ParentDetailData {
   updated_at: string;
 }
 
-// Structure for the full API response for a single parent
+// Structure for the full API response for a single parent (used by getParentById)
 interface GetParentByIdResponse {
   message: string;
   data: ParentDetailData;
 }
 
-// New: Structure for the POST/PUT request body for Parent
+// --- NEW Types for getParentByNik endpoint ---
+// Structure for the 'data' property returned by parent/nik/{nik}/cek
+interface GetParentByNikResponseData {
+  kk: string;
+  nik: string;
+  parent_as: string;
+  first_name: string;
+  last_name: string | null;
+  gender: 'L' | 'P';
+  card_address: string | null;
+  domicile_address: string | null;
+  village_id: number | null;
+  phone: string | null;
+  email: string | null;
+  occupation: string | null;
+  education: string | null;
+  photo: string | null;
+  photo_path: string | null;
+}
+
+// Full response structure for parent/nik/{nik}/cek
+interface GetParentByNikResponse {
+  status: string;
+  data: GetParentByNikResponseData;
+}
+
+// Request body for creating/updating a parent
 export interface CreateUpdateParentRequest {
   first_name: string;
   last_name?: string | null;
@@ -86,10 +111,10 @@ export const parentApi = smpApi.injectEndpoints({
       query: (id) => `parent/${id}`,
       providesTags: (result, error, id) => [{ type: 'Parent', id }],
     }),
-    getParentByNik: builder.query<GetParentByIdResponse, string>({
+    // Updated to use the new response type
+    getParentByNik: builder.query<GetParentByNikResponse, string>({
       query: (nik) => `parent/nik/${nik}/cek`,
     }),
-    // New: Create Parent mutation
     createParent: builder.mutation<ParentApiData, CreateUpdateParentRequest>({
       query: (newParent) => ({
         url: 'parent',
@@ -98,7 +123,6 @@ export const parentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Parent'],
     }),
-    // New: Update Parent mutation
     updateParent: builder.mutation<ParentApiData, { id: number; data: CreateUpdateParentRequest }>({
       query: ({ id, data }) => ({
         url: `parent/${id}`,
@@ -107,7 +131,6 @@ export const parentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Parent'],
     }),
-    // CRUD endpoints for parents can be added here later
   }),
 });
 

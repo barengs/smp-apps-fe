@@ -108,17 +108,18 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
         toast.dismiss(loadingToastId);
 
         if (data?.data) {
-          const parent = data.data.parent;
-          form.setValue('first_name', parent.first_name);
-          form.setValue('last_name', parent.last_name);
-          form.setValue('email', data.data.email);
-          form.setValue('kk', parent.kk);
-          form.setValue('gender', parent.gender);
-          form.setValue('parent_as', parent.parent_as);
-          form.setValue('phone', parent.phone || null);
-          form.setValue('card_address', parent.card_address || null);
-          form.setValue('photo', parent.photo || null);
-          setPhotoPreviewUrl(parent.photo || null);
+          // Mengakses data langsung dari 'data.data' karena struktur API yang baru
+          const parentDataFromApi = data.data;
+          form.setValue('first_name', parentDataFromApi.first_name);
+          form.setValue('last_name', parentDataFromApi.last_name);
+          form.setValue('email', parentDataFromApi.email || ''); // Email bisa null dari API, set ke string kosong
+          form.setValue('kk', parentDataFromApi.kk);
+          form.setValue('gender', parentDataFromApi.gender);
+          form.setValue('parent_as', parentDataFromApi.parent_as);
+          form.setValue('phone', parentDataFromApi.phone || null);
+          form.setValue('card_address', parentDataFromApi.card_address || null);
+          form.setValue('photo', parentDataFromApi.photo || null);
+          setPhotoPreviewUrl(parentDataFromApi.photo || null);
           setPhotoPreviewFile(null);
 
           setIsParentDataFound(true);
@@ -330,7 +331,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             name="card_address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Alamat Wali (Opsional)</FormLabel>
+                <FormLabel>Alamat Wali (Opsional)</FormLabel> {/* Corrected closing tag */}
                 <FormControl>
                   <Textarea placeholder="Alamat lengkap wali..." {...field} value={field.value || ''} className="min-h-[120px]" />
                 </FormControl>
