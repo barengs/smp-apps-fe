@@ -183,6 +183,34 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="nik"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>NIK</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} disabled={isLoadingExistingParent || isFetchingExistingParent} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="kk"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nomor Kartu Keluarga (KK)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="first_name"
             render={({ field }) => (
               <FormItem>
@@ -221,34 +249,6 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="kk"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nomor Kartu Keluarga (KK)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="nik"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>NIK</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} disabled={isLoadingExistingParent || isFetchingExistingParent} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -307,32 +307,34 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="card_address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alamat KTP (Opsional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Alamat sesuai KTP..." {...field} value={field.value || ''} className="min-h-[80px]" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="domicile_address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alamat Domisili (Opsional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Alamat domisili saat ini..." {...field} value={field.value || ''} className="min-h-[80px]" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="card_address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alamat KTP (Opsional)</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Alamat sesuai KTP..." {...field} value={field.value || ''} className="min-h-[60px]" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="domicile_address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alamat Domisili (Opsional)</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Alamat domisili saat ini..." {...field} value={field.value || ''} className="min-h-[60px]" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
