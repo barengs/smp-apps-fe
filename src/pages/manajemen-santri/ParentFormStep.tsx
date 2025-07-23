@@ -99,7 +99,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
 
   const handleNikChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const nik = event.target.value;
-    form.setValue('nik', nik);
+    form.setValue('nik', nik); // Always set NIK as user types
 
     if (nik.length === 16) {
       const loadingToastId = toast.loading('Mencari data wali santri...');
@@ -116,11 +116,11 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
 
           form.setValue('first_name', parentDataFromApi.first_name);
           form.setValue('last_name', parentDataFromApi.last_name);
-          form.setValue('email', parentDataFromApi.email || ''); // Ensure email is string
+          form.setValue('email', parentDataFromApi.email?.trim() || ''); // Trim email
           form.setValue('kk', parentDataFromApi.kk.trim()); // Trim to remove potential BOM
           form.setValue('nik', parentDataFromApi.nik); // Ensure NIK is also set from API response
           form.setValue('gender', parentDataFromApi.gender);
-          form.setValue('parent_as', parentDataFromApi.parent_as); // This is the field user mentioned
+          form.setValue('parent_as', parentDataFromApi.parent_as?.trim()); // Trim parent_as
           form.setValue('phone', parentDataFromApi.phone || null);
           form.setValue('card_address', parentDataFromApi.card_address || null); // This is the field user mentioned
           form.setValue('photo', parentDataFromApi.photo || null);
@@ -139,8 +139,15 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           }
           setIsParentDataFound(false);
           // Clear fields if no data found or error, but keep the entered NIK
-          form.reset(); // Reset all fields to default values
-          form.setValue('nik', nik); // Keep the NIK that was just typed
+          form.setValue('first_name', '');
+          form.setValue('last_name', null);
+          form.setValue('email', '');
+          form.setValue('kk', '');
+          form.setValue('gender', 'L'); // Reset to default 'L'
+          form.setValue('parent_as', ''); // Reset to empty
+          form.setValue('phone', null);
+          form.setValue('card_address', null);
+          form.setValue('photo', null);
           setPhotoPreviewFile(null);
           setPhotoPreviewUrl(null);
         }
@@ -150,17 +157,32 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
         toast.error('Terjadi kesalahan saat memproses pencarian NIK.');
         setIsParentDataFound(false);
         // Clear fields on unexpected error, but keep the entered NIK
-        form.reset(); // Reset all fields to default values
-        form.setValue('nik', nik); // Keep the NIK that was just typed
+        form.setValue('first_name', '');
+        form.setValue('last_name', null);
+        form.setValue('email', '');
+        form.setValue('kk', '');
+        form.setValue('gender', 'L'); // Reset to default 'L'
+        form.setValue('parent_as', ''); // Reset to empty
+        form.setValue('phone', null);
+        form.setValue('card_address', null);
+        form.setValue('photo', null);
         setPhotoPreviewFile(null);
         setPhotoPreviewUrl(null);
       }
     } else {
       setIsParentDataFound(false);
-      // Only reset if data was previously found and NIK is now invalid
-      if (isParentDataFound) {
-        form.reset(); // Reset all fields to default values
-        form.setValue('nik', nik); // Keep the NIK that was just typed
+      // Only clear fields if NIK is invalid AND data was previously found
+      // This prevents clearing user input if they are just starting to type NIK
+      if (form.getValues('first_name') !== '' || form.getValues('email') !== '') { // Check if any data was filled
+        form.setValue('first_name', '');
+        form.setValue('last_name', null);
+        form.setValue('email', '');
+        form.setValue('kk', '');
+        form.setValue('gender', 'L'); // Reset to default 'L'
+        form.setValue('parent_as', ''); // Reset to empty
+        form.setValue('phone', null);
+        form.setValue('card_address', null);
+        form.setValue('photo', null);
         setPhotoPreviewFile(null);
         setPhotoPreviewUrl(null);
       }
@@ -241,7 +263,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Jenis Kelamin Wali</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} disabled={isCheckingNik || isSubmitting}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih jenis kelamin" />
@@ -262,7 +284,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status Wali</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} disabled={isCheckingNik || isSubmitting}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status wali" />
