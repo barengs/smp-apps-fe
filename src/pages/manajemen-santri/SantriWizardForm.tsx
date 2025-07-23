@@ -41,26 +41,16 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
     const loadingToast = toast.loading('Menyimpan data santri dan wali...');
 
     try {
-      let photoUrl: string | null = null;
+      let parentPhotoUrl: string | null = null;
       if (parentFormData.photo instanceof File) {
-        const fileToUpload = parentFormData.photo; // Capture the File object here
-        // Simulate file upload and get a URL
-        // In a real application, you would send this file to your backend/storage service
-        // and get the actual URL back.
-        // For example, using FormData and fetch:
-        // const formData = new FormData();
-        // formData.append('file', fileToUpload);
-        // const uploadResponse = await fetch('/api/upload-photo', { method: 'POST', body: formData });
-        // const uploadData = await uploadResponse.json();
-        // photoUrl = uploadData.url;
-        
-        // For now, we'll use a placeholder URL
-        photoUrl = await new Promise(resolve => setTimeout(() => {
-          console.log(`Simulating upload of file: ${fileToUpload.name}`);
-          resolve('https://via.placeholder.com/150/0000FF/FFFFFF?text=Uploaded');
+        const fileToUpload = parentFormData.photo;
+        // Simulate file upload and get a URL for parent photo
+        parentPhotoUrl = await new Promise(resolve => setTimeout(() => {
+          console.log(`Simulating upload of parent file: ${fileToUpload.name}`);
+          resolve('https://via.placeholder.com/150/0000FF/FFFFFF?text=UploadedParent');
         }, 1500));
       } else if (typeof parentFormData.photo === 'string') {
-        photoUrl = parentFormData.photo; // Keep existing URL if it's an edit scenario
+        parentPhotoUrl = parentFormData.photo;
       }
 
       // 1. Create Parent
@@ -74,10 +64,22 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
         parent_as: parentFormData.parent_as!,
         phone: parentFormData.phone,
         card_address: parentFormData.card_address,
-        photo: photoUrl, // Use the obtained URL
+        photo: parentPhotoUrl, // Use the obtained URL for parent
       };
       const parentResponse = await createParent(parentPayload).unwrap();
       const newParentId = parentResponse.id; // Assuming API returns the ID of the new parent
+
+      let studentPhotoUrl: string | null = null;
+      if (data.photo instanceof File) {
+        const fileToUpload = data.photo;
+        // Simulate file upload and get a URL for student photo
+        studentPhotoUrl = await new Promise(resolve => setTimeout(() => {
+          console.log(`Simulating upload of student file: ${fileToUpload.name}`);
+          resolve('https://via.placeholder.com/150/FF0000/FFFFFF?text=UploadedStudent');
+        }, 1500));
+      } else if (typeof data.photo === 'string') {
+        studentPhotoUrl = data.photo;
+      }
 
       // 2. Create Student, linking to the new parent
       const studentPayload: CreateUpdateStudentRequest = {
@@ -93,7 +95,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
         born_at: data.born_at ? format(data.born_at, 'yyyy-MM-dd') : null,
         address: data.address,
         phone: data.phone,
-        photo: data.photo,
+        photo: studentPhotoUrl, // Use the processed URL for student
         // You might need to add a parent_id field to CreateUpdateStudentRequest
         // if the API expects it directly in the student creation payload.
         // For now, assuming a separate linking step or implicit linking.

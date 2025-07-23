@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import type { CreateUpdateStudentRequest } from '@/store/slices/studentApi';
+import SelectedPhotoCard from '@/components/SelectedPhotoCard'; // Import SelectedPhotoCard
 
 export const studentFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -53,8 +54,8 @@ export const studentFormSchema = z.object({
   born_in: z.string().nullable().optional(),
   born_at: z.date().nullable().optional(),
   address: z.string().nullable().optional(),
+  photo: z.instanceof(File).nullable().optional().or(z.string().url().nullable().optional()), // Updated schema for file upload
   phone: z.string().nullable().optional(),
-  photo: z.string().url({ message: 'URL foto tidak valid.' }).nullable().optional(),
 });
 
 type StudentFormValues = z.infer<typeof studentFormSchema>;
@@ -90,6 +91,22 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
 
   const availablePrograms = programsData || [];
   const studentStatuses = ['Aktif', 'Non-Aktif', 'Lulus', 'Cuti'];
+
+  const [photoPreviewFile, setPhotoPreviewFile] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialData?.photo instanceof File) {
+      setPhotoPreviewFile(initialData.photo);
+      setPhotoPreviewUrl(null);
+    } else if (typeof initialData?.photo === 'string') {
+      setPhotoPreviewUrl(initialData.photo);
+      setPhotoPreviewFile(null);
+    } else {
+      setPhotoPreviewFile(null);
+      setPhotoPreviewUrl(null);
+    }
+  }, [initialData?.photo]);
 
   return (
     <Form {...form}>
@@ -293,28 +310,15 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alamat (Opsional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Alamat lengkap santri..." {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="phone"
+            name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Telepon (Opsional)</FormLabel>
+                <FormLabel>Alamat (Opsional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+                  <Textarea placeholder="Alamat lengkap santri..." {...field} value={field.value || ''} className="min-h-[80px]" /> {/* Smaller height */}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -325,15 +329,48 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
             name="photo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL Foto (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://example.com/foto.jpg" {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
+                <FormLabel>Foto Santri (Opsional)</FormLabel>
+                <div className="flex gap-4 items-start">
+                  <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} name="Foto Santri" />
+                  <div className="flex-1">
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const file = e.target.files[0];
+                            field.onChange(file);
+                            setPhotoPreviewFile(file);
+                            setPhotoPreviewUrl(null);
+                          } else {
+                            field.onChange(null);
+                            setPhotoPreviewFile(null);
+                            setPhotoPreviewUrl(null);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </div>
+                </div>
               </FormItem>
             )}
           />
         </div>
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telepon (Opsional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onBack} disabled={isSubmitting}>
             Kembali
