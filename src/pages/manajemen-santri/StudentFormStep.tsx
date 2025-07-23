@@ -174,7 +174,7 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Jenis Kelamin</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ''}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih jenis kelamin" />
@@ -195,7 +195,7 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ''}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status" />
@@ -219,7 +219,7 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Program</FormLabel>
-                <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={field.value ? String(field.value) : ''} disabled={isLoadingPrograms}>
+                <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={field.value !== undefined && field.value !== null ? String(field.value) : ''} disabled={isLoadingPrograms}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih program..." />
