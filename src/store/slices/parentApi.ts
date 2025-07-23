@@ -86,6 +86,9 @@ export const parentApi = smpApi.injectEndpoints({
       query: (id) => `parent/${id}`,
       providesTags: (result, error, id) => [{ type: 'Parent', id }],
     }),
+    getParentByNik: builder.query<GetParentByIdResponse, string>({
+      query: (nik) => `parent/get-parent-by-nik/${nik}`,
+    }),
     // New: Create Parent mutation
     createParent: builder.mutation<ParentApiData, CreateUpdateParentRequest>({
       query: (newParent) => ({
@@ -108,4 +111,4 @@ export const parentApi = smpApi.injectEndpoints({
   }),
 });
 
-export const { useGetParentsQuery, useGetParentByIdQuery, useCreateParentMutation, useUpdateParentMutation } = parentApi;
+export const { useGetParentsQuery, useGetParentByIdQuery, useCreateParentMutation, useUpdateParentMutation, useLazyGetParentByNikQuery } = parentApi;

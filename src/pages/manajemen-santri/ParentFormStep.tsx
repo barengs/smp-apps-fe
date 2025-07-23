@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,7 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import SelectedPhotoCard from '@/components/SelectedPhotoCard'; // Import the new component
+import SelectedPhotoCard from '@/components/SelectedPhotoCard';
+import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
+import { toast } from 'sonner';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 export const parentFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -75,9 +78,11 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
 
   const parentAsOptions = ['Ayah', 'Ibu', 'Wali'];
 
-  // State for photo preview
   const [photoPreviewFile, setPhotoPreviewFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [isParentDataFound, setIsParentDataFound] = useState(false);
+
+  const [triggerGetParentByNik, { isFetching: isCheckingNik }] = useLazyGetParentByNikQuery();
 
   useEffect(() => {
     if (initialData?.photo instanceof File) {
@@ -91,6 +96,89 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
       setPhotoPreviewUrl(null);
     }
   }, [initialData?.photo]);
+
+  const handleNikChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nik = event.target.value;
+    form.setValue('nik', nik);
+
+    if (nik.length === 16) {
+      const loadingToastId = toast.loading('Mencari data wali santri...');
+      try {
+        const { data, error } = await triggerGetParentByNik(nik);
+        toast.dismiss(loadingToastId);
+
+        if (data?.data) {
+          const parent = data.data.parent;
+          form.setValue('first_name', parent.first_name);
+          form.setValue('last_name', parent.last_name);
+          form.setValue('email', data.data.email);
+          form.setValue('kk', parent.kk);
+          form.setValue('gender', parent.gender);
+          form.setValue('parent_as', parent.parent_as);
+          form.setValue('phone', parent.phone || null);
+          form.setValue('card_address', parent.card_address || null);
+          form.setValue('photo', parent.photo || null);
+          setPhotoPreviewUrl(parent.photo || null);
+          setPhotoPreviewFile(null);
+
+          setIsParentDataFound(true);
+          toast.success('Data wali sudah ada dan diisi otomatis.');
+        } else if (error) {
+          const fetchError = error as FetchBaseQueryError;
+          if (fetchError.status === 404) {
+            toast.info('Data wali tidak ditemukan. Silakan isi secara manual.');
+          } else {
+            const errorMessage = (fetchError.data as { message?: string })?.message || 'Terjadi kesalahan saat mencari data wali.';
+            toast.error(errorMessage);
+          }
+          setIsParentDataFound(false);
+          // Clear fields if no data found or error, to ensure user fills manually
+          form.resetField('first_name');
+          form.resetField('last_name');
+          form.resetField('email');
+          form.resetField('kk');
+          form.resetField('gender');
+          form.resetField('parent_as');
+          form.resetField('phone');
+          form.resetField('card_address');
+          form.resetField('photo');
+          setPhotoPreviewFile(null);
+          setPhotoPreviewUrl(null);
+        }
+      } catch (err) {
+        toast.dismiss(loadingToastId);
+        toast.error('Terjadi kesalahan saat memproses pencarian NIK.');
+        setIsParentDataFound(false);
+        form.resetField('first_name');
+        form.resetField('last_name');
+        form.resetField('email');
+        form.resetField('kk');
+        form.resetField('gender');
+        form.resetField('parent_as');
+        form.resetField('phone');
+        form.resetField('card_address');
+        form.resetField('photo');
+        setPhotoPreviewFile(null);
+        setPhotoPreviewUrl(null);
+      }
+    } else {
+      setIsParentDataFound(false);
+      // Only reset if data was previously found and NIK is now invalid
+      if (isParentDataFound) {
+        form.resetField('first_name');
+        form.resetField('last_name');
+        form.resetField('email');
+        form.resetField('kk');
+        form.resetField('gender');
+        form.resetField('parent_as');
+        form.resetField('phone');
+        form.resetField('card_address');
+        form.resetField('photo');
+        setPhotoPreviewFile(null);
+        setPhotoPreviewUrl(null);
+      }
+    }
+  }, [form, triggerGetParentByNik, isParentDataFound]);
 
   return (
     <Form {...form}>
@@ -117,8 +205,15 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
               <FormItem>
                 <FormLabel>NIK Wali</FormLabel>
                 <FormControl>
-                  <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} />
+                  <Input
+                    placeholder="Contoh: 3273xxxxxxxxxxxxxx"
+                    {...field}
+                    onChange={handleNikChange}
+                    disabled={isCheckingNik || isSubmitting}
+                  />
                 </FormControl>
+                {isCheckingNik && <p className="text-sm text-muted-foreground mt-1">Mencari data...</p>}
+                {isParentDataFound && <p className="text-sm text-green-600 mt-1">Data wali sudah ada.</p>}
                 <FormMessage />
               </FormItem>
             )}
@@ -249,9 +344,9 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Foto Wali (Opsional)</FormLabel>
-                <div className="flex gap-4 items-start"> {/* Flex container for card and input */}
+                <div className="flex gap-4 items-start">
                   <SelectedPhotoCard photoFile={photoPreviewFile} photoUrl={photoPreviewUrl} />
-                  <div className="flex-1"> {/* Input takes remaining space */}
+                  <div className="flex-1">
                     <FormControl>
                       <Input
                         type="file"
@@ -270,7 +365,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
                         }}
                       />
                     </FormControl>
-                    <FormMessage /> {/* Message below the input */}
+                    <FormMessage />
                   </div>
                 </div>
               </FormItem>
@@ -282,7 +377,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || isCheckingNik}>
             Lanjut ke Data Santri
           </Button>
         </div>
