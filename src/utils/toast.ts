@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 export const showSuccess = (message: string) => {
   toast.success(message);
@@ -9,7 +9,7 @@ export const showError = (message: string) => {
 };
 
 export const showWarning = (message: string) => {
-  toast.warning(message);
+  toast.warn(message); // Changed to warn for consistency with react-toastify
 };
 
 export const showLoading = (message: string) => {
