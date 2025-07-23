@@ -157,6 +157,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
       <CardContent>
         {currentStep === 1 && (
           <ParentFormStep
+            key="parent-step"
             initialData={parentFormData}
             onNext={handleParentSubmit}
             onCancel={onCancel}
@@ -165,6 +166,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
         )}
         {currentStep === 2 && (
           <StudentFormStep
+            key="student-step"
             initialData={studentFormData}
             onBack={handleBack}
             onSubmit={handleStudentSubmit}

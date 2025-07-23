@@ -230,12 +230,16 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
                       <SelectItem value="loading" disabled>
                         Memuat program...
                       </SelectItem>
-                    ) : (
+                    ) : availablePrograms.length > 0 ? (
                       availablePrograms.map((program) => (
                         <SelectItem key={program.id} value={String(program.id)}>
                           {program.name}
                         </SelectItem>
                       ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        Tidak ada program tersedia
+                      </SelectItem>
                     )}
                   </SelectContent>
                 </Select>
