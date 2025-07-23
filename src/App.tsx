@@ -30,8 +30,7 @@ import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
-import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; // Updated import
-import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage"; 
+import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -55,8 +54,7 @@ const App = () => (
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
-            <Route path="/dashboard/santri/add" element={<SantriFormPage />} />
-            <Route path="/dashboard/santri/edit/:id" element={<SantriFormPage />} />
+            {/* Removed SantriFormPage routes */}
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
@@ -75,7 +73,7 @@ const App = () => (
             <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
             <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
             <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
-            <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} /> {/* Updated route */}
+            <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} /> 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
