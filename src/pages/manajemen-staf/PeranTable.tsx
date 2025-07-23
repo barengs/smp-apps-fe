@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, PlusCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -96,7 +96,7 @@ const PeranTable: React.FC = () => {
     if (peranToDelete) {
       try {
         await deleteRole(peranToDelete.id).unwrap();
-        toast.success(`Peran "${peranToDelete.roleName}" berhasil dihapus.`);
+        toast.showSuccess(`Peran "${peranToDelete.roleName}" berhasil dihapus.`);
         setPeranToDelete(undefined);
         setIsDeleteDialogOpen(false);
         // RTK Query's invalidatesTags will automatically refetch getRoles
@@ -111,7 +111,7 @@ const PeranTable: React.FC = () => {
             errorMessage = err.message;
           }
         }
-        toast.error(`Gagal menghapus peran: ${errorMessage}`);
+        toast.showError(`Gagal menghapus peran: ${errorMessage}`);
       }
     }
   };

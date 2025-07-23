@@ -5,7 +5,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { Users, UserPlus } from 'lucide-react';
 import SantriWizardForm from './SantriWizardForm';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 
 const SantriFormPage: React.FC = () => {
   const navigate = useNavigate();

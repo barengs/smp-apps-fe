@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { useCreateClassroomMutation, useUpdateClassroomMutation, useGetClassroomsQuery, type CreateUpdateClassroomRequest } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';

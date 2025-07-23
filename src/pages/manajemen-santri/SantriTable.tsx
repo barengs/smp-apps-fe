@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -87,7 +87,7 @@ const SantriTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.info('Fitur edit santri akan segera tersedia.');
+                  toast.showWarning('Fitur edit santri akan segera tersedia.');
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit

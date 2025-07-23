@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';

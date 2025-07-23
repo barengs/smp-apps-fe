@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
 import JadwalKegiatanForm from './JadwalKegiatanForm';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import EventCalendar from '../../components/EventCalendar';
 import KegiatanList from '../../components/KegiatanList';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';

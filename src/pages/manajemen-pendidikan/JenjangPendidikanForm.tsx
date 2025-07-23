@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { useCreateEducationLevelMutation, useUpdateEducationLevelMutation, type CreateUpdateEducationLevelRequest } from '@/store/slices/educationApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';

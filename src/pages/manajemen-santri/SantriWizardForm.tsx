@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import ParentFormStep, { parentFormSchema } from './ParentFormStep';
@@ -120,7 +120,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
           } else if (typeof fetchError.status === 'string' && 'error' in fetchError) {
             errorMessage = fetchError.error;
           } else {
-            errorMessage = `Error: ${JSON.stringify(fetchError)}`;
+            errorMessage = `Error: ${JSON.stringify(err)}`;
           }
         } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
           errorMessage = (err as SerializedError).message;

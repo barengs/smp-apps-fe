@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';

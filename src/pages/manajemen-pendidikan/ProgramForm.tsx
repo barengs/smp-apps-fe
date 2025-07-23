@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { useCreateProgramMutation, useUpdateProgramMutation, type CreateUpdateProgramRequest } from '@/store/slices/programApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -56,10 +56,10 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSuccess, onCan
     try {
       if (initialData) {
         await updateProgram({ id: initialData.id, data: payload }).unwrap();
-        toast.success(`Program "${values.name}" berhasil diperbarui.`);
+        toast.showSuccess(`Program "${values.name}" berhasil diperbarui.`);
       } else {
         await createProgram(payload).unwrap();
-        toast.success(`Program "${values.name}" berhasil ditambahkan.`);
+        toast.showSuccess(`Program "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -76,7 +76,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSuccess, onCan
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan program: ${errorMessage}`);
+      toast.showError(`Gagal menyimpan program: ${errorMessage}`);
     }
   };
 

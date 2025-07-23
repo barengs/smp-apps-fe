@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { useCreateProvinceMutation, useUpdateProvinceMutation, type CreateUpdateProvinceRequest } from '@/store/slices/provinceApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -57,10 +57,10 @@ const ProvinsiForm: React.FC<ProvinsiFormProps> = ({ initialData, onSuccess, onC
     try {
       if (initialData) {
         await updateProvince({ id: initialData.id, data: payload }).unwrap();
-        toast.success(`Provinsi "${values.name}" berhasil diperbarui.`);
+        toast.showSuccess(`Provinsi "${values.name}" berhasil diperbarui.`);
       } else {
         await createProvince(payload).unwrap();
-        toast.success(`Provinsi "${values.name}" berhasil ditambahkan.`);
+        toast.showSuccess(`Provinsi "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -77,7 +77,7 @@ const ProvinsiForm: React.FC<ProvinsiFormProps> = ({ initialData, onSuccess, onC
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan provinsi: ${errorMessage}`);
+      toast.showError(`Gagal menyimpan provinsi: ${errorMessage}`);
     }
   };
 

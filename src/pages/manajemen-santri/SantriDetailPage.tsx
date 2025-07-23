@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { Printer, Edit, Users, UserCheck, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +28,7 @@ const SantriDetailPage: React.FC = () => {
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
 
   if (isNaN(santriId)) {
-    toast.error('ID santri tidak valid.');
+    toast.showError('ID santri tidak valid.');
     navigate('/dashboard/santri');
     return null;
   }
@@ -40,7 +40,7 @@ const SantriDetailPage: React.FC = () => {
   const reactToPrintHook = useReactToPrint({
     documentTitle: `Kartu-Santri-${responseData?.data.nis || santriId}`,
     onAfterPrint: () => {
-      toast.success('Proses cetak selesai.');
+      toast.showSuccess('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
   });
@@ -50,7 +50,7 @@ const SantriDetailPage: React.FC = () => {
   };
 
   const handleEdit = () => {
-    toast.info('Fitur edit santri akan segera tersedia.');
+    toast.showWarning('Fitur edit santri akan segera tersedia.');
   };
 
   const santri = responseData?.data;
@@ -93,7 +93,7 @@ const SantriDetailPage: React.FC = () => {
   }
 
   if (error || !santri) {
-    toast.error('Gagal memuat detail santri atau santri tidak ditemukan.');
+    toast.showError('Gagal memuat detail santri atau santri tidak ditemukan.');
     navigate('/dashboard/santri');
     return null;
   }

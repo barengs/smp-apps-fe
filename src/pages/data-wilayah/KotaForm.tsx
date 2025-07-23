@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { useCreateCityMutation, useUpdateCityMutation, type CreateUpdateCityRequest } from '@/store/slices/cityApi';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -67,10 +67,10 @@ const KotaForm: React.FC<KotaFormProps> = ({ initialData, onSuccess, onCancel })
     try {
       if (initialData) {
         await updateCity({ id: initialData.id, data: values as CreateUpdateCityRequest }).unwrap();
-        toast.success(`Kota "${values.name}" berhasil diperbarui.`);
+        toast.showSuccess(`Kota "${values.name}" berhasil diperbarui.`);
       } else {
         await createCity(values as CreateUpdateCityRequest).unwrap();
-        toast.success(`Kota "${values.name}" berhasil ditambahkan.`);
+        toast.showSuccess(`Kota "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -87,7 +87,7 @@ const KotaForm: React.FC<KotaFormProps> = ({ initialData, onSuccess, onCancel })
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan kota: ${errorMessage}`);
+      toast.showError(`Gagal menyimpan kota: ${errorMessage}`);
     }
   };
 

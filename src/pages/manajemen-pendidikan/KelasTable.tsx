@@ -24,7 +24,7 @@ import KelasForm from './KelasForm';
 import { useGetClassroomsQuery, useDeleteClassroomMutation } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 

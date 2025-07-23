@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -75,10 +75,10 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     try {
       if (initialData) {
         await updateRole({ id: initialData.id, data: { name: values.name } }).unwrap();
-        toast.success(`Peran "${values.name}" berhasil diperbarui.`);
+        toast.showSuccess(`Peran "${values.name}" berhasil diperbarui.`);
       } else {
         await createRole({ name: values.name }).unwrap();
-        toast.success(`Peran "${values.name}" berhasil ditambahkan.`);
+        toast.showSuccess(`Peran "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -107,7 +107,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
         errorMessage = err;
       }
 
-      toast.error(`Gagal menyimpan peran: ${errorMessage}`);
+      toast.showError(`Gagal menyimpan peran: ${errorMessage}`);
     }
   };
 

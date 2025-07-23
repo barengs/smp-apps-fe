@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, FileDown, Search, PlusCircle, Upload } from 'lucide-react';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -106,7 +106,7 @@ export function DataTable<TData, TValue>({
     const fileNameSuffix = allData ? '_semua' : '';
     const toastMessage = allData ? 'Mengekspor semua data ke PDF...' : 'Mengekspor tampilan saat ini ke PDF...';
 
-    toast.info(toastMessage);
+    toast.showWarning(toastMessage);
     const doc = new jsPDF();
     const date = new Date().toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -129,7 +129,7 @@ export function DataTable<TData, TValue>({
     });
 
     if (tableData.length === 0) {
-      toast.error('Tidak ada data untuk diekspor ke PDF.');
+      toast.showError('Tidak ada data untuk diekspor ke PDF.');
       return;
     }
 
@@ -147,8 +147,8 @@ export function DataTable<TData, TValue>({
       styles: { fontSize: 8, cellPadding: 3 },
       margin: { top: 10, right: 10, bottom: 10, left: 10 },
     });
+    toast.showSuccess('Data berhasil diekspor ke PDF!');
     doc.save(`${exportFileName}${fileNameSuffix}.pdf`);
-    toast.success('Data berhasil diekspor ke PDF!');
   };
 
   const exportToExcel = (allData: boolean) => {
@@ -156,7 +156,7 @@ export function DataTable<TData, TValue>({
     const fileNameSuffix = allData ? '_semua' : '';
     const toastMessage = allData ? 'Mengekspor semua data ke Excel...' : 'Mengekspor tampilan saat ini ke Excel...';
 
-    toast.info(toastMessage);
+    toast.showWarning(toastMessage);
     const dataToExport = exportData.map(item => {
       const rowData: { [key: string]: any } = {};
       const exportableColumns = columns.filter(
@@ -173,15 +173,15 @@ export function DataTable<TData, TValue>({
     });
 
     if (dataToExport.length === 0) {
-      toast.error('Tidak ada data untuk diekspor ke Excel.');
+      toast.showError('Tidak ada data untuk diekspor ke Excel.');
       return;
     }
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportTitle);
+    toast.showSuccess('Data berhasil diekspor ke Excel!');
     XLSX.writeFile(wb, `${exportFileName}${fileNameSuffix}.xlsx`);
-    toast.success('Data berhasil diekspor ke Excel!');
   };
 
   return (

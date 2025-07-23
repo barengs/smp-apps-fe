@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreatePermissionMutation, useUpdatePermissionMutation, type CreateUpdatePermissionRequest } from '@/store/slices/permissionApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -56,10 +56,10 @@ const HakAksesForm: React.FC<HakAksesFormProps> = ({ initialData, onSuccess, onC
     try {
       if (initialData) {
         await updatePermission({ id: initialData.id, data: payload }).unwrap();
-        toast.success(`Hak Akses "${values.name}" berhasil diperbarui.`);
+        toast.showSuccess(`Hak Akses "${values.name}" berhasil diperbarui.`);
       } else {
         await createPermission(payload).unwrap();
-        toast.success(`Hak Akses "${values.name}" berhasil ditambahkan.`);
+        toast.showSuccess(`Hak Akses "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -76,7 +76,7 @@ const HakAksesForm: React.FC<HakAksesFormProps> = ({ initialData, onSuccess, onC
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan hak akses: ${errorMessage}`);
+      toast.showError(`Gagal menyimpan hak akses: ${errorMessage}`);
     }
   };
 

@@ -4,7 +4,7 @@ import {
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import {
   Dialog,
   DialogContent,
@@ -167,6 +167,7 @@ const StaffTable: React.FC = () => {
     } else if (typeof error === 'string') {
       errorMessage = error;
     }
+    toast.showError(errorMessage); // Display error using toast
     return <div>Error: {errorMessage}</div>;
   }
 

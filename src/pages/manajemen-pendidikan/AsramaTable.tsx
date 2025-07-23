@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,

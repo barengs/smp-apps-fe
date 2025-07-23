@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { toast } from '@/utils/toast';
 import { useCreateClassGroupMutation, useUpdateClassGroupMutation, type CreateUpdateClassGroupRequest } from '@/store/slices/classGroupApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';

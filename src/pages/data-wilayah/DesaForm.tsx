@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { useCreateVillageMutation, useUpdateVillageMutation, type CreateUpdateVillageRequest } from '@/store/slices/villageApi';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -66,10 +66,10 @@ const DesaForm: React.FC<DesaFormProps> = ({ initialData, onSuccess, onCancel })
     try {
       if (initialData) {
         await updateVillage({ id: initialData.id, data: values as CreateUpdateVillageRequest }).unwrap();
-        toast.success(`Desa "${values.name}" berhasil diperbarui.`);
+        toast.showSuccess(`Desa "${values.name}" berhasil diperbarui.`);
       } else {
         await createVillage(values as CreateUpdateVillageRequest).unwrap();
-        toast.success(`Desa "${values.name}" berhasil ditambahkan.`);
+        toast.showSuccess(`Desa "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -86,7 +86,7 @@ const DesaForm: React.FC<DesaFormProps> = ({ initialData, onSuccess, onCancel })
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan desa: ${errorMessage}`);
+      toast.showError(`Gagal menyimpan desa: ${errorMessage}`);
     }
   };
 

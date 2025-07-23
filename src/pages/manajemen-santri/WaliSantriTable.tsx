@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetParentsQuery } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -81,7 +81,7 @@ const WaliSantriTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.info(`Mengedit wali santri: ${waliSantri.fullName}`);
+                  toast.showWarning(`Mengedit wali santri: ${waliSantri.fullName}`);
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
@@ -91,7 +91,7 @@ const WaliSantriTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.error(`Menghapus wali santri: ${waliSantri.fullName}`);
+                  toast.showError(`Menghapus wali santri: ${waliSantri.fullName}`);
                 }}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
@@ -105,7 +105,7 @@ const WaliSantriTable: React.FC = () => {
   );
 
   const handleAddData = () => {
-    toast.info('Membuka form tambah data wali santri...');
+    toast.showWarning('Membuka form tambah data wali santri...');
     // Implementasi logika untuk membuka form tambah data wali santri
   };
 

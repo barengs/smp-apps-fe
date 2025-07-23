@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGetParentByIdQuery } from '@/store/slices/parentApi';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { User, Users, UserPlus, Edit } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,7 +23,7 @@ const WaliSantriDetailPage: React.FC = () => {
   const parentId = parseInt(id || '', 10);
 
   if (isNaN(parentId)) {
-    toast.error('ID Wali Santri tidak valid.');
+    toast.showError('ID Wali Santri tidak valid.');
     navigate('/dashboard/wali-santri-list');
     return null;
   }
@@ -72,7 +72,7 @@ const WaliSantriDetailPage: React.FC = () => {
   }
 
   if (error || !parentData || !parentDetails) {
-    toast.error('Gagal memuat detail wali santri atau data tidak ditemukan.');
+    toast.showError('Gagal memuat detail wali santri atau data tidak ditemukan.');
     navigate('/dashboard/wali-santri-list');
     return null;
   }
@@ -89,7 +89,7 @@ const WaliSantriDetailPage: React.FC = () => {
                   <CardTitle>Informasi Wali Santri</CardTitle>
                   <CardDescription>Detail lengkap mengenai wali santri.</CardDescription>
                 </div>
-                <Button variant="outline" onClick={() => toast.info('Fitur edit akan segera tersedia.')}>
+                <Button variant="outline" onClick={() => toast.showWarning('Fitur edit akan segera tersedia.')}>
                   <Edit className="mr-2 h-4 w-4" /> Edit
                 </Button>
               </div>

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -71,11 +71,11 @@ const HakAksesTable: React.FC = () => {
     if (hakAksesToDelete) {
       try {
         await deletePermission(hakAksesToDelete.id).unwrap();
-        toast.success(`Hak akses "${hakAksesToDelete.name}" berhasil dihapus.`);
+        toast.showSuccess(`Hak akses "${hakAksesToDelete.name}" berhasil dihapus.`);
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus hak akses.';
-        toast.error(errorMessage);
+        toast.showError(errorMessage);
       } finally {
         setHakAksesToDelete(undefined);
         setIsDeleteDialogOpen(false);

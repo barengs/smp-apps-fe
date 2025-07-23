@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi';
-import { toast } from 'sonner';
+import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { User, Briefcase, UsersRound } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,7 @@ const StaffDetailPage: React.FC = () => {
   const staffId = parseInt(id || '', 10);
 
   if (isNaN(staffId)) {
-    toast.error('ID staf tidak valid.');
+    toast.showError('ID staf tidak valid.');
     navigate('/dashboard/staf');
     return null;
   }
@@ -72,7 +72,7 @@ const StaffDetailPage: React.FC = () => {
   }
 
   if (error || !staffData || !employee) {
-    toast.error('Gagal memuat detail staf atau staf tidak ditemukan.');
+    toast.showError('Gagal memuat detail staf atau staf tidak ditemukan.');
     navigate('/dashboard/staf');
     return null;
   }
