@@ -227,7 +227,9 @@ const StudentFormStep: React.FC<StudentFormStepProps> = ({ initialData, onBack, 
                   </FormControl>
                   <SelectContent>
                     {isLoadingPrograms ? (
-                      <div className="p-2">Memuat program...</div>
+                      <SelectItem value="loading" disabled>
+                        Memuat program...
+                      </SelectItem>
                     ) : (
                       availablePrograms.map((program) => (
                         <SelectItem key={program.id} value={String(program.id)}>
