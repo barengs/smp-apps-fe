@@ -87,7 +87,6 @@ const SantriTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Removed navigation to edit page as the form is removed
                   toast.info('Fitur edit santri akan segera tersedia.');
                 }}
               >
@@ -100,8 +99,6 @@ const SantriTable: React.FC = () => {
     ],
     [navigate]
   );
-
-  // Removed handleAddData function as the add form is removed
 
   if (isLoading) return <TableLoadingSkeleton numCols={8} />;
 
@@ -116,7 +113,6 @@ const SantriTable: React.FC = () => {
       data={santriList}
       exportFileName="data_santri"
       exportTitle="Data Santri Pesantren"
-      // Removed onAddData prop
       onRowClick={handleRowClick}
       filterableColumns={{
         programName: {

@@ -77,6 +77,7 @@ export interface CreateUpdateStudentRequest {
   address?: string | null;
   phone?: string | null;
   photo?: string | null; // URL for photo
+  parent_id: number; // Added parent_id for linking
 }
 
 export const studentApi = smpApi.injectEndpoints({
