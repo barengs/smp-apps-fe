@@ -104,28 +104,33 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
     if (nik.length === 16) {
       const loadingToastId = toast.loading('Mencari data wali santri...');
       try {
-        const { data, error } = await triggerGetParentByNik(nik);
+        const { data: apiResponse, error: apiError } = await triggerGetParentByNik(nik);
         toast.dismiss(loadingToastId);
 
-        if (data?.data) {
-          // Mengakses data langsung dari 'data.data' karena struktur API yang baru
-          const parentDataFromApi = data.data;
+        console.log("API Response:", apiResponse); // Log the full response
+        console.log("API Error:", apiError); // Log any error
+
+        if (apiResponse?.data) {
+          const parentDataFromApi = apiResponse.data;
+          console.log("Parent Data from API:", parentDataFromApi); // Log the extracted data
+
           form.setValue('first_name', parentDataFromApi.first_name);
           form.setValue('last_name', parentDataFromApi.last_name);
-          form.setValue('email', parentDataFromApi.email || ''); // Email bisa null dari API, set ke string kosong
-          form.setValue('kk', parentDataFromApi.kk);
+          form.setValue('email', parentDataFromApi.email || ''); // Ensure email is string
+          form.setValue('kk', parentDataFromApi.kk.trim()); // Trim to remove potential BOM
+          form.setValue('nik', parentDataFromApi.nik); // Ensure NIK is also set from API response
           form.setValue('gender', parentDataFromApi.gender);
-          form.setValue('parent_as', parentDataFromApi.parent_as);
+          form.setValue('parent_as', parentDataFromApi.parent_as); // This is the field user mentioned
           form.setValue('phone', parentDataFromApi.phone || null);
-          form.setValue('card_address', parentDataFromApi.card_address || null);
+          form.setValue('card_address', parentDataFromApi.card_address || null); // This is the field user mentioned
           form.setValue('photo', parentDataFromApi.photo || null);
           setPhotoPreviewUrl(parentDataFromApi.photo || null);
           setPhotoPreviewFile(null);
 
           setIsParentDataFound(true);
           toast.success('Data wali sudah ada dan diisi otomatis.');
-        } else if (error) {
-          const fetchError = error as FetchBaseQueryError;
+        } else if (apiError) {
+          const fetchError = apiError as FetchBaseQueryError;
           if (fetchError.status === 404) {
             toast.info('Data wali tidak ditemukan. Silakan isi secara manual.');
           } else {
@@ -133,32 +138,20 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             toast.error(errorMessage);
           }
           setIsParentDataFound(false);
-          // Clear fields if no data found or error, to ensure user fills manually
-          form.resetField('first_name');
-          form.resetField('last_name');
-          form.resetField('email');
-          form.resetField('kk');
-          form.resetField('gender');
-          form.resetField('parent_as');
-          form.resetField('phone');
-          form.resetField('card_address');
-          form.resetField('photo');
+          // Clear fields if no data found or error, but keep the entered NIK
+          form.reset(); // Reset all fields to default values
+          form.setValue('nik', nik); // Keep the NIK that was just typed
           setPhotoPreviewFile(null);
           setPhotoPreviewUrl(null);
         }
       } catch (err) {
         toast.dismiss(loadingToastId);
+        console.error("Unexpected error during NIK check:", err); // Log unexpected errors
         toast.error('Terjadi kesalahan saat memproses pencarian NIK.');
         setIsParentDataFound(false);
-        form.resetField('first_name');
-        form.resetField('last_name');
-        form.resetField('email');
-        form.resetField('kk');
-        form.resetField('gender');
-        form.resetField('parent_as');
-        form.resetField('phone');
-        form.resetField('card_address');
-        form.resetField('photo');
+        // Clear fields on unexpected error, but keep the entered NIK
+        form.reset(); // Reset all fields to default values
+        form.setValue('nik', nik); // Keep the NIK that was just typed
         setPhotoPreviewFile(null);
         setPhotoPreviewUrl(null);
       }
@@ -166,15 +159,8 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
       setIsParentDataFound(false);
       // Only reset if data was previously found and NIK is now invalid
       if (isParentDataFound) {
-        form.resetField('first_name');
-        form.resetField('last_name');
-        form.resetField('email');
-        form.resetField('kk');
-        form.resetField('gender');
-        form.resetField('parent_as');
-        form.resetField('phone');
-        form.resetField('card_address');
-        form.resetField('photo');
+        form.reset(); // Reset all fields to default values
+        form.setValue('nik', nik); // Keep the NIK that was just typed
         setPhotoPreviewFile(null);
         setPhotoPreviewUrl(null);
       }
@@ -331,7 +317,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
             name="card_address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Alamat Wali (Opsional)</FormLabel> {/* Corrected closing tag */}
+                <FormLabel>Alamat Wali (Opsional)</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Alamat lengkap wali..." {...field} value={field.value || ''} className="min-h-[120px]" />
                 </FormControl>
