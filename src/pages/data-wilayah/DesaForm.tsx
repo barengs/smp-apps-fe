@@ -13,63 +13,153 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
-  Select<dyad-problem-report summary="3 problems">
-<problem file="src/utils/toast.ts" line="1" column="22" code="2724">'&quot;react-toastify&quot;' has no exported member named 'ToastId'. Did you mean 'toast'?</problem>
-<problem file="src/pages/manajemen-pendidikan/JadwalKegiatanPage.tsx" line="9" column="10" code="2459">Module '&quot;@/utils/toast&quot;' declares 'toast' locally, but it is not exported.</problem>
-<problem file="src/components/ui/use-toast.ts" line="1" column="33" code="2307">Cannot find module '@/hooks/use-toast' or its corresponding type declarations.</problem>
-</dyad-problem-report><think>**Examining TypeScript Errors**
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { showSuccess, showError } from '@/utils/toast';
+import { useCreateVillageMutation, useUpdateVillageMutation, type CreateUpdateVillageRequest } from '@/store/slices/villageApi';
+import { useGetDistrictsQuery } from '@/store/slices/districtApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
-I'm currently focused on the three TypeScript compile-time errors. The first one in `src/utils/toast.ts` appears related to an import from `react-toastify`. It seems `ToastId` might not be exported there. I'm considering possible alternatives and checking the package documentation. I'll need to verify the imports and any possible typos.
+const formSchema = z.object({
+  code: z.string().min(1, {
+    message: 'Kode Desa tidak boleh kosong.',
+  }),
+  name: z.string().min(2, {
+    message: 'Nama Desa harus minimal 2 karakter.',
+  }),
+  district_code: z.string().min(1, {
+    message: 'Kecamatan harus dipilih.',
+  }),
+});
 
+interface DesaFormProps {
+  initialData?: {
+    id: number;
+    code: string;
+    name: string;
+    district_code: string;
+  };
+  onSuccess: () => void;
+  onCancel: () => void;
+}
 
-**Troubleshooting Imports Now**
+const DesaForm: React.FC<DesaFormProps> = ({ initialData, onSuccess, onCancel }) => {
+  const [createVillage, { isLoading: isCreating }] = useCreateVillageMutation();
+  const [updateVillage, { isLoading: isUpdating }] = useUpdateVillageMutation();
+  const { data: districtsData, isLoading: isLoadingDistricts } = useGetDistrictsQuery();
 
-I'm now zeroing in on the third error related to the missing `use-toast` module. It appears the import path ` "@/hooks/use-toast"` is incorrect. My immediate thought is to check the file structure to find the correct path, likely ` "@/hooks/use-toast"` if that's the intention. I need to verify its file location and any potential typos. I'll test out the new import statement and see if it can resolve the issue.
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData || {
+      code: '',
+      name: '',
+      district_code: '',
+    },
+  });
 
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (initialData) {
+        await updateVillage({ id: initialData.id, data: values as CreateUpdateVillageRequest }).unwrap();
+        showSuccess(`Desa "${values.name}" berhasil diperbarui.`);
+      } else {
+        await createVillage(values as CreateUpdateVillageRequest).unwrap();
+        showSuccess(`Desa "${values.name}" berhasil ditambahkan.`);
+      }
+      onSuccess();
+    } catch (err: unknown) {
+      let errorMessage = 'Terjadi kesalahan tidak dikenal.';
+      if (typeof err === 'object' && err !== null) {
+        if ('status' in err) {
+          const fetchError = err as FetchBaseQueryError;
+          if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
+            errorMessage = (fetchError.data as { message: string }).message;
+          } else {
+            errorMessage = `Error: Gagal memproses permintaan.`;
+          }
+        } else if ('message' in err) {
+          errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
+        }
+      }
+      showError(`Gagal menyimpan desa: ${errorMessage}`);
+    }
+  };
 
+  const isSubmitting = isCreating || isUpdating;
 
-**Refining Imports & Addressing Errors**
-
-I'm now fixing the import issue in `src/utils/toast.ts` by changing `ToastId` to `toast.Id`. Also, I'm refactoring `JadwalKegiatanPage.tsx` to directly import the specific toast functions from `src/utils/toast`. I've realized that the `use-toast.ts` file in `src/components/ui` is likely redundant, so my next step will be to delete it if it's not being used. The objective is to refine the import statements and resolve the two lingering compile-time errors.
-
-
-**Resolving Remaining Issues**
-
-I'm now implementing the proposed plan. I've switched `ToastId` to `toast.Id` in `toast.ts` and updated the imports in `JadwalKegiatanPage.tsx` to directly import the toast functions. I'm also removing `use-toast.ts` since it seems extraneous. I'll test these changes for any unforeseen effects and verify if the compilation errors are fully resolved.
-
-
-</think>Tentu, saya akan memperbaiki ketiga kesalahan TypeScript tersebut.
-
-1.  **`src/utils/toast.ts:1:22 - '"react-toastify"' has no exported member named 'ToastId'. Did you mean 'toast'? (TS2724)`**
-    *   Ini berarti tipe `ToastId` tidak diekspor langsung dari `react-toastify`. Saya akan memperbaikinya dengan mengimpor `Id` dari `react-toastify` dan menggunakannya sebagai tipe untuk `ToastId`.
-
-2.  **`src/pages/manajemen-pendidikan/JadwalKegiatanPage.tsx:9:10 - Module '"@/utils/toast"' declares 'toast' locally, but it is not exported. (TS2459)`**
-    *   Kesalahan ini terjadi karena `src/utils/toast.ts` sekarang mengekspor fungsi-fungsi individual (`showSuccess`, `showWarning`, dll.), bukan objek `toast` secara keseluruhan. Saya akan memperbarui impor di `JadwalKegiatanPage.tsx` agar mengimpor fungsi-fungsi spesifik yang dibutuhkan.
-
-3.  **`src/components/ui/use-toast.ts:1:33 - Cannot find module '@/hooks/use-toast' or its corresponding type declarations. (TS2307)`**
-    *   File ini mencoba mengimpor modul yang tidak ada. Karena aplikasi sudah menggunakan `react-toastify` dan `src/utils/toast.ts` untuk fungsionalitas toast, file `src/components/ui/use-toast.ts` ini kemungkinan besar tidak diperlukan dan akan saya hapus.
-
-Berikut adalah perubahannya:
-
-<dyad-write path="src/utils/toast.ts" description="Memperbaiki impor tipe ToastId dari react-toastify.">
-import { toast, type Id } from "react-toastify";
-
-export const showSuccess = (message: string) => {
-  toast.success(message);
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="district_code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kecamatan</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingDistricts}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kecamatan..." />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {isLoadingDistricts ? (
+                    <div className="p-2">Memuat kecamatan...</div>
+                  ) : (
+                    districtsData?.map((district) => (
+                      <SelectItem key={district.code} value={district.code}>
+                        {district.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kode Desa</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: 3273010001" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nama Desa</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: Sukajadi" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex justify-end space-x-2 pt-4">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            Batal
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Desa')}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
 };
 
-export const showError = (message: string) => {
-  toast.error(message);
-};
-
-export const showWarning = (message: string) => {
-  toast.warn(message);
-};
-
-export const showLoading = (message: string) => {
-  return toast.loading(message);
-};
-
-export const dismissToast = (toastId: Id) => {
-  toast.dismiss(toastId);
-};
+export default DesaForm;

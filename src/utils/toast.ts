@@ -1,4 +1,4 @@
-import { toast, type ToastId } from "react-toastify";
+import { toast, type Id } from "react-toastify";
 
 export const showSuccess = (message: string) => {
   toast.success(message);
@@ -16,6 +16,6 @@ export const showLoading = (message: string) => {
   return toast.loading(message);
 };
 
-export const dismissToast = (toastId: ToastId) => {
+export const dismissToast = (toastId: Id) => {
   toast.dismiss(toastId);
 };
