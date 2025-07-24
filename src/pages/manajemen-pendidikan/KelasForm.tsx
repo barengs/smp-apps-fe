@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { useCreateClassroomMutation, useUpdateClassroomMutation, useGetClassroomsQuery, type CreateUpdateClassroomRequest } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -72,10 +72,10 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
     try {
       if (initialData) {
         await updateClassroom({ id: initialData.id, data: payload }).unwrap();
-        toast.success(`Kelas "${values.name}" berhasil diperbarui.`);
+        showSuccess(`Kelas "${values.name}" berhasil diperbarui.`); // Updated call
       } else {
         await createClassroom(payload).unwrap();
-        toast.success(`Kelas "${values.name}" berhasil ditambahkan.`);
+        showSuccess(`Kelas "${values.name}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
     } catch (err: unknown) {
@@ -92,7 +92,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan kelas: ${errorMessage}`);
+      showError(`Gagal menyimpan kelas: ${errorMessage}`); // Updated call
     }
   };
 

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -71,11 +71,11 @@ const JenjangPendidikanTable: React.FC = () => {
     if (dataToDelete) {
       try {
         await deleteEducationLevel(dataToDelete.id).unwrap();
-        toast.success(`Jenjang Pendidikan "${dataToDelete.name}" berhasil dihapus.`);
+        showSuccess(`Jenjang Pendidikan "${dataToDelete.name}" berhasil dihapus.`); // Updated call
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus data.';
-        toast.error(errorMessage);
+        showError(errorMessage); // Updated call
       } finally {
         setDataToDelete(undefined);
         setIsDeleteDialogOpen(false);
@@ -134,6 +134,7 @@ const JenjangPendidikanTable: React.FC = () => {
 
   if (isLoading) return <TableLoadingSkeleton numCols={3} />;
 
+  // Treat 404 error as empty data, but show other errors
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
     return <div>Error: Gagal memuat data. Silakan coba lagi nanti.</div>;

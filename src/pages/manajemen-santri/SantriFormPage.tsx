@@ -5,7 +5,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { Users, UserPlus } from 'lucide-react';
 import SantriWizardForm from './SantriWizardForm';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/utils/toast';
+import { showWarning } from '@/utils/toast'; // Updated import
 
 const SantriFormPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const SantriFormPage: React.FC = () => {
 
   const handleCancel = () => {
     navigate('/dashboard/santri');
-    toast.info('Penambahan santri dibatalkan.');
+    showWarning('Penambahan santri dibatalkan.'); // Updated call
   };
 
   return (

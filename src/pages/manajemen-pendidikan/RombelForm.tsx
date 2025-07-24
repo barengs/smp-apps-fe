@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { useCreateClassGroupMutation, useUpdateClassGroupMutation, type CreateUpdateClassGroupRequest } from '@/store/slices/classGroupApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -60,16 +60,16 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
     try {
       if (initialData) {
         await updateClassGroup({ id: initialData.id, data: values as CreateUpdateClassGroupRequest }).unwrap();
-        toast.success(`Rombel "${values.name}" berhasil diperbarui.`);
+        showSuccess(`Rombel "${values.name}" berhasil diperbarui.`); // Updated call
       } else {
         await createClassGroup(values as CreateUpdateClassGroupRequest).unwrap();
-        toast.success(`Rombel "${values.name}" berhasil ditambahkan.`);
+        showSuccess(`Rombel "${values.name}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
     } catch (err) {
       const fetchError = err as FetchBaseQueryError;
       const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menyimpan rombel.';
-      toast.error(errorMessage);
+      showError(errorMessage); // Updated call
     }
   };
 

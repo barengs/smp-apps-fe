@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError, showWarning } from '@/utils/toast'; // Updated import
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
@@ -126,7 +126,7 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
         try {
           const response = await triggerGetParentByNik(nikValue).unwrap();
           if (response.data) {
-            toast.info('Data wali santri ditemukan berdasarkan NIK.');
+            showWarning('Data wali santri ditemukan berdasarkan NIK.'); // Updated call
             form.reset({
               ...form.getValues(), // Keep current form values for fields not in API response
               first_name: response.data.first_name || '',
@@ -150,11 +150,11 @@ const ParentFormStep: React.FC<ParentFormStepProps> = ({ initialData, onNext, on
               setPhotoPreviewFile(null);
             }
           } else {
-            toast.warning('Tidak ada data wali santri ditemukan dengan NIK ini.');
+            showWarning('Tidak ada data wali santri ditemukan dengan NIK ini.'); // Updated call
           }
         } catch (err) {
           // Handle 404 or other errors if parent not found
-          toast.warning('Tidak ada data wali santri ditemukan dengan NIK ini.');
+          showWarning('Tidak ada data wali santri ditemukan dengan NIK ini.'); // Updated call
           // Optionally clear fields if NIK search fails
           // form.reset({ ...form.getValues(), first_name: '', last_name: '', email: '' });
         }

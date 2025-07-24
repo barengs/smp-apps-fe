@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/utils/toast';
+import { showSuccess } from '@/utils/toast'; // Updated import
 import { useTranslation } from 'react-i18next';
 
 const SystemSettingsPage: React.FC = () => {
@@ -23,7 +23,7 @@ const SystemSettingsPage: React.FC = () => {
   const { i18n } = useTranslation();
 
   const handleSaveChanges = () => {
-    toast.success("Perubahan berhasil disimpan! (Simulasi)");
+    showSuccess("Perubahan berhasil disimpan! (Simulasi)"); // Updated call
   };
 
   const changeLanguage = (lng: string) => {

@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
 import JadwalKegiatanForm from './JadwalKegiatanForm';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { toast } from '@/utils/toast';
+import { showSuccess, showWarning } from '@/utils/toast'; // Updated import
 import EventCalendar from '../../components/EventCalendar';
 import KegiatanList from '../../components/KegiatanList';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -40,7 +40,7 @@ const JadwalKegiatanPage: React.FC = () => {
       status: 'Belum Selesai',
     };
     setKegiatanList([...kegiatanList, newKegiatan]);
-    toast.success(`Kegiatan "${newKegiatan.title}" berhasil ditambahkan.`);
+    showSuccess(`Kegiatan "${newKegiatan.title}" berhasil ditambahkan.`); // Updated call
     setIsDialogOpen(false);
     setEditingKegiatan(undefined);
   };
@@ -57,14 +57,14 @@ const JadwalKegiatanPage: React.FC = () => {
         ? { ...k, status: k.status === 'Selesai' ? 'Belum Selesai' : 'Selesai' }
         : k
     ));
-    toast.info('Status kegiatan telah diperbarui.');
+    showWarning('Status kegiatan telah diperbarui.'); // Updated call
   };
 
   const handleDeleteKegiatan = (id: number) => {
     const kegiatan = kegiatanList.find(k => k.id === id);
     setKegiatanList(kegiatanList.filter(k => k.id !== id));
     if (kegiatan) {
-      toast.success(`Kegiatan "${kegiatan.title}" telah dihapus.`);
+      showSuccess(`Kegiatan "${kegiatan.title}" telah dihapus.`); // Updated call
     }
   };
 

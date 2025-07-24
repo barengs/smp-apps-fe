@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Download, UploadCloud } from 'lucide-react';
-import * as toast from '@/utils/toast';
+import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast'; // Updated import
 
 interface StaffImportDialogProps {
   isOpen: boolean;
@@ -43,16 +43,16 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ isOpen, onClose, 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.showSuccess("Template berhasil diunduh.");
+    showSuccess("Template berhasil diunduh."); // Updated call
   };
 
   const handleImport = async () => {
     if (!file) {
-      toast.showError('Silakan pilih file untuk diimpor.');
+      showError('Silakan pilih file untuk diimpor.'); // Updated call
       return;
     }
 
-    const loadingToast = toast.showLoading('Mengimpor data staf...');
+    const loadingToast = showLoading('Mengimpor data staf...'); // Updated call
     setIsImporting(true);
 
     // Simulasi panggilan API untuk impor
@@ -63,8 +63,8 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ isOpen, onClose, 
     
     setTimeout(() => {
       setIsImporting(false);
-      toast.dismissToast(loadingToast);
-      toast.showSuccess('Data staf berhasil diimpor! (Simulasi)');
+      dismissToast(loadingToast); // Updated call
+      showSuccess('Data staf berhasil diimpor! (Simulasi)'); // Updated call
       onSuccess();
       setFile(null); // Reset input file
     }, 2000);

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -67,11 +67,11 @@ const RombelTable: React.FC = () => {
     if (rombelToDelete) {
       try {
         await deleteClassGroup(rombelToDelete.id).unwrap();
-        toast.success(`Rombel "${rombelToDelete.name}" berhasil dihapus.`);
+        showSuccess(`Rombel "${rombelToDelete.name}" berhasil dihapus.`); // Updated call
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus rombel.';
-        toast.error(errorMessage);
+        showError(errorMessage); // Updated call
       } finally {
         setRombelToDelete(undefined);
         setIsDeleteDialogOpen(false);

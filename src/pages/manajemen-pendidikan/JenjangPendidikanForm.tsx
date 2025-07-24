@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { useCreateEducationLevelMutation, useUpdateEducationLevelMutation, type CreateUpdateEducationLevelRequest } from '@/store/slices/educationApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -56,10 +56,10 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     try {
       if (initialData) {
         await updateEducationLevel({ id: initialData.id, data: payload }).unwrap();
-        toast.success(`Jenjang Pendidikan "${values.name}" berhasil diperbarui.`);
+        showSuccess(`Jenjang Pendidikan "${values.name}" berhasil diperbarui.`); // Updated call
       } else {
         await createEducationLevel(payload).unwrap();
-        toast.success(`Jenjang Pendidikan "${values.name}" berhasil ditambahkan.`);
+        showSuccess(`Jenjang Pendidikan "${values.name}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
     } catch (err: unknown) {
@@ -76,7 +76,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan jenjang pendidikan: ${errorMessage}`);
+      showError(`Gagal menyimpan jenjang pendidikan: ${errorMessage}`); // Updated call
     }
   };
 

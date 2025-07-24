@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { useCreateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -107,10 +107,10 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     try {
       if (initialData) {
         // await updateMenu({ id: initialData.id, data: payload }).unwrap(); // Uncomment if update mutation is added
-        toast.success(`Item navigasi "${values.title}" berhasil diperbarui. (Simulasi)`);
+        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui. (Simulasi)`); // Updated call
       } else {
         await createMenu(payload).unwrap();
-        toast.success(`Item navigasi "${values.title}" berhasil ditambahkan.`);
+        showSuccess(`Item navigasi "${values.title}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
     } catch (err: unknown) {
@@ -127,7 +127,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan item navigasi: ${errorMessage}`);
+      showError(`Gagal menyimpan item navigasi: ${errorMessage}`); // Updated call
     }
   };
 
@@ -193,9 +193,9 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
             control={form.control}
             name="type"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipe</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormItem>
+              <FormLabel>Tipe</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih tipe" />
@@ -208,16 +208,16 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </SelectContent>
                 </Select>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+            </FormItem>
+          )}
+        />
           <FormField
             control={form.control}
             name="position"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Posisi</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormItem>
+              <FormLabel>Posisi</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih posisi" />
@@ -230,16 +230,16 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </SelectContent>
                 </Select>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+            </FormItem>
+          )}
+        />
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status" />
@@ -251,9 +251,9 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </SelectContent>
                 </Select>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+            </FormItem>
+          )}
+        />
         </div>
         <FormField
           control={form.control}

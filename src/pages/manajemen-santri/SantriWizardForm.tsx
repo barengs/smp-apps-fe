@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast'; // Updated import
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import ParentFormStep, { parentFormSchema } from './ParentFormStep';
@@ -41,7 +41,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
   };
 
   const handleConfirmSubmit = async () => {
-    const loadingToast = toast.loading('Menyimpan data santri dan wali...');
+    const loadingToast = showLoading('Menyimpan data santri dan wali...'); // Updated call
 
     try {
       // Simulate file upload for parent photo
@@ -101,11 +101,11 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
       };
       await createStudent(studentPayload).unwrap();
 
-      toast.dismiss(loadingToast);
-      toast.success('Data santri dan wali berhasil ditambahkan!');
+      dismissToast(loadingToast); // Updated call
+      showSuccess('Data santri dan wali berhasil ditambahkan!'); // Updated call
       onSuccess();
     } catch (err: unknown) {
-      toast.dismiss(loadingToast);
+      dismissToast(loadingToast); // Updated call
       let errorMessage = 'Terjadi kesalahan tidak dikenal.';
 
       if (typeof err === 'object' && err !== null) {
@@ -120,7 +120,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
           } else if (typeof fetchError.status === 'string' && 'error' in fetchError) {
             errorMessage = fetchError.error;
           } else {
-            errorMessage = `Error: ${JSON.stringify(err)}`;
+            errorMessage = `Terjadi kesalahan: ${JSON.stringify(err)}`;
           }
         } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
           errorMessage = (err as SerializedError).message;
@@ -131,7 +131,7 @@ const SantriWizardForm: React.FC<SantriWizardFormProps> = ({ onSuccess, onCancel
         errorMessage = err;
       }
 
-      toast.error(`Gagal menyimpan data: ${errorMessage}`);
+      showError(`Gagal menyimpan data: ${errorMessage}`); // Updated call
     }
   };
 

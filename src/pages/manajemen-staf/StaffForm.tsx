@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import * as toast from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -85,11 +85,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       if (initialData) {
         // Penegasan tipe eksplisit di sini
         await updateEmployee({ id: initialData.id, data: values as CreateUpdateEmployeeRequest }).unwrap();
-        toast.success(`Staf "${values.first_name} ${values.last_name}" berhasil diperbarui.`);
+        showSuccess(`Staf "${values.first_name} ${values.last_name}" berhasil diperbarui.`); // Updated call
       } else {
         // Penegasan tipe eksplisit di sini
         await createEmployee(values as CreateUpdateEmployeeRequest).unwrap();
-        toast.success(`Staf "${values.first_name} ${values.last_name}" berhasil ditambahkan.`);
+        showSuccess(`Staf "${values.first_name} ${values.last_name}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
     } catch (err: unknown) {
@@ -118,7 +118,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
         errorMessage = err;
       }
 
-      toast.error(`Gagal menyimpan staf: ${errorMessage}`);
+      showError(`Gagal menyimpan staf: ${errorMessage}`); // Updated call
     }
   };
 

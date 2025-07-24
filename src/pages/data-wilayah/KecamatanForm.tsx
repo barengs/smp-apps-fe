@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { useCreateDistrictMutation, useUpdateDistrictMutation, type CreateUpdateDistrictRequest } from '@/store/slices/districtApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -66,10 +66,10 @@ const KecamatanForm: React.FC<KecamatanFormProps> = ({ initialData, onSuccess, o
     try {
       if (initialData) {
         await updateDistrict({ id: initialData.id, data: values as CreateUpdateDistrictRequest }).unwrap();
-        toast.success(`Kecamatan "${values.name}" berhasil diperbarui.`);
+        showSuccess(`Kecamatan "${values.name}" berhasil diperbarui.`); // Updated call
       } else {
         await createDistrict(values as CreateUpdateDistrictRequest).unwrap();
-        toast.success(`Kecamatan "${values.name}" berhasil ditambahkan.`);
+        showSuccess(`Kecamatan "${values.name}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
     } catch (err: unknown) {
@@ -86,7 +86,7 @@ const KecamatanForm: React.FC<KecamatanFormProps> = ({ initialData, onSuccess, o
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      toast.error(`Gagal menyimpan kecamatan: ${errorMessage}`);
+      showError(`Gagal menyimpan kecamatan: ${errorMessage}`); // Updated call
     }
   };
 

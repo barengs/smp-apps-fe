@@ -24,7 +24,7 @@ import KelasForm from './KelasForm';
 import { useGetClassroomsQuery, useDeleteClassroomMutation } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import { toast } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 
@@ -77,11 +77,11 @@ const KelasTable: React.FC = () => {
     if (kelasToDelete) {
       try {
         await deleteClassroom(kelasToDelete.id).unwrap();
-        toast.success(`Kelas "${kelasToDelete.name}" berhasil dihapus.`);
+        showSuccess(`Kelas "${kelasToDelete.name}" berhasil dihapus.`); // Updated call
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus kelas.';
-        toast.error(errorMessage);
+        showError(errorMessage); // Updated call
       } finally {
         setKelasToDelete(undefined);
         setIsDeleteDialogOpen(false);
