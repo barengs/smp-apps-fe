@@ -181,6 +181,34 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kode Staf</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: STF001" {...field} disabled={true} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nik"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>NIK (Opsional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 3273xxxxxxxxxxxx" {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -200,34 +228,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                 <FormLabel>Telepon (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kode Staf</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: STF001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="nik"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>NIK (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: 3273xxxxxxxxxxxx" {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
