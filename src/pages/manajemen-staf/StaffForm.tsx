@@ -31,7 +31,7 @@ const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
   last_name: z.string().nullable().optional(),
   email: z.string().email({ message: 'Email tidak valid.' }),
-  code: z.string().min(1, { message: 'Kode staf tidak boleh kosong.' }),
+  code: z.string().optional(), // Removed min(1) validation
   nik: z.string().min(16, { message: 'NIK harus 16 digit.' }).max(16, { message: 'NIK harus 16 digit.' }).optional().or(z.literal('')),
   phone: z.string().min(10, { message: 'Nomor telepon minimal 10 digit.' }).optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
@@ -121,7 +121,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       first_name: values.first_name,
       last_name: values.last_name || '', // Ensure last_name is always a string
       email: values.email,
-      code: values.code,
+      code: values.code, // This will be an empty string if not provided, or existing code if editing
       role_ids: values.role_ids,
       username: values.username,
       nik: values.nik || undefined,
