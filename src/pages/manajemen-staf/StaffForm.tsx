@@ -45,7 +45,12 @@ const formSchema = z.object({
   zip_code: z.string().optional().or(z.literal('')),
   role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
   username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }),
-  password: z.string().min(6, { message: 'Password harus minimal 6 karakter.' }).optional().or(z.literal('')),
+  password: z.string()
+    .min(6, { message: 'Password harus minimal 6 karakter.' })
+    .regex(/(?=.*[A-Z])/, { message: 'Password harus mengandung setidaknya 1 huruf kapital.' })
+    .regex(/(?=.*\d)/, { message: 'Password harus mengandung setidaknya 1 angka.' })
+    .optional()
+    .or(z.literal('')),
 });
 
 interface StaffFormProps {
@@ -371,6 +376,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             name="password"
             render={({ field }) => {
               const passwordValue = form.watch('password');
+              const hasMinLength = passwordValue.length >= 6;
+              const hasUppercase = /[A-Z]/.test(passwordValue);
+              const hasNumber = /\d/.test(passwordValue);
+              const isPasswordValid = hasMinLength && hasUppercase && hasNumber;
+
               return (
                 <FormItem>
                   <FormLabel>Password (Opsional)</FormLabel>
@@ -398,13 +408,13 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                     </div>
                   </FormControl>
                   <FormDescription className="text-sm mt-1 flex items-center bg-yellow-100 border border-yellow-400 text-yellow-800 p-1 rounded">
-                    Password harus minimal 6 karakter.
+                    Password harus minimal 6 karakter, mengandung setidaknya 1 huruf kapital dan 1 angka.
                     {passwordValue && (
-                      <span className={cn("ml-2", passwordValue.length >= 6 ? "text-green-500" : "text-red-500")}>
-                        ({passwordValue.length}/6)
+                      <span className={cn("ml-2", isPasswordValid ? "text-green-500" : "text-red-500")}>
+                        ({passwordValue.length}/6, Kapital: {hasUppercase ? '✓' : '✗'}, Angka: {hasNumber ? '✓' : '✗'})
                       </span>
                     )}
-                    {passwordValue && passwordValue.length >= 6 && (
+                    {passwordValue && isPasswordValid && (
                       <Check className="h-4 w-4 text-green-500 ml-1" />
                     )}
                   </FormDescription>
