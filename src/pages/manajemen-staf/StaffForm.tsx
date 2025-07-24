@@ -57,8 +57,8 @@ interface StaffFormProps {
       address: string;
       zip_code: string;
     };
-    email: string; // Email is at the top level, not nested under employee
-    roles: { name: string }[]; // Roles from API only contain 'name'
+    email: string;
+    roles: { name: string }[]; // Changed this type to match RoleNameOnly[]
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -178,19 +178,34 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="contoh@email.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="contoh@email.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telepon (Opsional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -219,19 +234,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telepon (Opsional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
-                </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="address"
