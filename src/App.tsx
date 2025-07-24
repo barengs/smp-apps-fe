@@ -30,6 +30,7 @@ import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
+import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage"; // Import StaffEditPage
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
             <Route path="/dashboard/staf" element={<StafPage />} />
             <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
+            <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} /> {/* New route for editing staff */}
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />

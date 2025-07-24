@@ -41,7 +41,7 @@ const StaffDetailPage: React.FC = () => {
   ];
 
   const handleEdit = () => {
-    toast.showWarning('Fitur edit staf akan segera tersedia.');
+    navigate(`/dashboard/staf/${staffId}/edit`); // Navigate to the edit page
   };
 
   if (isLoading) {
@@ -94,7 +94,7 @@ const StaffDetailPage: React.FC = () => {
                 <CardTitle>Informasi Staf</CardTitle>
                 <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
               </div>
-              <div className="flex items-center space-x-2"> {/* Added a div for grouping buttons */}
+              <div className="flex items-center space-x-2">
                 <Button variant="outline" onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" /> Edit
                 </Button>

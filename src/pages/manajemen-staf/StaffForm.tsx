@@ -57,8 +57,8 @@ interface StaffFormProps {
       address: string;
       zip_code: string;
     };
-    email: string;
-    roles: { id: number; name: string; guard_name: string }[];
+    email: string; // Email is at the top level, not nested under employee
+    roles: { name: string }[]; // Roles from API only contain 'name'
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -68,6 +68,14 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery();
+
+  const availableRoles = useMemo(() => {
+    if (!rolesData?.data) return [];
+    return rolesData.data.map(role => ({
+      id: role.id,
+      name: role.name,
+    }));
+  }, [rolesData]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,7 +88,10 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       phone: initialData.employee.phone || '',
       address: initialData.employee.address || '',
       zip_code: initialData.employee.zip_code || '',
-      role_ids: initialData.roles.map(role => role.id),
+      // Map initial roles (which might only have names) to their IDs using availableRoles
+      role_ids: initialData.roles.map(initialRole => 
+        availableRoles.find(ar => ar.name === initialRole.name)?.id
+      ).filter(Boolean) as number[] || [],
     } : {
       first_name: '',
       last_name: '',
@@ -93,14 +104,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       role_ids: [],
     },
   });
-
-  const availableRoles = useMemo(() => {
-    if (!rolesData?.data) return [];
-    return rolesData.data.map(role => ({
-      id: role.id,
-      name: role.name,
-    }));
-  }, [rolesData]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateEmployeeRequest = {
@@ -166,7 +169,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             name="last_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nama Belakang (Opsional)</FormLabel> {/* Fixed here */}
+                <FormLabel>Nama Belakang (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: Fulan" {...field} value={field.value || ''} />
                 </FormControl>
@@ -207,7 +210,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             name="nik"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>NIK (Opsional)</FormLabel> {/* Fixed here */}
+                <FormLabel>NIK (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 3273xxxxxxxxxxxx" {...field} value={field.value || ''} />
                 </FormControl>
@@ -221,7 +224,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telepon (Opsional)</FormLabel> {/* Fixed here */}
+              <FormLabel>Telepon (Opsional)</FormLabel>
               <FormControl>
                 <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
                 </FormControl>
@@ -234,7 +237,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Alamat (Opsional)</FormLabel> {/* Fixed here */}
+              <FormLabel>Alamat (Opsional)</FormLabel>
               <FormControl>
                 <Textarea placeholder="Alamat lengkap staf..." {...field} value={field.value || ''} />
               </FormControl>
