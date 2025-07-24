@@ -31,6 +31,7 @@ import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdate
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { Label } from '@/components/ui/label'; // Added this import
 
 const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
@@ -241,99 +242,101 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="zip_code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kode Pos (Opsional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: 40123" {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="role_ids"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Peran</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-full justify-between",
-                        !field.value?.length && "text-muted-foreground"
-                      )}
-                      disabled={isLoadingRoles}
-                    >
-                      {isLoadingRoles ? "Memuat peran..." : (
-                        field.value && field.value.length > 0
-                          ? (
-                              <div className="flex flex-wrap gap-1">
-                                {field.value.map((roleId) => {
-                                  const role = availableRoles.find(r => r.id === roleId);
-                                  return role ? (
-                                    <Badge key={role.id} variant="secondary">
-                                      {role.name}
-                                    </Badge>
-                                  ) : null;
-                                })}
-                              </div>
-                            )
-                          : "Pilih peran..."
-                      )}
-                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput placeholder="Cari peran..." />
-                    <CommandEmpty>Tidak ada peran ditemukan.</CommandEmpty>
-                    <CommandGroup>
-                      {availableRoles.map((role) => (
-                        <CommandItem
-                          key={role.id}
-                          onSelect={() => {
-                            const currentValues = new Set(field.value);
-                            if (currentValues.has(role.id)) {
-                              currentValues.delete(role.id);
-                            } else {
-                              currentValues.add(role.id);
-                            }
-                            field.onChange(Array.from(currentValues));
-                          }}
-                        >
-                          <Checkbox
-                            checked={field.value?.includes(role.id)}
-                            onCheckedChange={(checked) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* New div for side-by-side */}
+          <FormField
+            control={form.control}
+            name="zip_code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kode Pos (Opsional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 40123" {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="role_ids"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Peran</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-full justify-between",
+                          !field.value?.length && "text-muted-foreground"
+                        )}
+                        disabled={isLoadingRoles}
+                      >
+                        {isLoadingRoles ? "Memuat peran..." : (
+                          field.value && field.value.length > 0
+                            ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {field.value.map((roleId) => {
+                                    const role = availableRoles.find(r => r.id === roleId);
+                                    return role ? (
+                                      <Badge key={role.id} variant="secondary">
+                                        {role.name}
+                                      </Badge>
+                                    ) : null;
+                                  })}
+                                </div>
+                              )
+                            : "Pilih peran..."
+                        )}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                    <Command>
+                      <CommandInput placeholder="Cari peran..." />
+                      <CommandEmpty>Tidak ada peran ditemukan.</CommandEmpty>
+                      <CommandGroup>
+                        {availableRoles.map((role) => (
+                          <CommandItem
+                            key={role.id}
+                            onSelect={() => {
                               const currentValues = new Set(field.value);
-                              if (checked) {
-                                currentValues.add(role.id);
-                              } else {
+                              if (currentValues.has(role.id)) {
                                 currentValues.delete(role.id);
+                              } else {
+                                currentValues.add(role.id);
                               }
                               field.onChange(Array.from(currentValues));
                             }}
-                            className="mr-2"
-                          />
-                          {role.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                          >
+                            <Checkbox
+                              checked={field.value?.includes(role.id)}
+                              onCheckedChange={(checked) => {
+                                const currentValues = new Set(field.value);
+                                if (checked) {
+                                  currentValues.add(role.id);
+                                } else {
+                                  currentValues.delete(role.id);
+                                }
+                                field.onChange(Array.from(currentValues));
+                              }}
+                              className="mr-2"
+                            />
+                            {role.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
