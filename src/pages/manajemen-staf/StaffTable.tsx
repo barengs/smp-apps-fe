@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import StaffForm from './StaffForm';
+// import StaffForm from './StaffForm'; // Dihapus
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
@@ -22,7 +22,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
 import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import StaffImportDialog from './StaffImportDialog';
+// import StaffImportDialog from './StaffImportDialog'; // Dihapus
 
 interface Staff {
   id: number;
@@ -46,7 +46,7 @@ const StaffTable: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
-  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  // const [isImportDialogOpen, setIsImportDialogOpen] = useState(false); // Dihapus
 
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
@@ -70,8 +70,9 @@ const StaffTable: React.FC = () => {
   }, [employeesData]);
 
   const handleAddData = () => {
-    setEditingStaff(undefined);
-    setIsModalOpen(true);
+    // setEditingStaff(undefined); // Dihapus
+    // setIsModalOpen(true); // Dihapus
+    toast.showWarning('Fitur tambah staf saat ini dinonaktifkan.');
   };
 
   const handleEditData = (staff: Staff) => {
@@ -93,10 +94,10 @@ const StaffTable: React.FC = () => {
     navigate(`/dashboard/staf/${staff.id}`);
   };
 
-  const handleImportSuccess = () => {
-    setIsImportDialogOpen(false);
-    refetch();
-  };
+  // const handleImportSuccess = () => { // Dihapus
+  //   setIsImportDialogOpen(false);
+  //   refetch();
+  // }; // Dihapus
 
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
@@ -189,15 +190,15 @@ const StaffTable: React.FC = () => {
         exportFileName="data_staf"
         exportTitle="Data Staf Pesantren"
         onAddData={handleAddData}
-        onImportData={() => setIsImportDialogOpen(true)}
+        // onImportData={() => setIsImportDialogOpen(true)} // Dihapus
         onRowClick={handleRowClick}
       />
 
-      <StaffImportDialog
+      {/* <StaffImportDialog // Dihapus
         isOpen={isImportDialogOpen}
         onClose={() => setIsImportDialogOpen(false)}
         onSuccess={handleImportSuccess}
-      />
+      /> */}
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[600px]">
@@ -207,12 +208,25 @@ const StaffTable: React.FC = () => {
               {editingStaff ? 'Ubah detail staf ini.' : 'Isi detail untuk staf baru.'}
             </DialogDescription>
           </DialogHeader>
-          <StaffForm
-            key={editingStaff?.id || 'new-staff-form'}
-            initialData={editingStaff}
-            onSuccess={handleFormSuccess}
-            onCancel={handleFormCancel}
-          />
+          {/* StaffForm akan tetap ada untuk fungsi edit, tetapi tidak untuk tambah baru */}
+          {/* Jika Anda ingin menghapus fungsi edit juga, StaffForm perlu dihapus sepenuhnya */}
+          {/* Untuk saat ini, saya asumsikan Anda hanya ingin menonaktifkan penambahan baru */}
+          {/* Jika editingStaff ada, tampilkan form edit. Jika tidak, tampilkan pesan atau kosongkan. */}
+          {editingStaff ? (
+            <p className="text-center text-muted-foreground py-8">
+              Fitur edit staf akan segera tersedia.
+            </p>
+            // <StaffForm // Jika ingin mengaktifkan kembali edit, uncomment ini
+            //   key={editingStaff?.id || 'new-staff-form'}
+            //   initialData={editingStaff}
+            //   onSuccess={handleFormSuccess}
+            //   onCancel={handleFormCancel}
+            // />
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              Formulir tambah staf saat ini dinonaktifkan.
+            </p>
+          )}
         </DialogContent>
       </Dialog>
     </>
