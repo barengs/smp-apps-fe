@@ -96,17 +96,17 @@ export function DataTable<TData, TValue>({
       globalFilter,
       columnVisibility,
       columnFilters,
-      pagination: controlledPagination,
+      // Hanya teruskan state paginasi jika manualPagination adalah true
+      ...(manualPagination ? { pagination: controlledPagination } : {}),
     },
-    pageCount: controlledPageCount ?? -1,
     manualPagination,
-    onPaginationChange: setControlledPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    // Hanya teruskan onPaginationChange jika manualPagination adalah true
+    ...(manualPagination ? { onPaginationChange: setControlledPagination } : {}),
+    // Hanya teruskan pageCount jika manualPagination adalah true
+    ...(manualPagination ? { pageCount: controlledPageCount } : {}),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), // This should always be included
+    getPaginationRowModel: getPaginationRowModel(), // Ini harus selalu disertakan
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
