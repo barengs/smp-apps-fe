@@ -106,8 +106,7 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // Conditionally include getPaginationRowModel
-    ...(manualPagination ? {} : { getPaginationRowModel: getPaginationRowModel() }),
+    getPaginationRowModel: getPaginationRowModel(), // This should always be included
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
