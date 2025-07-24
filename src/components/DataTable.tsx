@@ -4,7 +4,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel, // Keep this import
+  getPaginationRowModel,
   useReactTable,
   VisibilityState,
   ColumnFiltersState,
@@ -363,7 +363,14 @@ export function DataTable<TData, TValue>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value));
+              const newSize = Number(value);
+              if (setControlledPagination) {
+                setControlledPagination((prev) => ({
+                  ...prev,
+                  pageSize: newSize,
+                  pageIndex: 0, // Reset pageIndex when pageSize changes
+                }));
+              }
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">
