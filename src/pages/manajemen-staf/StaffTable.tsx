@@ -3,7 +3,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react'; // Removed Trash2 import
 import * as toast from '@/utils/toast';
 import {
   Dialog,
@@ -175,16 +175,7 @@ const StaffTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              <Button
-                variant="destructive"
-                className="h-8 px-2 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(staff);
-                }}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
-              </Button>
+              {/* Removed Delete Button */}
             </div>
           );
         },
