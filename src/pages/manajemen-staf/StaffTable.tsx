@@ -3,7 +3,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react'; // Tambahkan Trash2 untuk aksi hapus
 import * as toast from '@/utils/toast';
 import {
   Dialog,
@@ -12,28 +12,38 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-// import StaffForm from './StaffForm'; // Dihapus
+import {
+  AlertDialog, // Import AlertDialog components
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import StaffForm from './StaffForm'; // Diaktifkan kembali
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
+  useDeleteEmployeeMutation, // Import delete mutation
 } from '@/store/slices/employeeApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
 import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-// import StaffImportDialog from './StaffImportDialog'; // Dihapus
 
 interface Staff {
   id: number;
   employee: {
     first_name: string;
     last_name: string;
-    code: string; // Added
-    nik: string; // Added
-    phone: string; // Added
-    address: string; // Added
-    zip_code: string; // Added
+    code: string;
+    nik: string;
+    phone: string;
+    address: string;
+    zip_code: string;
   };
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
@@ -41,12 +51,14 @@ interface Staff {
 }
 
 const StaffTable: React.FC = () => {
-  const { data: employeesData, error, isLoading, refetch } = useGetEmployeesQuery();
+  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
+  const [deleteEmployee] = useDeleteEmployeeMutation(); // Initialize delete mutation
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
-  // const [isImportDialogOpen, setIsImportDialogOpen] = useState(false); // Dihapus
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // State for delete dialog
+  const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined); // State for staff to delete
 
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
@@ -55,11 +67,11 @@ const StaffTable: React.FC = () => {
         employee: {
           first_name: apiEmployee.employee.first_name,
           last_name: apiEmployee.employee.last_name,
-          code: apiEmployee.employee.code, // Mapped
-          nik: apiEmployee.employee.nik, // Mapped
-          phone: apiEmployee.employee.phone, // Mapped
-          address: apiEmployee.employee.address, // Mapped
-          zip_code: apiEmployee.employee.zip_code, // Mapped
+          code: apiEmployee.employee.code,
+          nik: apiEmployee.employee.nik,
+          phone: apiEmployee.employee.phone,
+          address: apiEmployee.employee.address,
+          zip_code: apiEmployee.employee.zip_code,
         },
         email: apiEmployee.email,
         roles: apiEmployee.roles,
@@ -70,14 +82,34 @@ const StaffTable: React.FC = () => {
   }, [employeesData]);
 
   const handleAddData = () => {
-    // setEditingStaff(undefined); // Dihapus
-    // setIsModalOpen(true); // Dihapus
-    toast.showWarning('Fitur tambah staf saat ini dinonaktifkan.');
+    setEditingStaff(undefined);
+    setIsModalOpen(true);
   };
 
   const handleEditData = (staff: Staff) => {
     setEditingStaff(staff);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (staff: Staff) => {
+    setStaffToDelete(staff);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (staffToDelete) {
+      try {
+        await deleteEmployee(staffToDelete.id).unwrap();
+        toast.showSuccess(`Staf "${staffToDelete.fullName}" berhasil dihapus.`);
+      } catch (err) {
+        const fetchError = err as FetchBaseQueryError;
+        const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus staf.';
+        toast.showError(errorMessage);
+      } finally {
+        setStaffToDelete(undefined);
+        setIsDeleteDialogOpen(false);
+      }
+    }
   };
 
   const handleFormSuccess = () => {
@@ -93,11 +125,6 @@ const StaffTable: React.FC = () => {
   const handleRowClick = (staff: Staff) => {
     navigate(`/dashboard/staf/${staff.id}`);
   };
-
-  // const handleImportSuccess = () => { // Dihapus
-  //   setIsImportDialogOpen(false);
-  //   refetch();
-  // }; // Dihapus
 
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
@@ -136,10 +163,20 @@ const StaffTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.showWarning('Fitur edit staf akan segera tersedia.');
+                  handleEditData(staff);
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="destructive"
+                className="h-8 px-2 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(staff);
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
             </div>
           );
@@ -178,7 +215,7 @@ const StaffTable: React.FC = () => {
     } else if (typeof error === 'string') {
       errorMessage = error;
     }
-    toast.showError(errorMessage); // Display error using toast
+    toast.showError(errorMessage);
     return <div>Error: {errorMessage}</div>;
   }
 
@@ -190,15 +227,8 @@ const StaffTable: React.FC = () => {
         exportFileName="data_staf"
         exportTitle="Data Staf Pesantren"
         onAddData={handleAddData}
-        // onImportData={() => setIsImportDialogOpen(true)} // Dihapus
         onRowClick={handleRowClick}
       />
-
-      {/* <StaffImportDialog // Dihapus
-        isOpen={isImportDialogOpen}
-        onClose={() => setIsImportDialogOpen(false)}
-        onSuccess={handleImportSuccess}
-      /> */}
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[600px]">
@@ -208,27 +238,29 @@ const StaffTable: React.FC = () => {
               {editingStaff ? 'Ubah detail staf ini.' : 'Isi detail untuk staf baru.'}
             </DialogDescription>
           </DialogHeader>
-          {/* StaffForm akan tetap ada untuk fungsi edit, tetapi tidak untuk tambah baru */}
-          {/* Jika Anda ingin menghapus fungsi edit juga, StaffForm perlu dihapus sepenuhnya */}
-          {/* Untuk saat ini, saya asumsikan Anda hanya ingin menonaktifkan penambahan baru */}
-          {/* Jika editingStaff ada, tampilkan form edit. Jika tidak, tampilkan pesan atau kosongkan. */}
-          {editingStaff ? (
-            <p className="text-center text-muted-foreground py-8">
-              Fitur edit staf akan segera tersedia.
-            </p>
-            // <StaffForm // Jika ingin mengaktifkan kembali edit, uncomment ini
-            //   key={editingStaff?.id || 'new-staff-form'}
-            //   initialData={editingStaff}
-            //   onSuccess={handleFormSuccess}
-            //   onCancel={handleFormCancel}
-            // />
-          ) : (
-            <p className="text-center text-muted-foreground py-8">
-              Formulir tambah staf saat ini dinonaktifkan.
-            </p>
-          )}
+          <StaffForm
+            initialData={editingStaff}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus staf{' '}
+              <span className="font-semibold text-foreground">"{staffToDelete?.fullName}"</span> secara permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>Lanjutkan</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
