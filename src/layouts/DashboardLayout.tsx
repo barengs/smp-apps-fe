@@ -83,7 +83,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.classGroup", href: "/dashboard/pendidikan/rombel", icon: <Users className="h-4 w-4" /> },
         { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
-        { titleKey: "sidebar.educationGroup", href: "/dashboard/pendidikan/kelompok-pendidikan", icon: <Compass className="h-4 w-4" /> }
       ],
     },
     { titleKey: "sidebar.activitySchedule", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },

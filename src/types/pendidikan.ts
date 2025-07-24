@@ -1,5 +1,1 @@
-export interface KelompokPendidikan {
-  id: number;
-  code: string;
-  name: string;
-}
+// File ini sengaja dikosongkan setelah penghapusan fitur.
