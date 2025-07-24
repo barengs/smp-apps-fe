@@ -15,9 +15,9 @@ const ManajemenSantriPage: React.FC = () => {
     { label: 'Daftar Santri', icon: <UserCheck className="h-4 w-4" /> },
   ];
 
-  const handleAddSantri = () => {
-    navigate('/dashboard/santri/add');
-  };
+  // const handleAddSantri = () => {
+  //   navigate('/dashboard/santri/add');
+  // };
 
   return (
     <DashboardLayout title="Manajemen Santri" role="administrasi">
@@ -26,9 +26,9 @@ const ManajemenSantriPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Informasi Santri</CardTitle>
-            <Button onClick={handleAddSantri}>
+            {/* <Button onClick={handleAddSantri}>
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
-            </Button>
+            </Button> */}
           </CardHeader>
           <CardContent>
             <SantriTable />
