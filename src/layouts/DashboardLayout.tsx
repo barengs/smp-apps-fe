@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useTheme } from '@/components/theme-provider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,11 +20,11 @@ interface DashboardLayoutProps {
 }
 
 interface SidebarNavItem {
-  title: string;
+  titleKey: string;
   href?: string;
   icon: React.ReactNode;
   children?: {
-    title: string;
+    titleKey: string;
     href: string;
     icon?: React.ReactNode;
   }[];
@@ -36,80 +37,81 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   const adminSidebarNavItems: SidebarNavItem[] = [
-    { title: "Dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { titleKey: "sidebar.dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
     {
-      title: "Manajemen Santri",
+      titleKey: "sidebar.santriManagement",
       icon: <Users className="h-5 w-5" />,
       children: [
-        { title: "Santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
-        { title: "Wali Santri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
+        { titleKey: "sidebar.santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
+        { titleKey: "sidebar.waliSantri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
       ],
     },
     {
-      title: "Manajemen Staf",
+      titleKey: "sidebar.staffManagement",
       icon: <Briefcase className="h-5 w-5" />,
       children: [
-        { title: "Staf", href: "/dashboard/staf", icon: <UsersRound className="h-4 w-4" /> },
-        { title: "Hak Akses", href: "/dashboard/hak-akses", icon: <Key className="h-4 w-4" /> },
-        { title: "Peran", href: "/dashboard/peran", icon: <UserCog className="h-4 w-4" /> },
+        { titleKey: "sidebar.staff", href: "/dashboard/staf", icon: <UsersRound className="h-4 w-4" /> },
+        { titleKey: "sidebar.accessRights", href: "/dashboard/hak-akses", icon: <Key className="h-4 w-4" /> },
+        { titleKey: "sidebar.roles", href: "/dashboard/peran", icon: <UserCog className="h-4 w-4" /> },
       ],
     },
     {
-      title: "Kurikulum",
+      titleKey: "sidebar.curriculum",
       icon: <BookCopy className="h-5 w-5" />,
       children: [
-        { title: "Mata Pelajaran", href: "/dashboard/manajemen-kurikulum/mata-pelajaran", icon: <BookMarked className="h-4 w-4" /> },
-        { title: "Kenaikan Kelas", href: "/dashboard/manajemen-kurikulum/kenaikan-kelas", icon: <TrendingUp className="h-4 w-4" /> },
-        { title: "Jadwal Pelajaran", href: "/dashboard/manajemen-kurikulum/jadwal-pelajaran", icon: <CalendarClock className="h-4 w-4" /> },
+        { titleKey: "sidebar.subjects", href: "/dashboard/manajemen-kurikulum/mata-pelajaran", icon: <BookMarked className="h-4 w-4" /> },
+        { titleKey: "sidebar.classPromotion", href: "/dashboard/manajemen-kurikulum/kenaikan-kelas", icon: <TrendingUp className="h-4 w-4" /> },
+        { titleKey: "sidebar.lessonSchedule", href: "/dashboard/manajemen-kurikulum/jadwal-pelajaran", icon: <CalendarClock className="h-4 w-4" /> },
       ],
     },
     {
-      title: "Manajemen Kamtib",
+      titleKey: "sidebar.securityManagement",
       icon: <Shield className="h-5 w-5" />,
       children: [
-        { title: "Pelanggaran", href: "/dashboard/manajemen-kamtib/pelanggaran", icon: <AlertTriangle className="h-4 w-4" /> },
+        { titleKey: "sidebar.violations", href: "/dashboard/manajemen-kamtib/pelanggaran", icon: <AlertTriangle className="h-4 w-4" /> },
       ],
     },
     {
-      title: "Manajemen Pendidikan",
+      titleKey: "sidebar.educationManagement",
       icon: <GraduationCap className="h-5 w-5" />,
       children: [
-        { title: "Jenjang Pendidikan", href: "/dashboard/pendidikan/jenjang", icon: <Network className="h-4 w-4" /> },
-        { title: "Kelas", href: "/dashboard/pendidikan/kelas", icon: <School className="h-4 w-4" /> },
-        { title: "Rombel", href: "/dashboard/pendidikan/rombel", icon: <Users className="h-4 w-4" /> },
-        { title: "Asrama", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
-        { title: "Program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
+        { titleKey: "sidebar.educationLevel", href: "/dashboard/pendidikan/jenjang", icon: <Network className="h-4 w-4" /> },
+        { titleKey: "sidebar.class", href: "/dashboard/pendidikan/kelas", icon: <School className="h-4 w-4" /> },
+        { titleKey: "sidebar.classGroup", href: "/dashboard/pendidikan/rombel", icon: <Users className="h-4 w-4" /> },
+        { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
+        { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
       ],
     },
-    { title: "Jadwal Kegiatan", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
+    { titleKey: "sidebar.activitySchedule", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
     {
-      title: "Data Wilayah",
+      titleKey: "sidebar.regionalData",
       icon: <Map className="h-5 w-5" />,
       children: [
-        { title: "Provinsi", href: "/dashboard/wilayah/provinsi", icon: <Landmark className="h-4 w-4" /> },
-        { title: "Kota", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
-        { title: "Kecamatan", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
-        { title: "Desa", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
+        { titleKey: "sidebar.province", href: "/dashboard/wilayah/provinsi", icon: <Landmark className="h-4 w-4" /> },
+        { titleKey: "sidebar.city", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
+        { titleKey: "sidebar.district", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
+        { titleKey: "sidebar.village", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
       ],
     },
     {
-      title: "Pengaturan", // Parent menu for settings
+      titleKey: "sidebar.settings",
       icon: <Settings className="h-5 w-5" />,
       children: [
-        { title: "Sistem", href: "/dashboard/settings/system", icon: <Settings className="h-4 w-4" /> },
-        { title: "Navigasi", href: "/dashboard/settings/navigation", icon: <Compass className="h-4 w-4" /> },
+        { titleKey: "sidebar.system", href: "/dashboard/settings/system", icon: <Settings className="h-4 w-4" /> },
+        { titleKey: "sidebar.navigation", href: "/dashboard/settings/navigation", icon: <Compass className="h-4 w-4" /> },
       ],
     },
   ];
 
   const waliSantriSidebarNavItems: SidebarNavItem[] = [
-    { title: "Dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { title: "Informasi Santri", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
-    { title: "Nilai & Absensi", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
-    { title: "Pengumuman", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
-    { title: "Pengaturan", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
+    { titleKey: "sidebar.dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { titleKey: "sidebar.santriInfo", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
+    { titleKey: "sidebar.gradesAndAttendance", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
+    { titleKey: "sidebar.announcements", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
+    { titleKey: "sidebar.settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
 
   const sidebarNavItems = role === 'administrasi' ? adminSidebarNavItems : waliSantriSidebarNavItems;
@@ -118,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
     if (isCollapsed) return undefined;
     for (const item of sidebarNavItems) {
       if (item.children?.some(child => location.pathname.startsWith(child.href))) {
-        return item.title;
+        return item.titleKey;
       }
     }
     return undefined;
@@ -145,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
             if (item.children) {
               if (isCollapsed) {
                 return (
-                  <DropdownMenu key={item.title}>
+                  <DropdownMenu key={item.titleKey}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <DropdownMenuTrigger asChild>
@@ -155,20 +157,20 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                             size="icon"
                           >
                             {item.icon}
-                            <span className="sr-only">{item.title}</span>
+                            <span className="sr-only">{t(item.titleKey)}</span>
                           </Button>
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
-                      <TooltipContent side="right">{item.title}</TooltipContent>
+                      <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
                     </Tooltip>
                     <DropdownMenuContent side="right" align="start" className="w-48">
-                      <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t(item.titleKey)}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       {item.children.map((child) => (
                         <DropdownMenuItem key={child.href} asChild>
                           <Link to={child.href} className={cn(location.pathname.startsWith(child.href) && "bg-accent")}>
                             {child.icon && <div className="mr-2">{child.icon}</div>}
-                            <span>{child.title}</span>
+                            <span>{t(child.titleKey)}</span>
                           </Link>
                         </DropdownMenuItem>
                       ))}
@@ -177,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                 );
               } else {
                 return (
-                  <AccordionItem value={item.title} key={item.title} className="border-none">
+                  <AccordionItem value={item.titleKey} key={item.titleKey} className="border-none">
                     <AccordionTrigger
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
@@ -186,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     >
                       <div className="flex items-center flex-grow">
                         {item.icon}
-                        <span className="ml-3">{item.title}</span>
+                        <span className="ml-3">{t(item.titleKey)}</span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="pl-6 pt-1 space-y-1">
@@ -202,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                           )}
                         >
                           {child.icon}
-                          <span className="ml-3">{child.title}</span>
+                          <span className="ml-3">{t(child.titleKey)}</span>
                         </Link>
                       ))}
                     </AccordionContent>
@@ -211,22 +213,21 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
               }
             } else {
               return (
-                <Tooltip key={item.title}>
+                <Tooltip key={item.titleKey}>
                   <TooltipTrigger asChild>
                     <Link
                       to={item.href || "#"}
                       className={cn(
                         "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                         isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
-                        isCollapsed ? "justify-center" : "px-4",
-                        item.title === 'Manajemen Pelajaran' && !isCollapsed && "mt-2 border-t border-sidebar-border pt-3"
+                        isCollapsed ? "justify-center" : "px-4"
                       )}
                     >
                       {item.icon}
-                      {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                      {!isCollapsed && <span className="ml-3">{t(item.titleKey)}</span>}
                     </Link>
                   </TooltipTrigger>
-                  {isCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+                  {isCollapsed && <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>}
                 </Tooltip>
               );
             }
@@ -239,6 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
 
 const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administrasi'; isMobile: boolean; isCollapsed: boolean; setIsCollapsed: (collapsed: boolean) => void; }> = ({ title, role, isMobile, isCollapsed, setIsCollapsed }) => {
   const { theme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -257,6 +259,10 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   return (
@@ -289,28 +295,28 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
           {isFullscreen ? <Minimize className="h-[1.2rem] w-[1.2rem]" /> : <Maximize className="h-[1.2rem] w-[1.2rem]" />}
-          <span className="sr-only">Toggle Fullscreen</span>
+          <span className="sr-only">{t('header.toggleFullscreen')}</span>
         </Button>
         <Button variant="ghost" size="icon" onClick={toggleTheme}>
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only">{t('header.toggleTheme')}</span>
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
               <Globe className="h-[1.2rem] w-[1.2rem]" />
-              <span className="sr-only">Pilih Bahasa</span>
+              <span className="sr-only">{t('header.selectLanguage')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => changeLanguage('id')}>
               <span className="mr-2">🇮🇩</span> Bahasa Indonesia
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => changeLanguage('en')}>
               <span className="mr-2">🇬🇧</span> English
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => changeLanguage('ar')}>
               <span className="mr-2">🇸🇦</span> العربية
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -322,26 +328,29 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>Profil</span></DropdownMenuItem>
-            <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Pengaturan</span></DropdownMenuItem>
+            <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span></DropdownMenuItem>
+            <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span></DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>Keluar</span></DropdownMenuItem>
+            <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <span className="font-medium hidden sm:block">Nama Pengguna</span>
+        <span className="font-medium hidden sm:block">{t('header.usernamePlaceholder')}</span>
       </div>
     </header>
   );
 };
 
-const Footer: React.FC = () => (
-  <footer className="bg-gray-800 text-white py-1 px-6 text-center">
-    <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center text-xs">
-      <p className="mb-1 sm:mb-0 sm:mr-2">&copy; {new Date().getFullYear()} Pesantren Digital. All rights reserved.</p>
-      <MadeWithDyad />
-    </div>
-  </footer>
-);
+const Footer: React.FC = () => {
+  const { t } = useTranslation();
+  return (
+    <footer className="bg-gray-800 text-white py-1 px-6 text-center">
+      <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center text-xs">
+        <p className="mb-1 sm:mb-0 sm:mr-2">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
+        <MadeWithDyad />
+      </div>
+    </footer>
+  );
+};
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role }) => {
   const isMobile = useIsMobile();
