@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, Briefcase, UsersRound, ArrowLeft } from 'lucide-react';
+import { User, Briefcase, UsersRound, ArrowLeft, Edit } from 'lucide-react'; // Import Edit icon
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -39,6 +39,10 @@ const StaffDetailPage: React.FC = () => {
     { label: 'Daftar Staf', href: '/dashboard/staf', icon: <UsersRound className="h-4 w-4" /> },
     { label: fullName, icon: <User className="h-4 w-4" /> },
   ];
+
+  const handleEdit = () => {
+    toast.showWarning('Fitur edit staf akan segera tersedia.');
+  };
 
   if (isLoading) {
     return (
@@ -90,9 +94,14 @@ const StaffDetailPage: React.FC = () => {
                 <CardTitle>Informasi Staf</CardTitle>
                 <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
               </div>
-              <Button variant="outline" onClick={() => navigate(-1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
-              </Button>
+              <div className="flex items-center space-x-2"> {/* Added a div for grouping buttons */}
+                <Button variant="outline" onClick={handleEdit}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </Button>
+                <Button variant="outline" onClick={() => navigate(-1)}>
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -111,7 +120,7 @@ const StaffDetailPage: React.FC = () => {
               <DetailRow label="Nama Depan" value={employee.first_name} />
               <DetailRow label="Nama Belakang" value={employee.last_name} />
               <DetailRow label="Email" value={employee.email} />
-              <DetailRow label="Kode Staf" value={employee.code} /> {/* Diperbaiki di sini */}
+              <DetailRow label="Kode Staf" value={employee.code} />
               <DetailRow label="NIK" value={employee.nik} />
               <DetailRow label="Telepon" value={employee.phone} />
               <DetailRow label="Alamat" value={employee.address} />
