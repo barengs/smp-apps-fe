@@ -30,6 +30,9 @@ interface JenjangPendidikan {
   id: number;
   name: string;
   description: string;
+  education_class: { // Menambahkan properti education_class
+    name: string;
+  };
 }
 
 const JenjangPendidikanTable: React.FC = () => {
@@ -47,6 +50,7 @@ const JenjangPendidikanTable: React.FC = () => {
         id: item.id,
         name: item.name,
         description: item.description || 'Tidak ada deskripsi',
+        education_class: { name: item.education_class?.name || 'Tidak ada' }, // Memastikan education_class ada
       }));
     }
     return [];
@@ -98,6 +102,10 @@ const JenjangPendidikanTable: React.FC = () => {
       {
         accessorKey: 'name',
         header: 'Nama Jenjang',
+      },
+      {
+        accessorKey: 'education_class.name', // Menambahkan kolom untuk kelompok pendidikan
+        header: 'Kelompok Pendidikan',
       },
       {
         accessorKey: 'description',
