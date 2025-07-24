@@ -16,7 +16,20 @@ interface VillageApiData {
   district: NestedDistrictData;
 }
 
-type GetVillagesResponse = VillageApiData[];
+// Updated response structure for pagination
+interface GetVillagesResponse {
+  current_page: number;
+  data: VillageApiData[];
+  next_page_url: string | null;
+  per_page: number;
+  total: number;
+}
+
+// Params for the paginated query
+interface GetVillagesParams {
+  page: number;
+  per_page: number;
+}
 
 export interface CreateUpdateVillageRequest {
   code: string;
@@ -26,9 +39,15 @@ export interface CreateUpdateVillageRequest {
 
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getVillages: builder.query<GetVillagesResponse, void>({
-      query: () => 'region/village',
-      providesTags: ['Village'],
+    getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
+      query: ({ page, per_page }) => `region/village?page=${page}&per_page=${per_page}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Village' as const, id })),
+              { type: 'Village', id: 'LIST' },
+            ]
+          : [{ type: 'Village', id: 'LIST' }],
     }),
     createVillage: builder.mutation<VillageApiData, CreateUpdateVillageRequest>({
       query: (newVillage) => ({
@@ -36,7 +55,7 @@ export const villageApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newVillage,
       }),
-      invalidatesTags: ['Village', 'District'],
+      invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
     updateVillage: builder.mutation<VillageApiData, { id: number; data: CreateUpdateVillageRequest }>({
       query: ({ id, data }) => ({
@@ -44,14 +63,14 @@ export const villageApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Village', 'District'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Village', id }, { type: 'Village', id: 'LIST' }, 'District'],
     }),
     deleteVillage: builder.mutation<void, number>({
       query: (id) => ({
         url: `region/village/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Village', 'District'],
+      invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
   }),
 });

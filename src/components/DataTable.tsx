@@ -10,6 +10,7 @@ import {
   ColumnFiltersState,
   getFacetedRowModel,
   getFacetedUniqueValues,
+  PaginationState,
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,11 @@ export interface DataTableProps<TData, TValue> {
   onImportData?: () => void;
   onRowClick?: (rowData: TData) => void;
   filterableColumns?: Record<string, FilterableColumn>;
+  manualPagination?: boolean;
+  pageCount?: number;
+  pagination?: PaginationState;
+  onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  isLoading?: boolean;
 }
 
 function hasAccessorKey<TData>(
@@ -73,6 +79,11 @@ export function DataTable<TData, TValue>({
   onImportData,
   onRowClick,
   filterableColumns = {},
+  manualPagination = false,
+  pageCount: controlledPageCount,
+  pagination: controlledPagination,
+  onPaginationChange: setControlledPagination,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -85,7 +96,11 @@ export function DataTable<TData, TValue>({
       globalFilter,
       columnVisibility,
       columnFilters,
+      pagination: controlledPagination,
     },
+    pageCount: controlledPageCount ?? -1,
+    manualPagination,
+    onPaginationChange: setControlledPagination,
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -94,17 +109,12 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    initialState: {
-      pagination: {
-        pageSize: 5,
-      },
-    },
   });
 
   const exportToPdf = (allData: boolean) => {
-    const exportData = allData ? data : table.getRowModel().rows.map(row => row.original);
-    const fileNameSuffix = allData ? '_semua' : '';
-    const toastMessage = allData ? 'Mengekspor semua data ke PDF...' : 'Mengekspor tampilan saat ini ke PDF...';
+    const exportData = allData && !manualPagination ? data : table.getRowModel().rows.map(row => row.original);
+    const fileNameSuffix = allData && !manualPagination ? '_semua' : '';
+    const toastMessage = allData && !manualPagination ? 'Mengekspor semua data ke PDF...' : 'Mengekspor tampilan saat ini ke PDF...';
 
     toast.showWarning(toastMessage);
     const doc = new jsPDF();
@@ -152,9 +162,9 @@ export function DataTable<TData, TValue>({
   };
 
   const exportToExcel = (allData: boolean) => {
-    const exportData = allData ? data : table.getRowModel().rows.map(row => row.original);
-    const fileNameSuffix = allData ? '_semua' : '';
-    const toastMessage = allData ? 'Mengekspor semua data ke Excel...' : 'Mengekspor tampilan saat ini ke Excel...';
+    const exportData = allData && !manualPagination ? data : table.getRowModel().rows.map(row => row.original);
+    const fileNameSuffix = allData && !manualPagination ? '_semua' : '';
+    const toastMessage = allData && !manualPagination ? 'Mengekspor semua data ke Excel...' : 'Mengekspor tampilan saat ini ke Excel...';
 
     toast.showWarning(toastMessage);
     const dataToExport = exportData.map(item => {
@@ -278,14 +288,18 @@ export function DataTable<TData, TValue>({
               <DropdownMenuItem onClick={() => exportToExcel(false)}>
                 Ekspor ke Excel
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Ekspor Semua Data</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => exportToPdf(true)}>
-                Ekspor Semua ke PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportToExcel(true)}>
-                Ekspor Semua ke Excel
-              </DropdownMenuItem>
+              {!manualPagination && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Ekspor Semua Data</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => exportToPdf(true)}>
+                    Ekspor Semua ke PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => exportToExcel(true)}>
+                    Ekspor Semua ke Excel
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -311,7 +325,13 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Memuat data...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

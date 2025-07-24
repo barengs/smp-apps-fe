@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
@@ -26,14 +26,27 @@ interface Desa {
 }
 
 const DesaTable: React.FC = () => {
-  const { data: villagesData, error, isLoading } = useGetVillagesQuery();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0, // 0-based page index for tanstack-table
+    pageSize: 5,
+  });
+
+  const { data: villagesResponse, error, isLoading, isFetching } = useGetVillagesQuery({
+    page: pagination.pageIndex + 1, // 1-based page index for API
+    per_page: pagination.pageSize,
+  });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDesa, setEditingDesa] = useState<Desa | undefined>(undefined);
 
   const villages: Desa[] = useMemo(() => {
-    return villagesData || [];
-  }, [villagesData]);
+    return villagesResponse?.data || [];
+  }, [villagesResponse]);
+
+  const pageCount = useMemo(() => {
+    if (!villagesResponse) return -1;
+    return Math.ceil(villagesResponse.total / villagesResponse.per_page);
+  }, [villagesResponse]);
 
   const handleAddData = () => {
     setEditingDesa(undefined);
@@ -92,7 +105,7 @@ const DesaTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
+  if (isLoading && !villagesResponse) return <TableLoadingSkeleton numCols={4} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
@@ -107,6 +120,12 @@ const DesaTable: React.FC = () => {
         exportFileName="data_desa"
         exportTitle="Data Desa"
         onAddData={handleAddData}
+        // Pagination props
+        manualPagination
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        isLoading={isFetching}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
