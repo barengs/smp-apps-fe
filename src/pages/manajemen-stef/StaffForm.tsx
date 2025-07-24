@@ -12,6 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription, // Import FormDescription
 } from '@/components/ui/form';
 import {
   Select,
@@ -25,13 +26,13 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ChevronDown, Eye, EyeOff } from 'lucide-react'; // Added Eye, EyeOff
+import { ChevronDown, Eye, EyeOff, Check } from 'lucide-react'; // Added Check
 import * as toast from '@/utils/toast';
 import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { Label } from '@/components/ui/label'; // Added Label import
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
@@ -43,8 +44,8 @@ const formSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
   role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
-  username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }), // Added username
-  password: z.string().min(6, { message: 'Password harus minimal 6 karakter.' }).optional().or(z.literal('')), // Added password
+  username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }),
+  password: z.string().min(6, { message: 'Password harus minimal 6 karakter.' }).optional().or(z.literal('')),
 });
 
 interface StaffFormProps {
@@ -60,8 +61,8 @@ interface StaffFormProps {
       zip_code: string;
     };
     email: string;
-    roles: { name: string }[]; // Changed from { id: number; name: string; guard_name: string }[] to match employeeApi.ts
-    username: string; // Added username to initialData
+    roles: { name: string }[];
+    username: string;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -71,7 +72,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery();
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const availableRoles = useMemo(() => {
     if (!rolesData?.data) return [];
@@ -94,9 +95,9 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       zip_code: initialData.employee.zip_code || '',
       role_ids: initialData.roles.map(initialRole => 
         availableRoles.find(ar => ar.name === initialRole.name)?.id
-      ).filter(Boolean) as number[] || [], // Adjusted mapping for roles
-      username: initialData.username || '', // Set initial username
-      password: '', // Never pre-fill password for security
+      ).filter(Boolean) as number[] || [],
+      username: initialData.username || '',
+      password: '',
     } : {
       first_name: '',
       last_name: '',
@@ -107,8 +108,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: '',
       zip_code: '',
       role_ids: [],
-      username: '', // Default for new staff
-      password: '', // Default for new staff
+      username: '',
+      password: '',
     },
   });
 
@@ -123,8 +124,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: values.address || undefined,
       zip_code: values.zip_code || undefined,
       role_ids: values.role_ids,
-      username: values.username, // Added username to payload
-      password: values.password || undefined, // Only send password if it's not empty
+      username: values.username,
+      password: values.password || undefined,
     };
 
     try {
@@ -368,35 +369,49 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password (Opsional)</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="********"
-                      {...field}
-                      className="pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const passwordValue = form.watch('password');
+              return (
+                <FormItem>
+                  <FormLabel>Password (Opsional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="********"
+                        {...field}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-sm mt-1 flex items-center">
+                    Password harus minimal 6 karakter.
+                    {passwordValue && (
+                      <span className={cn("ml-2", passwordValue.length >= 6 ? "text-green-500" : "text-red-500")}>
+                        ({passwordValue.length}/6)
+                      </span>
+                    )}
+                    {passwordValue && passwordValue.length >= 6 && (
+                      <Check className="h-4 w-4 text-green-500 ml-1" />
+                    )}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         </div>
         <div className="flex justify-end space-x-2 pt-4">
