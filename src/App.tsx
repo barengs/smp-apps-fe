@@ -32,6 +32,7 @@ import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage"; // Import StaffEditPage
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage"; // Import SantriFormPage
+import KelompokPendidikanPage from './pages/manajemen-pendidikan/KelompokPendidikanPage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
             <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
             <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
+            <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
             <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
             <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
             <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />

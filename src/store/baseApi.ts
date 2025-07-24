@@ -34,6 +34,7 @@ export const smpApi = createApi({
     'Classroom',
     'ClassGroup',
     'Menu',
+    'EducationGroup',
   ],
   endpoints: () => ({}),
 });
