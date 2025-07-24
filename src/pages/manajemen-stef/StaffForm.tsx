@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -25,12 +25,13 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff } from 'lucide-react'; // Added Eye, EyeOff
 import * as toast from '@/utils/toast';
 import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { Label } from '@/components/ui/label'; // Added Label import
 
 const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
@@ -42,6 +43,8 @@ const formSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
   role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
+  username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }), // Added username
+  password: z.string().min(6, { message: 'Password harus minimal 6 karakter.' }).optional().or(z.literal('')), // Added password
 });
 
 interface StaffFormProps {
@@ -57,7 +60,8 @@ interface StaffFormProps {
       zip_code: string;
     };
     email: string;
-    roles: { id: number; name: string; guard_name: string }[];
+    roles: { name: string }[]; // Changed from { id: number; name: string; guard_name: string }[] to match employeeApi.ts
+    username: string; // Added username to initialData
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -67,6 +71,15 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery();
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+
+  const availableRoles = useMemo(() => {
+    if (!rolesData?.data) return [];
+    return rolesData.data.map(role => ({
+      id: role.id,
+      name: role.name,
+    }));
+  }, [rolesData]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,7 +92,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       phone: initialData.employee.phone || '',
       address: initialData.employee.address || '',
       zip_code: initialData.employee.zip_code || '',
-      role_ids: initialData.roles.map(role => role.id),
+      role_ids: initialData.roles.map(initialRole => 
+        availableRoles.find(ar => ar.name === initialRole.name)?.id
+      ).filter(Boolean) as number[] || [], // Adjusted mapping for roles
+      username: initialData.username || '', // Set initial username
+      password: '', // Never pre-fill password for security
     } : {
       first_name: '',
       last_name: '',
@@ -90,16 +107,10 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: '',
       zip_code: '',
       role_ids: [],
+      username: '', // Default for new staff
+      password: '', // Default for new staff
     },
   });
-
-  const availableRoles = useMemo(() => {
-    if (!rolesData?.data) return [];
-    return rolesData.data.map(role => ({
-      id: role.id,
-      name: role.name,
-    }));
-  }, [rolesData]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateEmployeeRequest = {
@@ -112,6 +123,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: values.address || undefined,
       zip_code: values.zip_code || undefined,
       role_ids: values.role_ids,
+      username: values.username, // Added username to payload
+      password: values.password || undefined, // Only send password if it's not empty
     };
 
     try {
@@ -174,19 +187,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="contoh@email.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -215,19 +215,34 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telepon (Opsional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="contoh@email.com" {...field} />
                 </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telepon (Opsional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="address"
@@ -241,15 +256,15 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* New div for side-by-side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="zip_code"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col min-h-[80px]">
                 <FormLabel>Kode Pos (Opsional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Contoh: 40123" {...field} value={field.value || ''} />
+                  <Input placeholder="Contoh: 40123" {...field} className="h-10" value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -259,7 +274,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             control={form.control}
             name="role_ids"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem className="flex flex-col min-h-[80px]">
                 <FormLabel>Peran</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -268,7 +283,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                         variant="outline"
                         role="combobox"
                         className={cn(
-                          "w-full justify-between",
+                          "w-full justify-between h-10",
                           !field.value?.length && "text-muted-foreground"
                         )}
                         disabled={isLoadingRoles}
@@ -331,6 +346,54 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                     </Command>
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: ahmad.fulan" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password (Opsional)</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      {...field}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
