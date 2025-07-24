@@ -12,7 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription, // Import FormDescription
+  FormDescription, // Pastikan FormDescription diimpor
 } from '@/components/ui/form';
 import {
   Select,
@@ -26,7 +26,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ChevronDown, Eye, EyeOff, Check } from 'lucide-react'; // Added Check
+import { ChevronDown, Eye, EyeOff, Check } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
@@ -139,7 +139,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       onSuccess();
     } catch (err: unknown) {
       let errorMessage = 'Terjadi kesalahan tidak dikenal.';
-      if (typeof err === 'object' && err !== null) {
+      if (typeof err === 'object' && err !== null) { // Perbaikan: 'object' bukan 'object"'
         if ('status' in err) {
           const fetchError = err as FetchBaseQueryError;
           if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
@@ -397,7 +397,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                       </Button>
                     </div>
                   </FormControl>
-                  <FormDescription className="text-sm mt-1 flex items-center">
+                  <FormDescription className="text-sm mt-1 flex items-center text-gray-600 bg-blue-50 p-1 rounded">
                     Password harus minimal 6 karakter.
                     {passwordValue && (
                       <span className={cn("ml-2", passwordValue.length >= 6 ? "text-green-500" : "text-red-500")}>
