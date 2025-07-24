@@ -129,6 +129,11 @@ const StaffTable: React.FC = () => {
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
+        accessorFn: row => row.employee.code,
+        id: 'code',
+        header: 'Kode Staf',
+      },
+      {
         accessorKey: 'fullName',
         header: 'Nama Lengkap',
         cell: ({ row }) => row.original.fullName,
@@ -186,7 +191,7 @@ const StaffTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={5} />; // Updated numCols to 5
   if (error) {
     let errorMessage = 'Terjadi kesalahan saat memuat data.';
     if (typeof error === 'object' && error !== null) {
@@ -208,9 +213,7 @@ const StaffTable: React.FC = () => {
           errorMessage = `Terjadi kesalahan: ${JSON.stringify(error)}`;
         }
       } else if ('message' in error && typeof (error as SerializedError).message === 'string') {
-        errorMessage = (error as SerializedError).message;
-      } else {
-        errorMessage = `Terjadi kesalahan: ${JSON.stringify(error)}`;
+        errorMessage = error.message;
       }
     } else if (typeof error === 'string') {
       errorMessage = error;
