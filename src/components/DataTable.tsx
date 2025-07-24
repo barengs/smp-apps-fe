@@ -89,6 +89,22 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
+  // State internal untuk paginasi sisi klien
+  const [internalPagination, setInternalPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10, // Ukuran halaman default
+  });
+
+  // Tentukan state paginasi dan setter mana yang akan digunakan
+  // Jika manualPagination true, gunakan props yang dikontrol. Jika tidak, gunakan state internal.
+  const currentPaginationState = manualPagination ? controlledPagination : internalPagination;
+  const currentSetPaginationState = manualPagination ? setControlledPagination : setInternalPagination;
+
+  // Pastikan currentPaginationState selalu objek yang valid untuk prop state useReactTable.
+  // Jika controlledPagination undefined (misalnya, pada render awal atau jika parent tidak menyediakannya),
+  // berikan nilai default. Ini penting untuk mencegah `undefined` diteruskan ke `pagination` di `state`.
+  const effectivePaginationState = currentPaginationState || { pageIndex: 0, pageSize: 10 };
+
   const table = useReactTable({
     data,
     columns,
@@ -96,17 +112,14 @@ export function DataTable<TData, TValue>({
       globalFilter,
       columnVisibility,
       columnFilters,
-      // Hanya teruskan state paginasi jika manualPagination adalah true
-      ...(manualPagination ? { pagination: controlledPagination } : {}),
+      pagination: effectivePaginationState, // Selalu berikan state paginasi yang terdefinisi
     },
     manualPagination,
-    // Hanya teruskan onPaginationChange jika manualPagination adalah true
-    ...(manualPagination ? { onPaginationChange: setControlledPagination } : {}),
-    // Hanya teruskan pageCount jika manualPagination adalah true
-    ...(manualPagination ? { pageCount: controlledPageCount } : {}),
+    onPaginationChange: currentSetPaginationState, // Selalu berikan setter yang terdefinisi
+    pageCount: controlledPageCount, // Ini tidak masalah, react-table menangani undefined untuk perhitungan otomatis
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), // Ini harus selalu disertakan
+    getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
@@ -362,17 +375,13 @@ export function DataTable<TData, TValue>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              // Wrap the state update in a timeout to prevent render conflicts
-              // with the Select component's internal state management.
+              // Bungkus pembaruan state dalam timeout untuk mencegah konflik render
+              // dengan manajemen state internal komponen Select.
               setTimeout(() => {
-                if (setControlledPagination) {
-                  setControlledPagination({
-                    pageIndex: 0,
-                    pageSize: Number(value),
-                  });
-                } else {
-                  table.setPageSize(Number(value));
-                }
+                currentSetPaginationState && currentSetPaginationState({
+                  pageIndex: 0, // Reset ke halaman pertama saat ukuran halaman berubah
+                  pageSize: Number(value),
+                });
               }, 0);
             }}
           >
