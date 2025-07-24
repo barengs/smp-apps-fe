@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import AsramaForm from './AsramaForm'; // Import AsramaForm
 import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
@@ -156,10 +157,11 @@ const AsramaTable: React.FC = () => {
               {editingAsrama ? 'Ubah detail asrama ini.' : 'Isi detail untuk asrama baru.'}
             </DialogDescription>
           </DialogHeader>
-          {/* AsramaForm removed */}
-          <div className="p-4 text-center text-muted-foreground">
-            Formulir Asrama akan ditampilkan di sini.
-          </div>
+          <AsramaForm
+            initialData={editingAsrama}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
         </DialogContent>
       </Dialog>
 
