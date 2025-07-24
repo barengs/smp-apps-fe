@@ -160,7 +160,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           } else if (typeof fetchError.status === 'string' && 'error' in fetchError) {
             errorMessage = fetchError.error;
           } else {
-            errorMessage = `Error: ${JSON.stringify(fetchError)}`;
+            errorMessage = `Error: ${JSON.stringify(err)}`;
           }
         } else if ('message' in err && typeof (err as SerializedError).message === 'string') {
           errorMessage = (err as SerializedError).message;
