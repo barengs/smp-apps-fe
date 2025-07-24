@@ -27,9 +27,9 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface EducationGroup {
-  id: number;
+  code: string; // Mengganti 'id' dengan 'code'
   name: string;
-  description: string;
+  // 'description' dihapus
 }
 
 const KelompokPendidikanTable: React.FC = () => {
@@ -63,7 +63,7 @@ const KelompokPendidikanTable: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (educationGroupToDelete) {
       try {
-        await deleteEducationGroup(educationGroupToDelete.id).unwrap();
+        await deleteEducationGroup(educationGroupToDelete.code).unwrap(); // Menggunakan 'code'
         showSuccess(`Kelompok Pendidikan "${educationGroupToDelete.name}" berhasil dihapus.`);
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
@@ -89,13 +89,14 @@ const KelompokPendidikanTable: React.FC = () => {
   const columns: ColumnDef<EducationGroup>[] = useMemo(
     () => [
       {
+        accessorKey: 'code', // Menambahkan kolom 'code'
+        header: 'Kode Kelompok Pendidikan',
+      },
+      {
         accessorKey: 'name',
         header: 'Nama Kelompok Pendidikan',
       },
-      {
-        accessorKey: 'description',
-        header: 'Deskripsi',
-      },
+      // Kolom 'description' dihapus
       {
         id: 'actions',
         header: 'Aksi',

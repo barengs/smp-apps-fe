@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Textarea } from '@/components/ui/textarea'; // Textarea mungkin tidak lagi diperlukan jika deskripsi dihapus
 import {
   Form,
   FormControl,
@@ -18,17 +18,20 @@ import { useCreateEducationGroupMutation, useUpdateEducationGroupMutation, type 
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 const formSchema = z.object({
+  code: z.string().min(2, { // Menambahkan validasi untuk 'code'
+    message: 'Kode Kelompok Pendidikan harus minimal 2 karakter.',
+  }),
   name: z.string().min(2, {
     message: 'Nama Kelompok Pendidikan harus minimal 2 karakter.',
   }),
-  description: z.string().optional(),
+  // 'description' dihapus dari skema
 });
 
 interface KelompokPendidikanFormProps {
   initialData?: {
-    id: number;
+    code: string; // Mengganti 'id' dengan 'code'
     name: string;
-    description: string;
+    // 'description' dihapus
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -41,15 +44,16 @@ const KelompokPendidikanForm: React.FC<KelompokPendidikanFormProps> = ({ initial
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
+      code: '', // Menambahkan default value untuk 'code'
       name: '',
-      description: '',
+      // 'description' dihapus
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (initialData) {
-        await updateEducationGroup({ id: initialData.id, data: values as CreateUpdateEducationGroupRequest }).unwrap();
+        await updateEducationGroup({ code: initialData.code, data: values as CreateUpdateEducationGroupRequest }).unwrap(); // Menggunakan 'code'
         showSuccess(`Kelompok Pendidikan "${values.name}" berhasil diperbarui.`);
       } else {
         await createEducationGroup(values as CreateUpdateEducationGroupRequest).unwrap();
@@ -70,6 +74,19 @@ const KelompokPendidikanForm: React.FC<KelompokPendidikanFormProps> = ({ initial
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
+          name="code" // Menambahkan field untuk 'code'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kode Kelompok Pendidikan</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: KLP001" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -81,19 +98,7 @@ const KelompokPendidikanForm: React.FC<KelompokPendidikanFormProps> = ({ initial
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Deskripsi</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Deskripsi kelompok pendidikan (opsional)" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Field 'description' dihapus */}
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
