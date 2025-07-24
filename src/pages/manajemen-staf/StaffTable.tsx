@@ -3,7 +3,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react'; // Tambahkan Trash2 untuk aksi hapus
+import { Edit, Trash2 } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import {
   Dialog,
@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog, // Import AlertDialog components
+  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -22,11 +22,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import StaffForm from './StaffForm'; // Diaktifkan kembali
+import StaffForm from './StaffForm';
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
-  useDeleteEmployeeMutation, // Import delete mutation
+  useDeleteEmployeeMutation,
 } from '@/store/slices/employeeApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -48,18 +48,18 @@ interface Staff {
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
   fullName: string;
-  username: string; // Tambahkan properti username
+  username: string;
 }
 
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
-  const [deleteEmployee] = useDeleteEmployeeMutation(); // Initialize delete mutation
+  const [deleteEmployee] = useDeleteEmployeeMutation();
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // State for delete dialog
-  const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined); // State for staff to delete
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
 
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
@@ -77,7 +77,7 @@ const StaffTable: React.FC = () => {
         email: apiEmployee.email,
         roles: apiEmployee.roles,
         fullName: `${apiEmployee.employee.first_name} ${apiEmployee.employee.last_name}`,
-        username: apiEmployee.username, // Ambil username dari API
+        username: apiEmployee.username,
       }));
     }
     return [];
@@ -193,7 +193,7 @@ const StaffTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={5} />; // Updated numCols to 5
+  if (isLoading) return <TableLoadingSkeleton numCols={5} />;
   if (error) {
     let errorMessage = 'Terjadi kesalahan saat memuat data.';
     if (typeof error === 'object' && error !== null) {
@@ -236,7 +236,7 @@ const StaffTable: React.FC = () => {
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingStaff ? 'Edit Staf' : 'Tambah Staf Baru'}</DialogTitle>
             <DialogDescription>
