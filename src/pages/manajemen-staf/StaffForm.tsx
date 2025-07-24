@@ -14,13 +14,6 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -32,14 +25,14 @@ import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdate
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 
 const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
   last_name: z.string().nullable().optional(),
   email: z.string().email({ message: 'Email tidak valid.' }),
   code: z.string().min(1, { message: 'Kode staf tidak boleh kosong.' }),
-  nik: z.string().min(16).max(16, { message: 'NIK harus 16 digit.' }).optional().or(z.literal('')),
+  nik: z.string().min(16, { message: 'NIK harus 16 digit.' }).max(16, { message: 'NIK harus 16 digit.' }).optional().or(z.literal('')),
   phone: z.string().min(10, { message: 'Nomor telepon minimal 10 digit.' }).optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
@@ -52,6 +45,15 @@ const formSchema = z.object({
     .optional()
     .or(z.literal('')),
 });
+
+type FormValues = z.infer<typeof formSchema>;
+
+const steps = [
+  { id: 'Data Diri', fields: ['first_name', 'last_name', 'nik', 'phone'] },
+  { id: 'Alamat', fields: ['address', 'zip_code'] },
+  { id: 'Informasi Akun', fields: ['code', 'email', 'role_ids'] },
+  { id: 'Kredensial', fields: ['username', 'password'] },
+];
 
 interface StaffFormProps {
   initialData?: {
@@ -74,6 +76,7 @@ interface StaffFormProps {
 }
 
 const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel }) => {
+  const [currentStep, setCurrentStep] = useState(0);
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery();
@@ -81,14 +84,12 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
 
   const availableRoles = useMemo(() => {
     if (!rolesData?.data) return [];
-    return rolesData.data.map(role => ({
-      id: role.id,
-      name: role.name,
-    }));
+    return rolesData.data.map(role => ({ id: role.id, name: role.name }));
   }, [rolesData]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    mode: 'onTouched',
     defaultValues: initialData ? {
       first_name: initialData.employee.first_name,
       last_name: initialData.employee.last_name,
@@ -98,9 +99,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       phone: initialData.employee.phone || '',
       address: initialData.employee.address || '',
       zip_code: initialData.employee.zip_code || '',
-      role_ids: initialData.roles.map(initialRole => 
-        availableRoles.find(ar => ar.name === initialRole.name)?.id
-      ).filter(Boolean) as number[] || [],
+      role_ids: initialData.roles.map(initialRole => availableRoles.find(ar => ar.name === initialRole.name)?.id).filter(Boolean) as number[] || [],
       username: initialData.username || '',
       password: '',
     } : {
@@ -118,18 +117,18 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     const payload: CreateUpdateEmployeeRequest = {
       first_name: values.first_name,
-      last_name: values.last_name,
+      last_name: values.last_name || '', // Ensure last_name is always a string
       email: values.email,
       code: values.code,
+      role_ids: values.role_ids,
+      username: values.username,
       nik: values.nik || undefined,
       phone: values.phone || undefined,
       address: values.address || undefined,
       zip_code: values.zip_code || undefined,
-      role_ids: values.role_ids,
-      username: values.username,
       password: values.password || undefined,
     };
 
@@ -160,277 +159,116 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     }
   };
 
+  const handleNext = async () => {
+    const fields = steps[currentStep].fields as (keyof FormValues)[];
+    const isValid = await form.trigger(fields);
+    if (isValid) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(prev => prev - 1);
+  };
+
   const isSubmitting = isCreating || isUpdating;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="first_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Depan</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Ahmad" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="last_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Belakang (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Fulan" {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Stepper UI */}
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex-1 text-center">
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center mx-auto font-semibold text-sm",
+                    currentStep > index ? "bg-green-500 text-white" :
+                    currentStep === index ? "bg-blue-500 text-white" :
+                    "bg-gray-200 text-gray-600"
+                  )}
+                >
+                  {currentStep > index ? <Check size={18} /> : index + 1}
+                </div>
+                <p className={cn(
+                  "text-xs mt-1",
+                  currentStep >= index ? "font-semibold text-foreground" : "text-muted-foreground"
+                )}>
+                  {step.id}
+                </p>
+              </div>
+            ))}
+          </div>
+          <Progress value={((currentStep) / (steps.length - 1)) * 100} className="w-full h-2" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kode Staf</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: STF001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="nik"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>NIK (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: 3273xxxxxxxxxxxx" {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="contoh@email.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telepon (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alamat (Opsional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Alamat lengkap staf..." {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="zip_code"
-            render={({ field }) => (
-              <FormItem className="flex flex-col min-h-[80px]">
-                <FormLabel>Kode Pos (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: 40123" {...field} className="h-10" value={field.value || ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="role_ids"
-            render={({ field }) => (
-              <FormItem className="flex flex-col min-h-[80px]">
-                <FormLabel>Peran</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between h-10",
-                          !field.value?.length && "text-muted-foreground"
-                        )}
-                        disabled={isLoadingRoles}
-                      >
-                        {isLoadingRoles ? "Memuat peran..." : (
-                          field.value && field.value.length > 0
-                            ? (
-                                <div className="flex flex-wrap gap-1">
-                                  {field.value.map((roleId) => {
-                                    const role = availableRoles.find(r => r.id === roleId);
-                                    return role ? (
-                                      <Badge key={role.id} variant="secondary">
-                                        {role.name}
-                                      </Badge>
-                                    ) : null;
-                                  })}
-                                </div>
-                              )
-                            : "Pilih peran..."
-                        )}
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                    <Command>
-                      <CommandInput placeholder="Cari peran..." />
-                      <CommandEmpty>Tidak ada peran ditemukan.</CommandEmpty>
-                      <CommandGroup>
-                        {availableRoles.map((role) => (
-                          <CommandItem
-                            key={role.id}
-                            onSelect={() => {
-                              const currentValues = new Set(field.value);
-                              if (currentValues.has(role.id)) {
-                                currentValues.delete(role.id);
-                              } else {
-                                currentValues.add(role.id);
-                              }
-                              field.onChange(Array.from(currentValues));
-                            }}
-                          >
-                            <Checkbox
-                              checked={field.value?.includes(role.id)}
-                              onCheckedChange={(checked) => {
-                                const currentValues = new Set(field.value);
-                                if (checked) {
-                                  currentValues.add(role.id);
-                                } else {
-                                  currentValues.delete(role.id);
-                                }
-                                field.onChange(Array.from(currentValues));
-                              }}
-                              className="mr-2"
-                            />
-                            {role.name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: ahmad.fulan" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => {
-              const passwordValue = form.watch('password');
-              const hasMinLength = passwordValue.length >= 6;
-              const hasUppercase = /[A-Z]/.test(passwordValue);
-              const hasNumber = /\d/.test(passwordValue);
-              const isPasswordValid = hasMinLength && hasUppercase && hasNumber;
 
-              return (
-                <FormItem>
-                  <FormLabel>Password (Opsional)</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="********"
-                        {...field}
-                        className="pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormDescription className="text-sm mt-1 flex items-center bg-yellow-100 border border-yellow-400 text-yellow-800 p-1 rounded">
-                    Password harus minimal 6 karakter, mengandung setidaknya 1 huruf kapital dan 1 angka.
-                    {passwordValue && (
-                      <span className={cn("ml-2", isPasswordValid ? "text-green-500" : "text-red-500")}>
-                        ({passwordValue.length}/6, Kapital: {hasUppercase ? '✓' : '✗'}, Angka: {hasNumber ? '✓' : '✗'})
-                      </span>
-                    )}
-                    {passwordValue && isPasswordValid && (
-                      <Check className="h-4 w-4 text-green-500 ml-1" />
-                    )}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
-          />
+        {/* Form Fields */}
+        <div className="min-h-[250px]">
+          {currentStep === 0 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="first_name" render={({ field }) => (<FormItem><FormLabel>Nama Depan</FormLabel><FormControl><Input placeholder="Contoh: Ahmad" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="last_name" render={({ field }) => (<FormItem><FormLabel>Nama Belakang (Opsional)</FormLabel><FormControl><Input placeholder="Contoh: Fulan" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="nik" render={({ field }) => (<FormItem><FormLabel>NIK (Opsional)</FormLabel><FormControl><Input placeholder="Contoh: 3273xxxxxxxxxxxx" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Telepon (Opsional)</FormLabel><FormControl><Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+            </div>
+          )}
+
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Alamat (Opsional)</FormLabel><FormControl><Textarea placeholder="Alamat lengkap staf..." {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="zip_code" render={({ field }) => (<FormItem><FormLabel>Kode Pos (Opsional)</FormLabel><FormControl><Input placeholder="Contoh: 40123" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="code" render={({ field }) => (<FormItem><FormLabel>Kode Staf</FormLabel><FormControl><Input placeholder="Contoh: STF001" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="contoh@email.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <FormField control={form.control} name="role_ids" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Peran</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" role="combobox" className={cn("w-full justify-between", !field.value?.length && "text-muted-foreground")} disabled={isLoadingRoles}>{isLoadingRoles ? "Memuat peran..." : (field.value && field.value.length > 0 ? (<div className="flex flex-wrap gap-1">{field.value.map((roleId) => { const role = availableRoles.find(r => r.id === roleId); return role ? (<Badge key={role.id} variant="secondary">{role.name}</Badge>) : null; })}</div>) : "Pilih peran...")}<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-[--radix-popover-trigger-width] p-0"><Command><CommandInput placeholder="Cari peran..." /><CommandEmpty>Tidak ada peran ditemukan.</CommandEmpty><CommandGroup>{availableRoles.map((role) => (<CommandItem key={role.id} onSelect={() => { const currentValues = new Set(field.value); if (currentValues.has(role.id)) { currentValues.delete(role.id); } else { currentValues.add(role.id); } field.onChange(Array.from(currentValues)); }}><Checkbox checked={field.value?.includes(role.id)} className="mr-2" />{role.name}</CommandItem>))}</CommandGroup></Command></PopoverContent></Popover><FormMessage /></FormItem>)} />
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="username" render={({ field }) => (<FormItem><FormLabel>Username</FormLabel><FormControl><Input placeholder="Contoh: ahmad.fulan" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="password" render={({ field }) => { const passwordValue = form.watch('password'); const hasMinLength = passwordValue.length >= 6; const hasUppercase = /[A-Z]/.test(passwordValue); const hasNumber = /\d/.test(passwordValue); const isPasswordValid = hasMinLength && hasUppercase && hasNumber; return (<FormItem><FormLabel>Password (Opsional)</FormLabel><FormControl><div className="relative"><Input type={showPassword ? "text" : "password"} placeholder="********" {...field} className="pr-10" /><Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? (<EyeOff className="h-4 w-4 text-muted-foreground" />) : (<Eye className="h-4 w-4 text-muted-foreground" />)}</Button></div></FormControl><FormDescription className="text-xs mt-1">Min. 6 karakter, 1 huruf kapital, 1 angka. {passwordValue && (<span className={cn("ml-1", isPasswordValid ? "text-green-500" : "text-red-500")}>({hasMinLength ? '✓' : '✗'} 6+, {hasUppercase ? '✓' : '✗'} A-Z, {hasNumber ? '✓' : '✗'} 0-9)</span>)}</FormDescription><FormMessage /></FormItem>); }} />
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            Batal
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Staf')}
-          </Button>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between pt-4">
+          <div>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+              Batal
+            </Button>
+          </div>
+          <div className="flex space-x-2">
+            {currentStep > 0 && (
+              <Button type="button" variant="outline" onClick={handlePrevious} disabled={isSubmitting}>
+                Kembali
+              </Button>
+            )}
+            {currentStep < steps.length - 1 && (
+              <Button type="button" onClick={handleNext}>
+                Lanjut
+              </Button>
+            )}
+            {currentStep === steps.length - 1 && (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Staf')}
+              </Button>
+            )}
+          </div>
         </div>
       </form>
     </Form>
