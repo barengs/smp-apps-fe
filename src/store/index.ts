@@ -19,6 +19,7 @@ import './slices/educationApi';
 import './slices/classroomApi';
 import './slices/classGroupApi';
 import './slices/menuApi'; // Import the new menu slice
+import './slices/educationClassApi'; // Import the new education class slice
 
 export const store = configureStore({
   reducer: {

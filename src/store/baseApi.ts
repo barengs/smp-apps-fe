@@ -1,10 +1,27 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const BASE_URL = 'https://api.smp.barengsaya.com/api';
-
 export const smpApi = createApi({
   reducerPath: 'smpApi',
-  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
-  tagTypes: ['Role', 'Santri', 'Employee', 'Permission', 'Student', 'Parent', 'Dashboard', 'Province', 'City', 'District', 'Village', 'Program', 'Hostel', 'EducationLevel', 'Classroom', 'ClassGroup', 'Menu'], // Menambahkan tagTypes yang relevan
-  endpoints: () => ({}), // Endpoint akan diinjeksikan dari file lain
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_BASE_URL }),
+  tagTypes: [
+    'Role',
+    'Santri',
+    'Employee',
+    'Permission',
+    'Student',
+    'Parent',
+    'Dashboard',
+    'Province',
+    'City',
+    'District',
+    'Village',
+    'Program',
+    'Hostel',
+    'EducationLevel',
+    'Classroom',
+    'ClassGroup',
+    'Menu',
+    'EducationClass', // Tambahkan tag baru di sini
+  ],
+  endpoints: () => ({}),
 });
