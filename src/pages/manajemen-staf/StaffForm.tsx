@@ -31,7 +31,7 @@ import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdate
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { Label } from '@/components/ui/label'; // Added this import
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
@@ -242,7 +242,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* New div for side-by-side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="zip_code"
@@ -250,7 +250,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
               <FormItem>
                 <FormLabel>Kode Pos (Opsional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Contoh: 40123" {...field} value={field.value || ''} />
+                  <Input placeholder="Contoh: 40123" {...field} className="h-10" value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -269,7 +269,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                         variant="outline"
                         role="combobox"
                         className={cn(
-                          "w-full justify-between",
+                          "w-full justify-between h-10", // Added h-10 here
                           !field.value?.length && "text-muted-foreground"
                         )}
                         disabled={isLoadingRoles}
