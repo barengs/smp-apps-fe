@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
@@ -35,6 +35,15 @@ const DesaTable: React.FC = () => {
     page: pagination.pageIndex + 1, // 1-based page index for API
     per_page: pagination.pageSize,
   });
+
+  // Add console logs for debugging
+  useEffect(() => {
+    console.log('DesaTable - Current Pagination State:', pagination);
+  }, [pagination]);
+
+  useEffect(() => {
+    console.log('DesaTable - Villages Response:', villagesResponse);
+  }, [villagesResponse]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDesa, setEditingDesa] = useState<Desa | undefined>(undefined);
