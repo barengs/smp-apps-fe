@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DataTable } from '@/components/DataTable';
 import { useGetEducationClassesQuery } from '@/store/slices/educationClassApi';
-import { KelompokPendidikan } from '@/types/pendidikan'; // Menggunakan alias path
+import { KelompokPendidikan } from '@/types/pendidikan';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import * as toast from '@/utils/toast';
 
@@ -20,7 +20,15 @@ interface KelompokPendidikanTableProps {
 }
 
 export const KelompokPendidikanTable: React.FC<KelompokPendidikanTableProps> = ({ onAddData, onEditData }) => {
-  const { data, isLoading, isError } = useGetEducationClassesQuery();
+  const { data, isLoading, isError, error } = useGetEducationClassesQuery();
+
+  // Tambahkan console log untuk debugging
+  console.log("KelompokPendidikanTable - data:", data);
+  console.log("KelompokPendidikanTable - isLoading:", isLoading);
+  console.log("KelompokPendidikanTable - isError:", isError);
+  if (isError) {
+    console.error("KelompokPendidikanTable - error details:", error);
+  }
 
   const columns: ColumnDef<KelompokPendidikan>[] = [
     {
@@ -65,6 +73,11 @@ export const KelompokPendidikanTable: React.FC<KelompokPendidikanTableProps> = (
 
   if (isError) {
     return <div className="text-center text-red-500">Gagal memuat data. Silakan coba lagi nanti.</div>;
+  }
+
+  // Tambahkan pesan jika data kosong
+  if (!data || data.length === 0) {
+    return <div className="text-center text-gray-500">Tidak ada data kelompok pendidikan yang tersedia.</div>;
   }
 
   return (

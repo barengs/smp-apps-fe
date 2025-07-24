@@ -22,7 +22,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAddEducationClassMutation } from '@/store/slices/educationClassApi';
 import * as toast from '@/utils/toast';
-import { KelompokPendidikan } from '@/types/pendidikan'; // Menggunakan alias path
+import { KelompokPendidikan } from '@/types/pendidikan';
+
+// Define the type for the form data, explicitly matching the mutation's expected input
+type KelompokPendidikanFormData = Omit<KelompokPendidikan, 'id'>;
 
 const formSchema = z.object({
   code: z.string().min(1, { message: 'Kode tidak boleh kosong.' }),
@@ -43,7 +46,8 @@ const KelompokPendidikanForm: React.FC<KelompokPendidikanFormProps> = ({
   const [addEducationClass, { isLoading: isAdding }] = useAddEducationClassMutation();
   // const [updateEducationClass, { isLoading: isUpdating }] = useUpdateEducationClassMutation(); // Untuk fitur edit nanti
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  // Use the explicit FormData type here
+  const form = useForm<KelompokPendidikanFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: '',
@@ -53,20 +57,23 @@ const KelompokPendidikanForm: React.FC<KelompokPendidikanFormProps> = ({
 
   useEffect(() => {
     if (initialData) {
-      form.reset(initialData);
+      // Destructure initialData to omit 'id' before resetting the form
+      const { id, ...rest } = initialData;
+      form.reset(rest);
     } else {
       form.reset({ code: '', name: '' });
     }
   }, [initialData, form, isOpen]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  // Use the explicit FormData type here
+  const onSubmit = async (values: KelompokPendidikanFormData) => {
     try {
       if (initialData) {
         // Logika untuk update
         // await updateEducationClass({ id: initialData.id, ...values }).unwrap();
         toast.showSuccess('Data berhasil diperbarui!');
       } else {
-        await addEducationClass(values).unwrap();
+        await addEducationClass(values).unwrap(); // This should now be correctly typed
         toast.showSuccess('Data berhasil ditambahkan!');
       }
       onClose();
