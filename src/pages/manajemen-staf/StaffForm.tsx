@@ -12,6 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import {
   Select,
@@ -25,7 +26,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ChevronDown, Eye, EyeOff } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff, Check } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
@@ -61,7 +62,7 @@ interface StaffFormProps {
     };
     email: string;
     roles: { name: string }[];
-    username: string; // Add username to initialData
+    username: string;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -95,8 +96,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       role_ids: initialData.roles.map(initialRole => 
         availableRoles.find(ar => ar.name === initialRole.name)?.id
       ).filter(Boolean) as number[] || [],
-      username: initialData.username || '', // Set initial username
-      password: '', // Never pre-fill password for security
+      username: initialData.username || '',
+      password: '',
     } : {
       first_name: '',
       last_name: '',
@@ -123,8 +124,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: values.address || undefined,
       zip_code: values.zip_code || undefined,
       role_ids: values.role_ids,
-      username: values.username, // Tambahkan username ke payload
-      password: values.password || undefined, // Only send password if it's not empty
+      username: values.username,
+      password: values.password || undefined,
     };
 
     try {
@@ -195,7 +196,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
               <FormItem>
                 <FormLabel>Kode Staf</FormLabel>
                 <FormControl>
-                  <Input placeholder="Contoh: STF001" {...field} disabled={true} />
+                  <Input placeholder="Contoh: STF001" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -368,35 +369,49 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password (Opsional)</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="********"
-                      {...field}
-                      className="pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const passwordValue = form.watch('password');
+              return (
+                <FormItem>
+                  <FormLabel>Password (Opsional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="********"
+                        {...field}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-sm mt-1 flex items-center bg-yellow-100 border border-yellow-400 text-yellow-800 p-1 rounded">
+                    Password harus minimal 6 karakter.
+                    {passwordValue && (
+                      <span className={cn("ml-2", passwordValue.length >= 6 ? "text-green-500" : "text-red-500")}>
+                        ({passwordValue.length}/6)
+                      </span>
+                    )}
+                    {passwordValue && passwordValue.length >= 6 && (
+                      <Check className="h-4 w-4 text-green-500 ml-1" />
+                    )}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         </div>
         <div className="flex justify-end space-x-2 pt-4">
