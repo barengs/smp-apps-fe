@@ -26,9 +26,6 @@ const ManajemenSantriPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Informasi Santri</CardTitle>
-            <Button onClick={handleAddSantri}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
-            </Button>
           </CardHeader>
           <CardContent>
             <SantriTable onAddData={handleAddSantri} />
