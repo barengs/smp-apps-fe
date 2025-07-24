@@ -6,7 +6,7 @@ import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { User, Briefcase, UsersRound, ArrowLeft } from 'lucide-react';
-import { Badge } from '@/components/ui/badge'; // Memperbaiki sintaks import di sini
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 
@@ -111,7 +111,7 @@ const StaffDetailPage: React.FC = () => {
               <DetailRow label="Nama Depan" value={employee.first_name} />
               <DetailRow label="Nama Belakang" value={employee.last_name} />
               <DetailRow label="Email" value={employee.email} />
-              <DetailRow label="Kode Staf" value={staffData.code} />
+              <DetailRow label="Kode Staf" value={employee.code} /> {/* Diperbaiki di sini */}
               <DetailRow label="NIK" value={employee.nik} />
               <DetailRow label="Telepon" value={employee.phone} />
               <DetailRow label="Alamat" value={employee.address} />
