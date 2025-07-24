@@ -48,6 +48,7 @@ interface Staff {
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
   fullName: string;
+  username: string; // Tambahkan properti username
 }
 
 const StaffTable: React.FC = () => {
@@ -76,6 +77,7 @@ const StaffTable: React.FC = () => {
         email: apiEmployee.email,
         roles: apiEmployee.roles,
         fullName: `${apiEmployee.employee.first_name} ${apiEmployee.employee.last_name}`,
+        username: apiEmployee.username, // Ambil username dari API
       }));
     }
     return [];

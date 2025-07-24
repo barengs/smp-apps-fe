@@ -32,6 +32,7 @@ interface EmployeeApiData {
   roles: RoleApiData[];
   created_at: string;
   updated_at: string;
+  username: string; // Ditambahkan: properti username
 }
 
 interface GetEmployeesResponse {
@@ -66,6 +67,7 @@ interface EmployeeDetailData {
   updated_at: string;
   employee: EmployeeDetailNestedDataForDetail;
   roles: RoleNameOnly[];
+  username: string; // Added username to detail data
 }
 
 // This is the full response from the API
@@ -84,6 +86,8 @@ export interface CreateUpdateEmployeeRequest {
   phone?: string; // Added phone
   address?: string; // Added address
   zip_code?: string; // Added zip_code
+  username: string; // Added username
+  password?: string; // Added password (optional for updates, required for create)
 }
 
 export const employeeApi = smpApi.injectEndpoints({

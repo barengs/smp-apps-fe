@@ -92,6 +92,7 @@ const StaffEditPage: React.FC = () => {
     },
     email: employee.email, // Corrected: Access email from employee object
     roles: staffData.roles,
+    username: staffData.username, // Tambahkan username dari staffData
   };
 
   return (
