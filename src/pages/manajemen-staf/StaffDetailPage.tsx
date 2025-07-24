@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, Briefcase, UsersRound } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { User, Briefcase, UsersRound, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge'; // Memperbaiki sintaks import di sini
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 
@@ -85,8 +85,15 @@ const StaffDetailPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>Informasi Staf</CardTitle>
-            <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle>Informasi Staf</CardTitle>
+                <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
+              </div>
+              <Button variant="outline" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
