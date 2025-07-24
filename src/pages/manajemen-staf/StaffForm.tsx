@@ -105,8 +105,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   // Effect to generate staff code only when adding new staff
   useEffect(() => {
     if (!initialData && employeesData && !isLoadingEmployees) {
+      // Ensure employeesData.data exists and is an array before proceeding
+      const allEmployees = employeesData.data || []; 
+
       const currentYear = new Date().getFullYear().toString();
-      const staffCodesThisYear = employeesData.data
+      const staffCodesThisYear = allEmployees
         .filter(emp => emp.employee.code && emp.employee.code.endsWith(currentYear))
         .map(emp => parseInt(emp.employee.code.substring(2, 4), 10)) // Extract '00' part
         .filter(num => !isNaN(num));
