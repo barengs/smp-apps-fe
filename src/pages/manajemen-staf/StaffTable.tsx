@@ -136,7 +136,7 @@ const StaffTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleEditData(staff);
+                  toast.showWarning('Fitur edit staf akan segera tersedia.');
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
