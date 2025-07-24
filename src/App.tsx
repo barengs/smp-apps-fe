@@ -24,6 +24,7 @@ import JenjangPendidikanPage from "@/pages/manajemen-pendidikan/JenjangPendidika
 import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
 import JadwalKegiatanPage from "@/pages/manajemen-pendidikan/JadwalKegiatanPage";
 import RombelPage from "@/pages/manajemen-pendidikan/RombelPage";
+import KelompokPendidikanPage from "@/pages/manajemen-pendidikan/KelompokPendidikanPage";
 import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
             <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
             <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
+            <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} /> {/* New route */}
             <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
             <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
             <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />

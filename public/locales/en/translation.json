@@ -31,7 +31,8 @@
     "navigation": "Navigation",
     "santriInfo": "Student Information",
     "gradesAndAttendance": "Grades & Attendance",
-    "announcements": "Announcements"
+    "announcements": "Announcements",
+    "educationGroup": "Education Group"
   },
   "header": {
     "selectLanguage": "Select Language",

@@ -31,7 +31,8 @@
     "navigation": "التنقل",
     "santriInfo": "معلومات الطالب",
     "gradesAndAttendance": "الدرجات والحضور",
-    "announcements": "الإعلانات"
+    "announcements": "الإعلانات",
+    "educationGroup": "مجموعة التعليم"
   },
   "header": {
     "selectLanguage": "اختار اللغة",

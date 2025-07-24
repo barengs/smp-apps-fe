@@ -31,7 +31,8 @@
     "navigation": "Navigasi",
     "santriInfo": "Informasi Santri",
     "gradesAndAttendance": "Nilai & Absensi",
-    "announcements": "Pengumuman"
+    "announcements": "Pengumuman",
+    "educationGroup": "Kelompok Pendidikan"
   },
   "header": {
     "selectLanguage": "Pilih Bahasa",
