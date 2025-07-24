@@ -207,7 +207,9 @@ const StaffTable: React.FC = () => {
               {editingStaff ? 'Ubah detail staf ini.' : 'Isi detail untuk staf baru.'}
             </DialogDescription>
           </DialogHeader>
+          {/* Menambahkan key prop di sini */}
           <StaffForm
+            key={editingStaff?.id || 'new-staff-form'}
             initialData={editingStaff}
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}
