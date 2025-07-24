@@ -21,7 +21,11 @@ interface Santri {
   programName: string;
 }
 
-const SantriTable: React.FC = () => {
+interface SantriTableProps {
+  onAddData?: () => void;
+}
+
+const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const { data: studentsData, error, isLoading } = useGetStudentsQuery();
   const navigate = useNavigate();
 
@@ -119,6 +123,7 @@ const SantriTable: React.FC = () => {
           placeholder: 'Filter berdasarkan program...',
         },
       }}
+      onAddData={onAddData} // Meneruskan prop onAddData ke DataTable
     />
   );
 };
