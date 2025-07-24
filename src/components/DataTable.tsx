@@ -4,7 +4,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
+  getPaginationRowModel, // Keep this import
   useReactTable,
   VisibilityState,
   ColumnFiltersState,
@@ -106,7 +106,8 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Conditionally include getPaginationRowModel
+    ...(manualPagination ? {} : { getPaginationRowModel: getPaginationRowModel() }),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
