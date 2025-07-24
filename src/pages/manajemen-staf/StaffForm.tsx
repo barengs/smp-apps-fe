@@ -166,7 +166,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             name="last_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nama Belakang (Opsional)</FormLabel>
+                <FormLabel>Nama Belakang (Opsional)</FormLabel> {/* Fixed here */}
                 <FormControl>
                   <Input placeholder="Contoh: Fulan" {...field} value={field.value || ''} />
                 </FormControl>
@@ -207,7 +207,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             name="nik"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>NIK (Opsional)</FormLabel>
+                <FormLabel>NIK (Opsional)</FormLabel> {/* Fixed here */}
                 <FormControl>
                   <Input placeholder="Contoh: 3273xxxxxxxxxxxx" {...field} value={field.value || ''} />
                 </FormControl>
@@ -221,7 +221,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telepon (Opsional)</FormLabel>
+              <FormLabel>Telepon (Opsional)</FormLabel> {/* Fixed here */}
               <FormControl>
                 <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
                 </FormControl>
@@ -234,7 +234,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Alamat (Opsional)</FormLabel>
+              <FormLabel>Alamat (Opsional)</FormLabel> {/* Fixed here */}
               <FormControl>
                 <Textarea placeholder="Alamat lengkap staf..." {...field} value={field.value || ''} />
               </FormControl>
@@ -247,7 +247,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             control={form.control}
             name="zip_code"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col min-h-[80px]">
                 <FormLabel>Kode Pos (Opsional)</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 40123" {...field} className="h-10" value={field.value || ''} />
@@ -260,7 +260,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
             control={form.control}
             name="role_ids"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem className="flex flex-col min-h-[80px]">
                 <FormLabel>Peran</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -269,7 +269,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                         variant="outline"
                         role="combobox"
                         className={cn(
-                          "w-full justify-between h-10", // Added h-10 here
+                          "w-full justify-between h-10",
                           !field.value?.length && "text-muted-foreground"
                         )}
                         disabled={isLoadingRoles}
