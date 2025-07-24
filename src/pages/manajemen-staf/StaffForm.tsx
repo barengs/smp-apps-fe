@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,17 +13,18 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import { showSuccess, showError } from '@/utils/toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
-import { useCreateEmployeeMutation, useUpdateEmployeeMutation } from '@/store/slices/employeeApi';
-import { useGetRolesQuery } from '@/store/slices/roleApi'; // Import hook to get roles
+import { useCreateEmployeeMutation, useUpdateEmployeeMutation, useGetEmployeesQuery } from '@/store/slices/employeeApi';
+import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 
 // Import CreateUpdateEmployeeRequest untuk penegasan tipe
 import type { CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
@@ -41,18 +42,30 @@ const formSchema = z.object({
   role_ids: z.array(z.number()).min(1, {
     message: 'Pilih minimal satu peran.',
   }),
+  code: z.string().min(1, { // New field for staff code
+    message: 'Kode staf tidak boleh kosong.',
+  }),
+  nik: z.string().nullable().optional(), // New field
+  phone: z.string().nullable().optional(), // New field
+  address: z.string().nullable().optional(), // New field
+  zip_code: z.string().nullable().optional(), // New field
 });
 
 interface StaffFormProps {
   initialData?: {
     id: number;
-    employee: { // Updated to match nested structure
+    employee: {
       first_name: string;
       last_name: string;
+      code: string; // Added code to initialData
+      nik: string; // Added nik to initialData
+      phone: string; // Added phone to initialData
+      address: string; // Added address to initialData
+      zip_code: string; // Added zip_code to initialData
     };
     email: string;
     roles: { id: number; name: string; guard_name: string }[];
-    fullName: string; // Also include fullName if it's passed from table
+    fullName: string;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -62,34 +75,71 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery();
+  const { data: employeesData, isLoading: isLoadingEmployees } = useGetEmployeesQuery(); // Fetch all employees for code generation
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
-      first_name: initialData.employee.first_name, // Access nested employee
-      last_name: initialData.employee.last_name,   // Access nested employee
+      first_name: initialData.employee.first_name,
+      last_name: initialData.employee.last_name,
       email: initialData.email,
-      role_ids: initialData.roles.map(role => role.id), // Map existing roles to their IDs
+      role_ids: initialData.roles.map(role => role.id),
+      code: initialData.employee.code, // Set existing code
+      nik: initialData.employee.nik || '',
+      phone: initialData.employee.phone || '',
+      address: initialData.employee.address || '',
+      zip_code: initialData.employee.zip_code || '',
     } : {
       first_name: '',
       last_name: '',
       email: '',
       role_ids: [],
+      code: '', // Will be generated
+      nik: '',
+      phone: '',
+      address: '',
+      zip_code: '',
     },
   });
+
+  // Effect to generate staff code only when adding new staff
+  useEffect(() => {
+    if (!initialData && employeesData && !isLoadingEmployees) {
+      const currentYear = new Date().getFullYear().toString();
+      const staffCodesThisYear = employeesData.data
+        .filter(emp => emp.employee.code && emp.employee.code.endsWith(currentYear))
+        .map(emp => parseInt(emp.employee.code.substring(2, 4), 10)) // Extract '00' part
+        .filter(num => !isNaN(num));
+
+      const lastSequence = staffCodesThisYear.length > 0 ? Math.max(...staffCodesThisYear) : 0;
+      const nextSequence = (lastSequence + 1).toString().padStart(2, '0'); // Ensure two digits
+      const newCode = `AS${nextSequence}${currentYear}`;
+      form.setValue('code', newCode);
+    }
+  }, [initialData, employeesData, isLoadingEmployees, form]);
 
   const availableRoles = rolesData?.data || [];
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const payload: CreateUpdateEmployeeRequest = {
+        first_name: values.first_name,
+        last_name: values.last_name,
+        email: values.email,
+        role_ids: values.role_ids,
+        code: values.code, // Include generated/existing code
+        nik: values.nik || undefined,
+        phone: values.phone || undefined,
+        address: values.address || undefined,
+        zip_code: values.zip_code || undefined,
+      };
+
       if (initialData) {
-        // Penegasan tipe eksplisit di sini
-        await updateEmployee({ id: initialData.id, data: values as CreateUpdateEmployeeRequest }).unwrap();
-        showSuccess(`Staf "${values.first_name} ${values.last_name}" berhasil diperbarui.`); // Updated call
+        await updateEmployee({ id: initialData.id, data: payload }).unwrap();
+        showSuccess(`Staf "${values.first_name} ${values.last_name}" berhasil diperbarui.`);
       } else {
-        // Penegasan tipe eksplisit di sini
-        await createEmployee(values as CreateUpdateEmployeeRequest).unwrap();
-        showSuccess(`Staf "${values.first_name} ${values.last_name}" berhasil ditambahkan.`); // Updated call
+        await createEmployee(payload).unwrap();
+        showSuccess(`Staf "${values.first_name} ${values.last_name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -118,7 +168,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
         errorMessage = err;
       }
 
-      showError(`Gagal menyimpan staf: ${errorMessage}`); // Updated call
+      showError(`Gagal menyimpan staf: ${errorMessage}`);
     }
   };
 
@@ -129,30 +179,45 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="first_name"
+          name="code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nama Depan</FormLabel>
+              <FormLabel>Kode Staf</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: Budi" {...field} />
+                <Input placeholder="Contoh: AS012024" {...field} disabled={true} /> {/* Read-only */}
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="last_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Belakang</FormLabel> {/* Corrected closing tag */}
-              <FormControl>
-                <Input placeholder="Contoh: Santoso" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Depan</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: Budi" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Belakang</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: Santoso" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="email"
@@ -161,6 +226,58 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="contoh@pesantren.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="nik"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>NIK (Opsional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: 3273xxxxxxxxxxxxxx" {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telepon (Opsional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Alamat (Opsional)</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Alamat lengkap staf..." {...field} value={field.value || ''} className="min-h-[80px]" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="zip_code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kode Pos (Opsional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: 40123" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>

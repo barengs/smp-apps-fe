@@ -29,6 +29,11 @@ interface Staff {
   employee: {
     first_name: string;
     last_name: string;
+    code: string; // Added
+    nik: string; // Added
+    phone: string; // Added
+    address: string; // Added
+    zip_code: string; // Added
   };
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
@@ -50,6 +55,11 @@ const StaffTable: React.FC = () => {
         employee: {
           first_name: apiEmployee.employee.first_name,
           last_name: apiEmployee.employee.last_name,
+          code: apiEmployee.employee.code, // Mapped
+          nik: apiEmployee.employee.nik, // Mapped
+          phone: apiEmployee.employee.phone, // Mapped
+          address: apiEmployee.employee.address, // Mapped
+          zip_code: apiEmployee.employee.zip_code, // Mapped
         },
         email: apiEmployee.email,
         roles: apiEmployee.roles,

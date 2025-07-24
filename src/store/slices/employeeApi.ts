@@ -16,6 +16,13 @@ interface DataApi {
 interface EmployeeNestedData {
   first_name: string;
   last_name: string;
+  code: string; // Added code field
+  nik: string; // Added nik field
+  phone: string; // Added phone field
+  address: string; // Added address field
+  zip_code: string; // Added zip_code field
+  email: string;
+  photo: string;
 }
 
 interface EmployeeApiData {
@@ -72,6 +79,11 @@ export interface CreateUpdateEmployeeRequest {
   last_name: string;
   email: string;
   role_ids: number[];
+  code: string; // Added code for creation
+  nik?: string; // Added nik
+  phone?: string; // Added phone
+  address?: string; // Added address
+  zip_code?: string; // Added zip_code
 }
 
 export const employeeApi = smpApi.injectEndpoints({
