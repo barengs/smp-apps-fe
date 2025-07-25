@@ -17,7 +17,7 @@ interface GetBeritaResponse {
 export const beritaApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getBerita: builder.query<GetBeritaResponse, void>({
-      query: () => 'berita',
+      query: () => 'news', // Mengubah endpoint dari 'berita' menjadi 'news'
       providesTags: ['Berita'],
     }),
     // Endpoint untuk create, update, delete akan ditambahkan di sini nanti
