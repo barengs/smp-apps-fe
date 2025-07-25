@@ -12,10 +12,12 @@ import SantriProfileStep from './form-steps/SantriProfileStep';
 import EducationStep from './form-steps/EducationStep';
 import DocumentStep from './form-steps/DocumentStep';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const SantriFormPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const form = useForm<SantriFormValues>({
     resolver: zodResolver(santriFormSchema),
@@ -85,6 +87,21 @@ const SantriFormPage: React.FC = () => {
     console.log('Form Data Submitted:', data);
     toast.success('Proses submit data santri berhasil!');
     // Here you would typically send the data to your API
+    // After successful submission, you might navigate or show a success message
+  };
+
+  const onSubmitAndReset = async () => {
+    const isValid = await form.trigger(step4Fields);
+    if (!isValid) {
+      toast.error('Harap perbaiki semua kesalahan sebelum menyimpan.');
+      return;
+    }
+    const data = form.getValues(); // Get current form values
+    console.log('Form Data Submitted (and reset):', data);
+    toast.success('Proses submit data santri berhasil! Formulir direset.');
+    // Here you would typically send the data to your API
+    form.reset(); // Reset all fields to default values
+    setCurrentStep(1); // Go back to the first step
   };
 
   const steps = [
@@ -138,18 +155,30 @@ const SantriFormPage: React.FC = () => {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
-              <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-                Kembali
-              </Button>
-              {currentStep < totalSteps ? (
-                <Button type="button" onClick={nextStep}>
-                  Lanjutkan
+              <div className="flex space-x-2">
+                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/santri')}>
+                  Batal
                 </Button>
-              ) : (
-                <Button type="submit">
-                  Simpan Data Santri
+                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+                  Kembali
                 </Button>
-              )}
+              </div>
+              <div className="flex space-x-2">
+                {currentStep < totalSteps ? (
+                  <Button type="button" onClick={nextStep}>
+                    Lanjutkan
+                  </Button>
+                ) : (
+                  <>
+                    <Button type="button" variant="outline" onClick={onSubmitAndReset}>
+                      Simpan dan Entri Ulang
+                    </Button>
+                    <Button type="submit">
+                      Simpan
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </form>
         </Form>
