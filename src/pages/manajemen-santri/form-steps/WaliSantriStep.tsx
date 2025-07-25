@@ -25,8 +25,12 @@ const WaliSantriStep = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nama-wali">Nama Lengkap Wali</Label>
-              <Input id="nama-wali" placeholder="Contoh: Budi Santoso" />
+              <Label htmlFor="first-name-wali">Nama Depan Wali</Label>
+              <Input id="first-name-wali" placeholder="Contoh: Budi" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="last-name-wali">Nama Belakang Wali</Label>
+              <Input id="last-name-wali" placeholder="Contoh: Santoso" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="telepon">Nomor Telepon</Label>
