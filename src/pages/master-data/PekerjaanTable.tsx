@@ -53,6 +53,14 @@ const PekerjaanTable: React.FC = () => {
         header: 'Nama Pekerjaan',
       },
       {
+        accessorKey: 'code',
+        header: 'Kode',
+      },
+      {
+        accessorKey: 'description',
+        header: 'Deskripsi',
+      },
+      {
         id: 'actions',
         header: 'Aksi',
         cell: ({ row }) => {
@@ -74,7 +82,7 @@ const PekerjaanTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={2} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {

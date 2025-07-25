@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -22,6 +23,10 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Nama Pekerjaan harus minimal 2 karakter.',
   }),
+  code: z.string().min(1, {
+    message: 'Kode harus diisi.',
+  }),
+  description: z.string().optional(),
 });
 
 interface PekerjaanFormProps {
@@ -38,12 +43,16 @@ const PekerjaanForm: React.FC<PekerjaanFormProps> = ({ initialData, onSuccess, o
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: '',
+      code: '',
+      description: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdatePekerjaanRequest = {
       name: values.name,
+      code: values.code,
+      description: values.description || '',
     };
 
     try {
@@ -86,6 +95,32 @@ const PekerjaanForm: React.FC<PekerjaanFormProps> = ({ initialData, onSuccess, o
               <FormLabel>Nama Pekerjaan</FormLabel>
               <FormControl>
                 <Input placeholder="Contoh: Petani" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kode</FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: PTN" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Deskripsi</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Deskripsi singkat pekerjaan..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

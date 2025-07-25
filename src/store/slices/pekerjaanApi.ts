@@ -1,46 +1,53 @@
 import { smpApi } from '../baseApi';
+import { Pekerjaan } from '@/types/master-data';
 
 // --- API Response and Request Types ---
 
-// Struktur untuk satu objek pekerjaan dari API
-interface PekerjaanApiData {
-  id: number;
-  name: string;
+// Struktur respons API untuk list
+interface GetPekerjaanApiResponse {
+  data: Pekerjaan[];
 }
 
-// Respons GET adalah array langsung
-type GetPekerjaanResponse = PekerjaanApiData[];
+// Struktur respons API untuk satu item
+interface SinglePekerjaanApiResponse {
+  data: Pekerjaan;
+}
 
 // Struktur untuk body request POST/PUT
 export interface CreateUpdatePekerjaanRequest {
   name: string;
+  code: string;
+  description: string;
 }
 
 export const pekerjaanApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPekerjaan: builder.query<GetPekerjaanResponse, void>({
-      query: () => 'master/occupation', // Diperbarui
+    getPekerjaan: builder.query<Pekerjaan[], void>({
+      query: () => 'master/occupation',
+      transformResponse: (response: GetPekerjaanApiResponse) => response.data,
       providesTags: ['Pekerjaan'],
     }),
-    createPekerjaan: builder.mutation<PekerjaanApiData, CreateUpdatePekerjaanRequest>({
+    createPekerjaan: builder.mutation<Pekerjaan, CreateUpdatePekerjaanRequest>({
       query: (newPekerjaan) => ({
-        url: 'master/occupation', // Diperbarui
+        url: 'master/occupation',
         method: 'POST',
         body: newPekerjaan,
       }),
+      transformResponse: (response: SinglePekerjaanApiResponse) => response.data,
       invalidatesTags: ['Pekerjaan'],
     }),
-    updatePekerjaan: builder.mutation<PekerjaanApiData, { id: number; data: CreateUpdatePekerjaanRequest }>({
+    updatePekerjaan: builder.mutation<Pekerjaan, { id: number; data: CreateUpdatePekerjaanRequest }>({
       query: ({ id, data }) => ({
-        url: `master/occupation/${id}`, // Diperbarui
+        url: `master/occupation/${id}`,
         method: 'PUT',
         body: data,
       }),
+      transformResponse: (response: SinglePekerjaanApiResponse) => response.data,
       invalidatesTags: ['Pekerjaan'],
     }),
     deletePekerjaan: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/occupation/${id}`, // Diperbarui
+        url: `master/occupation/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Pekerjaan'],
