@@ -30,7 +30,7 @@ const SantriFormPage: React.FC = () => {
 
   const steps = [
     { number: 1, title: 'Data Wali', icon: <UserCheck className="h-5 w-5" /> },
-    { number: 2, title: 'Profil', icon: <UserPlus className="h-5 w-5" /> },
+    { number: 2, title: 'Profil Santri', icon: <UserPlus className="h-5 w-5" /> },
     { number: 3, title: 'Pendidikan & Foto', icon: <School className="h-5 w-5" /> },
   ];
 
