@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import LandingLayout from '../../layouts/LandingLayout';
 import { BookOpenText, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import type { CarouselApi } from '@/components/ui/carousel';
 import { useTranslation } from 'react-i18next';
+import { useGetBeritaQuery } from '@/store/slices/beritaApi';
+import RunningText from '@/components/RunningText';
 
 const Index = () => {
   const { t } = useTranslation();
@@ -35,6 +37,15 @@ const Index = () => {
     };
   }, [api, autoplayInterval]);
 
+  // Fetch news data
+  const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
+  const newsTitles = useMemo(() => {
+    if (newsData?.data) {
+      return newsData.data.map(newsItem => newsItem.title);
+    }
+    return [];
+  }, [newsData]);
+
   return (
     <LandingLayout title={t('welcomeTitle')}>
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
@@ -47,6 +58,13 @@ const Index = () => {
             {t('welcomeSubtitle')}
           </p>
         </div>
+
+        {/* Running Text Section */}
+        {!isNewsLoading && !isNewsError && newsTitles.length > 0 && (
+          <div className="w-full mb-12">
+            <RunningText items={newsTitles} />
+          </div>
+        )}
 
         <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl">
           <div className="flex justify-center mb-2">
