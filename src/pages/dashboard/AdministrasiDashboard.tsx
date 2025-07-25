@@ -85,9 +85,11 @@ const AdministrasiDashboard: React.FC = () => {
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
         <div className="flex flex-wrap gap-4">
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
-          </Button>
+          <Link to="/dashboard/santri/add"> {/* Mengubah Button menjadi Link */}
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
+            </Button>
+          </Link>
           <Button variant="outline">
             Lihat Laporan Keuangan
           </Button>
