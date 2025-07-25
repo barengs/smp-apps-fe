@@ -22,8 +22,12 @@ const SantriProfileStep = () => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nama-santri">Nama Lengkap Santri</Label>
-            <Input id="nama-santri" placeholder="Contoh: Ahmad Fauzi" />
+            <Label htmlFor="first-name-santri">Nama Depan Santri</Label>
+            <Input id="first-name-santri" placeholder="Contoh: Ahmad" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="last-name-santri">Nama Belakang Santri</Label>
+            <Input id="last-name-santri" placeholder="Contoh: Fauzi" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="nisn">NISN (Nomor Induk Siswa Nasional)</Label>
