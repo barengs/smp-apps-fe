@@ -9,7 +9,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { showSuccess, showError, showWarning } from '@/utils/toast';
 import EventCalendar from '../../components/EventCalendar';
 import KegiatanList from '../../components/KegiatanList';
-import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMutation, useDeleteActivityMutation } from '@/store/apiSlice';
+import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMutation, useDeleteActivityMutation } from '@/store/slices/activityApi';
 import { format } from 'date-fns';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
