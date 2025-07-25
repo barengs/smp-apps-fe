@@ -97,7 +97,7 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ kegiatanList, onDateClick
                     }}
                     className="text-xs p-1 mb-1 rounded-md bg-blue-100 text-blue-800 hover:bg-blue-200 truncate"
                   >
-                    {event.title}
+                    {event.name} {/* Changed from event.title */}
                   </div>
                 ))}
                 {dayEvents.length > 2 && (

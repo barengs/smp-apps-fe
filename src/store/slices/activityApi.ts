@@ -3,10 +3,10 @@ import { smpApi } from '../baseApi';
 // Define the API response structure for a single activity
 interface ActivityApiResponse {
   id: number;
-  title: string;
+  name: string; // Changed from title
   description?: string;
-  activity_date: string; // Assuming YYYY-MM-DD format from API
-  is_completed: boolean;
+  date: string; // Changed from activity_date, YYYY-MM-DD format from API
+  status: 'active' | 'inactive'; // Changed from is_completed: boolean
   created_at: string;
   updated_at: string;
 }
@@ -19,18 +19,18 @@ interface GetActivitiesResponse {
 
 // Define the request body for creating an activity
 interface CreateActivityRequest {
-  title: string;
+  name: string; // Changed from title
   description?: string;
-  activity_date: string; // YYYY-MM-DD format
-  is_completed?: boolean;
+  date: string; // Changed from activity_date, YYYY-MM-DD format
+  status?: 'active' | 'inactive'; // Changed from is_completed?: boolean
 }
 
 // Define the request body for updating an activity
 interface UpdateActivityRequest {
-  title?: string; // Optional for partial updates
+  name?: string; // Optional for partial updates, changed from title
   description?: string;
-  activity_date?: string;
-  is_completed?: boolean;
+  date?: string; // Changed from activity_date
+  status?: 'active' | 'inactive'; // Changed from is_completed?: boolean
 }
 
 export const activityApi = smpApi.injectEndpoints({

@@ -33,7 +33,7 @@ const KegiatanList: React.FC<KegiatanListProps> = ({ kegiatanList, onToggleStatu
             {sortedKegiatan.map((kegiatan) => (
               <div key={kegiatan.id} className="flex items-center justify-between p-3 border rounded-md">
                 <div>
-                  <p className="font-medium">{kegiatan.title}</p>
+                  <p className="font-medium">{kegiatan.name}</p> {/* Changed from kegiatan.title */}
                   <p className="text-sm text-muted-foreground">
                     {format(kegiatan.date, 'PPP', { locale: id })}
                     {kegiatan.description && ` - ${kegiatan.description}`}
@@ -77,7 +77,7 @@ const KegiatanList: React.FC<KegiatanListProps> = ({ kegiatanList, onToggleStatu
                           <AlertDialogHeader>
                             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus kegiatan "{kegiatan.title}" secara permanen.
+                              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus kegiatan "{kegiatan.name}" secara permanen. {/* Changed from kegiatan.title */}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>

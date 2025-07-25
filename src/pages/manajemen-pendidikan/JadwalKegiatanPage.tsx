@@ -22,9 +22,9 @@ function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
 export interface Kegiatan {
   id: number;
   date: Date;
-  title: string;
+  name: string; // Changed from title
   description?: string;
-  status: 'Selesai' | 'Belum Selesai';
+  status: 'Selesai' | 'Belum Selesai'; // Frontend status
 }
 
 const JadwalKegiatanPage: React.FC = () => {
@@ -45,10 +45,10 @@ const JadwalKegiatanPage: React.FC = () => {
     if (!activitiesData?.data) return [];
     return activitiesData.data.map(apiKegiatan => ({
       id: apiKegiatan.id,
-      date: new Date(apiKegiatan.activity_date),
-      title: apiKegiatan.title,
+      date: new Date(apiKegiatan.date), // Changed from activity_date
+      name: apiKegiatan.name, // Changed from title
       description: apiKegiatan.description,
-      status: apiKegiatan.is_completed ? 'Selesai' : 'Belum Selesai',
+      status: apiKegiatan.status === 'inactive' ? 'Selesai' : 'Belum Selesai', // Map API status to frontend status
     }));
   }, [activitiesData]);
 
@@ -69,29 +69,30 @@ const JadwalKegiatanPage: React.FC = () => {
     }
   }, [isError, error]);
 
-  const handleSaveKegiatan = async (kegiatan: { title: string; description?: string; date: Date }) => {
+  const handleSaveKegiatan = async (kegiatan: { name: string; description?: string; date: Date }) => { // Changed from title
     try {
       const formattedDate = format(kegiatan.date, 'yyyy-MM-dd');
 
       if (editingKegiatan) {
+        const apiStatus = editingKegiatan.status === 'Selesai' ? 'inactive' : 'active'; // Map frontend status to API status
         await updateActivity({
           id: editingKegiatan.id,
           data: {
-            title: kegiatan.title,
+            name: kegiatan.name, // Changed from title
             description: kegiatan.description,
-            activity_date: formattedDate,
-            is_completed: editingKegiatan.status === 'Selesai'
+            date: formattedDate, // Changed from activity_date
+            status: apiStatus, // Changed from is_completed
           }
         }).unwrap();
-        showSuccess(`Kegiatan "${kegiatan.title}" berhasil diperbarui.`);
+        showSuccess(`Kegiatan "${kegiatan.name}" berhasil diperbarui.`); // Changed from title
       } else {
         await createActivity({
-          title: kegiatan.title,
+          name: kegiatan.name, // Changed from title
           description: kegiatan.description,
-          activity_date: formattedDate,
-          is_completed: false,
+          date: formattedDate, // Changed from activity_date
+          status: 'active', // Default status for new activities
         }).unwrap();
-        showSuccess(`Kegiatan "${kegiatan.title}" berhasil ditambahkan.`);
+        showSuccess(`Kegiatan "${kegiatan.name}" berhasil ditambahkan.`); // Changed from title
       }
       setIsDialogOpen(false);
       setEditingKegiatan(undefined);
@@ -128,15 +129,17 @@ const JadwalKegiatanPage: React.FC = () => {
     const kegiatanToUpdate = kegiatanList.find(k => k.id === id);
     if (!kegiatanToUpdate) return;
 
-    const newStatus = kegiatanToUpdate.status === 'Selesai' ? 'Belum Selesai' : 'Selesai';
+    const newFrontendStatus = kegiatanToUpdate.status === 'Selesai' ? 'Belum Selesai' : 'Selesai';
+    const newApiStatus = newFrontendStatus === 'Selesai' ? 'inactive' : 'active'; // Map frontend status to API status
+
     try {
       await updateActivity({
         id: id,
         data: {
-          is_completed: newStatus === 'Selesai'
+          status: newApiStatus, // Changed from is_completed
         }
       }).unwrap();
-      showWarning(`Status kegiatan "${kegiatanToUpdate.title}" telah diperbarui menjadi ${newStatus}.`);
+      showWarning(`Status kegiatan "${kegiatanToUpdate.name}" telah diperbarui menjadi ${newFrontendStatus}.`); // Changed from title
       refetch();
     } catch (err) {
       console.error("Failed to toggle status:", err);
@@ -150,7 +153,7 @@ const JadwalKegiatanPage: React.FC = () => {
 
     try {
       await deleteActivity(id).unwrap();
-      showSuccess(`Kegiatan "${kegiatanToDelete.title}" telah dihapus.`);
+      showSuccess(`Kegiatan "${kegiatanToDelete.name}" telah dihapus.`); // Changed from title
       refetch();
     } catch (err) {
       console.error("Failed to delete kegiatan:", err);

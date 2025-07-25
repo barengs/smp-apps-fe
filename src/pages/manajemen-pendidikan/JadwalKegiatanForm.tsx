@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import type { Kegiatan } from './JadwalKegiatanPage';
 
 const formSchema = z.object({
-  title: z.string().min(3, { message: 'Judul harus memiliki minimal 3 karakter.' }),
+  name: z.string().min(3, { message: 'Nama kegiatan harus memiliki minimal 3 karakter.' }), // Changed from title
   description: z.string().optional(),
   date: z.date({ required_error: 'Tanggal kegiatan harus diisi.' }),
 });
@@ -33,7 +33,7 @@ const JadwalKegiatanForm: React.FC<JadwalKegiatanFormProps> = ({ initialData, se
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: initialData?.title || '',
+      name: initialData?.name || '', // Changed from title
       description: initialData?.description || '',
       date: initialData?.date || selectedDate || new Date(),
     },
@@ -48,10 +48,10 @@ const JadwalKegiatanForm: React.FC<JadwalKegiatanFormProps> = ({ initialData, se
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="title"
+          name="name" // Changed from title
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Judul Kegiatan</FormLabel>
+              <FormLabel>Nama Kegiatan</FormLabel> {/* Changed from Judul Kegiatan */}
               <FormControl>
                 <Input placeholder="Contoh: Pengajian Bulanan" {...field} />
               </FormControl>
