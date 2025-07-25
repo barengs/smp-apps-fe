@@ -171,18 +171,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                       </TooltipTrigger>
                       <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
                     </Tooltip>
-                    <DropdownMenuContent side="right" align="start" className="w-48">
-                      <DropdownMenuLabel>{t(item.titleKey)}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {item.children.map((child) => (
-                        <DropdownMenuItem key={child.href} asChild>
-                          <Link to={child.href} className={cn(location.pathname.startsWith(child.href) && "bg-accent")}>
-                            {child.icon && <div className="mr-2">{child.icon}</div>}
-                            <span>{t(child.titleKey)}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
                   </DropdownMenu>
                 );
               } else {
@@ -250,11 +238,31 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hijriDate, setHijriDate] = useState('');
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    const today = new Date();
+    const formatter = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const parts = formatter.formatToParts(today);
+    let year = '';
+    let month = '';
+    let day = '';
+    for (const part of parts) {
+      if (part.type === 'year') year = part.value;
+      if (part.type === 'month') month = part.value;
+      if (part.type === 'day') day = part.value;
+    }
+    setHijriDate(`${year}, ${month}, ${day}`);
   }, []);
 
   const toggleFullScreen = () => {
@@ -298,7 +306,10 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
           </Button>
         )}
-        <h1 className="text-2xl font-semibold hidden md:block">{title}</h1>
+        <div className="hidden md:block">
+          <h1 className="text-2xl font-semibold">{title}</h1>
+          <p className="text-sm text-muted-foreground">{hijriDate}</p>
+        </div>
       </div>
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
