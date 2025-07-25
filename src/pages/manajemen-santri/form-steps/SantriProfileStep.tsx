@@ -22,11 +22,11 @@ const SantriProfileStep = () => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="first-name-santri">Nama Depan Santri</Label>
+            <Label htmlFor="first-name-santri">Nama Depan</Label>
             <Input id="first-name-santri" placeholder="Contoh: Ahmad" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="last-name-santri">Nama Belakang Santri</Label>
+            <Label htmlFor="last-name-santri">Nama Belakang</Label>
             <Input id="last-name-santri" placeholder="Contoh: Fauzi" />
           </div>
           <div className="space-y-2">
@@ -34,7 +34,7 @@ const SantriProfileStep = () => {
             <Input id="nisn" placeholder="Jika ada" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="nik-santri">NIK Santri</Label>
+            <Label htmlFor="nik-santri">NIK</Label>
             <Input id="nik-santri" placeholder="Contoh: 320xxxxxxxxxxxxx" />
           </div>
           <div className="space-y-2">
