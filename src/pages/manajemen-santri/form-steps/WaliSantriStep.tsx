@@ -71,7 +71,7 @@ const WaliSantriStep = () => {
         }
       }
     } else if (isParentError) {
-      toast.error('Data wali tidak ditemukan. Silakan isi formulir secara manual.');
+      toast.error('Data wali belum ada, silahkan isi manual.');
       // Clear fields if data not found
       setKk('');
       setFirstName('');
