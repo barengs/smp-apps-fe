@@ -12,7 +12,13 @@ import KegiatanList from '../../components/KegiatanList';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMutation, useDeleteActivityMutation } from '@/store/apiSlice';
 import { format } from 'date-fns';
-import { isFetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query'; // Pastikan ini diimpor
+import { SerializedError } from '@reduxjs/toolkit'; // Pastikan ini diimpor
+
+// Type guard kustom untuk isFetchBaseQueryError
+function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
+  return typeof error === 'object' && error != null && 'status' in error;
+}
 
 export interface Kegiatan {
   id: number;
