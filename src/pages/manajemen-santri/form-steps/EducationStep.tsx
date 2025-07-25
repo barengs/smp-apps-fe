@@ -52,7 +52,7 @@ const EducationStep = () => {
             <div className="flex items-start gap-4">
               <Label
                 htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center flex-grow h-64 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
+                className="flex flex-col items-center justify-center flex-grow h-[151px] border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
