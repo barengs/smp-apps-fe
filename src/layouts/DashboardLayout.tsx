@@ -262,7 +262,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
       if (part.type === 'month') month = part.value;
       if (part.type === 'day') day = part.value;
     }
-    setHijriDate(`${year}, ${month}, ${day}`);
+    setHijriDate(`${day}, ${month}, ${year}`);
   }, []);
 
   const toggleFullScreen = () => {
