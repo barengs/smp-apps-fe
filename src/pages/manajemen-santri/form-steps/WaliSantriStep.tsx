@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const WaliSantriStep = () => {
