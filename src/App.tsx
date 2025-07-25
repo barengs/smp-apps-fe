@@ -32,7 +32,8 @@ import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage"; // Import StaffEditPage
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage"; // Import SantriFormPage
-import KelompokPendidikanPage from './pages/manajemen-pendidikan/KelompokPendidikanPage';
+import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidikanPage';
+import PekerjaanPage from '@/pages/master-data/PekerjaanPage'; // Import PekerjaanPage
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -78,6 +79,7 @@ const App = () => (
             <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
             <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
             <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
+            <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} /> {/* New route for PekerjaanPage */}
             <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
             <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} /> 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

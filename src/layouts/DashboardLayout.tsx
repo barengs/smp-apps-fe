@@ -98,6 +98,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       ],
     },
     {
+      titleKey: "sidebar.masterData",
+      icon: <ClipboardList className="h-5 w-5" />,
+      children: [
+        { titleKey: "sidebar.job", href: "/dashboard/master-data/pekerjaan", icon: <Briefcase className="h-4 w-4" /> },
+      ],
+    },
+    {
       titleKey: "sidebar.settings",
       icon: <Settings className="h-5 w-5" />,
       children: [
