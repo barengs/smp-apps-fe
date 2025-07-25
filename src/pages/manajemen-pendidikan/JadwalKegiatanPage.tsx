@@ -97,7 +97,17 @@ const JadwalKegiatanPage: React.FC = () => {
       refetch();
     } catch (err) {
       console.error("Failed to save kegiatan:", err);
-      showError("Gagal menyimpan kegiatan. Silakan coba lagi.");
+      let errorMessage = "Terjadi kesalahan tidak dikenal saat menyimpan kegiatan.";
+      if (isFetchBaseQueryError(err)) {
+        if (err.data && typeof err.data === 'object' && 'message' in err.data) {
+          errorMessage = (err.data as { message: string }).message;
+        } else {
+          errorMessage = JSON.stringify(err.data);
+        }
+      } else if (err && typeof err === 'object' && 'message' in err) {
+        errorMessage = (err as { message: string }).message;
+      }
+      showError(`Gagal menyimpan kegiatan: ${errorMessage}`);
     }
   };
 
