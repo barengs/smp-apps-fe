@@ -119,7 +119,10 @@ const SantriDetailPage: React.FC = () => {
   }
   
   const getParentLinks = (parentsData: StudentDetailData['parents']): React.ReactNode => {
+    console.log('Raw parentsData:', parentsData); // Debug log: Check initial data
+
     if (!parentsData || (Array.isArray(parentsData) && parentsData.length === 0) || (typeof parentsData === 'object' && Object.keys(parentsData).length === 0)) {
+      console.log('No parent data or empty parent data.'); // Debug log
       return 'Tidak ada data orang tua';
     }
 
@@ -128,11 +131,17 @@ const SantriDetailPage: React.FC = () => {
     if (Array.isArray(parentsData)) {
       parentsArray = parentsData;
     } else if (typeof parentsData === 'object') {
-      // Filter and cast to ParentDetailData to ensure correct structure
-      parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData =>
-        typeof val === 'object' && val !== null && 'id' in val && typeof val.id === 'number' && 'first_name' in val && typeof val.first_name === 'string'
-      );
+      // Convert object values to an array and filter for valid ParentDetailData
+      parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData => {
+        const isValid = typeof val === 'object' && val !== null && 'id' in val && typeof val.id === 'number' && 'first_name' in val && typeof val.first_name === 'string';
+        if (!isValid) {
+          console.warn('Invalid parent data found (filtered out):', val); // Debug log for invalid items
+        }
+        return isValid;
+      });
     }
+
+    console.log('Processed parentsArray:', parentsArray); // Debug log: Check array after processing
 
     const links = parentsArray
       .map((p, index) => (
@@ -144,7 +153,12 @@ const SantriDetailPage: React.FC = () => {
         </React.Fragment>
       ));
 
-    return links.length > 0 ? links : 'Format data orang tua tidak dikenali';
+    if (links.length > 0) {
+      return links;
+    } else {
+      console.log('No valid links generated from parentsArray.'); // Debug log
+      return 'Format data orang tua tidak dikenali';
+    }
   };
 
   return (
