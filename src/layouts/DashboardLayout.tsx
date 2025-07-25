@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -86,15 +86,12 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
       ],
     },
-    { titleKey: "sidebar.activitySchedule", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
     {
-      titleKey: "sidebar.regionalData",
-      icon: <Map className="h-5 w-5" />,
+      titleKey: "sidebar.information",
+      icon: <Megaphone className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.province", href: "/dashboard/wilayah/provinsi", icon: <Landmark className="h-4 w-4" /> },
-        { titleKey: "sidebar.city", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
-        { titleKey: "sidebar.district", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
-        { titleKey: "sidebar.village", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
+        { titleKey: "sidebar.news", href: "/dashboard/berita", icon: <Newspaper className="h-4 w-4" /> },
+        { titleKey: "sidebar.activitySchedule", href: "/dashboard/jadwal", icon: <Calendar className="h-4 w-4" /> },
       ],
     },
     {
