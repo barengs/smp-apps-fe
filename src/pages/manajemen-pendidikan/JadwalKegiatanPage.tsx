@@ -36,6 +36,7 @@ const JadwalKegiatanPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingKegiatan, setEditingKegiatan] = useState<Kegiatan | undefined>(undefined);
+  const [isFormViewMode, setIsFormViewMode] = useState(false); // New state to control form mode
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Jadwal Kegiatan', icon: <CalendarIcon className="h-4 w-4" /> },
@@ -114,7 +115,16 @@ const JadwalKegiatanPage: React.FC = () => {
   };
 
   const handleDateClick = (date: Date) => {
-    setEditingKegiatan(undefined);
+    const activitiesOnDate = kegiatanList.filter(k => 
+      format(k.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+    );
+    if (activitiesOnDate.length > 0) {
+      setEditingKegiatan(activitiesOnDate[0]); // Show the first activity
+      setIsFormViewMode(true); // Start in view mode
+    } else {
+      setEditingKegiatan(undefined); // For adding new activity
+      setIsFormViewMode(false); // Start in edit mode (for new)
+    }
     setSelectedDate(date);
     setIsDialogOpen(true);
   };
@@ -122,6 +132,7 @@ const JadwalKegiatanPage: React.FC = () => {
   const handleEditKegiatan = (kegiatan: Kegiatan) => {
     setEditingKegiatan(kegiatan);
     setSelectedDate(kegiatan.date);
+    setIsFormViewMode(true); // Always start in view mode when editing an existing one
     setIsDialogOpen(true);
   };
 
@@ -172,7 +183,12 @@ const JadwalKegiatanPage: React.FC = () => {
                 <CardTitle>Kalender Kegiatan</CardTitle>
                 <CardDescription>Lihat dan kelola jadwal kegiatan pesantren.</CardDescription>
               </div>
-              <Button onClick={() => handleDateClick(new Date())}>
+              <Button onClick={() => {
+                setEditingKegiatan(undefined); // Ensure no initial data for new activity
+                setSelectedDate(new Date()); // Set today's date for new activity
+                setIsFormViewMode(false); // Start in edit mode for new activity
+                setIsDialogOpen(true);
+              }}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Tambah Kegiatan
               </Button>
             </div>
@@ -215,10 +231,12 @@ const JadwalKegiatanPage: React.FC = () => {
           <JadwalKegiatanForm
             selectedDate={selectedDate}
             initialData={editingKegiatan}
+            isInitiallyViewMode={isFormViewMode} // Pass the new prop
             onSuccess={handleSaveKegiatan}
             onCancel={() => {
               setIsDialogOpen(false);
               setEditingKegiatan(undefined);
+              setIsFormViewMode(false); // Reset form mode on cancel
             }}
           />
         </DialogContent>
