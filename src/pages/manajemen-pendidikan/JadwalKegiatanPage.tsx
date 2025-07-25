@@ -3,13 +3,12 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { PlusCircle, Calendar as CalendarIcon, Edit, XCircle, CheckCircle, Trash2, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
 import JadwalKegiatanForm from './JadwalKegiatanForm';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { showSuccess, showError, showWarning } from '@/utils/toast';
 import EventCalendar from '../../components/EventCalendar';
 import KegiatanList from '../../components/KegiatanList';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMutation, useDeleteActivityMutation } from '@/store/apiSlice';
 import { format } from 'date-fns';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -170,18 +169,18 @@ const JadwalKegiatanPage: React.FC = () => {
                 Sedang memuat data kegiatan. Mohon tunggu...
               </div>
             )}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <EventCalendar kegiatanList={kegiatanList} onDateClick={handleDateClick} />
-              </div>
-              <div className="lg:col-span-1">
-                <KegiatanList
-                  kegiatanList={kegiatanList}
-                  onToggleStatus={handleToggleStatus}
-                  onDelete={handleDeleteKegiatan}
-                  onEdit={handleEditKegiatan}
-                />
-              </div>
+            <div className="space-y-6">
+              <EventCalendar 
+                kegiatanList={kegiatanList} 
+                onDateClick={handleDateClick}
+                onEventClick={handleEditKegiatan}
+              />
+              <KegiatanList
+                kegiatanList={kegiatanList}
+                onToggleStatus={handleToggleStatus}
+                onDelete={handleDeleteKegiatan}
+                onEdit={handleEditKegiatan}
+              />
             </div>
           </CardContent>
         </Card>
