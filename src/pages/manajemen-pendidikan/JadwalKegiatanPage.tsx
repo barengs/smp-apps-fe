@@ -89,6 +89,7 @@ const JadwalKegiatanPage: React.FC = () => {
           title: kegiatan.title,
           description: kegiatan.description,
           activity_date: formattedDate,
+          is_completed: false,
         }).unwrap();
         showSuccess(`Kegiatan "${kegiatan.title}" berhasil ditambahkan.`);
       }

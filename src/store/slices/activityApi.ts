@@ -22,6 +22,7 @@ interface CreateActivityRequest {
   title: string;
   description?: string;
   activity_date: string; // YYYY-MM-DD format
+  is_completed?: boolean;
 }
 
 // Define the request body for updating an activity
