@@ -2,11 +2,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// import { Button } from '@/components/ui/button'; // Tidak lagi diperlukan karena tombol 'Cek NIK' dihapus
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Tidak lagi diperlukan
-// import { Search } from 'lucide-react'; // Tidak lagi diperlukan
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const WaliSantriStep = () => {
+  const { data: pekerjaanList, isLoading, isError } = useGetPekerjaanQuery();
+
   return (
     <Card>
       <CardHeader>
@@ -38,7 +40,24 @@ const WaliSantriStep = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="pekerjaan">Pekerjaan</Label>
-              <Input id="pekerjaan" placeholder="Contoh: Wiraswasta" />
+              {isLoading ? (
+                <Skeleton className="h-10 w-full" />
+              ) : isError ? (
+                <Input id="pekerjaan" placeholder="Gagal memuat pekerjaan" disabled />
+              ) : (
+                <Select>
+                  <SelectTrigger id="pekerjaan">
+                    <SelectValue placeholder="Pilih Pekerjaan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pekerjaanList?.map((pekerjaan) => (
+                      <SelectItem key={pekerjaan.id} value={pekerjaan.id.toString()}>
+                        {pekerjaan.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="alamat-ktp">Alamat Sesuai KTP</Label>
