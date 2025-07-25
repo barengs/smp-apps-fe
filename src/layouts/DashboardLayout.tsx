@@ -308,10 +308,10 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
         )}
         <div className="hidden md:block">
           <h1 className="text-2xl font-semibold">{title}</h1>
-          <p className="text-sm text-muted-foreground">{hijriDate}</p>
         </div>
       </div>
       <div className="flex items-center space-x-4">
+        <span className="text-sm text-muted-foreground hidden sm:block">{hijriDate}</span>
         <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
           {isFullscreen ? <Minimize className="h-[1.2rem] w-[1.2rem]" /> : <Maximize className="h-[1.2rem] w-[1.2rem]" />}
           <span className="sr-only">{t('header.toggleFullscreen')}</span>
