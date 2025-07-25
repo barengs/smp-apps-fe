@@ -19,12 +19,12 @@ export interface CreateUpdatePekerjaanRequest {
 export const pekerjaanApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getPekerjaan: builder.query<GetPekerjaanResponse, void>({
-      query: () => 'master/pekerjaan',
+      query: () => 'master/occupation', // Diperbarui
       providesTags: ['Pekerjaan'],
     }),
     createPekerjaan: builder.mutation<PekerjaanApiData, CreateUpdatePekerjaanRequest>({
       query: (newPekerjaan) => ({
-        url: 'master/pekerjaan',
+        url: 'master/occupation', // Diperbarui
         method: 'POST',
         body: newPekerjaan,
       }),
@@ -32,7 +32,7 @@ export const pekerjaanApi = smpApi.injectEndpoints({
     }),
     updatePekerjaan: builder.mutation<PekerjaanApiData, { id: number; data: CreateUpdatePekerjaanRequest }>({
       query: ({ id, data }) => ({
-        url: `master/pekerjaan/${id}`,
+        url: `master/occupation/${id}`, // Diperbarui
         method: 'PUT',
         body: data,
       }),
@@ -40,7 +40,7 @@ export const pekerjaanApi = smpApi.injectEndpoints({
     }),
     deletePekerjaan: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/pekerjaan/${id}`,
+        url: `master/occupation/${id}`, // Diperbarui
         method: 'DELETE',
       }),
       invalidatesTags: ['Pekerjaan'],
