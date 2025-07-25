@@ -48,7 +48,7 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ kegiatanList, onDateClick
   const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
   return (
-    <div className="p-4 bg-card text-card-foreground rounded-lg border shadow">
+    <div className="p-3 bg-card text-card-foreground rounded-lg border shadow">
       <div className="flex justify-between items-center mb-4">
         <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
           <ChevronLeft className="h-4 w-4" />
@@ -77,7 +77,7 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ kegiatanList, onDateClick
           return (
             <div
               key={day.toString()}
-              className="relative p-2 h-32 bg-card hover:bg-accent/50 transition-colors duration-200 cursor-pointer flex flex-col"
+              className="relative p-2 h-28 bg-card hover:bg-accent/50 transition-colors duration-200 cursor-pointer flex flex-col"
               onClick={() => onDateClick(day)}
             >
               <span className={cn(
