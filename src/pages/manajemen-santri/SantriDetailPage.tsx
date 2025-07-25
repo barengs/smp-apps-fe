@@ -129,29 +129,41 @@ const SantriDetailPage: React.FC = () => {
     let parentsArray: ParentDetailData[] = [];
 
     if (Array.isArray(parentsData)) {
+      // Case 1: parentsData is an array of ParentDetailData
       parentsArray = parentsData;
     } else if (typeof parentsData === 'object') {
-      // Convert object values to an array and filter for valid ParentDetailData
-      parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData => {
-        const isValid = typeof val === 'object' && val !== null && 'id' in val && typeof val.id === 'number' && 'first_name' in val && typeof val.first_name === 'string';
-        if (!isValid) {
-          console.warn('Invalid parent data found (filtered out):', val); // Debug log for invalid items
-        }
-        return isValid;
-      });
+      // Case 2: parentsData is an object.
+      // Check if it's a direct ParentDetailData object (based on presence of user_id and first_name)
+      if ('user_id' in parentsData && typeof parentsData.user_id === 'number' && 'first_name' in parentsData) {
+        // It's a single ParentDetailData object directly
+        parentsArray = [parentsData as ParentDetailData]; // Cast and wrap in an array
+      } else {
+        // Assume it's an object where keys map to ParentDetailData (e.g., { 'ayah': {...}, 'ibu': {...} })
+        // Filter for valid ParentDetailData objects
+        parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData =>
+          typeof val === 'object' && val !== null && 'user_id' in val && typeof val.user_id === 'number' && 'first_name' in val && typeof val.first_name === 'string'
+        );
+      }
     }
 
     console.log('Processed parentsArray:', parentsArray); // Debug log: Check array after processing
 
     const links = parentsArray
-      .map((p, index) => (
-        <React.Fragment key={p.id}>
-          <Link to={`/dashboard/wali-santri-list/${p.id}`} className="text-blue-600 hover:underline">
-            {`${p.first_name} ${p.last_name || ''}`.trim()}
-          </Link>
-          {index < parentsArray.length - 1 && ', '}
-        </React.Fragment>
-      ));
+      .map((p, index) => {
+        // Use p.user_id for the key and the link
+        if (p.user_id && typeof p.user_id === 'number') {
+          return (
+            <React.Fragment key={p.user_id}>
+              <Link to={`/dashboard/wali-santri-list/${p.user_id}`} className="text-blue-600 hover:underline">
+                {`${p.first_name} ${p.last_name || ''}`.trim()}
+              </Link>
+              {index < parentsArray.length - 1 && ', '}
+            </React.Fragment>
+          );
+        }
+        return null; // Skip invalid parent entries
+      })
+      .filter(Boolean); // Remove nulls
 
     if (links.length > 0) {
       return links;
