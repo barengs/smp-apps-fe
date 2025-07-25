@@ -134,6 +134,9 @@ const SantriDetailPage: React.FC = () => {
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto pb-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
+          <Button variant="outline" onClick={() => navigate('/dashboard/santri')} className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+          </Button>
           <Card className="w-full">
             <CardHeader>
               <div className="flex justify-between items-start">
