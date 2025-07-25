@@ -1,13 +1,21 @@
+"use client";
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
+import { Button } from '@/components/ui/button';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const WaliSantriStep = () => {
   const { data: pekerjaanList, isLoading, isError } = useGetPekerjaanQuery();
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
 
   return (
     <Card>
@@ -45,18 +53,47 @@ const WaliSantriStep = () => {
               ) : isError ? (
                 <Input id="pekerjaan" placeholder="Gagal memuat pekerjaan" disabled />
               ) : (
-                <Select>
-                  <SelectTrigger id="pekerjaan">
-                    <SelectValue placeholder="Pilih Pekerjaan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pekerjaanList?.map((pekerjaan) => (
-                      <SelectItem key={pekerjaan.id} value={pekerjaan.id.toString()}>
-                        {pekerjaan.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="w-full justify-between"
+                    >
+                      {value
+                        ? pekerjaanList?.find((pekerjaan) => pekerjaan.id.toString() === value)?.name
+                        : "Pilih Pekerjaan..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                    <Command>
+                      <CommandInput placeholder="Cari pekerjaan..." />
+                      <CommandEmpty>Tidak ada pekerjaan ditemukan.</CommandEmpty>
+                      <CommandGroup>
+                        {pekerjaanList?.map((pekerjaan) => (
+                          <CommandItem
+                            key={pekerjaan.id}
+                            value={pekerjaan.name}
+                            onSelect={(currentValue) => {
+                              setValue(currentValue === value ? "" : pekerjaan.id.toString());
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                value === pekerjaan.id.toString() ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {pekerjaan.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
             <div className="space-y-2 md:col-span-2">
