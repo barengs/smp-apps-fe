@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Users, UserPlus, UserCheck, School } from 'lucide-react';
+import { Users, UserPlus, UserCheck, School, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WaliSantriStep from './form-steps/WaliSantriStep';
 import SantriProfileStep from './form-steps/SantriProfileStep';
 import EducationStep from './form-steps/EducationStep';
+import DocumentStep from './form-steps/DocumentStep';
 
 const SantriFormPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
@@ -32,6 +33,7 @@ const SantriFormPage: React.FC = () => {
     { number: 1, title: 'Data Wali', icon: <UserCheck className="h-5 w-5" /> },
     { number: 2, title: 'Profil Santri', icon: <UserPlus className="h-5 w-5" /> },
     { number: 3, title: 'Pendidikan & Foto', icon: <School className="h-5 w-5" /> },
+    { number: 4, title: 'Kelengkapan Dokumen', icon: <FileText className="h-5 w-5" /> },
   ];
 
   return (
@@ -41,7 +43,7 @@ const SantriFormPage: React.FC = () => {
 
         {/* Stepper */}
         <div className="mb-8">
-          <div className="w-full max-w-2xl mx-auto">
+          <div className="w-full max-w-3xl mx-auto">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <React.Fragment key={step.number}>
@@ -71,6 +73,7 @@ const SantriFormPage: React.FC = () => {
           {currentStep === 1 && <WaliSantriStep />}
           {currentStep === 2 && <SantriProfileStep />}
           {currentStep === 3 && <EducationStep />}
+          {currentStep === 4 && <DocumentStep />}
         </div>
 
         {/* Navigation Buttons */}
