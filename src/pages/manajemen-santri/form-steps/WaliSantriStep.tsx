@@ -47,31 +47,46 @@ const WaliSantriStep = () => {
 
   // Efek untuk menangani hasil dari API call
   useEffect(() => {
-    if (isSuccess && parentData?.data) {
-      const data = parentData.data;
-      toast.success('Data wali santri ditemukan.');
-      setKk(data.kk || ''); // Set KK
-      setFirstName(data.first_name);
-      setLastName(data.last_name || '');
-      setGender(data.gender || ''); // Set Gender
-      setParentAs(data.parent_as || ''); // Set Parent As
-      setPhone(data.phone || '');
-      setEmail(data.email || ''); // Set Email
-      setAlamatKtp(data.card_address || '');
-      // Jika alamat domisili kosong, gunakan alamat KTP
-      setAlamatDomisili(data.domicile_address || data.card_address || '');
+    if (isSuccess) { // Jika query berhasil (HTTP 200-299)
+      if (parentData?.data && Object.keys(parentData.data).length > 0) { // Periksa apakah ada data yang valid
+        const data = parentData.data;
+        toast.success('Data wali santri ditemukan.');
+        setKk(data.kk || ''); // Set KK
+        setFirstName(data.first_name);
+        setLastName(data.last_name || '');
+        setGender(data.gender || ''); // Set Gender
+        setParentAs(data.parent_as || ''); // Set Parent As
+        setPhone(data.phone || '');
+        setEmail(data.email || ''); // Set Email
+        setAlamatKtp(data.card_address || '');
+        // Jika alamat domisili kosong, gunakan alamat KTP
+        setAlamatDomisili(data.domicile_address || data.card_address || '');
 
-      // Mencocokkan pekerjaan dari API dengan daftar pekerjaan
-      if (data.occupation && pekerjaanList) {
-        const foundPekerjaan = pekerjaanList.find(p => p.name.toLowerCase() === data.occupation?.toLowerCase());
-        if (foundPekerjaan) {
-          setPekerjaanValue(foundPekerjaan.id.toString());
-        } else {
-          setPekerjaanValue(''); // Reset jika tidak cocok
+        // Mencocokkan pekerjaan dari API dengan daftar pekerjaan
+        if (data.occupation && pekerjaanList) {
+          const foundPekerjaan = pekerjaanList.find(p => p.name.toLowerCase() === data.occupation?.toLowerCase());
+          if (foundPekerjaan) {
+            setPekerjaanValue(foundPekerjaan.id.toString());
+          } else {
+            setPekerjaanValue(''); // Reset jika tidak cocok
+          }
         }
+      } else { // Jika isSuccess true, tapi parentData.data kosong/null
+        toast.error('Data wali belum ada, silahkan isi manual.');
+        // Clear fields if data not found
+        setKk('');
+        setFirstName('');
+        setLastName('');
+        setGender('');
+        setParentAs('');
+        setPhone('');
+        setEmail('');
+        setAlamatKtp('');
+        setAlamatDomisili('');
+        setPekerjaanValue('');
       }
-    } else if (isParentError) {
-      toast.error('Data wali belum ada, silahkan isi manual.');
+    } else if (isParentError) { // Ini menangani kesalahan HTTP yang sebenarnya
+      toast.error('Terjadi kesalahan saat mencari data wali. Silakan coba lagi.');
       // Clear fields if data not found
       setKk('');
       setFirstName('');
