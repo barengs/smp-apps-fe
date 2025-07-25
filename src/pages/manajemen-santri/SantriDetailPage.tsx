@@ -128,11 +128,13 @@ const SantriDetailPage: React.FC = () => {
     if (Array.isArray(parentsData)) {
       parentsArray = parentsData;
     } else if (typeof parentsData === 'object') {
-      parentsArray = Object.values(parentsData);
+      // Filter and cast to ParentDetailData to ensure correct structure
+      parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData =>
+        typeof val === 'object' && val !== null && 'id' in val && typeof val.id === 'number' && 'first_name' in val && typeof val.first_name === 'string'
+      );
     }
 
     const links = parentsArray
-      .filter(p => p && typeof p === 'object' && typeof p.first_name === 'string' && p.id)
       .map((p, index) => (
         <React.Fragment key={p.id}>
           <Link to={`/dashboard/wali-santri-list/${p.id}`} className="text-blue-600 hover:underline">
