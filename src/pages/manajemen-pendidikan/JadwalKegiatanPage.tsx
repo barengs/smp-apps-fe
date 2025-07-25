@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Edit, XCircle, CheckCircle, Trash2, MoreHorizontal } from 'lucide-react';
 import JadwalKegiatanForm from './JadwalKegiatanForm';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { showSuccess, showWarning } from '@/utils/toast'; // Updated import
+import { showSuccess, showError, showWarning } from '@/utils/toast';
 import EventCalendar from '../../components/EventCalendar';
 import KegiatanList from '../../components/KegiatanList';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMutation, useDeleteActivityMutation } from '@/store/apiSlice';
+import { format } from 'date-fns';
+import { isFetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
 export interface Kegiatan {
   id: number;
@@ -20,11 +23,11 @@ export interface Kegiatan {
 }
 
 const JadwalKegiatanPage: React.FC = () => {
-  const [kegiatanList, setKegiatanList] = useState<Kegiatan[]>([
-    { id: 1, date: new Date(), title: 'Rapat Awal Tahun Ajaran', description: 'Membahas rencana semester ganjil.', status: 'Belum Selesai' },
-    { id: 2, date: new Date(new Date().setDate(new Date().getDate() + 5)), title: 'Lomba Cerdas Cermat', description: 'Antar kelas jenjang SMP.', status: 'Belum Selesai' },
-    { id: 3, date: new Date(new Date().setDate(new Date().getDate() - 10)), title: 'Kerja Bakti', description: 'Membersihkan lingkungan pesantren.', status: 'Selesai' },
-  ]);
+  const { data: activitiesData, isLoading, isError, error, refetch } = useGetActivitiesQuery();
+  const [createActivity, { isLoading: isCreating }] = useCreateActivityMutation();
+  const [updateActivity, { isLoading: isUpdating }] = useUpdateActivityMutation();
+  const [deleteActivity, { isLoading: isDeleting }] = useDeleteActivityMutation();
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingKegiatan, setEditingKegiatan] = useState<Kegiatan | undefined>(undefined);
@@ -33,16 +36,47 @@ const JadwalKegiatanPage: React.FC = () => {
     { label: 'Jadwal Kegiatan', icon: <CalendarIcon className="h-4 w-4" /> },
   ];
 
-  const handleSaveKegiatan = (kegiatan: Omit<Kegiatan, 'id' | 'status'>) => {
-    const newKegiatan: Kegiatan = {
-      ...kegiatan,
-      id: Date.now(),
-      status: 'Belum Selesai',
-    };
-    setKegiatanList([...kegiatanList, newKegiatan]);
-    showSuccess(`Kegiatan "${newKegiatan.title}" berhasil ditambahkan.`); // Updated call
-    setIsDialogOpen(false);
-    setEditingKegiatan(undefined);
+  const kegiatanList: Kegiatan[] = React.useMemo(() => {
+    if (!activitiesData?.data) return [];
+    return activitiesData.data.map(apiKegiatan => ({
+      id: apiKegiatan.id,
+      date: new Date(apiKegiatan.activity_date),
+      title: apiKegiatan.title,
+      description: apiKegiatan.description,
+      status: apiKegiatan.is_completed ? 'Selesai' : 'Belum Selesai',
+    }));
+  }, [activitiesData]);
+
+  const handleSaveKegiatan = async (kegiatan: { title: string; description?: string; date: Date }) => {
+    try {
+      const formattedDate = format(kegiatan.date, 'yyyy-MM-dd');
+
+      if (editingKegiatan) {
+        await updateActivity({
+          id: editingKegiatan.id,
+          data: {
+            title: kegiatan.title,
+            description: kegiatan.description,
+            activity_date: formattedDate,
+            is_completed: editingKegiatan.status === 'Selesai'
+          }
+        }).unwrap();
+        showSuccess(`Kegiatan "${kegiatan.title}" berhasil diperbarui.`);
+      } else {
+        await createActivity({
+          title: kegiatan.title,
+          description: kegiatan.description,
+          activity_date: formattedDate,
+        }).unwrap();
+        showSuccess(`Kegiatan "${kegiatan.title}" berhasil ditambahkan.`);
+      }
+      setIsDialogOpen(false);
+      setEditingKegiatan(undefined);
+      refetch();
+    } catch (err) {
+      console.error("Failed to save kegiatan:", err);
+      showError("Gagal menyimpan kegiatan. Silakan coba lagi.");
+    }
   };
 
   const handleDateClick = (date: Date) => {
@@ -51,22 +85,95 @@ const JadwalKegiatanPage: React.FC = () => {
     setIsDialogOpen(true);
   };
 
-  const handleToggleStatus = (id: number) => {
-    setKegiatanList(kegiatanList.map(k => 
-      k.id === id 
-        ? { ...k, status: k.status === 'Selesai' ? 'Belum Selesai' : 'Selesai' }
-        : k
-    ));
-    showWarning('Status kegiatan telah diperbarui.'); // Updated call
+  const handleEditKegiatan = (kegiatan: Kegiatan) => {
+    setEditingKegiatan(kegiatan);
+    setSelectedDate(kegiatan.date);
+    setIsDialogOpen(true);
   };
 
-  const handleDeleteKegiatan = (id: number) => {
-    const kegiatan = kegiatanList.find(k => k.id === id);
-    setKegiatanList(kegiatanList.filter(k => k.id !== id));
-    if (kegiatan) {
-      showSuccess(`Kegiatan "${kegiatan.title}" telah dihapus.`); // Updated call
+  const handleToggleStatus = async (id: number) => {
+    const kegiatanToUpdate = kegiatanList.find(k => k.id === id);
+    if (!kegiatanToUpdate) return;
+
+    const newStatus = kegiatanToUpdate.status === 'Selesai' ? 'Belum Selesai' : 'Selesai';
+    try {
+      await updateActivity({
+        id: id,
+        data: {
+          is_completed: newStatus === 'Selesai'
+        }
+      }).unwrap();
+      showWarning(`Status kegiatan "${kegiatanToUpdate.title}" telah diperbarui menjadi ${newStatus}.`);
+      refetch();
+    } catch (err) {
+      console.error("Failed to toggle status:", err);
+      showError("Gagal memperbarui status kegiatan. Silakan coba lagi.");
     }
   };
+
+  const handleDeleteKegiatan = async (id: number) => {
+    const kegiatanToDelete = kegiatanList.find(k => k.id === id);
+    if (!kegiatanToDelete) return;
+
+    try {
+      await deleteActivity(id).unwrap();
+      showSuccess(`Kegiatan "${kegiatanToDelete.title}" telah dihapus.`);
+      refetch();
+    } catch (err) {
+      console.error("Failed to delete kegiatan:", err);
+      showError("Gagal menghapus kegiatan. Silakan coba lagi.");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
+        <div className="container mx-auto pb-4 px-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Memuat Jadwal Kegiatan...</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Sedang memuat data kegiatan. Mohon tunggu...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    let errorMessage = "Terjadi kesalahan tidak dikenal.";
+    if (isFetchBaseQueryError(error)) {
+      // Jika error berasal dari API, pesan mungkin ada di error.data
+      if (error.data && typeof error.data === 'object' && 'message' in error.data) {
+        errorMessage = (error.data as { message: string }).message;
+      } else {
+        errorMessage = JSON.stringify(error.data); // Fallback jika data ada tapi tidak ada properti message
+      }
+    } else if (error && 'message' in error) {
+      // Jika error adalah SerializedError, properti message akan ada
+      errorMessage = error.message;
+    }
+
+    return (
+      <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
+        <div className="container mx-auto pb-4 px-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Error Memuat Jadwal Kegiatan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Terjadi kesalahan saat memuat data kegiatan: {errorMessage}</p>
+              <Button onClick={() => refetch()} className="mt-4">Coba Lagi</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
@@ -90,10 +197,11 @@ const JadwalKegiatanPage: React.FC = () => {
                 <EventCalendar kegiatanList={kegiatanList} onDateClick={handleDateClick} />
               </div>
               <div className="lg:col-span-1">
-                <KegiatanList 
-                  kegiatanList={kegiatanList} 
-                  onToggleStatus={handleToggleStatus} 
-                  onDelete={handleDeleteKegiatan} 
+                <KegiatanList
+                  kegiatanList={kegiatanList}
+                  onToggleStatus={handleToggleStatus}
+                  onDelete={handleDeleteKegiatan}
+                  onEdit={handleEditKegiatan}
                 />
               </div>
             </div>
@@ -113,7 +221,10 @@ const JadwalKegiatanPage: React.FC = () => {
             selectedDate={selectedDate}
             initialData={editingKegiatan}
             onSuccess={handleSaveKegiatan}
-            onCancel={() => setIsDialogOpen(false)}
+            onCancel={() => {
+              setIsDialogOpen(false);
+              setEditingKegiatan(undefined);
+            }}
           />
         </DialogContent>
       </Dialog>
