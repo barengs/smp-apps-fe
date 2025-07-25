@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { santriFormSchema, SantriFormValues, step1Fields, step2Fields, step3Fields, step4Fields } from './form-schemas';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Users, UserPlus, UserCheck, School, FileText } from 'lucide-react';
+import { Users, UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll } from 'lucide-react'; // Import new icons
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import WaliSantriStep from './form-steps/WaliSantriStep';
@@ -157,9 +157,11 @@ const SantriFormPage: React.FC = () => {
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
               <div className="flex space-x-2">
                 <Button type="button" variant="outline" onClick={() => navigate('/dashboard/santri')}>
+                  <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>
                 <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
                   Kembali
                 </Button>
               </div>
@@ -167,13 +169,16 @@ const SantriFormPage: React.FC = () => {
                 {currentStep < totalSteps ? (
                   <Button type="button" onClick={nextStep}>
                     Lanjutkan
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
                   <>
                     <Button type="button" variant="outline" onClick={onSubmitAndReset}>
+                      <SaveAll className="mr-2 h-4 w-4" />
                       Simpan dan Entri Ulang
                     </Button>
                     <Button type="submit">
+                      <Save className="mr-2 h-4 w-4" />
                       Simpan
                     </Button>
                   </>
