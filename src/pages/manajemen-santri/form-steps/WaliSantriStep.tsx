@@ -121,11 +121,11 @@ const WaliSantriStep = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="first-name-wali">Nama Depan Wali</Label>
+              <Label htmlFor="first-name-wali">Nama Depan</Label>
               <Input id="first-name-wali" placeholder="Contoh: Budi" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="last-name-wali">Nama Belakang Wali (opsional)</Label>
+              <Label htmlFor="last-name-wali">Nama Belakang (opsional)</Label>
               <Input id="last-name-wali" placeholder="Contoh: Santoso" value={lastName} onChange={(e) => setLastName(e.target.value)} />
             </div>
             <div className="space-y-2">
