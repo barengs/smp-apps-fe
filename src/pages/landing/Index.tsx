@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import LandingLayout from '../../layouts/LandingLayout';
-import { BookOpenText, Info } from 'lucide-react';
+import { BookOpenText, Info } from 'lucide-react'; // Import Info icon
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import type { CarouselApi } from '@/components/ui/carousel';
@@ -77,8 +77,9 @@ const Index = () => {
                 <CarouselItem key={index} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <div className="p-1">
                     <Card>
-                      <CardContent className="flex aspect-square items-center justify-center p-6 bg-blue-100 rounded-lg">
-                        <span className="text-lg font-semibold text-blue-800 text-center">{slide}</span>
+                      <CardContent className="flex flex-col items-center justify-center p-6 bg-blue-100 rounded-lg text-center">
+                        <Info className="h-12 w-12 text-blue-600 mb-4" /> {/* Added Info icon */}
+                        <span className="text-lg font-semibold text-blue-800">{slide}</span>
                       </CardContent>
                     </Card>
                   </div>
