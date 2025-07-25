@@ -13,6 +13,7 @@ import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
 import { toast } from 'sonner';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const WaliSantriStep = () => {
   // API Hooks
@@ -21,9 +22,13 @@ const WaliSantriStep = () => {
 
   // Form State
   const [nik, setNik] = useState('');
+  const [kk, setKk] = useState(''); // New state for KK
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [gender, setGender] = useState<'L' | 'P' | ''>(''); // New state for Gender
+  const [parentAs, setParentAs] = useState(''); // New state for Parent As
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState(''); // New state for Email
   const [alamatKtp, setAlamatKtp] = useState('');
   const [alamatDomisili, setAlamatDomisili] = useState('');
   
@@ -45,9 +50,13 @@ const WaliSantriStep = () => {
     if (isSuccess && parentData?.data) {
       const data = parentData.data;
       toast.success('Data wali santri ditemukan.');
+      setKk(data.kk || ''); // Set KK
       setFirstName(data.first_name);
       setLastName(data.last_name || '');
+      setGender(data.gender || ''); // Set Gender
+      setParentAs(data.parent_as || ''); // Set Parent As
       setPhone(data.phone || '');
+      setEmail(data.email || ''); // Set Email
       setAlamatKtp(data.card_address || '');
       // Jika alamat domisili kosong, gunakan alamat KTP
       setAlamatDomisili(data.domicile_address || data.card_address || '');
@@ -63,6 +72,17 @@ const WaliSantriStep = () => {
       }
     } else if (isParentError) {
       toast.error('Data wali tidak ditemukan. Silakan isi formulir secara manual.');
+      // Clear fields if data not found
+      setKk('');
+      setFirstName('');
+      setLastName('');
+      setGender('');
+      setParentAs('');
+      setPhone('');
+      setEmail('');
+      setAlamatKtp('');
+      setAlamatDomisili('');
+      setPekerjaanValue('');
     }
   }, [isSuccess, isParentError, parentData, pekerjaanList]);
 
@@ -74,23 +94,29 @@ const WaliSantriStep = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="nik">NIK</Label>
-            <div className="relative">
-              <Input
-                id="nik"
-                placeholder="Contoh: 320xxxxxxxxxxxxx"
-                value={nik}
-                onChange={handleNikChange}
-                maxLength={16}
-              />
-              {isParentLoading && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
-              )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="nik">NIK</Label>
+              <div className="relative">
+                <Input
+                  id="nik"
+                  placeholder="Contoh: 320xxxxxxxxxxxxx"
+                  value={nik}
+                  onChange={handleNikChange}
+                  maxLength={16}
+                />
+                {isParentLoading && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Data wali santri akan terisi otomatis jika NIK ditemukan.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Data wali santri akan terisi otomatis jika NIK ditemukan.
-            </p>
+            <div className="space-y-2">
+              <Label htmlFor="kk">Nomor Kartu Keluarga (KK)</Label>
+              <Input id="kk" placeholder="Contoh: 320xxxxxxxxxxxxx" value={kk} onChange={(e) => setKk(e.target.value)} maxLength={16} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -103,8 +129,42 @@ const WaliSantriStep = () => {
               <Input id="last-name-wali" placeholder="Contoh: Santoso" value={lastName} onChange={(e) => setLastName(e.target.value)} />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="gender">Jenis Kelamin</Label>
+              <RadioGroup value={gender} onValueChange={(val) => setGender(val as 'L' | 'P' | '')} className="flex space-x-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="L" id="gender-l" />
+                  <Label htmlFor="gender-l">Laki-laki</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="P" id="gender-p" />
+                  <Label htmlFor="gender-p">Perempuan</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="parent-as">Sebagai Wali</Label>
+              <RadioGroup value={parentAs} onValueChange={setParentAs} className="flex space-x-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="ayah" id="parent-as-ayah" />
+                  <Label htmlFor="parent-as-ayah">Ayah</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="ibu" id="parent-as-ibu" />
+                  <Label htmlFor="parent-as-ibu">Ibu</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="wali" id="parent-as-wali" />
+                  <Label htmlFor="parent-as-wali">Wali Lainnya</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="telepon">Nomor Telepon</Label>
               <Input id="telepon" placeholder="Contoh: 081234567890" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="Contoh: nama@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="pekerjaan">Pekerjaan</Label>
