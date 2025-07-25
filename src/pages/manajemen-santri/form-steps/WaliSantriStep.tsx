@@ -37,8 +37,12 @@ const WaliSantriStep = () => {
               <Input id="pekerjaan" placeholder="Contoh: Wiraswasta" />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="alamat-wali">Alamat Lengkap</Label>
-              <Input id="alamat-wali" placeholder="Contoh: Jl. Merdeka No. 10, Jakarta" />
+              <Label htmlFor="alamat-ktp">Alamat Sesuai KTP</Label>
+              <Input id="alamat-ktp" placeholder="Contoh: Jl. Merdeka No. 10, Jakarta Pusat" />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="alamat-domisili">Alamat Domisili</Label>
+              <Input id="alamat-domisili" placeholder="Contoh: Jl. Pahlawan No. 5, Bandung" />
             </div>
           </div>
         </div>
