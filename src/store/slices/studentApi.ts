@@ -30,14 +30,14 @@ interface GetStudentsResponse {
 // --- Types for Single Student Detail ---
 
 // Structure for a parent object within the student detail response
-interface ParentDetailData {
+export interface ParentDetailData { // Added export
   id: number;
   first_name: string;
   last_name: string | null;
   parent_as?: string;
 }
 
-interface StudentDetailData {
+export interface StudentDetailData { // Added export
   id: number;
   first_name: string;
   last_name: string | null;

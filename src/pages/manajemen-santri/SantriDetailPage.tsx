@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom'; // Import Link
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
+import { useGetStudentByIdQuery, StudentDetailData, ParentDetailData } from '@/store/slices/studentApi'; // Import StudentDetailData, ParentDetailData
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { Printer, Edit, Users, UserCheck, User, ArrowLeft } from 'lucide-react';
@@ -118,26 +118,32 @@ const SantriDetailPage: React.FC = () => {
     return null;
   }
   
-  const getParentNames = (parentsData: any): string => {
-    if (!parentsData || typeof parentsData !== 'object' || Object.keys(parentsData).length === 0) {
+  const getParentLinks = (parentsData: StudentDetailData['parents']): React.ReactNode => {
+    if (!parentsData || (Array.isArray(parentsData) && parentsData.length === 0) || (typeof parentsData === 'object' && Object.keys(parentsData).length === 0)) {
       return 'Tidak ada data orang tua';
     }
-    if (typeof parentsData.first_name === 'string') {
-      return `${parentsData.first_name} ${parentsData.last_name || ''}`.trim();
-    }
-    const parentsArray = Object.values(parentsData);
-    const names = parentsArray
-      .map((p: any) => {
-        if (p && typeof p === 'object' && typeof p.first_name === 'string') {
-          return `${p.first_name} ${p.last_name || ''}`.trim();
-        }
-        return null;
-      })
-      .filter(Boolean);
-    return names.length > 0 ? names.join(', ') : 'Format data orang tua tidak dikenali';
-  };
 
-  const parentsNames = getParentNames(santri.parents);
+    let parentsArray: ParentDetailData[] = [];
+
+    if (Array.isArray(parentsData)) {
+      parentsArray = parentsData;
+    } else if (typeof parentsData === 'object') {
+      parentsArray = Object.values(parentsData);
+    }
+
+    const links = parentsArray
+      .filter(p => p && typeof p === 'object' && typeof p.first_name === 'string' && p.id)
+      .map((p, index) => (
+        <React.Fragment key={p.id}>
+          <Link to={`/dashboard/wali-santri-list/${p.id}`} className="text-blue-600 hover:underline">
+            {`${p.first_name} ${p.last_name || ''}`.trim()}
+          </Link>
+          {index < parentsArray.length - 1 && ', '}
+        </React.Fragment>
+      ));
+
+    return links.length > 0 ? links : 'Format data orang tua tidak dikenali';
+  };
 
   return (
     <>
@@ -184,7 +190,7 @@ const SantriDetailPage: React.FC = () => {
                     <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
                     <DetailRow label="Telepon" value={santri.phone} />
                     <DetailRow label="Alamat" value={santri.address} />
-                    <DetailRow label="Nama Orang Tua" value={parentsNames} />
+                    <DetailRow label="Nama Orang Tua" value={getParentLinks(santri.parents)} /> {/* Updated here */}
                     <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
                     <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
                   </div>
