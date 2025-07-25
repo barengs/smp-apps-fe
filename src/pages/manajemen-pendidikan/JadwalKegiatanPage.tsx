@@ -12,8 +12,8 @@ import KegiatanList from '../../components/KegiatanList';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMutation, useDeleteActivityMutation } from '@/store/apiSlice';
 import { format } from 'date-fns';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query'; // Pastikan ini diimpor
-import { SerializedError } from '@reduxjs/toolkit'; // Pastikan ini diimpor
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 // Type guard kustom untuk isFetchBaseQueryError
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -52,6 +52,23 @@ const JadwalKegiatanPage: React.FC = () => {
       status: apiKegiatan.is_completed ? 'Selesai' : 'Belum Selesai',
     }));
   }, [activitiesData]);
+
+  // Effect untuk menampilkan toast error
+  useEffect(() => {
+    if (isError) {
+      let errorMessage = "Terjadi kesalahan tidak dikenal.";
+      if (isFetchBaseQueryError(error)) {
+        if (error.data && typeof error.data === 'object' && 'message' in error.data) {
+          errorMessage = (error.data as { message: string }).message;
+        } else {
+          errorMessage = JSON.stringify(error.data);
+        }
+      } else if (error && 'message' in error) {
+        errorMessage = error.message;
+      }
+      showError(`Gagal memuat kegiatan: ${errorMessage}`);
+    }
+  }, [isError, error]);
 
   const handleSaveKegiatan = async (kegiatan: { title: string; description?: string; date: Date }) => {
     try {
@@ -131,56 +148,6 @@ const JadwalKegiatanPage: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
-        <div className="container mx-auto pb-4 px-4">
-          <CustomBreadcrumb items={breadcrumbItems} />
-          <Card>
-            <CardHeader>
-              <CardTitle>Memuat Jadwal Kegiatan...</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Sedang memuat data kegiatan. Mohon tunggu...</p>
-            </CardContent>
-          </Card>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (isError) {
-    let errorMessage = "Terjadi kesalahan tidak dikenal.";
-    if (isFetchBaseQueryError(error)) {
-      // Jika error berasal dari API, pesan mungkin ada di error.data
-      if (error.data && typeof error.data === 'object' && 'message' in error.data) {
-        errorMessage = (error.data as { message: string }).message;
-      } else {
-        errorMessage = JSON.stringify(error.data); // Fallback jika data ada tapi tidak ada properti message
-      }
-    } else if (error && 'message' in error) {
-      // Jika error adalah SerializedError, properti message akan ada
-      errorMessage = error.message;
-    }
-
-    return (
-      <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
-        <div className="container mx-auto pb-4 px-4">
-          <CustomBreadcrumb items={breadcrumbItems} />
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Memuat Jadwal Kegiatan</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Terjadi kesalahan saat memuat data kegiatan: {errorMessage}</p>
-              <Button onClick={() => refetch()} className="mt-4">Coba Lagi</Button>
-            </CardContent>
-          </Card>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout title="Jadwal Kegiatan" role="administrasi">
       <div className="container mx-auto pb-4 px-4">
@@ -198,6 +165,11 @@ const JadwalKegiatanPage: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
+            {isLoading && (
+              <div className="text-center text-muted-foreground py-4">
+                Sedang memuat data kegiatan. Mohon tunggu...
+              </div>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
                 <EventCalendar kegiatanList={kegiatanList} onDateClick={handleDateClick} />
