@@ -154,7 +154,7 @@ const SantriDetailPage: React.FC = () => {
         if (p.user_id && typeof p.user_id === 'number') {
           return (
             <React.Fragment key={p.user_id}>
-              <Link to={`/dashboard/wali-santri-list/${p.user_id}`} className="text-blue-600 hover:underline">
+              <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
                 {`${p.first_name} ${p.last_name || ''}`.trim()}
               </Link>
               {index < parentsArray.length - 1 && ', '}
