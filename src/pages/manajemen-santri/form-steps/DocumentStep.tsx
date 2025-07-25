@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Trash2, PlusCircle, UploadCloud } from 'lucide-react';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { SantriFormValues } from '../form-schemas';
 
 interface DocumentRow {
   id: number;
@@ -14,7 +17,12 @@ interface DocumentRow {
   file: File | null;
 }
 
-const DocumentStep = () => {
+interface DocumentStepProps {
+  form: any;
+}
+
+const DocumentStep: React.FC<DocumentStepProps> = ({ form }) => {
+  const { control } = useFormContext<SantriFormValues>();
   const [documents, setDocuments] = useState<DocumentRow[]>([
     { id: Date.now(), name: '', file: null },
   ]);
@@ -50,24 +58,41 @@ const DocumentStep = () => {
           {/* Ijazah Terakhir */}
           <div>
             <h3 className="text-lg font-medium mb-2">Ijazah Terakhir</h3>
-            <Label
-              htmlFor="ijazah-file"
-              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
-            >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <UploadCloud className="w-8 h-8 mb-3 text-muted-foreground" />
-                <p className="mb-2 text-sm text-muted-foreground">
-                  <span className="font-semibold">Klik untuk mengunggah</span> atau seret dan lepas
-                </p>
-                <p className="text-xs text-muted-foreground">PDF, JPG, PNG (MAX. 5MB)</p>
-              </div>
-              <Input id="ijazah-file" type="file" className="hidden" />
-            </Label>
+            <FormField
+              control={control}
+              name="ijazahFile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel
+                    htmlFor="ijazah-file"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <UploadCloud className="w-8 h-8 mb-3 text-muted-foreground" />
+                      <p className="mb-2 text-sm text-muted-foreground">
+                        <span className="font-semibold">Klik untuk mengunggah</span> atau seret
+                      </p>
+                      <p className="text-xs text-muted-foreground">PDF, JPG, PNG (MAX. 2MB)</p>
+                    </div>
+                    <FormControl>
+                      <Input
+                        id="ijazah-file"
+                        type="file"
+                        className="hidden"
+                        accept="application/pdf,image/*"
+                        onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
+                      />
+                    </FormControl>
+                  </FormLabel>
+                  <FormMessage className="mt-2" />
+                </FormItem>
+              )}
+            />
           </div>
 
           {/* Dokumen Lainnya */}
           <div>
-            <h3 className="text-lg font-medium mb-2">Dokumen Lainnya</h3>
+            <h3 className="text-lg font-medium mb-2">Dokumen Lainnya (Opsional)</h3>
             <div className="border rounded-md">
               <Table>
                 <TableHeader>
@@ -110,6 +135,7 @@ const DocumentStep = () => {
               </Table>
             </div>
             <Button
+              type="button"
               variant="outline"
               size="sm"
               className="mt-4"
