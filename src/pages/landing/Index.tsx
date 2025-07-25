@@ -48,6 +48,13 @@ const Index = () => {
 
   return (
     <LandingLayout title={t('welcomeTitle')}>
+      {/* Running Text Section */}
+      {!isNewsLoading && !isNewsError && newsTitles.length > 0 && (
+        <div className="w-full">
+          <RunningText items={newsTitles} />
+        </div>
+      )}
+
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
         <div className="text-center mb-12">
           <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
@@ -58,13 +65,6 @@ const Index = () => {
             {t('welcomeSubtitle')}
           </p>
         </div>
-
-        {/* Running Text Section */}
-        {!isNewsLoading && !isNewsError && newsTitles.length > 0 && (
-          <div className="w-full mb-12">
-            <RunningText items={newsTitles} />
-          </div>
-        )}
 
         <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl">
           <div className="flex justify-center mb-2">
