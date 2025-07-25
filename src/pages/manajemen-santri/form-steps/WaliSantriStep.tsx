@@ -125,7 +125,7 @@ const WaliSantriStep = () => {
               <Input id="first-name-wali" placeholder="Contoh: Budi" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="last-name-wali">Nama Belakang Wali</Label>
+              <Label htmlFor="last-name-wali">Nama Belakang Wali (opsional)</Label>
               <Input id="last-name-wali" placeholder="Contoh: Santoso" value={lastName} onChange={(e) => setLastName(e.target.value)} />
             </div>
             <div className="space-y-2">
@@ -221,7 +221,7 @@ const WaliSantriStep = () => {
               <Input id="alamat-ktp" placeholder="Contoh: Jl. Merdeka No. 10, Jakarta Pusat" value={alamatKtp} onChange={(e) => setAlamatKtp(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="alamat-domisili">Alamat Domisili</Label>
+              <Label htmlFor="alamat-domisili">Alamat Domisili (opsional)</Label>
               <Input id="alamat-domisili" placeholder="Contoh: Jl. Pahlawan No. 5, Bandung" value={alamatDomisili} onChange={(e) => setAlamatDomisili(e.target.value)} />
             </div>
           </div>
