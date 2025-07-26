@@ -319,7 +319,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
                                 key={pekerjaan.id}
                                 value={pekerjaan.name}
                                 onSelect={() => {
-                                  setValue('pekerjaanValue', pekerjaan.id.toString());
+                                  field.onChange(pekerjaan.id.toString()); // Menggunakan field.onChange
                                   setPekerjaanOpen(false);
                                 }}
                               >
