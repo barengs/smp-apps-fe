@@ -17,12 +17,16 @@
   "infoSlide5": "Fitur pelaporan dan analisis data yang komprehensif.",
   "infoSlide6": "Akses mudah untuk wali santri memantau perkembangan anak.",
   "infoSlide7": "Dirancang untuk meningkatkan efisiensi administrasi pondok.",
-  "sidebar": {
-    "bankSantri": "Bank Santri",
-    "gradesAndAttendance": "Nilai dan Kehadiran",
-    "dashboard": "Dasbor",
-    "santriInfo": "Informasi Santri",
-    "announcements": "Pengumuman",
-    "settings": "Pengaturan"
-  }
+  "sidebar.bankSantri": "Bank Santri",
+  "sidebar.gradesAndAttendance": "Nilai & Absensi",
+  "sidebar.announcements": "Pengumuman",
+  "sidebar.settings": "Pengaturan",
+  "gradesAndAttendance.title": "Halaman Nilai dan Absensi Santri",
+  "gradesAndAttendance.placeholder": "Konten untuk nilai dan absensi santri akan ditampilkan di sini.",
+  "bankSantri.title": "Halaman Bank Santri",
+  "bankSantri.placeholder": "Konten untuk informasi bank santri akan ditampilkan di sini.",
+  "announcements.title": "Halaman Pengumuman",
+  "announcements.placeholder": "Konten untuk pengumuman akan ditampilkan di sini.",
+  "settings.title": "Halaman Pengaturan Wali Santri",
+  "settings.placeholder": "Konten untuk pengaturan wali santri akan ditampilkan di sini."
 }

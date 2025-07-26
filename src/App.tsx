@@ -35,7 +35,11 @@ import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
 import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidikanPage';
 import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
 import BeritaPage from '@/pages/informasi/BeritaPage';
-import InformasiSantriPage from '@/pages/manajemen-santri/InformasiSantriPage'; // Import InformasiSantriPage
+import InformasiSantriPage from '@/pages/manajemen-santri/InformasiSantriPage';
+import NilaiAbsensiPage from '@/pages/manajemen-santri/NilaiAbsensiPage'; // New import
+import BankSantriPage from '@/pages/keuangan/BankSantriPage'; // New import
+import PengumumanPage from '@/pages/informasi/PengumumanPage'; // New import
+import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage'; // New import
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -66,7 +70,11 @@ const App = () => (
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
-            <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} /> {/* New route for InformasiSantriPage */}
+            <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
+            <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} /> {/* New route */}
+            <Route path="/dashboard/bank-santri" element={<BankSantriPage />} /> {/* New route */}
+            <Route path="/dashboard/pengumuman" element={<PengumumanPage />} /> {/* New route */}
+            <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} /> {/* New route for wali santri settings */}
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />

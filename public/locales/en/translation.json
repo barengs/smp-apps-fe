@@ -17,5 +17,16 @@
   "infoSlide5": "Comprehensive reporting and data analysis features.",
   "infoSlide6": "Easy access for guardians to monitor their children's progress.",
   "infoSlide7": "Designed to improve pesantren administration efficiency.",
-  "sidebar.bankSantri": "Student Bank"
+  "sidebar.bankSantri": "Student Bank",
+  "sidebar.gradesAndAttendance": "Grades & Attendance",
+  "sidebar.announcements": "Announcements",
+  "sidebar.settings": "Settings",
+  "gradesAndAttendance.title": "Student Grades and Attendance Page",
+  "gradesAndAttendance.placeholder": "Content for student grades and attendance will be displayed here.",
+  "bankSantri.title": "Student Bank Page",
+  "bankSantri.placeholder": "Content for student bank information will be displayed here.",
+  "announcements.title": "Announcements Page",
+  "announcements.placeholder": "Content for announcements will be displayed here.",
+  "settings.title": "Guardian Settings Page",
+  "settings.placeholder": "Content for guardian settings will be displayed here."
 }

@@ -17,5 +17,16 @@
   "infoSlide5": "ميزات شاملة لإعداد التقارير وتحليل البيانات.",
   "infoSlide6": "سهولة الوصول لأولياء الأمور لمراقبة تقدم أبنائهم.",
   "infoSlide7": "مصمم لتحسين كفاءة إدارة المعهد.",
-  "sidebar.bankSantri": "بنك الطلاب"
+  "sidebar.bankSantri": "بنك الطلاب",
+  "sidebar.gradesAndAttendance": "الدرجات والحضور",
+  "sidebar.announcements": "الإعلانات",
+  "sidebar.settings": "الإعدادات",
+  "gradesAndAttendance.title": "صفحة درجات الطلاب والحضور",
+  "gradesAndAttendance.placeholder": "سيتم عرض محتوى درجات الطلاب والحضور هنا.",
+  "bankSantri.title": "صفحة بنك الطلاب",
+  "bankSantri.placeholder": "سيتم عرض محتوى معلومات بنك الطلاب هنا.",
+  "announcements.title": "صفحة الإعلانات",
+  "announcements.placeholder": "سيتم عرض محتوى الإعلانات هنا.",
+  "settings.title": "صفحة إعدادات ولي الأمر",
+  "settings.placeholder": "سيتم عرض محتوى إعدادات ولي الأمر هنا."
 }
