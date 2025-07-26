@@ -3,7 +3,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, MapPin, UserCheck, Users } from 'lucide-react'; // Import Users icon
+import { User, MapPin, UserCheck, Users } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { GuruTugas } from '@/types/guruTugas';
@@ -13,7 +13,7 @@ const GuruTugasPage: React.FC = () => {
   const { t } = useTranslation();
 
   const breadcrumbItems = [
-    { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> }, // Changed icon to Users
+    { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> },
     { label: t('sidebar.teacherAssignment'), icon: <User className="h-4 w-4" /> },
   ];
 
@@ -73,70 +73,68 @@ const GuruTugasPage: React.FC = () => {
   return (
     <DashboardLayout title={t('sidebar.teacherAssignment')} role="administrasi">
       <CustomBreadcrumb items={breadcrumbItems} />
-      <div className="p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('teacherAssignment.title')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col lg:flex-row gap-4"> {/* Main container for cards and table */}
-              <div className="flex-grow"> {/* Container for table */}
-                <DataTable
-                  columns={columns}
-                  data={data}
-                  exportFileName="DataGuruTugas"
-                  exportTitle="Data Guru Tugas"
-                  onAssignment={handleAssignment}
-                />
-              </div>
-              <div className="flex flex-col gap-4 lg:w-1/4"> {/* Container for cards, stacked vertically */}
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Guru Tugas
-                    </CardTitle>
-                    <User className="h-6 w-6 text-muted-foreground" /> {/* Icon size increased */}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{totalGuruTugas}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Jumlah keseluruhan guru yang ditugaskan
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Wilayah Tugas
-                    </CardTitle>
-                    <MapPin className="h-6 w-6 text-muted-foreground" /> {/* Icon size increased */}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{totalWilayah}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Jumlah wilayah tugas
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Penanggung Jawab
-                    </CardTitle>
-                    <UserCheck className="h-6 w-6 text-muted-foreground" /> {/* Icon size increased */}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{totalPenanggungJawab}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Jumlah penanggung jawab
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
+      <Card> {/* Removed the wrapping div with p-4 */}
+        <CardHeader>
+          <CardTitle>{t('teacherAssignment.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-grow">
+              <DataTable
+                columns={columns}
+                data={data}
+                exportFileName="DataGuruTugas"
+                exportTitle="Data Guru Tugas"
+                onAssignment={handleAssignment}
+              />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex flex-col gap-4 lg:w-1/4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Guru Tugas
+                  </CardTitle>
+                  <User className="h-6 w-6 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalGuruTugas}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Jumlah keseluruhan guru yang ditugaskan
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Wilayah Tugas
+                  </CardTitle>
+                  <MapPin className="h-6 w-6 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalWilayah}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Jumlah wilayah tugas
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Penanggung Jawab
+                  </CardTitle>
+                  <UserCheck className="h-6 w-6 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalPenanggungJawab}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Jumlah penanggung jawab
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </DashboardLayout>
   );
 };
