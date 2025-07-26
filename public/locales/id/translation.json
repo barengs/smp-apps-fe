@@ -45,5 +45,7 @@
   },
   "footer": {
     "copyright": "© {{year}} Pesantren Digital. Semua hak dilindungi."
-  }
+  },
+  "welcomeTitle": "Selamat Datang di Pesantren Digital",
+  "welcomeMessage": "Pesantren Digital adalah platform inovatif yang menghubungkan santri, wali santri, dan staf dalam satu ekosistem digital. Dengan fitur-fitur lengkap yang dirancang untuk memenuhi kebutuhan semua pengguna, kami berkomitmen untuk menciptakan pengalaman belajar yang lebih baik dan lebih terintegrasi."
 }
