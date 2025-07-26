@@ -41,13 +41,35 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
     }
   };
 
+  // Function to clear all parent-related fields
+  const clearParentFields = () => {
+    setValue('kk', '');
+    setValue('firstName', '');
+    setValue('lastName', '');
+    setValue('gender', undefined);
+    setValue('parentAs', undefined);
+    setValue('phone', '');
+    setValue('email', '');
+    setValue('alamatKtp', '');
+    setValue('alamatDomisili', '');
+    setValue('pekerjaanValue', '');
+  };
+
   // Efek untuk menangani hasil dari API call
   useEffect(() => {
     if (isSuccess) {
       if (parentData?.data && Object.keys(parentData.data).length > 0) {
         const data = parentData.data;
         toast.success('Data wali santri ditemukan.');
-        setValue('kk', data.kk || '');
+        
+        // Explicitly validate and set KK
+        const kkFromApi = data.kk;
+        if (typeof kkFromApi === 'string' && /^\d{16}$/.test(kkFromApi)) {
+          setValue('kk', kkFromApi);
+        } else {
+          setValue('kk', ''); // Set to empty if invalid, Zod will handle the error message
+        }
+
         setValue('firstName', data.first_name);
         setValue('lastName', data.last_name || '');
         
@@ -84,9 +106,11 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
         trigger();
       } else {
         toast.error('Data wali belum ada, silahkan isi manual.');
+        clearParentFields(); // Clear fields if no data found
       }
     } else if (isParentError) {
       toast.error('Terjadi kesalahan saat mencari data wali. Silakan coba lagi.');
+      clearParentFields(); // Clear fields on error
     }
   }, [isSuccess, isParentError, parentData, pekerjaanList, setValue, trigger]);
 
