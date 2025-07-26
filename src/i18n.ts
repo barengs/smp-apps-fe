@@ -10,7 +10,7 @@ i18n
   .init({
     supportedLngs: ['id', 'en', 'ar'],
     fallbackLng: 'id',
-    debug: false,
+    debug: true, // Diubah menjadi true untuk debugging
     detection: {
       order: ['queryString', 'cookie'],
       caches: ['cookie'],

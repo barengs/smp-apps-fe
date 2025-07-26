@@ -30,14 +30,30 @@ interface GetStudentsResponse {
 // --- Types for Single Student Detail ---
 
 // Structure for a parent object within the student detail response
-interface ParentDetailData {
-  id: number;
+export interface ParentDetailData { // Added export
+  user_id: number; // Changed from 'id' to 'user_id' based on provided JSON
   first_name: string;
   last_name: string | null;
   parent_as?: string;
+  kk?: string;
+  nik?: string;
+  parent_id?: string | null;
+  gender?: string;
+  card_address?: string;
+  domicile_address?: string | null;
+  village_id?: number | null;
+  phone?: string | null;
+  email?: string | null;
+  occupation?: string | null;
+  education?: string | null;
+  photo?: string | null;
+  photo_path?: string | null;
+  deleted_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
-interface StudentDetailData {
+export interface StudentDetailData { // Added export
   id: number;
   first_name: string;
   last_name: string | null;
@@ -47,7 +63,7 @@ interface StudentDetailData {
   gender: 'L' | 'P';
   status: string;
   program: ProgramApiData;
-  parents: ParentDetailData[] | { [key: string]: ParentDetailData }; // Can be array or object
+  parents: ParentDetailData | ParentDetailData[]; // Adjusted to handle single object or array
   born_in?: string;
   born_at?: string;
   address?: string;

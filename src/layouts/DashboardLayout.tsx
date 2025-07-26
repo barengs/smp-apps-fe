@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -86,15 +86,19 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
       ],
     },
-    { titleKey: "sidebar.activitySchedule", href: "/dashboard/jadwal", icon: <Calendar className="h-5 w-5" /> },
     {
-      titleKey: "sidebar.regionalData",
-      icon: <Map className="h-5 w-5" />,
+      titleKey: "sidebar.information",
+      icon: <Megaphone className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.province", href: "/dashboard/wilayah/provinsi", icon: <Landmark className="h-4 w-4" /> },
-        { titleKey: "sidebar.city", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
-        { titleKey: "sidebar.district", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
-        { titleKey: "sidebar.village", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
+        { titleKey: "sidebar.news", href: "/dashboard/berita", icon: <Newspaper className="h-4 w-4" /> },
+        { titleKey: "sidebar.activitySchedule", href: "/dashboard/jadwal", icon: <Calendar className="h-4 w-4" /> },
+      ],
+    },
+    {
+      titleKey: "sidebar.masterData",
+      icon: <ClipboardList className="h-5 w-5" />,
+      children: [
+        { titleKey: "sidebar.job", href: "/dashboard/master-data/pekerjaan", icon: <Briefcase className="h-4 w-4" /> },
       ],
     },
     {
@@ -111,6 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
     { titleKey: "sidebar.dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
     { titleKey: "sidebar.santriInfo", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
     { titleKey: "sidebar.gradesAndAttendance", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
+    { titleKey: "sidebar.bankSantri", href: "/dashboard/bank-santri", icon: <Landmark className="h-5 w-5" /> }, // Added Bank Santri
     { titleKey: "sidebar.announcements", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
     { titleKey: "sidebar.settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
@@ -164,18 +169,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                       </TooltipTrigger>
                       <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
                     </Tooltip>
-                    <DropdownMenuContent side="right" align="start" className="w-48">
-                      <DropdownMenuLabel>{t(item.titleKey)}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {item.children.map((child) => (
-                        <DropdownMenuItem key={child.href} asChild>
-                          <Link to={child.href} className={cn(location.pathname.startsWith(child.href) && "bg-accent")}>
-                            {child.icon && <div className="mr-2">{child.icon}</div>}
-                            <span>{t(child.titleKey)}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
                   </DropdownMenu>
                 );
               } else {
@@ -243,11 +236,31 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hijriDate, setHijriDate] = useState('');
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    const today = new Date();
+    const formatter = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const parts = formatter.formatToParts(today);
+    let year = '';
+    let month = '';
+    let day = '';
+    for (const part of parts) {
+      if (part.type === 'year') year = part.value;
+      if (part.type === 'month') month = part.value;
+      if (part.type === 'day') day = part.value;
+    }
+    setHijriDate(`${day}, ${month}, ${year}`);
   }, []);
 
   const toggleFullScreen = () => {
@@ -291,9 +304,12 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
           </Button>
         )}
-        <h1 className="text-2xl font-semibold hidden md:block">{title}</h1>
+        <div className="hidden md:block">
+          <h1 className="text-2xl font-semibold">{title}</h1>
+        </div>
       </div>
       <div className="flex items-center space-x-4">
+        <span className="text-sm text-muted-foreground hidden sm:block">{hijriDate}</span>
         <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
           {isFullscreen ? <Minimize className="h-[1.2rem] w-[1.2rem]" /> : <Maximize className="h-[1.2rem] w-[1.2rem]" />}
           <span className="sr-only">{t('header.toggleFullscreen')}</span>

@@ -1,6 +1,31 @@
 {
+  "home": "Beranda",
+  "register": "Daftar",
+  "login": "Masuk",
+  "chooseLanguage": "Pilih Bahasa",
+  "indonesian": "Indonesia",
+  "english": "Inggris",
+  "arabic": "Arab",
+  "footerRights": "Hak Cipta Dilindungi",
+  "welcomeTitle": "Selamat Datang di Sistem Manajemen Pondok",
+  "welcomeSubtitle": "Platform terpadu untuk mengelola data santri, staf, kurikulum, dan informasi pondok pesantren.",
+  "infoTitle": "Informasi Penting",
+  "infoSlide1": "Sistem ini membantu pengelolaan data santri secara efisien.",
+  "infoSlide2": "Manajemen staf dan hak akses yang terintegrasi.",
+  "infoSlide3": "Pengelolaan kurikulum dan jadwal pelajaran yang mudah.",
+  "infoSlide4": "Informasi berita dan pengumuman pondok terkini.",
+  "infoSlide5": "Fitur pelaporan dan analisis data yang komprehensif.",
+  "infoSlide6": "Akses mudah untuk wali santri memantau perkembangan anak.",
+  "infoSlide7": "Dirancang untuk meningkatkan efisiensi administrasi pondok.",
   "sidebar": {
-    "dashboard": "Dashboard",
+    "dashboard": "Dasbor",
+    "santriInfo": "Informasi Santri",
+    "bankSantri": "Bank Santri",
+    "gradesAndAttendance": "Nilai & Absensi",
+    "announcements": "Pengumuman",
+    "settings": "Pengaturan",
+    "news": "Berita",
+    "logout": "Keluar",
     "santriManagement": "Manajemen Santri",
     "santri": "Santri",
     "waliSantri": "Wali Santri",
@@ -8,44 +33,44 @@
     "staff": "Staf",
     "accessRights": "Hak Akses",
     "roles": "Peran",
-    "curriculum": "Kurikulum",
+    "curriculum": "Manajemen Kurikulum",
     "subjects": "Mata Pelajaran",
     "classPromotion": "Kenaikan Kelas",
     "lessonSchedule": "Jadwal Pelajaran",
-    "securityManagement": "Manajemen Kamtib",
+    "pesantrenInfo": "Informasi Pesantren",
+    "securityManagement": "Manajemen Keamanan",
     "violations": "Pelanggaran",
     "educationManagement": "Manajemen Pendidikan",
     "educationLevel": "Jenjang Pendidikan",
     "class": "Kelas",
     "classGroup": "Rombel",
+    "educationGroup": "Kelompok Pendidikan",
     "dormitory": "Asrama",
     "program": "Program",
+    "information": "Informasi",
     "activitySchedule": "Jadwal Kegiatan",
-    "regionalData": "Data Wilayah",
-    "province": "Provinsi",
-    "city": "Kota",
-    "district": "Kecamatan",
-    "village": "Desa",
-    "settings": "Pengaturan",
+    "masterData": "Data Master",
+    "jobs": "Pekerjaan",
     "system": "Sistem",
-    "navigation": "Navigasi",
-    "santriInfo": "Informasi Santri",
-    "gradesAndAttendance": "Nilai & Absensi",
-    "announcements": "Pengumuman",
-    "educationGroup": "Kelompok Pendidikan"
+    "navigation": "Navigasi"
   },
-  "header": {
-    "selectLanguage": "Pilih Bahasa",
-    "toggleFullscreen": "Toggle Layar Penuh",
-    "toggleTheme": "Toggle Tema",
-    "profile": "Profil",
-    "settings": "Pengaturan",
-    "logout": "Keluar",
-    "usernamePlaceholder": "Nama Pengguna"
+  "gradesAndAttendance": {
+    "title": "Halaman Nilai dan Absensi Santri",
+    "placeholder": "Konten untuk nilai dan absensi santri akan ditampilkan di sini."
+  },
+  "bankSantri": {
+    "title": "Halaman Bank Santri",
+    "placeholder": "Konten untuk informasi bank santri akan ditampilkan di sini."
+  },
+  "announcements": {
+    "title": "Halaman Pengumuman",
+    "placeholder": "Konten untuk pengumuman akan ditampilkan di sini."
+  },
+  "settings": {
+    "title": "Halaman Pengaturan Wali Santri",
+    "placeholder": "Konten untuk pengaturan wali santri akan ditampilkan di sini."
   },
   "footer": {
-    "copyright": "© {{year}} Pesantren Digital. Semua hak dilindungi."
-  },
-  "welcomeTitle": "Selamat Datang di Pesantren Digital",
-  "welcomeMessage": "Pesantren Digital adalah platform inovatif yang menghubungkan santri, wali santri, dan staf dalam satu ekosistem digital. Dengan fitur-fitur lengkap yang dirancang untuk memenuhi kebutuhan semua pengguna, kami berkomitmen untuk menciptakan pengalaman belajar yang lebih baik dan lebih terintegrasi."
+    "copyright": "Hak Cipta Dilindungi"
+  }
 }

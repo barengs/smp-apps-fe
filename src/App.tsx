@@ -30,16 +30,23 @@ import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
-import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage"; // Import StaffEditPage
-import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage"; // Import SantriFormPage
-import KelompokPendidikanPage from './pages/manajemen-pendidikan/KelompokPendidikanPage';
+import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
+import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
+import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidikanPage';
+import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
+import BeritaPage from '@/pages/informasi/BeritaPage';
+import InformasiSantriPage from '@/pages/manajemen-santri/InformasiSantriPage';
+import NilaiAbsensiPage from '@/pages/manajemen-santri/NilaiAbsensiPage'; // New import
+import BankSantriPage from '@/pages/keuangan/BankSantriPage'; // New import
+import PengumumanPage from '@/pages/informasi/PengumumanPage'; // New import
+import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage'; // New import
 
 // Redux imports
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { ThemeProvider } from '@/components/theme-provider'; // Import ThemeProvider
+import { ThemeProvider } from '@/components/theme-provider';
 
-import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import { ToastContainer } from 'react-toastify';
 
 const App = () => (
   <Provider store={store}>
@@ -55,14 +62,19 @@ const App = () => (
             <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
             <Route path="/dashboard/staf" element={<StafPage />} />
             <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
-            <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} /> {/* New route for editing staff */}
+            <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
-            <Route path="/dashboard/santri/add" element={<SantriFormPage />} /> {/* New route for adding santri */}
+            <Route path="/dashboard/santri/add" element={<SantriFormPage />} />
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
+            <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
+            <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} /> {/* New route */}
+            <Route path="/dashboard/bank-santri" element={<BankSantriPage />} /> {/* New route */}
+            <Route path="/dashboard/pengumuman" element={<PengumumanPage />} /> {/* New route */}
+            <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} /> {/* New route for wali santri settings */}
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
@@ -78,6 +90,8 @@ const App = () => (
             <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
             <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
             <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
+            <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
+            <Route path="/dashboard/berita" element={<BeritaPage />} />
             <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
             <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} /> 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

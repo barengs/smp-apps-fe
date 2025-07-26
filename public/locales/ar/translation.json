@@ -1,49 +1,89 @@
 {
+  "home": "الرئيسية",
+  "register": "تسجيل",
+  "login": "تسجيل الدخول",
+  "chooseLanguage": "اختر اللغة",
+  "indonesian": "الإندونيسية",
+  "english": "الإنجليزية",
+  "arabic": "العربية",
+  "footerRights": "جميع الحقوق محفوظة",
+  "welcomeTitle": "مرحباً بكم في نظام إدارة المعهد",
+  "welcomeSubtitle": "منصة متكاملة لإدارة بيانات الطلاب والموظفين والمناهج ومعلومات المعهد.",
+  "infoTitle": "معلومات هامة",
+  "infoSlide1": "يساعد هذا النظام في إدارة بيانات الطلاب بكفاءة.",
+  "infoSlide2": "إدارة متكاملة للموظفين وحقوق الوصول.",
+  "infoSlide3": "إدارة سهلة للمناهج وجداول الدروس.",
+  "infoSlide4": "أحدث أخبار وإعلانات المعهد.",
+  "infoSlide5": "ميزات شاملة لإعداد التقارير وتحليل البيانات.",
+  "infoSlide6": "سهولة الوصول لأولياء الأمور لمراقبة تقدم أبنائهم.",
+  "infoSlide7": "مصمم لتحسين كفاءة إدارة المعهد.",
   "sidebar": {
-    "dashboard": "لوحة القيادة",
+    "dashboard": "لوحة المعلومات",
+    "bankSantri": "بنك الطلاب",
+    "gradesAndAttendance": "الدرجات والحضور",
+    "announcements": "الإعلانات",
+    "settings": "الإعدادات",
+    "news": "الأخبار",
+    "logout": "تسجيل الخروج",
     "santriManagement": "إدارة الطلاب",
-    "santri": "طالب",
-    "waliSantri": "ولي أمر الطالب",
+    "santri": "الطلاب",
+    "waliSantri": "أولياء الأمور",
     "staffManagement": "إدارة الموظفين",
     "staff": "الموظفين",
     "accessRights": "حقوق الوصول",
     "roles": "الأدوار",
-    "curriculum": "المنهج الدراسي",
+    "curriculum": "إدارة المناهج",
     "subjects": "المواد الدراسية",
-    "classPromotion": "ترقية الفصل",
+    "classPromotion": "ترقية الصف",
     "lessonSchedule": "جدول الدروس",
-    "securityManagement": "إدارة الأمن",
-    "violations": "المخالفات",
+    "pesantrenInfo": "معلومات المعهد",
+    "securityManagement": "إدارة الأمان",
+    "violations": "الانتهاكات",
     "educationManagement": "إدارة التعليم",
     "educationLevel": "المستوى التعليمي",
-    "class": "الفصل",
-    "classGroup": "مجموعة الفصل",
+    "class": "الصف",
+    "classGroup": "مجموعة الصف",
+    "educationGroup": "مجموعة التعليم",
     "dormitory": "السكن",
     "program": "البرنامج",
+    "information": "المعلومات",
     "activitySchedule": "جدول الأنشطة",
-    "regionalData": "البيانات الإقليمية",
-    "province": "المقاطعة",
-    "city": "المدينة",
-    "district": "المنطقة",
-    "village": "القرية",
-    "settings": "الإعدادات",
+    "masterData": "البيانات الرئيسية",
+    "job": "الوظائف",
     "system": "النظام",
-    "navigation": "التنقل",
-    "santriInfo": "معلومات الطالب",
-    "gradesAndAttendance": "الدرجات والحضور",
-    "announcements": "الإعلانات",
-    "educationGroup": "مجموعة التعليم"
+    "navigation": "التنقل"
   },
-  "header": {
-    "selectLanguage": "اختار اللغة",
-    "toggleFullscreen": "تبديل وضع ملء الشاشة",
-    "toggleTheme": "تبديل السمة",
-    "profile": "الملف الشخصي",
-    "settings": "الإعدادات",
-    "logout": "تسجيل الخروج",
-    "usernamePlaceholder": "اسم المستخدم"
+  "gradesAndAttendance": {
+    "title": "صفحة درجات الطلاب والحضور",
+    "placeholder": "سيتم عرض محتوى درجات الطلاب والحضور هنا."
+  },
+  "bankSantri": {
+    "title": "صفحة بنك الطلاب",
+    "placeholder": "سيتم عرض محتوى معلومات بنك الطلاب هنا."
+  },
+  "announcements": {
+    "title": "صفحة الإعلانات",
+    "placeholder": "سيتم عرض محتوى الإعلانات هنا."
+  },
+  "settings": {
+    "title": "صفحة إعدادات ولي الأمر",
+    "placeholder": "سيتم عرض محتوى إعدادات ولي الأمر هنا."
+  },
+  "welcome": {
+    "title": "مرحباً بكم في نظام إدارة المعهد",
+    "subtitle": "منصة متكاملة لإدارة بيانات الطلاب والموظفين والمناهج ومعلومات المعهد."
+  },
+  "info": {
+    "title": "معلومات هامة",
+    "slide1": "يساعد هذا النظام في إدارة بيانات الطلاب بكفاءة.",
+    "slide2": "إدارة متكاملة للموظفين وحقوق الوصول.",
+    "slide3": "إدارة سهلة للمناهج وجداول الدروس.",
+    "slide4": "أحدث أخبار وإعلانات المعهد.",
+    "slide5": "ميزات شاملة لإعداد التقارير وتحليل البيانات.",
+    "slide6": "سهولة الوصول لأولياء الأمور لمراقبة تقدم أبنائهم.",
+    "slide7": "مصمم لتحسين كفاءة إدارة المعهد."
   },
   "footer": {
-    "copyright": "© {{year}} بيسانترين الرقمية. كل الحقوق محفوظة."
+    "rights": "جميع الحقوق محفوظة"
   }
 }

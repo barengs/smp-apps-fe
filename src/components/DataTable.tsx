@@ -211,6 +211,11 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
+          {onAddData && (
+            <Button onClick={onAddData}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
+            </Button>
+          )}
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -249,11 +254,6 @@ export function DataTable<TData, TValue>({
           })}
         </div>
         <div className="flex space-x-2">
-          {onAddData && (
-            <Button onClick={onAddData}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
-            </Button>
-          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">

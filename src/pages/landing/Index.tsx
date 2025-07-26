@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import LandingLayout from '../../layouts/LandingLayout';
-import { BookOpenText, Info } from 'lucide-react';
+import { BookOpenText, Info } from 'lucide-react'; // Import Info icon
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import type { CarouselApi } from '@/components/ui/carousel';
 import { useTranslation } from 'react-i18next';
+import { useGetBeritaQuery } from '@/store/slices/beritaApi';
+import RunningText from '@/components/RunningText';
 
 const Index = () => {
   const { t } = useTranslation();
@@ -35,8 +37,24 @@ const Index = () => {
     };
   }, [api, autoplayInterval]);
 
+  // Fetch news data
+  const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
+  const newsTitles = useMemo(() => {
+    if (newsData?.data) {
+      return newsData.data.map(newsItem => newsItem.title);
+    }
+    return [];
+  }, [newsData]);
+
   return (
     <LandingLayout title={t('welcomeTitle')}>
+      {/* Running Text Section */}
+      {!isNewsLoading && !isNewsError && newsTitles.length > 0 && (
+        <div className="w-full">
+          <RunningText items={newsTitles} />
+        </div>
+      )}
+
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
         <div className="text-center mb-12">
           <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
@@ -59,8 +77,9 @@ const Index = () => {
                 <CarouselItem key={index} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <div className="p-1">
                     <Card>
-                      <CardContent className="flex aspect-square items-center justify-center p-6 bg-blue-100 rounded-lg">
-                        <span className="text-lg font-semibold text-blue-800 text-center">{slide}</span>
+                      <CardContent className="flex flex-col items-center justify-center p-6 bg-blue-100 rounded-lg text-center">
+                        <Info className="h-12 w-12 text-blue-600 mb-4" /> {/* Added Info icon */}
+                        <span className="text-lg font-semibold text-blue-800">{slide}</span>
                       </CardContent>
                     </Card>
                   </div>
