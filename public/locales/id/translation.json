@@ -17,5 +17,12 @@
   "infoSlide5": "Fitur pelaporan dan analisis data yang komprehensif.",
   "infoSlide6": "Akses mudah untuk wali santri memantau perkembangan anak.",
   "infoSlide7": "Dirancang untuk meningkatkan efisiensi administrasi pondok.",
-  "sidebar.bankSantri": "Bank Santri"
+  "sidebar": {
+    "bankSantri": "Bank Santri",
+    "gradesAndAttendance": "Nilai dan Kehadiran",
+    "dashboard": "Dasbor",
+    "santriInfo": "Informasi Santri",
+    "announcements": "Pengumuman",
+    "settings": "Pengaturan"
+  }
 }
