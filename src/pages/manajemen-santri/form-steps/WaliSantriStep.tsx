@@ -129,7 +129,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
                 <FormItem>
                   <FormLabel>Nomor Kartu Keluarga (KK)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: 320xxxxxxxxxxxxx" maxLength={16} />
+                    <Input {...field} placeholder="Contoh: 320xxxxxxxxxxxxxx" maxLength={16} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
