@@ -17,16 +17,60 @@
   "infoSlide5": "Fitur pelaporan dan analisis data yang komprehensif.",
   "infoSlide6": "Akses mudah untuk wali santri memantau perkembangan anak.",
   "infoSlide7": "Dirancang untuk meningkatkan efisiensi administrasi pondok.",
-  "sidebar.bankSantri": "Bank Santri",
-  "sidebar.gradesAndAttendance": "Nilai & Absensi",
-  "sidebar.announcements": "Pengumuman",
-  "sidebar.settings": "Pengaturan",
-  "gradesAndAttendance.title": "Halaman Nilai dan Absensi Santri",
-  "gradesAndAttendance.placeholder": "Konten untuk nilai dan absensi santri akan ditampilkan di sini.",
-  "bankSantri.title": "Halaman Bank Santri",
-  "bankSantri.placeholder": "Konten untuk informasi bank santri akan ditampilkan di sini.",
-  "announcements.title": "Halaman Pengumuman",
-  "announcements.placeholder": "Konten untuk pengumuman akan ditampilkan di sini.",
-  "settings.title": "Halaman Pengaturan Wali Santri",
-  "settings.placeholder": "Konten untuk pengaturan wali santri akan ditampilkan di sini."
+  "sidebar": {
+    "dashboard": "Dasbor",
+    "santriInfo": "Informasi Santri",
+    "bankSantri": "Bank Santri",
+    "gradesAndAttendance": "Nilai & Absensi",
+    "announcements": "Pengumuman",
+    "settings": "Pengaturan",
+    "news": "Berita",
+    "logout": "Keluar",
+    "santriManagement": "Manajemen Santri",
+    "santri": "Santri",
+    "waliSantri": "Wali Santri",
+    "staffManagement": "Manajemen Staf",
+    "staff": "Staf",
+    "accessRights": "Hak Akses",
+    "roles": "Peran",
+    "curriculum": "Manajemen Kurikulum",
+    "subjects": "Mata Pelajaran",
+    "classPromotion": "Kenaikan Kelas",
+    "lessonSchedule": "Jadwal Pelajaran",
+    "pesantrenInfo": "Informasi Pesantren",
+    "securityManagement": "Manajemen Keamanan",
+    "violations": "Pelanggaran",
+    "educationManagement": "Manajemen Pendidikan",
+    "educationLevel": "Jenjang Pendidikan",
+    "class": "Kelas",
+    "classGroup": "Rombel",
+    "educationGroup": "Kelompok Pendidikan",
+    "dormitory": "Asrama",
+    "program": "Program",
+    "information": "Informasi",
+    "activitySchedule": "Jadwal Kegiatan",
+    "masterData": "Data Master",
+    "jobs": "Pekerjaan",
+    "system": "Sistem",
+    "navigation": "Navigasi"
+  },
+  "gradesAndAttendance": {
+    "title": "Halaman Nilai dan Absensi Santri",
+    "placeholder": "Konten untuk nilai dan absensi santri akan ditampilkan di sini."
+  },
+  "bankSantri": {
+    "title": "Halaman Bank Santri",
+    "placeholder": "Konten untuk informasi bank santri akan ditampilkan di sini."
+  },
+  "announcements": {
+    "title": "Halaman Pengumuman",
+    "placeholder": "Konten untuk pengumuman akan ditampilkan di sini."
+  },
+  "settings": {
+    "title": "Halaman Pengaturan Wali Santri",
+    "placeholder": "Konten untuk pengaturan wali santri akan ditampilkan di sini."
+  },
+  "footer": {
+    "copyright": "Hak Cipta Dilindungi"
+  }
 }
