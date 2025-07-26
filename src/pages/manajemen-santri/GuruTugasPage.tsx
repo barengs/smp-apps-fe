@@ -7,6 +7,7 @@ import { User } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { GuruTugas } from '@/types/guruTugas';
+import * as toast from '@/utils/toast'; // Import toast utility
 
 const GuruTugasPage: React.FC = () => {
   const { t } = useTranslation();
@@ -59,6 +60,11 @@ const GuruTugasPage: React.FC = () => {
     { id: "10", nis: "GT010", nama: "Ustadzah Zainab", periode: "2023/2024", wilayahTugas: "Tangerang", penanggungJawab: "Kepala Sekolah" },
   ];
 
+  const handleAssignment = () => {
+    toast.showWarning("Tombol 'Penugasan' diklik!"); // Changed showInfo to showWarning
+    // Logic for assignment will go here
+  };
+
   return (
     <DashboardLayout title={t('sidebar.teacherAssignment')} role="administrasi">
       <CustomBreadcrumb items={breadcrumbItems} />
@@ -73,6 +79,7 @@ const GuruTugasPage: React.FC = () => {
               data={data}
               exportFileName="DataGuruTugas"
               exportTitle="Data Guru Tugas"
+              onAssignment={handleAssignment} // Pass the handler to DataTable
             />
           </CardContent>
         </Card>

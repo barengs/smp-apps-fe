@@ -31,11 +31,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle, Upload } from 'lucide-react';
+import { ChevronDown, FileDown, Search, PlusCircle, Upload, FileText } from 'lucide-react'; // Added FileText icon
 import * as toast from '@/utils/toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import *as XLSX from 'xlsx';
 import {
   Select,
   SelectContent,
@@ -62,6 +62,7 @@ export interface DataTableProps<TData, TValue> {
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   isLoading?: boolean;
+  onAssignment?: () => void; // New prop for assignment button
 }
 
 function hasAccessorKey<TData>(
@@ -84,6 +85,7 @@ export function DataTable<TData, TValue>({
   pagination: controlledPagination,
   onPaginationChange: setControlledPagination,
   isLoading = false,
+  onAssignment, // Destructure new prop
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -281,6 +283,12 @@ export function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
           
+          {onAssignment && ( // New button for assignment
+            <Button variant="outline" onClick={onAssignment}>
+              <FileText className="mr-2 h-4 w-4" /> Penugasan
+            </Button>
+          )}
+
           {onImportData && (
             <Button variant="outline" onClick={onImportData}>
               <Upload className="mr-2 h-4 w-4" /> Impor
