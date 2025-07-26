@@ -32,5 +32,8 @@
   "sidebar.province": "Provinsi",
   "sidebar.city": "Kota",
   "sidebar.district": "Kecamatan",
-  "sidebar.village": "Desa"
+  "sidebar.village": "Desa",
+  "sidebar.teacherAssignment": "Guru Tugas",
+  "teacherAssignment.title": "Halaman Guru Tugas",
+  "teacherAssignment.placeholder": "Konten untuk manajemen guru tugas akan ditampilkan di sini."
 }

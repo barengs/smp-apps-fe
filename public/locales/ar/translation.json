@@ -32,5 +32,8 @@
   "sidebar.province": "المحافظة",
   "sidebar.city": "المدينة",
   "sidebar.district": "المنطقة",
-  "sidebar.village": "القرية"
+  "sidebar.village": "القرية",
+  "sidebar.teacherAssignment": "تعيين المعلم",
+  "teacherAssignment.title": "صفحة تعيين المعلم",
+  "teacherAssignment.placeholder": "سيتم عرض محتوى إدارة تعيين المعلم هنا."
 }

@@ -36,10 +36,11 @@ import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidi
 import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
 import BeritaPage from '@/pages/informasi/BeritaPage';
 import InformasiSantriPage from '@/pages/manajemen-santri/InformasiSantriPage';
-import NilaiAbsensiPage from '@/pages/manajemen-santri/NilaiAbsensiPage'; // New import
-import BankSantriPage from '@/pages/keuangan/BankSantriPage'; // New import
-import PengumumanPage from '@/pages/informasi/PengumumanPage'; // New import
-import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage'; // New import
+import NilaiAbsensiPage from '@/pages/manajemen-santri/NilaiAbsensiPage';
+import BankSantriPage from '@/pages/keuangan/BankSantriPage';
+import PengumumanPage from '@/pages/informasi/PengumumanPage';
+import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
+import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage'; // New import
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -71,10 +72,11 @@ const App = () => (
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
             <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
-            <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} /> {/* New route */}
-            <Route path="/dashboard/bank-santri" element={<BankSantriPage />} /> {/* New route */}
-            <Route path="/dashboard/pengumuman" element={<PengumumanPage />} /> {/* New route */}
-            <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} /> {/* New route for wali santri settings */}
+            <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
+            <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
+            <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
+            <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
+            <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} /> {/* New route for Guru Tugas */}
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />

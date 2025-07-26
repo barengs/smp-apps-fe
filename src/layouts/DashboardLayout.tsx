@@ -10,7 +10,7 @@ import { MadeWithDyad } from '@/components/made-with-dyad';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/components/theme-provider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'; // Fixed '=>' to 'from'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from 'react-i18next';
 
 interface DashboardLayoutProps {
@@ -47,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       children: [
         { titleKey: "sidebar.santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
         { titleKey: "sidebar.waliSantri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
+        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> }, // New sub-menu
       ],
     },
     {
@@ -172,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
                       <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
-                    </Tooltip> {/* Added missing closing Tooltip tag */}
+                    </Tooltip>
                   </DropdownMenu>
                 );
               } else {

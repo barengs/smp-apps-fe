@@ -32,5 +32,8 @@
   "sidebar.province": "Province",
   "sidebar.city": "City",
   "sidebar.district": "District",
-  "sidebar.village": "Village"
+  "sidebar.village": "Village",
+  "sidebar.teacherAssignment": "Teacher Assignment",
+  "teacherAssignment.title": "Teacher Assignment Page",
+  "teacherAssignment.placeholder": "Content for teacher assignment management will be displayed here."
 }
