@@ -6,6 +6,10 @@ import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck } from 'lucide-r
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
+import EventCalendar from '@/components/EventCalendar'; // Import EventCalendar
+import { useGetActivitiesQuery } from '@/store/slices/activityApi'; // Import useGetActivitiesQuery
+import { Kegiatan } from '@/types/kegiatan'; // Import Kegiatan type
+import { format } from 'date-fns'; // Import format for date conversion
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
   <Card className="transition-all hover:shadow-md">
@@ -35,6 +39,29 @@ const StatCardSkeleton: React.FC = () => (
 
 const AdministrasiDashboard: React.FC = () => {
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
+  const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
+
+  const kegiatanList: Kegiatan[] = React.useMemo(() => {
+    if (!activitiesData?.data) return [];
+    return activitiesData.data.map(apiKegiatan => ({
+      id: apiKegiatan.id,
+      date: new Date(apiKegiatan.date),
+      name: apiKegiatan.name,
+      description: apiKegiatan.description,
+      status: apiKegiatan.status === 'inactive' ? 'Selesai' : 'Belum Selesai',
+    }));
+  }, [activitiesData]);
+
+  // Placeholder functions for onDateClick and onEventClick
+  const handleDateClick = (date: Date) => {
+    console.log('Date clicked on dashboard calendar:', format(date, 'yyyy-MM-dd'));
+    // You can add more interactive logic here if needed, e.g., open a modal
+  };
+
+  const handleEventClick = (kegiatan: Kegiatan) => {
+    console.log('Event clicked on dashboard calendar:', kegiatan.name);
+    // You can add more interactive logic here if needed
+  };
 
   return (
     <DashboardLayout title="Dashboard Administrasi" role="administrasi">
@@ -85,7 +112,7 @@ const AdministrasiDashboard: React.FC = () => {
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
         <div className="flex flex-wrap gap-4">
-          <Link to="/dashboard/santri/add"> {/* Mengubah Button menjadi Link */}
+          <Link to="/dashboard/santri/add">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
             </Button>
@@ -97,6 +124,23 @@ const AdministrasiDashboard: React.FC = () => {
             Kelola Pengumuman
           </Button>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Jadwal Kegiatan</h2>
+        {isLoadingActivities ? (
+          <div className="text-center text-muted-foreground py-4">
+            Memuat jadwal kegiatan...
+          </div>
+        ) : isErrorActivities ? (
+          <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
+        ) : (
+          <EventCalendar
+            kegiatanList={kegiatanList}
+            onDateClick={handleDateClick}
+            onEventClick={handleEventClick}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

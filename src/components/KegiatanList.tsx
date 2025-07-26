@@ -7,7 +7,7 @@ import { MoreHorizontal, Edit, CheckCircle, XCircle, Trash2 } from 'lucide-react
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Kegiatan } from '@/pages/manajemen-pendidikan/JadwalKegiatanPage';
+import { Kegiatan } from '@/types/kegiatan'; // Updated import path
 
 interface KegiatanListProps {
   kegiatanList: Kegiatan[];

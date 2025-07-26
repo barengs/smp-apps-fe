@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Kegiatan } from '@/pages/manajemen-pendidikan/JadwalKegiatanPage';
+import { Kegiatan } from '@/types/kegiatan'; // Updated import path
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 

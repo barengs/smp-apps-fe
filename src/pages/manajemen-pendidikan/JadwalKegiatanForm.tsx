@@ -12,7 +12,7 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import type { Kegiatan } from './JadwalKegiatanPage';
+import type { Kegiatan } from '@/types/kegiatan'; // Updated import path
 
 const formSchema = z.object({
   name: z.string().min(3, { message: 'Nama kegiatan harus memiliki minimal 3 karakter.' }),

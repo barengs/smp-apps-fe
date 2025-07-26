@@ -13,18 +13,11 @@ import { useGetActivitiesQuery, useCreateActivityMutation, useUpdateActivityMuta
 import { format } from 'date-fns';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { Kegiatan } from '@/types/kegiatan'; // Updated import path
 
 // Type guard kustom untuk isFetchBaseQueryError
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
   return typeof error === 'object' && error != null && 'status' in error;
-}
-
-export interface Kegiatan {
-  id: number;
-  date: Date;
-  name: string; // Changed from title
-  description?: string;
-  status: 'Selesai' | 'Belum Selesai'; // Frontend status
 }
 
 const JadwalKegiatanPage: React.FC = () => {
