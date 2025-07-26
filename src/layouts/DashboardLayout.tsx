@@ -115,6 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
     { titleKey: "sidebar.dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
     { titleKey: "sidebar.santriInfo", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
     { titleKey: "sidebar.gradesAndAttendance", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
+    { titleKey: "sidebar.bankSantri", href: "/dashboard/bank-santri", icon: <Landmark className="h-5 w-5" /> }, // Added Bank Santri
     { titleKey: "sidebar.announcements", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
     { titleKey: "sidebar.settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
