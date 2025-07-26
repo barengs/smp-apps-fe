@@ -218,6 +218,11 @@ export function DataTable<TData, TValue>({
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
             </Button>
           )}
+          {onAssignment && (
+            <Button onClick={onAssignment}>
+              <FileText className="mr-2 h-4 w-4" /> Penugasan
+            </Button>
+          )}
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -283,12 +288,6 @@ export function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
           
-          {onAssignment && ( // New button for assignment
-            <Button variant="outline" onClick={onAssignment}>
-              <FileText className="mr-2 h-4 w-4" /> Penugasan
-            </Button>
-          )}
-
           {onImportData && (
             <Button variant="outline" onClick={onImportData}>
               <Upload className="mr-2 h-4 w-4" /> Impor
