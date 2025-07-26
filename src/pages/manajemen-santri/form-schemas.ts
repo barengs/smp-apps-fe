@@ -7,7 +7,7 @@ const fileSchema = z.any()
 export const santriFormSchema = z.object({
   // Step 1: Wali Santri
   nik: z.string({ required_error: "NIK wajib diisi." }).length(16, "NIK harus 16 digit."),
-  kk: z.string({ required_error: "Nomor KK wajib diisi." }).length(16, "Nomor KK harus 16 digit."),
+  kk: z.string({ required_error: "Nomor KK wajib diisi." }).regex(/^\d{16}$/, "Nomor KK harus 16 digit angka."),
   firstName: z.string({ required_error: "Nama depan wali wajib diisi." }).min(1, "Nama depan wali wajib diisi."),
   lastName: z.string().optional(),
   gender: z.enum(['L', 'P'], { required_error: "Jenis kelamin wali wajib dipilih." }),
