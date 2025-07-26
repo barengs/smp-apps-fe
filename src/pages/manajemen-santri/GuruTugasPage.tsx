@@ -3,11 +3,11 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User } from 'lucide-react';
+import { User, MapPin, UserCheck } from 'lucide-react'; // Import new icons
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { GuruTugas } from '@/types/guruTugas';
-import * as toast from '@/utils/toast'; // Import toast utility
+import * as toast from '@/utils/toast';
 
 const GuruTugasPage: React.FC = () => {
   const { t } = useTranslation();
@@ -60,8 +60,13 @@ const GuruTugasPage: React.FC = () => {
     { id: "10", nis: "GT010", nama: "Ustadzah Zainab", periode: "2023/2024", wilayahTugas: "Tangerang", penanggungJawab: "Kepala Sekolah" },
   ];
 
+  // Calculate totals for the info cards
+  const totalGuruTugas = data.length;
+  const totalWilayah = new Set(data.map(item => item.wilayahTugas)).size;
+  const totalPenanggungJawab = new Set(data.map(item => item.penanggungJawab)).size;
+
   const handleAssignment = () => {
-    toast.showWarning("Tombol 'Penugasan' diklik!"); // Changed showInfo to showWarning
+    toast.showWarning("Tombol 'Penugasan' diklik!");
     // Logic for assignment will go here
   };
 
@@ -74,12 +79,56 @@ const GuruTugasPage: React.FC = () => {
             <CardTitle>{t('teacherAssignment.title')}</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+              <Card className="col-span-1">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Guru Tugas
+                  </CardTitle>
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalGuruTugas}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Jumlah keseluruhan guru yang ditugaskan
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="col-span-1">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Wilayah Tugas
+                  </CardTitle>
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalWilayah}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Jumlah wilayah tugas yang berbeda
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="col-span-1">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Penanggung Jawab
+                  </CardTitle>
+                  <UserCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalPenanggungJawab}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Jumlah penanggung jawab yang berbeda
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
             <DataTable
               columns={columns}
               data={data}
               exportFileName="DataGuruTugas"
               exportTitle="Data Guru Tugas"
-              onAssignment={handleAssignment} // Pass the handler to DataTable
+              onAssignment={handleAssignment}
             />
           </CardContent>
         </Card>
