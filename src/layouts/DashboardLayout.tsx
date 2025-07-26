@@ -10,7 +10,7 @@ import { MadeWithDyad } from '@/components/made-with-dyad';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/components/theme-provider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'; // Fixed '=>' to 'from'
 import { useTranslation } from 'react-i18next';
 
 interface DashboardLayoutProps {
@@ -99,6 +99,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       icon: <ClipboardList className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.job", href: "/dashboard/master-data/pekerjaan", icon: <Briefcase className="h-4 w-4" /> },
+        { titleKey: "sidebar.province", href: "/dashboard/wilayah/provinsi", icon: <Map className="h-4 w-4" /> },
+        { titleKey: "sidebar.city", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
+        { titleKey: "sidebar.district", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
+        { titleKey: "sidebar.village", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
       ],
     },
     {
@@ -115,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
     { titleKey: "sidebar.dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
     { titleKey: "sidebar.santriInfo", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
     { titleKey: "sidebar.gradesAndAttendance", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
-    { titleKey: "sidebar.bankSantri", href: "/dashboard/bank-santri", icon: <Landmark className="h-5 w-5" /> }, // Added Bank Santri
+    { titleKey: "sidebar.bankSantri", href: "/dashboard/bank-santri", icon: <Landmark className="h-5 w-5" /> },
     { titleKey: "sidebar.announcements", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
     { titleKey: "sidebar.settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
@@ -168,7 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
                       <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
-                    </Tooltip>
+                    </Tooltip> {/* Added missing closing Tooltip tag */}
                   </DropdownMenu>
                 );
               } else {

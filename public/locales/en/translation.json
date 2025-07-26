@@ -17,56 +17,20 @@
   "infoSlide5": "Comprehensive reporting and data analysis features.",
   "infoSlide6": "Easy access for guardians to monitor their children's progress.",
   "infoSlide7": "Designed to improve pesantren administration efficiency.",
-  "sidebar": {
-    "dashboard": "Dashboard",
-    "bankSantri": "Student Bank",
-    "gradesAndAttendance": "Grades & Attendance",
-    "announcements": "Announcements",
-    "settings": "Settings",
-    "news": "News",
-    "logout": "Logout",
-    "santriManagement": "Student Management",
-    "santri": "Students",
-    "waliSantri": "Guardians",
-    "staffManagement": "Staff Management",
-    "staff": "Staff",
-    "accessRights": "Access Rights",
-    "roles": "Roles",
-    "curriculum": "Curriculum Management",
-    "subjects": "Subjects",
-    "classPromotion": "Class Promotion",
-    "lessonSchedule": "Lesson Schedule",
-    "pesantrenInfo": "Pesantren Information",
-    "securityManagement": "Security Management",
-    "violations": "Violations",
-    "educationManagement": "Education Management",
-    "educationLevel": "Education Level",
-    "class": "Class",
-    "classGroup": "Class Group",
-    "educationGroup": "Education Group",
-    "dormitory": "Dormitory",
-    "program": "Program",
-    "information": "Information",
-    "activitySchedule": "Activity Schedule",
-    "masterData": "Master Data",
-    "job": "Jobs",
-    "system": "System",
-    "navigation": "Navigation"
-  },
-  "gradesAndAttendance": {
-    "title": "Student Grades and Attendance Page",
-    "placeholder": "Content for student grades and attendance will be displayed here."
-  },
-  "bankSantri": {
-    "title": "Student Bank Page",
-    "placeholder": "Content for student bank information will be displayed here."
-  },
-  "announcements": {
-    "title": "Announcements Page",
-    "placeholder": "Content for announcements will be displayed here."
-  },
-  "settings": {
-    "title": "Guardian Settings Page",
-    "placeholder": "Content for guardian settings will be displayed here."
-  }
+  "sidebar.bankSantri": "Student Bank",
+  "sidebar.gradesAndAttendance": "Grades & Attendance",
+  "sidebar.announcements": "Announcements",
+  "sidebar.settings": "Settings",
+  "gradesAndAttendance.title": "Student Grades and Attendance Page",
+  "gradesAndAttendance.placeholder": "Content for student grades and attendance will be displayed here.",
+  "bankSantri.title": "Student Bank Page",
+  "bankSantri.placeholder": "Content for student bank information will be displayed here.",
+  "announcements.title": "Announcements Page",
+  "announcements.placeholder": "Content for announcements will be displayed here.",
+  "settings.title": "Guardian Settings Page",
+  "settings.placeholder": "Content for guardian settings will be displayed here.",
+  "sidebar.province": "Province",
+  "sidebar.city": "City",
+  "sidebar.district": "District",
+  "sidebar.village": "Village"
 }
