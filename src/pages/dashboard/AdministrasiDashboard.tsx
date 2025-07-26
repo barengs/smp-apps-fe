@@ -135,11 +135,13 @@ const AdministrasiDashboard: React.FC = () => {
         ) : isErrorActivities ? (
           <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
         ) : (
-          <EventCalendar
-            kegiatanList={kegiatanList}
-            onDateClick={handleDateClick}
-            onEventClick={handleEventClick}
-          />
+          <div className="w-full lg:w-1/2"> {/* Added wrapper div with responsive width */}
+            <EventCalendar
+              kegiatanList={kegiatanList}
+              onDateClick={handleDateClick}
+              onEventClick={handleEventClick}
+            />
+          </div>
         )}
       </div>
     </DashboardLayout>
