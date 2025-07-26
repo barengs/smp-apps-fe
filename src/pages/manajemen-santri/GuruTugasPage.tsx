@@ -3,7 +3,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, MapPin, UserCheck } from 'lucide-react'; // Import new icons
+import { User, MapPin, UserCheck, Users } from 'lucide-react'; // Import Users icon
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { GuruTugas } from '@/types/guruTugas';
@@ -13,7 +13,7 @@ const GuruTugasPage: React.FC = () => {
   const { t } = useTranslation();
 
   const breadcrumbItems = [
-    { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <User className="h-4 w-4" /> },
+    { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> }, // Changed icon to Users
     { label: t('sidebar.teacherAssignment'), icon: <User className="h-4 w-4" /> },
   ];
 
