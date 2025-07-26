@@ -95,7 +95,7 @@ const GuruTugasPage: React.FC = () => {
                     <CardTitle className="text-sm font-medium">
                       Total Guru Tugas
                     </CardTitle>
-                    <User className="h-4 w-4 text-muted-foreground" />
+                    <User className="h-6 w-6 text-muted-foreground" /> {/* Icon size increased */}
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{totalGuruTugas}</div>
@@ -109,12 +109,12 @@ const GuruTugasPage: React.FC = () => {
                     <CardTitle className="text-sm font-medium">
                       Total Wilayah Tugas
                     </CardTitle>
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <MapPin className="h-6 w-6 text-muted-foreground" /> {/* Icon size increased */}
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{totalWilayah}</div>
                     <p className="text-xs text-muted-foreground">
-                      Jumlah wilayah tugas yang berbeda
+                      Jumlah wilayah tugas
                     </p>
                   </CardContent>
                 </Card>
@@ -123,12 +123,12 @@ const GuruTugasPage: React.FC = () => {
                     <CardTitle className="text-sm font-medium">
                       Total Penanggung Jawab
                     </CardTitle>
-                    <UserCheck className="h-4 w-4 text-muted-foreground" />
+                    <UserCheck className="h-6 w-6 text-muted-foreground" /> {/* Icon size increased */}
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{totalPenanggungJawab}</div>
                     <p className="text-xs text-muted-foreground">
-                      Jumlah penanggung jawab yang berbeda
+                      Jumlah penanggung jawab
                     </p>
                   </CardContent>
                 </Card>
