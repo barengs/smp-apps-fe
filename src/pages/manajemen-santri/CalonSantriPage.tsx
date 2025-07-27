@@ -103,10 +103,10 @@ const CalonSantriPage: React.FC = () => {
   return (
     <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
       <div className="container mx-auto px-4">
-        <div className="pb-4"> {/* Changed py-4 to pb-4 */}
+        <div className=""> {/* Removed pb-4 */}
           <CustomBreadcrumb items={breadcrumbItems} />
         </div>
-        <div className="pt-4"> {/* Added pt-4 here */}
+        <div className=""> {/* Removed pt-4 */}
           <Card>
             <CardContent className="p-4">
               {isLoading ? (
