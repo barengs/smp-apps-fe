@@ -198,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                           to={child.href}
                           className={cn(
                             "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
-                            location.pathname.startsWith(child.href)
+                            location.pathname === child.href // Changed from startsWith to exact match
                               ? "bg-sidebar-primary text-sidebar-primary-foreground"
                               : "hover:bg-sidebar-accent/80"
                           )}
