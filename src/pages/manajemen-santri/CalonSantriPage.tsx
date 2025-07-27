@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added CardHeader, CardTitle
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
@@ -106,9 +106,11 @@ const CalonSantriPage: React.FC = () => {
         <div className="mb-4">
           <CustomBreadcrumb items={breadcrumbItems} />
         </div>
-        <h2 className="text-2xl font-bold mb-4">Pendaftaran Calon Santri</h2> {/* Added this line */}
         <div className="">
           <Card>
+            <CardHeader> {/* Added CardHeader */}
+              <CardTitle>Pendaftaran Calon Santri</CardTitle> {/* Added CardTitle */}
+            </CardHeader>
             <CardContent className="p-4">
               {isLoading ? (
                 <TableLoadingSkeleton />
