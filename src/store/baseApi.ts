@@ -35,9 +35,10 @@ export const smpApi = createApi({
     'ClassGroup',
     'Menu',
     'EducationGroup',
-    'Pekerjaan', // Tambahkan tag type baru
+    'Pekerjaan',
     'Activity',
-    'Berita', // Tambahkan tag type 'Berita'
+    'Berita',
+    'CalonSantri', // Tambahkan tag type baru di sini
   ],
   endpoints: () => ({}),
 });
