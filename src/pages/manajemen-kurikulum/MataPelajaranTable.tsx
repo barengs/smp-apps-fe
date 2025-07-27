@@ -16,7 +16,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  // DialogTrigger, // DialogTrigger dihapus karena tombol akan dirender oleh DataTable
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -30,7 +30,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import MataPelajaranForm from './MataPelajaranForm';
-import * as toast from '@/utils/toast'; // Perbaikan di sini
+import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
 const MataPelajaranTable: React.FC = () => {
@@ -52,6 +52,12 @@ const MataPelajaranTable: React.FC = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     refetch();
+  };
+
+  // Fungsi untuk menangani klik tombol 'Tambah Data' dari DataTable
+  const handleAddDataClick = () => {
+    setSelectedStudy(undefined); // Reset selected study for new entry
+    setIsFormOpen(true); // Open the form dialog
   };
 
   const columns: ColumnDef<MataPelajaran>[] = [
@@ -126,24 +132,22 @@ const MataPelajaranTable: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-end mb-4">
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setSelectedStudy(undefined)}>Tambah Mata Pelajaran</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{selectedStudy ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran'}</DialogTitle>
-            </DialogHeader>
-            <MataPelajaranForm onSuccess={handleFormSuccess} initialData={selectedStudy} />
-          </DialogContent>
-        </Dialog>
-      </div>
+      {/* Dialog ini sekarang dikontrol oleh state isFormOpen */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        {/* DialogTrigger dihapus */}
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{selectedStudy ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran'}</DialogTitle>
+          </DialogHeader>
+          <MataPelajaranForm onSuccess={handleFormSuccess} initialData={selectedStudy} />
+        </DialogContent>
+      </Dialog>
       <DataTable
         columns={columns}
         data={studies || []}
         exportFileName="DaftarMataPelajaran"
         exportTitle="Daftar Mata Pelajaran"
+        onAddData={handleAddDataClick} // Meneruskan fungsi untuk tombol 'Tambah Data'
       />
     </div>
   );
