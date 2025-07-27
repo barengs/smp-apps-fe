@@ -103,10 +103,11 @@ const CalonSantriPage: React.FC = () => {
   return (
     <DashboardLayout title="Pendaftaran Calon Santri" role="administrasi">
       <div className="container mx-auto px-4">
-        <div className=""> {/* Removed pb-4 */}
+        <div className="mb-4">
           <CustomBreadcrumb items={breadcrumbItems} />
         </div>
-        <div className=""> {/* Removed pt-4 */}
+        <h2 className="text-2xl font-bold mb-4">Pendaftaran Calon Santri</h2> {/* Added this line */}
+        <div className="">
           <Card>
             <CardContent className="p-4">
               {isLoading ? (
