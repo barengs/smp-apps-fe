@@ -109,7 +109,7 @@ const SantriFormPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
-      <div className="container mx-auto pb-8 px-4">
+      <div className="container mx-auto -mt-4 pb-8 px-4"> {/* Added -mt-4 here */}
         <CustomBreadcrumb items={breadcrumbItems} />
 
         <div className="mb-8">
