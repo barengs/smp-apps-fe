@@ -4,7 +4,7 @@ import { CalonSantri } from '@/types/calonSantri';
 export const calonSantriApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCalonSantri: builder.query<CalonSantri[], void>({
-      query: () => 'calon-santri', // Asumsi endpoint untuk calon santri adalah '/api/calon-santri'
+      query: () => 'registration', // Mengubah endpoint menjadi '/registration'
       providesTags: ['CalonSantri'],
       transformResponse: (response: any) => response.data, // Asumsi data berada di dalam properti 'data'
     }),
