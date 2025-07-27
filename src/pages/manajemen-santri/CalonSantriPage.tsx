@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added CardHeader, CardTitle
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'; // Added CardDescription
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
@@ -102,30 +102,27 @@ const CalonSantriPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Pendaftaran Calon Santri" role="administrasi">
-      <div className="container mx-auto px-4">
-        <div className="mb-4">
-          <CustomBreadcrumb items={breadcrumbItems} />
-        </div>
-        <div className="">
-          <Card>
-            <CardHeader> {/* Added CardHeader */}
-              <CardTitle>Pendaftaran Calon Santri</CardTitle> {/* Added CardTitle */}
-            </CardHeader>
-            <CardContent className="p-4">
-              {isLoading ? (
-                <TableLoadingSkeleton />
-              ) : (
-                <DataTable
-                  columns={columns}
-                  data={calonSantri || []}
-                  exportFileName="calon_santri"
-                  exportTitle="Data Calon Santri"
-                  onAddData={handleAddData}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </div>
+      <div className="container mx-auto py-4 px-4"> {/* Added py-4 for consistency */}
+        <CustomBreadcrumb items={breadcrumbItems} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Pendaftaran Calon Santri</CardTitle>
+            <CardDescription>Kelola daftar calon santri yang mendaftar di sistem.</CardDescription> {/* Added CardDescription */}
+          </CardHeader>
+          <CardContent> {/* Removed className="p-4" for consistency */}
+            {isLoading ? (
+              <TableLoadingSkeleton />
+            ) : (
+              <DataTable
+                columns={columns}
+                data={calonSantri || []}
+                exportFileName="calon_santri"
+                exportTitle="Data Calon Santri"
+                onAddData={handleAddData}
+              />
+            )}
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
