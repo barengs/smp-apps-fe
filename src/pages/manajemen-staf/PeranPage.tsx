@@ -13,7 +13,7 @@ const PeranPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Manajemen Peran" role="administrasi">
-      <div className="container mx-auto py-4 px-4">
+      <div className="container mx-auto px-4 pb-4"> {/* Changed py-4 px-4 to px-4 pb-4 */}
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
