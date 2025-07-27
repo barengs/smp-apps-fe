@@ -21,6 +21,7 @@ import './slices/classGroupApi';
 import './slices/menuApi'; // Import the new menu slice
 import './slices/pekerjaanApi'; // Import the new pekerjaan slice
 import './slices/beritaApi'; // Import the new berita slice
+import './slices/studyApi'; // Import the new study slice
 
 export const store = configureStore({
   reducer: {

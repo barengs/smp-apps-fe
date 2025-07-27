@@ -1,1 +1,5 @@
-// File ini sengaja dikosongkan setelah penghapusan fitur.
+export interface MataPelajaran {
+  id: string;
+  name: string;
+  description: string;
+}
