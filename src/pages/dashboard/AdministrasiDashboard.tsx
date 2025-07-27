@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,11 @@ import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck } from 'lucide-r
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
-import EventCalendar from '@/components/EventCalendar'; // Import EventCalendar
-import { useGetActivitiesQuery } from '@/store/slices/activityApi'; // Import useGetActivitiesQuery
-import { Kegiatan } from '@/types/kegiatan'; // Import Kegiatan type
-import { format } from 'date-fns'; // Import format for date conversion
+import EventCalendar from '@/components/EventCalendar';
+import { useGetActivitiesQuery } from '@/store/slices/activityApi';
+import { Kegiatan } from '@/types/kegiatan';
+import { format } from 'date-fns';
+import ActivityDetailModal from '@/components/ActivityDetailModal'; // Import ActivityDetailModal
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
   <Card className="transition-all hover:shadow-md">
@@ -41,6 +42,9 @@ const AdministrasiDashboard: React.FC = () => {
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
   const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
 
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State untuk modal
+  const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null); // State untuk kegiatan yang dipilih
+
   const kegiatanList: Kegiatan[] = React.useMemo(() => {
     if (!activitiesData?.data) return [];
     return activitiesData.data.map(apiKegiatan => ({
@@ -52,15 +56,18 @@ const AdministrasiDashboard: React.FC = () => {
     }));
   }, [activitiesData]);
 
-  // Placeholder functions for onDateClick and onEventClick
   const handleDateClick = (date: Date) => {
     console.log('Date clicked on dashboard calendar:', format(date, 'yyyy-MM-dd'));
-    // You can add more interactive logic here if needed, e.g., open a modal
   };
 
   const handleEventClick = (kegiatan: Kegiatan) => {
-    console.log('Event clicked on dashboard calendar:', kegiatan.name);
-    // You can add more interactive logic here if needed
+    setSelectedKegiatan(kegiatan);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedKegiatan(null);
   };
 
   return (
@@ -135,7 +142,7 @@ const AdministrasiDashboard: React.FC = () => {
         ) : isErrorActivities ? (
           <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
         ) : (
-          <div className="w-full lg:w-1/2"> {/* Added wrapper div with responsive width */}
+          <div className="w-full lg:w-1/2">
             <EventCalendar
               kegiatanList={kegiatanList}
               onDateClick={handleDateClick}
@@ -144,6 +151,12 @@ const AdministrasiDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ActivityDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        kegiatan={selectedKegiatan}
+      />
     </DashboardLayout>
   );
 };
