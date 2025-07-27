@@ -1,25 +1,55 @@
 {
-  "welcomeTitle": "Selamat Datang di Sistem Informasi Pesantren",
-  "welcomeSubtitle": "Platform terintegrasi untuk mengelola semua aspek pendidikan dan administrasi pesantren.",
-  "infoTitle": "Informasi Terkini",
-  "infoSlide1": "Pendaftaran Santri Baru Telah Dibuka",
-  "infoSlide2": "Jadwal Ujian Akhir Semester",
-  "infoSlide3": "Kegiatan Lomba Antar Kelas",
-  "infoSlide4": "Informasi Pembayaran SPP",
-  "infoSlide5": "Pengumuman Libur Idul Fitri",
-  "infoSlide6": "Program Tahfidz Quran Intensif",
-  "infoSlide7": "Jadwal Ekstrakurikuler Terbaru",
+  "home": "Beranda",
+  "register": "Daftar",
+  "login": "Masuk",
+  "chooseLanguage": "Pilih Bahasa",
+  "indonesian": "Bahasa Indonesia",
+  "english": "Inggris",
+  "arabic": "Arab",
+  "footerRights": "Hak Cipta Dilindungi",
   "sidebar": {
     "dashboard": "Dasbor",
+    "santriManagement": "Manajemen Santri",
+    "santri": "Santri",
+    "registration": "Pendaftaran",
+    "waliSantri": "Wali Santri",
+    "teacherAssignment": "Guru Tugas",
+    "staffManagement": "Manajemen Staf",
+    "staff": "Staf",
+    "accessRights": "Hak Akses",
+    "roles": "Peran",
+    "curriculum": "Kurikulum",
+    "subjects": "Mata Pelajaran",
+    "classPromotion": "Kenaikan Kelas",
+    "lessonSchedule": "Jadwal Pelajaran",
+    "securityManagement": "Manajemen Keamanan & Ketertiban",
+    "violations": "Pelanggaran",
+    "educationManagement": "Manajemen Pendidikan",
+    "educationLevel": "Jenjang Pendidikan",
+    "class": "Kelas",
+    "classGroup": "Rombongan Belajar",
+    "educationGroup": "Kelompok Pendidikan",
+    "dormitory": "Asrama",
+    "program": "Program",
+    "information": "Informasi",
+    "news": "Berita",
+    "activitySchedule": "Jadwal Kegiatan",
+    "masterData": "Data Master",
+    "job": "Pekerjaan",
+    "province": "Provinsi",
+    "city": "Kota",
+    "district": "Kecamatan",
+    "village": "Desa",
+    "settings": "Pengaturan",
+    "system": "Sistem",
+    "navigation": "Navigasi",
     "santriInfo": "Informasi Santri",
     "gradesAndAttendance": "Nilai & Absensi",
     "bankSantri": "Bank Santri",
-    "announcements": "Pengumuman",
-    "settings": "Pengaturan"
+    "announcements": "Pengumuman"
   },
   "header": {
     "toggleFullscreen": "Alihkan Layar Penuh",
-    "toggleTheme": "Alihkan Tema",
     "selectLanguage": "Pilih Bahasa",
     "profile": "Profil",
     "settings": "Pengaturan",
@@ -27,7 +57,7 @@
     "usernamePlaceholder": "Nama Pengguna"
   },
   "footer": {
-    "copyright": "Hak Cipta © {{year}} SMP. Semua Hak Dilindungi."
+    "copyright": "Hak Cipta © {{year}}"
   },
   "waliSantriDashboard": {
     "title": "Dasbor Wali Santri",
@@ -45,10 +75,10 @@
       "fiqh": "Fiqih"
     },
     "attendance": {
-      "title": "Absensi",
-      "present": "Hadir: {{count}} hari",
-      "permission": "Izin: {{count}} hari",
-      "sick": "Sakit: {{count}} hari"
+      "title": "Kehadiran",
+      "present": "Hadir: {{count}}",
+      "permission": "Izin: {{count}}",
+      "sick": "Sakit: {{count}}"
     },
     "announcements": {
       "title": "Pengumuman",
