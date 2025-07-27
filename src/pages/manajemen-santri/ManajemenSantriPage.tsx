@@ -16,7 +16,7 @@ const ManajemenSantriPage: React.FC = () => {
   ];
 
   const handleAddSantri = () => {
-    navigate('/dashboard/santri/pendaftaran/add'); // Updated navigation path
+    navigate('/dashboard/pendaftaran-santri/add');
   };
 
   return (

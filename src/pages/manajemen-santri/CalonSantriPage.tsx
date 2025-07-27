@@ -18,14 +18,14 @@ import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'; // Added CardDescription
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: calonSantri, isLoading, isError, error } = useGetCalonSantriQuery();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
+    { label: 'Dashboard', href: '/dashboard/administrasi' },
     { label: 'Pendaftaran Santri Baru', icon: <UserPlus className="h-4 w-4" /> },
   ];
 
@@ -75,7 +75,7 @@ const CalonSantriPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate(`/dashboard/santri/pendaftaran/${santri.id}`)}>
+              <DropdownMenuItem onClick={() => navigate(`/dashboard/pendaftaran-santri/${santri.id}`)}>
                 Lihat Detail
               </DropdownMenuItem>
               <DropdownMenuItem>Terima</DropdownMenuItem>
@@ -88,7 +88,7 @@ const CalonSantriPage: React.FC = () => {
   ];
 
   const handleAddData = () => {
-    navigate('/dashboard/santri/pendaftaran/add');
+    navigate('/dashboard/pendaftaran-santri/add');
   };
 
   if (isError) {
@@ -102,14 +102,14 @@ const CalonSantriPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Pendaftaran Calon Santri" role="administrasi">
-      <div className="container mx-auto py-4 px-4"> {/* Added py-4 for consistency */}
+      <div className="container mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
             <CardTitle>Pendaftaran Calon Santri</CardTitle>
-            <CardDescription>Kelola daftar calon santri yang mendaftar di sistem.</CardDescription> {/* Added CardDescription */}
+            <CardDescription>Kelola daftar calon santri yang mendaftar di sistem.</CardDescription>
           </CardHeader>
-          <CardContent> {/* Removed className="p-4" for consistency */}
+          <CardContent>
             {isLoading ? (
               <TableLoadingSkeleton />
             ) : (

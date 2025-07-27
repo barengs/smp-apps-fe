@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       icon: <Users className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
-        { titleKey: "sidebar.registration", href: "/dashboard/santri/pendaftaran", icon: <UserPlus className="h-4 w-4" /> },
+        { titleKey: "sidebar.registration", href: "/dashboard/pendaftaran-santri", icon: <UserPlus className="h-4 w-4" /> },
         { titleKey: "sidebar.waliSantri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
         { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
       ],
@@ -154,15 +154,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       <div className="flex-grow p-2 pt-4 space-y-1 overflow-y-auto">
         <Accordion type="single" collapsible className="w-full space-y-1" defaultValue={defaultOpenItem} key={isCollapsed ? 'collapsed' : 'expanded'}>
           {sidebarNavItems.map((item) => {
-            // Determine if the current item or any of its children are active
-            const isActive = item.children
-              ? item.children.some(c => location.pathname.startsWith(c.href))
-              : location.pathname.startsWith(item.href ?? '___');
+            const isActive = item.children?.some(c => location.pathname.startsWith(c.href)) ?? location.pathname.startsWith(item.href ?? '___');
 
             if (item.children) {
-              // Item has children (Accordion or Dropdown)
               if (isCollapsed) {
-                // Collapsed state: Dropdown Menu with Tooltip
                 return (
                   <DropdownMenu key={item.titleKey}>
                     <Tooltip>
@@ -193,7 +188,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                   </DropdownMenu>
                 );
               } else {
-                // Expanded state: Accordion Item
                 return (
                   <AccordionItem value={item.titleKey} key={item.titleKey} className="border-none">
                     <AccordionTrigger
@@ -228,7 +222,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                 );
               }
             } else {
-              // Item has no children (direct Link)
               if (isCollapsed) {
                 return (
                   <Tooltip key={item.titleKey}>
@@ -238,7 +231,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         className={cn(
                           "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                           isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
-                          "justify-center" // Always centered when collapsed
+                          "justify-center"
                         )}
                       >
                         {item.icon}
@@ -256,7 +249,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                       isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
-                      "px-4" // Always padded when expanded
+                      "px-4"
                     )}
                   >
                     {item.icon}

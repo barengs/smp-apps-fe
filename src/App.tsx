@@ -67,11 +67,16 @@ const App = () => (
             <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
             <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
             <Route path="/dashboard/peran" element={<PeranPage />} />
+            
+            {/* Santri Management Routes */}
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
-            <Route path="/dashboard/santri/add" element={<SantriFormPage />} />
-            <Route path="/dashboard/santri/pendaftaran/add" element={<SantriFormPage />} />
-            <Route path="/dashboard/santri/pendaftaran" element={<CalonSantriPage />} />
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
+            
+            {/* Santri Registration Routes */}
+            <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
+            <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
+            <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} /> {/* Route for viewing/editing prospective santri */}
+
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
             <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
             <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
@@ -79,7 +84,7 @@ const App = () => (
             <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
             <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
             <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
-            <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} /> {/* New route for Guru Tugas */}
+            <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
             <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
             <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
             <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
