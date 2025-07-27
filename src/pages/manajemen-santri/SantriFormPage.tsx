@@ -53,7 +53,7 @@ const SantriFormPage: React.FC = () => {
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
-    { label: 'Tambah Santri', icon: <UserPlus className="h-4 w-4" /> },
+    { label: 'Pendaftaran', icon: <UserPlus className="h-4 w-4" /> },
   ];
 
   const nextStep = async () => {
@@ -112,7 +112,7 @@ const SantriFormPage: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout title="Tambah Santri Baru" role="administrasi">
+    <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
       <div className="container mx-auto pb-8 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
 
