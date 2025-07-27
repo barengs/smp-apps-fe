@@ -46,8 +46,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       icon: <Users className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
+        { titleKey: "sidebar.registration", href: "/dashboard/santri/add", icon: <UserPlus className="h-4 w-4" /> }, // New submenu item
         { titleKey: "sidebar.waliSantri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
-        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> }, // New sub-menu
+        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
       ],
     },
     {
@@ -173,7 +174,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
                       <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
-                    </Tooltip>
+                    </Tooltip> {/* Added closing Tooltip tag here */}
                   </DropdownMenu>
                 );
               } else {
