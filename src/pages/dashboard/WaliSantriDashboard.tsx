@@ -1,47 +1,50 @@
 import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 const WaliSantriDashboard: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
-    <DashboardLayout title="Dashboard Wali Santri" role="wali-santri">
+    <DashboardLayout title={t('waliSantriDashboard.title')} role="wali-santri">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Informasi Santri</CardTitle>
+            <CardTitle>{t('waliSantriDashboard.santriInfo.title')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Nama: Ahmad Fulan</p>
-            <p>Kelas: X IPA</p>
-            <p>Status: Aktif</p>
+            <p>{t('waliSantriDashboard.santriInfo.name')}: Ahmad Fulan</p>
+            <p>{t('waliSantriDashboard.santriInfo.class')}: X IPA</p>
+            <p>{t('waliSantriDashboard.santriInfo.status')}: {t('waliSantriDashboard.santriInfo.statusValue')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Nilai Terbaru</CardTitle>
+            <CardTitle>{t('waliSantriDashboard.latestGrades.title')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Matematika: 90</p>
-            <p>Bahasa Arab: 85</p>
-            <p>Fiqih: 92</p>
+            <p>{t('waliSantriDashboard.latestGrades.math')}: 90</p>
+            <p>{t('waliSantriDashboard.latestGrades.arabic')}: 85</p>
+            <p>{t('waliSantriDashboard.latestGrades.fiqh')}: 92</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Absensi</CardTitle>
+            <CardTitle>{t('waliSantriDashboard.attendance.title')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Hadir: 20 hari</p>
-            <p>Izin: 1 hari</p>
-            <p>Sakit: 0 hari</p>
+            <p>{t('waliSantriDashboard.attendance.present', { count: 20 })}</p>
+            <p>{t('waliSantriDashboard.attendance.permission', { count: 1 })}</p>
+            <p>{t('waliSantriDashboard.attendance.sick', { count: 0 })}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Pengumuman</CardTitle>
+            <CardTitle>{t('waliSantriDashboard.announcements.title')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Tidak ada pengumuman baru.</p>
+            <p>{t('waliSantriDashboard.announcements.noNew')}</p>
           </CardContent>
         </Card>
       </div>

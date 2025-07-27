@@ -1,44 +1,21 @@
 {
+  "welcomeTitle": "Welcome to the Pesantren Information System",
+  "welcomeSubtitle": "An integrated platform to manage all aspects of pesantren education and administration.",
+  "infoTitle": "Latest Information",
+  "infoSlide1": "New Student Registration is Open",
+  "infoSlide2": "Final Exam Schedule",
+  "infoSlide3": "Inter-Class Competition Activities",
+  "infoSlide4": "Tuition Fee Payment Information",
+  "infoSlide5": "Eid Al-Fitr Holiday Announcement",
+  "infoSlide6": "Intensive Quran Memorization Program",
+  "infoSlide7": "Latest Extracurricular Schedule",
   "sidebar": {
     "dashboard": "Dashboard",
-    "santriManagement": "Santri Management",
-    "santri": "Santri",
-    "registration": "Registration",
-    "waliSantri": "Parent/Guardian",
-    "teacherAssignment": "Teacher Assignment",
-    "staffManagement": "Staff Management",
-    "staff": "Staff",
-    "accessRights": "Access Rights",
-    "roles": "Roles",
-    "curriculum": "Curriculum",
-    "subjects": "Subjects",
-    "classPromotion": "Class Promotion",
-    "lessonSchedule": "Lesson Schedule",
-    "securityManagement": "Security Management",
-    "violations": "Violations",
-    "educationManagement": "Education Management",
-    "educationLevel": "Education Level",
-    "class": "Class",
-    "classGroup": "Class Group",
-    "educationGroup": "Education Group",
-    "dormitory": "Dormitory",
-    "program": "Program",
-    "information": "Information",
-    "news": "News",
-    "activitySchedule": "Activity Schedule",
-    "masterData": "Master Data",
-    "job": "Job",
-    "province": "Province",
-    "city": "City",
-    "district": "District",
-    "village": "Village",
-    "settings": "Settings",
-    "system": "System",
-    "navigation": "Navigation",
-    "santriInfo": "Santri Info",
+    "santriInfo": "Student Info",
     "gradesAndAttendance": "Grades & Attendance",
-    "bankSantri": "Santri Bank",
-    "announcements": "Announcements"
+    "bankSantri": "Student Bank",
+    "announcements": "Announcements",
+    "settings": "Settings"
   },
   "header": {
     "toggleFullscreen": "Toggle Fullscreen",
@@ -51,5 +28,31 @@
   },
   "footer": {
     "copyright": "Copyright © {{year}} SMP. All Rights Reserved."
+  },
+  "waliSantriDashboard": {
+    "title": "Guardian Dashboard",
+    "santriInfo": {
+      "title": "Student Information",
+      "name": "Name",
+      "class": "Class",
+      "status": "Status",
+      "statusValue": "Active"
+    },
+    "latestGrades": {
+      "title": "Latest Grades",
+      "math": "Mathematics",
+      "arabic": "Arabic Language",
+      "fiqh": "Fiqh"
+    },
+    "attendance": {
+      "title": "Attendance",
+      "present": "Present: {{count}} days",
+      "permission": "Permission: {{count}} days",
+      "sick": "Sick: {{count}} days"
+    },
+    "announcements": {
+      "title": "Announcements",
+      "noNew": "No new announcements."
+    }
   }
 }

@@ -1,44 +1,21 @@
 {
+  "welcomeTitle": "Selamat Datang di Sistem Informasi Pesantren",
+  "welcomeSubtitle": "Platform terintegrasi untuk mengelola semua aspek pendidikan dan administrasi pesantren.",
+  "infoTitle": "Informasi Terkini",
+  "infoSlide1": "Pendaftaran Santri Baru Telah Dibuka",
+  "infoSlide2": "Jadwal Ujian Akhir Semester",
+  "infoSlide3": "Kegiatan Lomba Antar Kelas",
+  "infoSlide4": "Informasi Pembayaran SPP",
+  "infoSlide5": "Pengumuman Libur Idul Fitri",
+  "infoSlide6": "Program Tahfidz Quran Intensif",
+  "infoSlide7": "Jadwal Ekstrakurikuler Terbaru",
   "sidebar": {
     "dashboard": "Dasbor",
-    "santriManagement": "Manajemen Santri",
-    "santri": "Santri",
-    "registration": "Pendaftaran",
-    "waliSantri": "Wali Santri",
-    "teacherAssignment": "Guru Tugas",
-    "staffManagement": "Manajemen Staf",
-    "staff": "Staf",
-    "accessRights": "Hak Akses",
-    "roles": "Peran",
-    "curriculum": "Kurikulum",
-    "subjects": "Mata Pelajaran",
-    "classPromotion": "Kenaikan Kelas",
-    "lessonSchedule": "Jadwal Pelajaran",
-    "securityManagement": "Manajemen Kamtib",
-    "violations": "Pelanggaran",
-    "educationManagement": "Manajemen Pendidikan",
-    "educationLevel": "Jenjang Pendidikan",
-    "class": "Kelas",
-    "classGroup": "Rombel",
-    "educationGroup": "Kelompok Pendidikan",
-    "dormitory": "Asrama",
-    "program": "Program",
-    "information": "Informasi",
-    "news": "Berita",
-    "activitySchedule": "Jadwal Kegiatan",
-    "masterData": "Master Data",
-    "job": "Pekerjaan",
-    "province": "Provinsi",
-    "city": "Kota",
-    "district": "Kecamatan",
-    "village": "Desa",
-    "settings": "Pengaturan",
-    "system": "Sistem",
-    "navigation": "Navigasi",
     "santriInfo": "Informasi Santri",
     "gradesAndAttendance": "Nilai & Absensi",
     "bankSantri": "Bank Santri",
-    "announcements": "Pengumuman"
+    "announcements": "Pengumuman",
+    "settings": "Pengaturan"
   },
   "header": {
     "toggleFullscreen": "Alihkan Layar Penuh",
@@ -51,5 +28,31 @@
   },
   "footer": {
     "copyright": "Hak Cipta © {{year}} SMP. Semua Hak Dilindungi."
+  },
+  "waliSantriDashboard": {
+    "title": "Dasbor Wali Santri",
+    "santriInfo": {
+      "title": "Informasi Santri",
+      "name": "Nama",
+      "class": "Kelas",
+      "status": "Status",
+      "statusValue": "Aktif"
+    },
+    "latestGrades": {
+      "title": "Nilai Terbaru",
+      "math": "Matematika",
+      "arabic": "Bahasa Arab",
+      "fiqh": "Fiqih"
+    },
+    "attendance": {
+      "title": "Absensi",
+      "present": "Hadir: {{count}} hari",
+      "permission": "Izin: {{count}} hari",
+      "sick": "Sakit: {{count}} hari"
+    },
+    "announcements": {
+      "title": "Pengumuman",
+      "noNew": "Tidak ada pengumuman baru."
+    }
   }
 }

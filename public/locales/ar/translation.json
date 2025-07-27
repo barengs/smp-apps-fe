@@ -1,49 +1,26 @@
 {
+  "welcomeTitle": "أهلاً بكم في نظام معلومات المعهد",
+  "welcomeSubtitle": "منصة متكاملة لإدارة جميع جوانب التعليم والإدارة في المعهد.",
+  "infoTitle": "أحدث المعلومات",
+  "infoSlide1": "فتح باب التسجيل للطلاب الجدد",
+  "infoSlide2": "جدول الامتحانات النهائية",
+  "infoSlide3": "أنشطة المسابقات بين الفصول",
+  "infoSlide4": "معلومات دفع الرسوم الدراسية",
+  "infoSlide5": "إعلان عطلة عيد الفطر",
+  "infoSlide6": "برنامج تحفيظ القرآن المكثف",
+  "infoSlide7": "أحدث جدول للأنشطة اللاصفية",
   "sidebar": {
-    "dashboard": "لوحة القيادة",
-    "santriManagement": "إدارة الطلاب",
-    "santri": "الطلاب",
-    "registration": "تسجيل",
-    "waliSantri": "ولي الأمر",
-    "teacherAssignment": "تعيين المعلم",
-    "staffManagement": "إدارة الموظفين",
-    "staff": "الموظفين",
-    "accessRights": "حقوق الوصول",
-    "roles": "الأدوار",
-    "curriculum": "المنهج الدراسي",
-    "subjects": "المواد الدراسية",
-    "classPromotion": "ترقية الصف",
-    "lessonSchedule": "جدول الحصص",
-    "securityManagement": "إدارة الأمن",
-    "violations": "المخالفات",
-    "educationManagement": "إدارة التعليم",
-    "educationLevel": "المستوى التعليمي",
-    "class": "الفصل",
-    "classGroup": "مجموعة الفصل",
-    "educationGroup": "المجموعة التعليمية",
-    "dormitory": "السكن الداخلي",
-    "program": "البرنامج",
-    "information": "المعلومات",
-    "news": "الأخبار",
-    "activitySchedule": "جدول الأنشطة",
-    "masterData": "البيانات الرئيسية",
-    "job": "الوظيفة",
-    "province": "المحافظة",
-    "city": "المدينة",
-    "district": "المنطقة",
-    "village": "القرية",
-    "settings": "الإعدادات",
-    "system": "النظام",
-    "navigation": "التنقل",
+    "dashboard": "لوحة التحكم",
     "santriInfo": "معلومات الطالب",
     "gradesAndAttendance": "الدرجات والحضور",
-    "bankSantri": "بنك الطلاب",
-    "announcements": "الإعلانات"
+    "bankSantri": "بنك الطالب",
+    "announcements": "الإعلانات",
+    "settings": "الإعدادات"
   },
   "header": {
     "toggleFullscreen": "تبديل وضع ملء الشاشة",
     "toggleTheme": "تبديل السمة",
-    "selectLanguage": "اختر اللغة",
+    "selectLanguage": "اختار اللغة",
     "profile": "الملف الشخصي",
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
@@ -51,5 +28,31 @@
   },
   "footer": {
     "copyright": "حقوق النشر © {{year}} SMP. جميع الحقوق محفوظة."
+  },
+  "waliSantriDashboard": {
+    "title": "لوحة تحكم ولي الأمر",
+    "santriInfo": {
+      "title": "معلومات الطالب",
+      "name": "الاسم",
+      "class": "الفصل",
+      "status": "الحالة",
+      "statusValue": "نشط"
+    },
+    "latestGrades": {
+      "title": "أحدث الدرجات",
+      "math": "الرياضيات",
+      "arabic": "اللغة العربية",
+      "fiqh": "الفقه"
+    },
+    "attendance": {
+      "title": "الحضور",
+      "present": "حاضر: {{count}} يوم",
+      "permission": "إذن: {{count}} يوم",
+      "sick": "مريض: {{count}} يوم"
+    },
+    "announcements": {
+      "title": "الإعلانات",
+      "noNew": "لا توجد إعلانات جديدة."
+    }
   }
 }
