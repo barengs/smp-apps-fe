@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { Card, CardContent } from '@/components/ui/card'; // Import Card and CardContent
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
@@ -104,17 +105,21 @@ const CalonSantriPage: React.FC = () => {
       <div className="container mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="py-4">
-          {isLoading ? (
-            <TableLoadingSkeleton />
-          ) : (
-            <DataTable
-              columns={columns}
-              data={calonSantri || []}
-              exportFileName="calon_santri"
-              exportTitle="Data Calon Santri"
-              onAddData={handleAddData}
-            />
-          )}
+          <Card>
+            <CardContent className="p-4">
+              {isLoading ? (
+                <TableLoadingSkeleton />
+              ) : (
+                <DataTable
+                  columns={columns}
+                  data={calonSantri || []}
+                  exportFileName="calon_santri"
+                  exportTitle="Data Calon Santri"
+                  onAddData={handleAddData}
+                />
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>
