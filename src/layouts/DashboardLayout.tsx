@@ -183,7 +183,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     <AccordionTrigger
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
-                        isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                        isActive && "bg-sidebar-primary text-sidebar-primary-foreground"
                       )}
                     >
                       <div className="flex items-center flex-grow">
@@ -199,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                           className={cn(
                             "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
                             location.pathname.startsWith(child.href)
-                              ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
                               : "hover:bg-sidebar-accent/80"
                           )}
                         >
@@ -219,7 +219,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                       to={item.href || "#"}
                       className={cn(
                         "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
+                        isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
                         isCollapsed ? "justify-center" : "px-4"
                       )}
                     >
