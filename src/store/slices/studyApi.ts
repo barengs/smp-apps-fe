@@ -5,6 +5,7 @@ export const studyApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getStudies: builder.query<MataPelajaran[], void>({
       query: () => 'master/study',
+      transformResponse: (response: { data: MataPelajaran[] }) => response.data, // Menambahkan baris ini
       providesTags: ['Study'],
     }),
     getStudyById: builder.query<MataPelajaran, string>({
