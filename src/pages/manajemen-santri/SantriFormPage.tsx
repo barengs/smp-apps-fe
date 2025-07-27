@@ -53,7 +53,8 @@ const SantriFormPage: React.FC = () => {
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
-    { label: 'Pendaftaran', icon: <UserPlus className="h-4 w-4" /> },
+    { label: 'Pendaftaran Santri Baru', href: '/dashboard/santri/pendaftaran', icon: <UserPlus className="h-4 w-4" /> },
+    { label: 'Tambah Data', icon: <UserPlus className="h-4 w-4" /> },
   ];
 
   const nextStep = async () => {

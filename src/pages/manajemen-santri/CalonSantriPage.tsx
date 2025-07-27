@@ -88,7 +88,7 @@ const CalonSantriPage: React.FC = () => {
   ];
 
   const handleAddData = () => {
-    navigate('/dashboard/santri/add');
+    navigate('/dashboard/santri/pendaftaran/add');
   };
 
   if (isError) {

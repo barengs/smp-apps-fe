@@ -69,6 +69,7 @@ const App = () => (
             <Route path="/dashboard/peran" element={<PeranPage />} />
             <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
             <Route path="/dashboard/santri/add" element={<SantriFormPage />} />
+            <Route path="/dashboard/santri/pendaftaran/add" element={<SantriFormPage />} />
             <Route path="/dashboard/santri/pendaftaran" element={<CalonSantriPage />} />
             <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
             <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
