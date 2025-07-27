@@ -94,14 +94,14 @@ const CalonSantriPage: React.FC = () => {
   if (isError) {
     console.error("Error fetching calon santri:", error);
     return (
-      <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
+      <DashboardLayout title="Pendaftaran Calon Santri" role="administrasi">
         <div className="text-red-500">Terjadi kesalahan saat memuat data. Silakan cek konsol untuk detail.</div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
+    <DashboardLayout title="Pendaftaran Calon Santri" role="administrasi">
       <div className="container mx-auto px-4">
         <div className=""> {/* Removed pb-4 */}
           <CustomBreadcrumb items={breadcrumbItems} />
