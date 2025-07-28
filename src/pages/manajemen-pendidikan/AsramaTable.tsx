@@ -96,6 +96,11 @@ const AsramaTable: React.FC = () => {
   const columns: ColumnDef<Asrama>[] = useMemo(
     () => [
       {
+        header: 'No',
+        id: 'rowNumber',
+        cell: ({ row }) => row.index + 1,
+      },
+      {
         accessorKey: 'name',
         header: 'Nama Asrama',
       },
