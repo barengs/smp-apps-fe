@@ -41,10 +41,17 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      // Type assertion here to tell TypeScript that 'values' conforms to 'LoginRequest'
-      await login(values as LoginRequest).unwrap();
-      toast.showSuccess('Login berhasil! Mengarahkan ke dasbor...');
-      navigate('/dashboard');
+      const loginResult = await login(values as LoginRequest).unwrap();
+      toast.showSuccess('Login berhasil!');
+
+      const loggedInUser = loginResult.user;
+
+      if (loggedInUser && loggedInUser.roles && loggedInUser.roles.some(role => role.name === 'orangtua')) {
+        navigate('/dashboard/wali-santri');
+      } else {
+        navigate('/dashboard/administrasi');
+      }
+
     } catch (err) {
       const error = err as FetchBaseQueryError;
       let errorMessage = 'Login gagal. Periksa kembali kredensial Anda.';
