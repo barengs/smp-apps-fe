@@ -122,13 +122,6 @@ const AsramaTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              <Button
-                variant="destructive"
-                className="h-8 px-2 text-xs"
-                onClick={() => handleDeleteClick(asrama)}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
-              </Button>
             </div>
           );
         },
