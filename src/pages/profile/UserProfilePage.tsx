@@ -30,18 +30,17 @@ const UserProfilePage: React.FC = () => {
   if (isLoading) {
     return (
       <DashboardLayout title={t('profilePage.title')} role="administrasi">
-        <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-start">
-          {/* Skeleton untuk Photo Card */}
-          <Card className="w-36 h-48 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-            <CardContent className="p-0 w-full h-full flex items-center justify-center">
-              <Skeleton className="w-full h-full rounded-none" />
-            </CardContent>
-          </Card>
-
+        <div className="w-full max-w-4xl mx-auto"> {/* Kontainer utama untuk halaman penuh */}
           {/* Skeleton untuk Main Profile Card */}
           <Card className="w-full">
-            <CardHeader className="flex flex-col items-center space-y-2 py-8">
-              <div className="space-y-2 text-center">
+            <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6">
+              {/* Skeleton untuk Photo Card di dalam header kartu utama */}
+              <Card className="w-36 h-48 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+                <CardContent className="p-0 w-full h-full flex items-center justify-center">
+                  <Skeleton className="w-full h-full rounded-none" />
+                </CardContent>
+              </Card>
+              <div className="space-y-2 text-center md:text-left">
                 <Skeleton className="h-8 w-64" />
                 <Skeleton className="h-5 w-48" />
               </div>
@@ -92,17 +91,16 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <DashboardLayout title={t('profilePage.title')} role="administrasi">
-      <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-start"> {/* Kontainer utama untuk halaman penuh */}
-        {/* Kartu Foto Profil */}
-        <ProfilePhotoCard
-          photoUrl={profile?.photo}
-          onEdit={handleEditPhoto}
-        />
-
+      <div className="w-full max-w-4xl mx-auto"> {/* Kontainer utama untuk halaman penuh */}
         {/* Kartu Utama Profil */}
         <Card className="w-full">
-          <CardHeader className="flex flex-col items-center space-y-2 py-8"> {/* Avatar dihapus dari sini */}
-            <div className="text-center">
+          <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6">
+            {/* Kartu Foto Profil */}
+            <ProfilePhotoCard
+              photoUrl={profile?.photo}
+              onEdit={handleEditPhoto}
+            />
+            <div className="text-center md:text-left">
               <CardTitle className="text-2xl">{profile?.first_name} {profile?.last_name}</CardTitle>
               <p className="text-sm text-muted-foreground">{profile?.email}</p>
             </div>
