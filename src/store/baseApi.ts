@@ -19,6 +19,7 @@ const baseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState }) => {
     // Ambil token dari state auth
     const token = (getState() as RootState).auth.token;
+    console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada'); // Tambahkan baris ini
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
