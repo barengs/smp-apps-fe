@@ -14,8 +14,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useLogoutMutation } from '@/store/slices/authApi';
-import { logOut } from '@/store/slices/authSlice';
+import { logOut, selectCurrentUser } from '@/store/slices/authSlice';
 import * as toast from '@/utils/toast';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -278,6 +280,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logoutApi] = useLogoutMutation();
+  const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -408,7 +411,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <span className="font-medium hidden sm:block">{t('header.usernamePlaceholder')}</span>
+        <span className="font-medium hidden sm:block">{currentUser?.name || t('header.usernamePlaceholder')}</span>
       </div>
     </header>
   );
