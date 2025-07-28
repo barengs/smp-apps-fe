@@ -42,7 +42,7 @@ import PengumumanPage from '@/pages/informasi/PengumumanPage';
 import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
 import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
-import UserProfilePage from '@/pages/profile/UserProfilePage'; // Re-added import
+import UserProfilePage from '@/pages/profile/UserProfilePage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -50,6 +50,7 @@ import { store } from './store';
 import { ThemeProvider } from '@/components/theme-provider';
 
 import { ToastContainer } from 'react-toastify';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => (
   <Provider store={store}>
@@ -58,55 +59,61 @@ const App = () => (
         <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
         <BrowserRouter>
           <Routes>
+            {/* Rute Publik */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/daftar" element={<Daftar />} />
-            <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
-            <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
-            <Route path="/dashboard/staf" element={<StafPage />} />
-            <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
-            <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
-            <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
-            <Route path="/dashboard/peran" element={<PeranPage />} />
-            
-            {/* Santri Management Routes */}
-            <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
-            <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
-            
-            {/* Santri Registration Routes */}
-            <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
-            <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
-            <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} /> {/* Route for viewing/editing prospective santri */}
 
-            <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
-            <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
-            <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
-            <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
-            <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
-            <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
-            <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
-            <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
-            <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
-            <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
-            <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
-            <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
-            <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
-            <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
-            <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
-            <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
-            <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
-            <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
-            <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
-            <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
-            <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
-            <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
-            <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
-            <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
-            <Route path="/dashboard/berita" element={<BeritaPage />} />
-            <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
-            <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
-            <Route path="/dashboard/profile" element={<UserProfilePage />} /> {/* Re-added route */}
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* Rute yang Dilindungi */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
+              <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
+              <Route path="/dashboard/staf" element={<StafPage />} />
+              <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
+              <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
+              <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
+              <Route path="/dashboard/peran" element={<PeranPage />} />
+              
+              {/* Rute Manajemen Santri */}
+              <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
+              <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
+              
+              {/* Rute Pendaftaran Santri */}
+              <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
+              <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
+              <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} />
+
+              <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
+              <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
+              <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
+              <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
+              <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
+              <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
+              <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
+              <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
+              <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
+              <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
+              <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
+              <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
+              <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
+              <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
+              <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
+              <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
+              <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
+              <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
+              <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
+              <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
+              <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
+              <Route path="/dashboard/berita" element={<BeritaPage />} />
+              <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
+              <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
+              <Route path="/dashboard/profile" element={<UserProfilePage />} />
+            </Route>
+
+            {/* Rute Catch-all untuk halaman yang tidak ditemukan */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
