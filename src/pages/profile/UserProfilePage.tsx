@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { useGetProfileDetailsQuery } from '@/store/slices/authApi';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query'; // Perbaikan: Menghapus '1' yang salah
 import { SerializedError } from '@reduxjs/toolkit';
-import ProfilePhotoCard from '@/components/ProfilePhotoCard'; // Import komponen baru
+import ProfilePhotoCard from '@/components/ProfilePhotoCard';
+import { Button } from '@/components/ui/button';
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -27,22 +28,36 @@ const UserProfilePage: React.FC = () => {
     // Anda bisa menambahkan logika modal di sini
   };
 
+  const handleEditProfile = () => {
+    console.log("Tombol Edit Profil diklik!");
+    // Logika untuk mengedit detail profil
+  };
+
+  const handleChangePassword = () => {
+    console.log("Tombol Ganti Password diklik!");
+    // Logika untuk mengganti password
+  };
+
   if (isLoading) {
     return (
       <DashboardLayout title={t('profilePage.title')} role="administrasi">
-        <div className="w-full max-w-4xl mx-auto"> {/* Kontainer utama untuk halaman penuh */}
-          {/* Skeleton untuk Main Profile Card */}
+        <div className="w-full max-w-4xl mx-auto">
           <Card className="w-full">
-            <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6">
-              {/* Skeleton untuk Photo Card di dalam header kartu utama */}
-              <Card className="w-36 h-48 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
-                <CardContent className="p-0 w-full h-full flex items-center justify-center">
-                  <Skeleton className="w-full h-full rounded-none" />
-                </CardContent>
-              </Card>
-              <div className="space-y-2 text-center md:text-left">
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-5 w-48" />
+            <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6 md:justify-between">
+              <div className="flex flex-col items-center space-y-4 md:flex-row md:items-start md:space-y-0 md:space-x-6">
+                <Card className="w-36 h-48 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+                  <CardContent className="p-0 w-full h-full flex items-center justify-center">
+                    <Skeleton className="w-full h-full rounded-none" />
+                  </CardContent>
+                </Card>
+                <div className="space-y-2 text-center md:text-left">
+                  <Skeleton className="h-8 w-64" />
+                  <Skeleton className="h-5 w-48" />
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4 md:mt-0">
+                <Skeleton className="h-10 w-24" />
+                <Skeleton className="h-10 w-36" />
               </div>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
@@ -65,15 +80,17 @@ const UserProfilePage: React.FC = () => {
   if (isError) {
     let errorMessage = 'Unknown error';
     if (isFetchBaseQueryError(error)) {
-      if (error.data && typeof error.data === 'object' && 'message' in error.data) {
-        errorMessage = (error.data as { message: string }).message;
-      } else if (typeof error.status === 'number') {
-        errorMessage = `Error ${error.status}`;
+      const fetchError = error; // Membantu TypeScript dalam inferensi tipe
+      if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
+        errorMessage = (fetchError.data as { message: string }).message;
+      } else if (typeof fetchError.status === 'number') {
+        errorMessage = `Error ${fetchError.status}`;
       } else {
-        errorMessage = `Error: ${JSON.stringify(error)}`;
+        errorMessage = `Error: ${JSON.stringify(fetchError)}`;
       }
     } else if (isSerializedError(error)) {
-      errorMessage = error.message || 'Serialized error without message.';
+      const serializedError = error; // Membantu TypeScript dalam inferensi tipe
+      errorMessage = serializedError.message || 'Serialized error without message.';
     } else {
       errorMessage = String(error);
     }
@@ -92,18 +109,26 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <DashboardLayout title={t('profilePage.title')} role="administrasi">
-      <div className="w-full max-w-4xl mx-auto"> {/* Kontainer utama untuk halaman penuh */}
-        {/* Kartu Utama Profil */}
+      <div className="w-full max-w-4xl mx-auto">
         <Card className="w-full">
-          <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6">
-            {/* Kartu Foto Profil */}
-            <ProfilePhotoCard
-              photoUrl={profile?.photo}
-              onEdit={handleEditPhoto}
-            />
-            <div className="text-center md:text-left">
-              <CardTitle className="text-2xl">{fullName}</CardTitle> {/* Menggunakan nama lengkap di sini */}
-              <p className="text-sm text-muted-foreground">{profile?.email}</p>
+          <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6 md:justify-between">
+            <div className="flex flex-col items-center space-y-4 md:flex-row md:items-start md:space-y-0 md:space-x-6">
+              <ProfilePhotoCard
+                photoUrl={profile?.photo}
+                onEdit={handleEditPhoto}
+              />
+              <div className="text-center md:text-left">
+                <CardTitle className="text-2xl">{fullName}</CardTitle>
+                <p className="text-sm text-muted-foreground">{profile?.email}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4 md:mt-0"> {/* Tombol di sini */}
+              <Button variant="outline" onClick={handleEditProfile}>
+                {t('common.edit')}
+              </Button>
+              <Button onClick={handleChangePassword}>
+                {t('profilePage.changePassword')}
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
@@ -113,10 +138,9 @@ const UserProfilePage: React.FC = () => {
                 <p className="text-lg font-semibold">{profile?.code || '-'}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Nama Lengkap</p> {/* Label baru */}
-                <p className="text-lg font-semibold">{fullName}</p> {/* Menampilkan nama lengkap */}
+                <p className="text-sm font-medium text-muted-foreground">Nama Lengkap</p>
+                <p className="text-lg font-semibold">{fullName}</p>
               </div>
-              {/* Nama Depan dan Nama Belakang dihapus */}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Email</p>
                 <p className="text-lg font-semibold">{profile?.email || '-'}</p>
