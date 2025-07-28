@@ -1,13 +1,12 @@
 import React from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTranslation } from 'react-i18next'; // Tetap impor untuk t('profilePage.title') dan pesan error
+import { useTranslation } from 'react-i18next';
 import { useGetProfileDetailsQuery } from '@/store/slices/authApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { User } from 'lucide-react';
+import ProfilePhotoCard from '@/components/ProfilePhotoCard'; // Import komponen baru
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -19,16 +18,29 @@ function isSerializedError(error: unknown): error is SerializedError {
 }
 
 const UserProfilePage: React.FC = () => {
-  const { t } = useTranslation(); // Tetap gunakan t untuk judul halaman dan pesan error
+  const { t } = useTranslation();
   const { data: profileData, isLoading, isError, error } = useGetProfileDetailsQuery();
+
+  const handleEditPhoto = () => {
+    // Logika untuk mengedit foto (misalnya, membuka modal upload)
+    console.log("Edit foto diklik!");
+    // Anda bisa menambahkan logika modal di sini
+  };
 
   if (isLoading) {
     return (
       <DashboardLayout title={t('profilePage.title')} role="administrasi">
-        <div className="w-full max-w-4xl mx-auto"> {/* Menggunakan w-full dan max-w-4xl untuk lebar */}
-          <Card>
-            <CardHeader className="flex flex-col items-center space-y-4 py-8">
-              <Skeleton className="h-24 w-24 rounded-full" />
+        <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-start">
+          {/* Skeleton untuk Photo Card */}
+          <Card className="w-36 h-48 flex flex-col items-center justify-center relative overflow-hidden shadow-md">
+            <CardContent className="p-0 w-full h-full flex items-center justify-center">
+              <Skeleton className="w-full h-full rounded-none" />
+            </CardContent>
+          </Card>
+
+          {/* Skeleton untuk Main Profile Card */}
+          <Card className="w-full">
+            <CardHeader className="flex flex-col items-center space-y-2 py-8">
               <div className="space-y-2 text-center">
                 <Skeleton className="h-8 w-64" />
                 <Skeleton className="h-5 w-48" />
@@ -80,13 +92,16 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <DashboardLayout title={t('profilePage.title')} role="administrasi">
-      <div className="w-full max-w-4xl mx-auto"> {/* Kontainer utama untuk halaman penuh */}
-        <Card>
-          <CardHeader className="flex flex-col items-center space-y-4 py-8">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={profile?.photo || "/avatar-placeholder.png"} alt="User Photo" />
-              <AvatarFallback><User className="h-12 w-12" /></AvatarFallback>
-            </Avatar>
+      <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-start"> {/* Kontainer utama untuk halaman penuh */}
+        {/* Kartu Foto Profil */}
+        <ProfilePhotoCard
+          photoUrl={profile?.photo}
+          onEdit={handleEditPhoto}
+        />
+
+        {/* Kartu Utama Profil */}
+        <Card className="w-full">
+          <CardHeader className="flex flex-col items-center space-y-2 py-8"> {/* Avatar dihapus dari sini */}
             <div className="text-center">
               <CardTitle className="text-2xl">{profile?.first_name} {profile?.last_name}</CardTitle>
               <p className="text-sm text-muted-foreground">{profile?.email}</p>
