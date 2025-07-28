@@ -1,7 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { smpApi } from './baseApi'; // Import baseApi
+import authReducer from './slices/authSlice'; // Import auth reducer
 
 // Import slices to ensure endpoints are injected
+import './slices/authApi'; // Import the new auth slice
 import './slices/roleApi';
 import './slices/santriApi';
 import './slices/employeeApi';
@@ -26,6 +28,7 @@ import './slices/studyApi'; // Import the new study slice
 export const store = configureStore({
   reducer: {
     [smpApi.reducerPath]: smpApi.reducer,
+    auth: authReducer,
     // Anda bisa menambahkan reducer lain di sini jika diperlukan
   },
   // Menambahkan middleware API untuk mengaktifkan fitur caching, invalidasi, polling, dll.

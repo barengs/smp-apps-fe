@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { RootState } from './index';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,9 +14,21 @@ if (!baseUrl) {
   );
 }
 
+const baseQuery = fetchBaseQuery({
+  baseUrl,
+  prepareHeaders: (headers, { getState }) => {
+    // Ambil token dari state auth
+    const token = (getState() as RootState).auth.token;
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
 export const smpApi = createApi({
   reducerPath: 'smpApi',
-  baseQuery: fetchBaseQuery({ baseUrl }),
+  baseQuery: baseQuery,
   tagTypes: [
     'Role',
     'Santri',
@@ -40,6 +53,7 @@ export const smpApi = createApi({
     'Berita',
     'CalonSantri',
     'Study', // Tambahkan tag type 'Study' di sini
+    'User', // Tambahkan tag type 'User'
   ],
   endpoints: () => ({}),
 });
