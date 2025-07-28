@@ -164,9 +164,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
               if (isCollapsed) {
                 return (
                   <DropdownMenu key={item.titleKey}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      {/* Tooltip wraps its trigger and content */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
                           <Button
                             variant={isActive ? "secondary" : "ghost"}
                             className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg p-0"
@@ -175,10 +176,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                             {item.icon}
                             <span className="sr-only">{t(item.titleKey)}</span>
                           </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
-                    </Tooltip>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
+                      </Tooltip>
+                    </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {item.children.map((child) => (
                         <DropdownMenuItem key={child.href} asChild>
@@ -397,7 +398,11 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span></DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/profile">
+                <User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span></DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
