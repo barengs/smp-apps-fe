@@ -7,6 +7,30 @@
   "english": "Inggris",
   "arabic": "Arab",
   "footerRights": "Hak Cipta Dilindungi",
+  "welcomeTitle": "Selamat Datang di Sistem Manajemen Pesantren",
+  "welcomeSubtitle": "Solusi terintegrasi untuk mengelola semua aspek operasional pesantren Anda secara efisien.",
+  "infoTitle": "Informasi Pesantren",
+  "infoSlide1": "Pendidikan Berkualitas",
+  "infoSlide2": "Lingkungan Islami",
+  "infoSlide3": "Fasilitas Modern",
+  "infoSlide4": "Program Tahfidz",
+  "infoSlide5": "Ekstrakurikuler Beragam",
+  "infoSlide6": "Asrama Nyaman",
+  "infoSlide7": "Tenaga Pendidik Profesional",
+  "loginPageTitle": "Masuk",
+  "loginFormTitle": "Masuk ke Akun Anda",
+  "loginFormDescription": "Masukkan email dan kata sandi Anda untuk mengakses dasbor.",
+  "emailLabel": "Email",
+  "emailPlaceholder": "nama@contoh.com",
+  "passwordLabel": "Kata Sandi",
+  "loginButton": "Masuk",
+  "registerPageTitle": "Daftar",
+  "registerFormTitle": "Buat Akun Baru",
+  "registerFormDescription": "Isi formulir di bawah ini untuk mendaftar.",
+  "fullNameLabel": "Nama Lengkap",
+  "fullNamePlaceholder": "Masukkan nama lengkap Anda",
+  "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+  "registerButton": "Daftar",
   "sidebar": {
     "dashboard": "Dasbor",
     "santriManagement": "Manajemen Santri",
@@ -22,7 +46,7 @@
     "subjects": "Mata Pelajaran",
     "classPromotion": "Kenaikan Kelas",
     "lessonSchedule": "Jadwal Pelajaran",
-    "securityManagement": "Manajemen Kamtib",
+    "securityManagement": "Manajemen Keamanan & Ketertiban",
     "violations": "Pelanggaran",
     "educationManagement": "Manajemen Pendidikan",
     "educationLevel": "Jenjang Pendidikan",
@@ -84,5 +108,24 @@
       "title": "Pengumuman",
       "noNew": "Tidak ada pengumuman baru."
     }
+  },
+  "teacherAssignment": {
+    "title": "Penugasan Guru"
+  },
+  "bankSantri": {
+    "title": "Bank Santri",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
+  },
+  "gradesAndAttendance": {
+    "title": "Nilai & Absensi",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
+  },
+  "announcements": {
+    "title": "Pengumuman",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
   }
 }

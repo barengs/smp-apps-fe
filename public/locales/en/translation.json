@@ -1,25 +1,79 @@
 {
-  "welcomeTitle": "Welcome to the Pesantren Information System",
-  "welcomeSubtitle": "An integrated platform to manage all aspects of pesantren education and administration.",
-  "infoTitle": "Latest Information",
-  "infoSlide1": "New Student Registration is Open",
-  "infoSlide2": "Final Exam Schedule",
-  "infoSlide3": "Inter-Class Competition Activities",
-  "infoSlide4": "Tuition Fee Payment Information",
-  "infoSlide5": "Eid Al-Fitr Holiday Announcement",
-  "infoSlide6": "Intensive Quran Memorization Program",
-  "infoSlide7": "Latest Extracurricular Schedule",
+  "home": "Home",
+  "register": "Register",
+  "login": "Login",
+  "chooseLanguage": "Choose Language",
+  "indonesian": "Indonesian",
+  "english": "English",
+  "arabic": "Arabic",
+  "footerRights": "All Rights Reserved",
+  "welcomeTitle": "Welcome to the Pesantren Management System",
+  "welcomeSubtitle": "An integrated solution to efficiently manage all operational aspects of your pesantren.",
+  "infoTitle": "Pesantren Information",
+  "infoSlide1": "Quality Education",
+  "infoSlide2": "Islamic Environment",
+  "infoSlide3": "Modern Facilities",
+  "infoSlide4": "Tahfidz Program",
+  "infoSlide5": "Various Extracurriculars",
+  "infoSlide6": "Comfortable Dormitory",
+  "infoSlide7": "Professional Educators",
+  "loginPageTitle": "Login",
+  "loginFormTitle": "Login to Your Account",
+  "loginFormDescription": "Enter your email and password to access the dashboard.",
+  "emailLabel": "Email",
+  "emailPlaceholder": "name@example.com",
+  "passwordLabel": "Password",
+  "loginButton": "Login",
+  "registerPageTitle": "Register",
+  "registerFormTitle": "Create a New Account",
+  "registerFormDescription": "Fill out the form below to register.",
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "confirmPasswordLabel": "Confirm Password",
+  "registerButton": "Register",
   "sidebar": {
     "dashboard": "Dashboard",
-    "santriInfo": "Student Info",
+    "santriManagement": "Santri Management",
+    "santri": "Santri",
+    "registration": "Registration",
+    "waliSantri": "Parent/Guardian",
+    "teacherAssignment": "Teacher Assignment",
+    "staffManagement": "Staff Management",
+    "staff": "Staff",
+    "accessRights": "Access Rights",
+    "roles": "Roles",
+    "curriculum": "Curriculum",
+    "subjects": "Subjects",
+    "classPromotion": "Class Promotion",
+    "lessonSchedule": "Lesson Schedule",
+    "securityManagement": "Security & Order Management",
+    "violations": "Violations",
+    "educationManagement": "Education Management",
+    "educationLevel": "Education Level",
+    "class": "Class",
+    "classGroup": "Study Group",
+    "educationGroup": "Education Group",
+    "dormitory": "Dormitory",
+    "program": "Program",
+    "information": "Information",
+    "news": "News",
+    "activitySchedule": "Activity Schedule",
+    "masterData": "Master Data",
+    "job": "Occupation",
+    "province": "Province",
+    "city": "City",
+    "district": "District",
+    "village": "Village",
+    "settings": "Settings",
+    "system": "System",
+    "navigation": "Navigation",
+    "santriInfo": "Santri Information",
     "gradesAndAttendance": "Grades & Attendance",
-    "bankSantri": "Student Bank",
-    "announcements": "Announcements",
-    "settings": "Settings"
+    "bankSantri": "Santri Bank",
+    "announcements": "Announcements"
   },
   "header": {
     "toggleFullscreen": "Toggle Fullscreen",
-    "toggleTheme": "Toggle Theme",
     "selectLanguage": "Select Language",
     "profile": "Profile",
     "settings": "Settings",
@@ -27,12 +81,12 @@
     "usernamePlaceholder": "Username"
   },
   "footer": {
-    "copyright": "Copyright © {{year}} SMP. All Rights Reserved."
+    "copyright": "Copyright © {{year}}"
   },
   "waliSantriDashboard": {
-    "title": "Guardian Dashboard",
+    "title": "Parent/Guardian Dashboard",
     "santriInfo": {
-      "title": "Student Information",
+      "title": "Santri Information",
       "name": "Name",
       "class": "Class",
       "status": "Status",
@@ -46,13 +100,32 @@
     },
     "attendance": {
       "title": "Attendance",
-      "present": "Present: {{count}} days",
-      "permission": "Permission: {{count}} days",
-      "sick": "Sick: {{count}} days"
+      "present": "Present: {{count}}",
+      "permission": "Permission: {{count}}",
+      "sick": "Sick: {{count}}"
     },
     "announcements": {
       "title": "Announcements",
       "noNew": "No new announcements."
     }
+  },
+  "teacherAssignment": {
+    "title": "Teacher Assignment"
+  },
+  "bankSantri": {
+    "title": "Santri Bank",
+    "placeholder": "This feature is under development."
+  },
+  "gradesAndAttendance": {
+    "title": "Grades & Attendance",
+    "placeholder": "This feature is under development."
+  },
+  "announcements": {
+    "title": "Announcements",
+    "placeholder": "This feature is under development."
+  },
+  "settings": {
+    "title": "Settings",
+    "placeholder": "This feature is under development."
   }
 }
