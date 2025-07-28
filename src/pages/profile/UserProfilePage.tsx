@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { useGetProfileDetailsQuery } from '@/store/slices/authApi';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query'; // Perbaikan: Menghapus '1' yang salah
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import { Button } from '@/components/ui/button';
+import { Pencil, Key } from 'lucide-react'; // Import ikon Pencil dan Key
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -80,7 +81,7 @@ const UserProfilePage: React.FC = () => {
   if (isError) {
     let errorMessage = 'Unknown error';
     if (isFetchBaseQueryError(error)) {
-      const fetchError = error; // Membantu TypeScript dalam inferensi tipe
+      const fetchError = error;
       if (fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data) {
         errorMessage = (fetchError.data as { message: string }).message;
       } else if (typeof fetchError.status === 'number') {
@@ -89,7 +90,7 @@ const UserProfilePage: React.FC = () => {
         errorMessage = `Error: ${JSON.stringify(fetchError)}`;
       }
     } else if (isSerializedError(error)) {
-      const serializedError = error; // Membantu TypeScript dalam inferensi tipe
+      const serializedError = error;
       errorMessage = serializedError.message || 'Serialized error without message.';
     } else {
       errorMessage = String(error);
@@ -122,12 +123,12 @@ const UserProfilePage: React.FC = () => {
                 <p className="text-sm text-muted-foreground">{profile?.email}</p>
               </div>
             </div>
-            <div className="flex gap-2 mt-4 md:mt-0"> {/* Tombol di sini */}
+            <div className="flex gap-2 mt-4 md:mt-0">
               <Button variant="outline" onClick={handleEditProfile}>
-                {t('common.edit')}
+                <Pencil className="mr-2 h-4 w-4" /> Edit
               </Button>
               <Button onClick={handleChangePassword}>
-                {t('profilePage.changePassword')}
+                <Key className="mr-2 h-4 w-4" /> Ganti Password
               </Button>
             </div>
           </CardHeader>
