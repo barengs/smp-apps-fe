@@ -1,10 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const WaliSantriDashboard: React.FC = () => {
   const { t } = useTranslation();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <DashboardLayout title={t('waliSantriDashboard.title')} role="wali-santri">

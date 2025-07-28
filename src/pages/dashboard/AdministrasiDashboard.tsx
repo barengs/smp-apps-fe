@@ -1,16 +1,18 @@
-import React, { useState } from 'react'; // Import useState
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck } from 'lucide-react';
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import EventCalendar from '@/components/EventCalendar';
 import { useGetActivitiesQuery } from '@/store/slices/activityApi';
 import { Kegiatan } from '@/types/kegiatan';
 import { format } from 'date-fns';
-import ActivityDetailModal from '@/components/ActivityDetailModal'; // Import ActivityDetailModal
+import ActivityDetailModal from '@/components/ActivityDetailModal';
+import { useSelector } from 'react-redux'; // Import useSelector
+import { selectIsAuthenticated } from '@/store/slices/authSlice'; // Import selectIsAuthenticated
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
   <Card className="transition-all hover:shadow-md">
@@ -39,6 +41,15 @@ const StatCardSkeleton: React.FC = () => (
 );
 
 const AdministrasiDashboard: React.FC = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated); // Dapatkan status autentikasi
+  const navigate = useNavigate(); // Inisialisasi useNavigate
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/'); // Arahkan ke halaman utama jika belum login
+    }
+  }, [isAuthenticated, navigate]);
+
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
   const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
 
@@ -69,6 +80,10 @@ const AdministrasiDashboard: React.FC = () => {
     setIsDetailModalOpen(false);
     setSelectedKegiatan(null);
   };
+
+  if (!isAuthenticated) {
+    return null; // Jangan render apa pun jika tidak diautentikasi (pengalihan akan terjadi)
+  }
 
   return (
     <DashboardLayout title="Dashboard Administrasi" role="administrasi">
