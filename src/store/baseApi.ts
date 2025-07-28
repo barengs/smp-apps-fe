@@ -22,6 +22,9 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
+    // Tambahkan header Accept dan Content-Type
+    headers.set('Accept', 'application/json');
+    headers.set('Content-Type', 'application/json');
     return headers;
   },
 });
