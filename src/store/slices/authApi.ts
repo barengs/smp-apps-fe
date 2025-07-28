@@ -9,12 +9,12 @@ interface User {
   roles: { name: string }[];
 }
 
+// Struktur AuthResponse disesuaikan dengan respons API yang diberikan
 interface AuthResponse {
-  message: string;
-  data: {
-    token: string;
-    user: User;
-  };
+  user: User;
+  access_token: string;
+  token_type: string;
+  expires_in: number;
 }
 
 export interface LoginRequest {

@@ -52,19 +52,21 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        const { token, user } = payload.data;
-        state.token = token;
+        // Mengambil access_token dan user langsung dari payload
+        const { access_token, user } = payload;
+        state.token = access_token;
         state.user = user;
         state.isAuthenticated = true;
-        localStorage.setItem('token', token);
+        localStorage.setItem('token', access_token);
         localStorage.setItem('user', JSON.stringify(user));
       })
       .addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
-        const { token, user } = payload.data;
-        state.token = token;
+        // Mengambil access_token dan user langsung dari payload
+        const { access_token, user } = payload;
+        state.token = access_token;
         state.user = user;
         state.isAuthenticated = true;
-        localStorage.setItem('token', token);
+        localStorage.setItem('token', access_token);
         localStorage.setItem('user', JSON.stringify(user));
       })
       .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
