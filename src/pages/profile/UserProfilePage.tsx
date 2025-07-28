@@ -41,7 +41,7 @@ const UserProfilePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout title={t('profilePage.title')} role="administrasi">
+      <DashboardLayout title="Profil Pengguna" role="administrasi">
         <div className="w-full max-w-4xl mx-auto">
           <Card className="w-full">
             <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6 md:justify-between">
@@ -97,7 +97,7 @@ const UserProfilePage: React.FC = () => {
     }
 
     return (
-      <DashboardLayout title={t('profilePage.title')} role="administrasi">
+      <DashboardLayout title="Profil Pengguna" role="administrasi">
         <div className="text-red-500 p-4">
           {t('profilePage.errorLoading')}: {errorMessage}
         </div>
@@ -109,7 +109,7 @@ const UserProfilePage: React.FC = () => {
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '-';
 
   return (
-    <DashboardLayout title={t('profilePage.title')} role="administrasi">
+    <DashboardLayout title="Profil Pengguna" role="administrasi">
       <div className="w-full max-w-4xl mx-auto">
         <Card className="w-full">
           <CardHeader className="flex flex-col items-center space-y-4 py-8 md:flex-row md:items-start md:space-y-0 md:space-x-6 md:justify-between">
