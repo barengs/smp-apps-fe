@@ -42,7 +42,7 @@ import PengumumanPage from '@/pages/informasi/PengumumanPage';
 import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
 import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
-// import UserProfilePage from '@/pages/profile/UserProfilePage'; // Removed import
+import UserProfilePage from '@/pages/profile/UserProfilePage'; // Re-added import
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -105,7 +105,7 @@ const App = () => (
             <Route path="/dashboard/berita" element={<BeritaPage />} />
             <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
             <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
-            {/* <Route path="/dashboard/profile" element={<UserProfilePage />} /> Removed route */}
+            <Route path="/dashboard/profile" element={<UserProfilePage />} /> {/* Re-added route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
