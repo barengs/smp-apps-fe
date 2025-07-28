@@ -1,11 +1,9 @@
 import React from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'; // Tetap impor untuk t('profilePage.title') dan pesan error
 import { useGetProfileDetailsQuery } from '@/store/slices/authApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -21,29 +19,31 @@ function isSerializedError(error: unknown): error is SerializedError {
 }
 
 const UserProfilePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // Tetap gunakan t untuk judul halaman dan pesan error
   const { data: profileData, isLoading, isError, error } = useGetProfileDetailsQuery();
 
   if (isLoading) {
     return (
       <DashboardLayout title={t('profilePage.title')} role="administrasi">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="w-full max-w-4xl mx-auto"> {/* Menggunakan w-full dan max-w-4xl untuk lebar */}
           <Card>
-            <CardHeader className="flex flex-row items-center space-x-4">
-              <Skeleton className="h-20 w-20 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-48" />
-                <Skeleton className="h-4 w-32" />
+            <CardHeader className="flex flex-col items-center space-y-4 py-8">
+              <Skeleton className="h-24 w-24 rounded-full" />
+              <div className="space-y-2 text-center">
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-5 w-48" />
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
-              <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-10 w-full" /></div>
+            <CardContent className="space-y-6 p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+                <div><Skeleton className="h-4 w-1/4 mb-2" /><Skeleton className="h-6 w-full" /></div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -54,18 +54,17 @@ const UserProfilePage: React.FC = () => {
   if (isError) {
     let errorMessage = 'Unknown error';
     if (isFetchBaseQueryError(error)) {
-      // Check if error.data exists and has a message property
       if (error.data && typeof error.data === 'object' && 'message' in error.data) {
         errorMessage = (error.data as { message: string }).message;
       } else if (typeof error.status === 'number') {
         errorMessage = `Error ${error.status}`;
       } else {
-        errorMessage = `Error: ${JSON.stringify(error)}`; // Fallback for unexpected FetchBaseQueryError structure
+        errorMessage = `Error: ${JSON.stringify(error)}`;
       }
     } else if (isSerializedError(error)) {
       errorMessage = error.message || 'Serialized error without message.';
     } else {
-      errorMessage = String(error); // Catch any other unexpected error types
+      errorMessage = String(error);
     }
 
     return (
@@ -81,46 +80,48 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <DashboardLayout title={t('profilePage.title')} role="administrasi">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="w-full max-w-4xl mx-auto"> {/* Kontainer utama untuk halaman penuh */}
         <Card>
-          <CardHeader className="flex flex-row items-center space-x-4">
-            <Avatar className="h-20 w-20">
+          <CardHeader className="flex flex-col items-center space-y-4 py-8">
+            <Avatar className="h-24 w-24">
               <AvatarImage src={profile?.photo || "/avatar-placeholder.png"} alt="User Photo" />
-              <AvatarFallback><User className="h-10 w-10" /></AvatarFallback>
+              <AvatarFallback><User className="h-12 w-12" /></AvatarFallback>
             </Avatar>
-            <div>
-              <CardTitle>{profile?.first_name} {profile?.last_name}</CardTitle>
+            <div className="text-center">
+              <CardTitle className="text-2xl">{profile?.first_name} {profile?.last_name}</CardTitle>
               <p className="text-sm text-muted-foreground">{profile?.email}</p>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="code">{t('profilePage.code')}</Label>
-              <Input id="code" value={profile?.code || ''} readOnly />
-            </div>
-            <div>
-              <Label htmlFor="firstName">{t('profilePage.firstName')}</Label>
-              <Input id="firstName" value={profile?.first_name || ''} readOnly />
-            </div>
-            <div>
-              <Label htmlFor="lastName">{t('profilePage.lastName')}</Label>
-              <Input id="lastName" value={profile?.last_name || ''} readOnly />
-            </div>
-            <div>
-              <Label htmlFor="email">{t('profilePage.email')}</Label>
-              <Input id="email" value={profile?.email || ''} readOnly />
-            </div>
-            <div>
-              <Label htmlFor="phone">{t('profilePage.phone')}</Label>
-              <Input id="phone" value={profile?.phone || ''} readOnly />
-            </div>
-            <div>
-              <Label htmlFor="address">{t('profilePage.address')}</Label>
-              <Input id="address" value={profile?.address || ''} readOnly />
-            </div>
-            <div>
-              <Label htmlFor="zipCode">{t('profilePage.zipCode')}</Label>
-              <Input id="zipCode" value={profile?.zip_code || ''} readOnly />
+          <CardContent className="space-y-6 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Kode</p>
+                <p className="text-lg font-semibold">{profile?.code || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Nama Depan</p>
+                <p className="text-lg font-semibold">{profile?.first_name || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Nama Belakang</p>
+                <p className="text-lg font-semibold">{profile?.last_name || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Email</p>
+                <p className="text-lg font-semibold">{profile?.email || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Telepon</p>
+                <p className="text-lg font-semibold">{profile?.phone || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Alamat</p>
+                <p className="text-lg font-semibold">{profile?.address || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Kode Pos</p>
+                <p className="text-lg font-semibold">{profile?.zip_code || '-'}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
