@@ -36,7 +36,7 @@ const formSchema = z.object({
   phone: z.string().min(10, { message: 'Nomor telepon minimal 10 digit.' }).optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
-  role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
+  role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }), // Tetap role_ids untuk internal form
   username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }),
   password: z.string()
     .min(6, { message: 'Password harus minimal 6 karakter.' })
@@ -117,12 +117,15 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   });
 
   const onSubmit = async (values: FormValues) => {
+    // Konversi role_ids (number[]) menjadi roles (string[])
+    const selectedRoleNames = values.role_ids.map(id => availableRoles.find(role => role.id === id)?.name).filter(Boolean) as string[];
+
     const payload: CreateUpdateEmployeeRequest = {
       first_name: values.first_name,
       last_name: values.last_name || '', // Ensure last_name is always a string
       email: values.email,
       code: values.code, // This will be an empty string if not provided, or existing code if editing
-      role_ids: values.role_ids,
+      roles: selectedRoleNames, // Menggunakan nama peran
       username: values.username,
       nik: values.nik || undefined,
       phone: values.phone || undefined,
