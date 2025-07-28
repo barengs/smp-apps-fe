@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,10 @@ import { useTheme } from '@/components/theme-provider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { useLogoutMutation } from '@/store/slices/authApi';
+import { logOut } from '@/store/slices/authSlice';
+import * as toast from '@/utils/toast';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -270,6 +274,9 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const { t, i18n } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hijriDate, setHijriDate] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [logoutApi] = useLogoutMutation();
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -310,6 +317,18 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+      dispatch(logOut());
+      toast.showSuccess('Anda telah berhasil logout.');
+      navigate('/login');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+      toast.showError('Gagal logout. Silakan coba lagi.');
+    }
   };
 
   return (
@@ -381,7 +400,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span></DropdownMenuItem>
             <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span></DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <span className="font-medium hidden sm:block">{t('header.usernamePlaceholder')}</span>
