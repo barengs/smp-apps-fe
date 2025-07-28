@@ -88,6 +88,7 @@ const UserProfilePage: React.FC = () => {
   }
 
   const profile = profileData?.data?.profile;
+  const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '-';
 
   return (
     <DashboardLayout title={t('profilePage.title')} role="administrasi">
@@ -101,7 +102,7 @@ const UserProfilePage: React.FC = () => {
               onEdit={handleEditPhoto}
             />
             <div className="text-center md:text-left">
-              <CardTitle className="text-2xl">{profile?.first_name} {profile?.last_name}</CardTitle>
+              <CardTitle className="text-2xl">{fullName}</CardTitle> {/* Menggunakan nama lengkap di sini */}
               <p className="text-sm text-muted-foreground">{profile?.email}</p>
             </div>
           </CardHeader>
@@ -112,13 +113,10 @@ const UserProfilePage: React.FC = () => {
                 <p className="text-lg font-semibold">{profile?.code || '-'}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Nama Depan</p>
-                <p className="text-lg font-semibold">{profile?.first_name || '-'}</p>
+                <p className="text-sm font-medium text-muted-foreground">Nama Lengkap</p> {/* Label baru */}
+                <p className="text-lg font-semibold">{fullName}</p> {/* Menampilkan nama lengkap */}
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Nama Belakang</p>
-                <p className="text-lg font-semibold">{profile?.last_name || '-'}</p>
-              </div>
+              {/* Nama Depan dan Nama Belakang dihapus */}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Email</p>
                 <p className="text-lg font-semibold">{profile?.email || '-'}</p>
