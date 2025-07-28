@@ -57,6 +57,7 @@ export const smpApi = createApi({
     'CalonSantri',
     'Study', // Tambahkan tag type 'Study' di sini
     'User', // Tambahkan tag type 'User'
+    'Profile', // Tambahkan tag type 'Profile' di sini
   ],
   endpoints: () => ({}),
 });

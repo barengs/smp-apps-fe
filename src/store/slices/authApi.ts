@@ -38,6 +38,24 @@ interface LogoutResponse {
     message: string;
 }
 
+// New interfaces for detailed user profile
+interface ProfileData {
+  code: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  zip_code: string;
+  photo: string; // Assuming URL to photo
+}
+
+interface GetProfileDetailsResponse {
+  data: {
+    profile: ProfileData;
+  };
+}
+
 export const authApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -46,7 +64,7 @@ export const authApi = smpApi.injectEndpoints({
         method: 'POST',
         body: credentials,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on login
     }),
     register: builder.mutation<AuthResponse, RegisterRequest>({
       query: (userInfo) => ({
@@ -54,7 +72,7 @@ export const authApi = smpApi.injectEndpoints({
         method: 'POST',
         body: userInfo,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on register
     }),
     getProfile: builder.query<ProfileResponse, void>({
       query: () => 'profile',
@@ -65,13 +83,17 @@ export const authApi = smpApi.injectEndpoints({
         url: 'logout',
         method: 'POST',
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on logout
     }),
     refreshToken: builder.mutation<{ token: string }, void>({
         query: () => ({
             url: 'refresh',
             method: 'POST',
         }),
+    }),
+    getProfileDetails: builder.query<GetProfileDetailsResponse, void>({
+      query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
+      providesTags: ['Profile'],
     }),
   }),
 });
@@ -82,4 +104,5 @@ export const {
   useGetProfileQuery,
   useLogoutMutation,
   useRefreshTokenMutation,
+  useGetProfileDetailsQuery, // Export the new hook
 } = authApi;

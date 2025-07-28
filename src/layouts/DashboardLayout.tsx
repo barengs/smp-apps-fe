@@ -398,6 +398,11 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/profile">
+                <User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span></DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
