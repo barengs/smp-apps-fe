@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useGetProfileQuery } from '@/store/slices/authApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { isFetchBaseQueryError, isSerializedError } from '@reduxjs/toolkit'; // Corrected import path
+import { isFetchBaseQueryError, isSerializedError } from '@reduxjs/toolkit/query/react'; // This is the correct import path
 
 const UserProfilePage: React.FC = () => {
   const { t } = useTranslation();
