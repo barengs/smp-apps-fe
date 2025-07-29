@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from './index';
-import { logOut, updateToken } from './slices/authSlice';
+import { logOut, updateToken } from './authActions'; // Import from new file
 import { Mutex } from 'async-mutex';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;

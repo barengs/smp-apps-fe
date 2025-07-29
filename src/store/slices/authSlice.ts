@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from './authApi';
 import { RootState } from '../index';
+import { logOut, updateToken } from '../authActions'; // Import from new file
 
 interface User {
   id: number;
@@ -31,13 +32,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    logOut: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    },
+    // logOut dan updateToken dipindahkan ke extraReducers
     setCredentials: (
         state,
         { payload }: PayloadAction<{ user: User; token: string }>
@@ -48,20 +43,26 @@ const authSlice = createSlice({
         localStorage.setItem('token', payload.token);
         localStorage.setItem('user', JSON.stringify(payload.user));
       },
-    updateToken: (state, { payload }: PayloadAction<string>) => {
-      state.token = payload;
-      state.isAuthenticated = !!payload;
-      if (payload) {
-        localStorage.setItem('token', payload);
-      } else {
-        localStorage.removeItem('token');
-      }
-    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(logOut, (state) => { // Handle logOut action
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      })
+      .addCase(updateToken, (state, { payload }) => { // Handle updateToken action
+        state.token = payload;
+        state.isAuthenticated = !!payload;
+        if (payload) {
+          localStorage.setItem('token', payload);
+        } else {
+          localStorage.removeItem('token');
+        }
+      })
       .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        // Mengambil access_token dan user langsung dari payload
         const { access_token, user } = payload;
         state.token = access_token;
         state.user = user;
@@ -70,7 +71,6 @@ const authSlice = createSlice({
         localStorage.setItem('user', JSON.stringify(user));
       })
       .addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
-        // Mengambil access_token dan user langsung dari payload
         const { access_token, user } = payload;
         state.token = access_token;
         state.user = user;
@@ -87,13 +87,14 @@ const authSlice = createSlice({
       })
       .addMatcher(authApi.endpoints.refreshToken.matchFulfilled, (state, { payload }) => {
         // Ketika refresh token berhasil, perbarui token di state
-        state.token = payload.token;
-        localStorage.setItem('token', payload.token);
+        // Payload dari refreshToken mutation adalah { access_token: string }
+        state.token = payload.access_token; // Menggunakan access_token
+        localStorage.setItem('token', payload.access_token);
       });
   },
 });
 
-export const { logOut, setCredentials, updateToken } = authSlice.actions;
+export const { setCredentials } = authSlice.actions; // Hanya setCredentials yang tersisa
 
 export default authSlice.reducer;
 
