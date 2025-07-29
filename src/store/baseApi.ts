@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from './index';
+import { logOut, updateToken } from './slices/authSlice';
+import { Mutex } from 'async-mutex';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -30,9 +32,55 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+// Buat mutex untuk mencegah beberapa permintaan refresh token secara bersamaan
+const mutex = new Mutex();
+
+const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) => {
+  // Tunggu hingga mutex tidak terkunci sebelum melanjutkan
+  await mutex.waitForUnlock();
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    // Jika mutex belum terkunci, kunci dan coba refresh token
+    if (!mutex.isLocked()) {
+      const release = await mutex.acquire();
+      try {
+        // Menggunakan baseQuery untuk memanggil endpoint refresh
+        const refreshResult = await baseQuery(
+          { url: 'refresh', method: 'POST' },
+          api,
+          extraOptions
+        );
+
+        if (refreshResult.data) {
+          const newToken = (refreshResult.data as { access_token: string }).access_token;
+          // Perbarui token di state Redux
+          api.dispatch(updateToken(newToken));
+          // Ulangi permintaan asli yang gagal dengan token baru
+          result = await baseQuery(args, api, extraOptions);
+        } else {
+          // Jika refresh gagal, logout pengguna
+          console.log('Refresh token gagal, logout.');
+          api.dispatch(logOut());
+        }
+      } finally {
+        // Lepaskan kunci mutex setelah selesai
+        release();
+      }
+    } else {
+      // Jika mutex sudah terkunci, tunggu hingga terbuka lalu ulangi permintaan
+      await mutex.waitForUnlock();
+      result = await baseQuery(args, api, extraOptions);
+    }
+  }
+
+  return result;
+};
+
+
 export const smpApi = createApi({
   reducerPath: 'smpApi',
-  baseQuery: baseQuery,
+  baseQuery: baseQueryWithReauth, // Gunakan baseQuery yang sudah dibungkus
   tagTypes: [
     'Role',
     'Santri',

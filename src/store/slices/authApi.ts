@@ -85,7 +85,7 @@ export const authApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on logout
     }),
-    refreshToken: builder.mutation<{ token: string }, void>({
+    refreshToken: builder.mutation<{ access_token: string }, void>({
         query: () => ({
             url: 'refresh',
             method: 'POST',

@@ -48,6 +48,15 @@ const authSlice = createSlice({
         localStorage.setItem('token', payload.token);
         localStorage.setItem('user', JSON.stringify(payload.user));
       },
+    updateToken: (state, { payload }: PayloadAction<string>) => {
+      state.token = payload;
+      state.isAuthenticated = !!payload;
+      if (payload) {
+        localStorage.setItem('token', payload);
+      } else {
+        localStorage.removeItem('token');
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -75,11 +84,16 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+      })
+      .addMatcher(authApi.endpoints.refreshToken.matchFulfilled, (state, { payload }) => {
+        // Ketika refresh token berhasil, perbarui token di state
+        state.token = payload.token;
+        localStorage.setItem('token', payload.token);
       });
   },
 });
 
-export const { logOut, setCredentials } = authSlice.actions;
+export const { logOut, setCredentials, updateToken } = authSlice.actions;
 
 export default authSlice.reducer;
 
