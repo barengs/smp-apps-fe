@@ -39,9 +39,10 @@ const Index = () => {
 
   // Fetch news data
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
-  const newsTitles = useMemo(() => {
+  const newsItemsForRunningText = useMemo(() => {
     if (newsData?.data) {
-      return newsData.data.map(newsItem => newsItem.title);
+      // Kirim id dan title ke komponen RunningText
+      return newsData.data.map(newsItem => ({ id: newsItem.id, title: newsItem.title }));
     }
     return [];
   }, [newsData]);
@@ -49,9 +50,9 @@ const Index = () => {
   return (
     <LandingLayout title={t('welcomeTitle')}>
       {/* Running Text Section */}
-      {!isNewsLoading && !isNewsError && newsTitles.length > 0 && (
+      {!isNewsLoading && !isNewsError && newsItemsForRunningText.length > 0 && (
         <div className="w-full">
-          <RunningText items={newsTitles} />
+          <RunningText items={newsItemsForRunningText} />
         </div>
       )}
 
