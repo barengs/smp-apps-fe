@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Kegiatan } from '@/pages/manajemen-pendidikan/JadwalKegiatanPage';
+import { Kegiatan } from '@/types/kegiatan';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 
@@ -77,7 +77,7 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ kegiatanList, onDateClick
           return (
             <div
               key={day.toString()}
-              className="relative p-2 h-28 bg-card hover:bg-accent/50 transition-colors duration-200 cursor-pointer flex flex-col"
+              className="relative p-2 h-24 bg-card hover:bg-accent/50 transition-colors duration-200 cursor-pointer flex flex-col"
               onClick={() => onDateClick(day)}
             >
               <span className={cn(
@@ -97,7 +97,7 @@ const EventCalendar: React.FC<EventCalendarProps> = ({ kegiatanList, onDateClick
                     }}
                     className="text-xs p-1 mb-1 rounded-md bg-blue-100 text-blue-800 hover:bg-blue-200 truncate"
                   >
-                    {event.name} {/* Changed from event.title */}
+                    {event.name}
                   </div>
                 ))}
                 {dayEvents.length > 2 && (

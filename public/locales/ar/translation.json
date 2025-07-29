@@ -7,83 +7,125 @@
   "english": "الإنجليزية",
   "arabic": "العربية",
   "footerRights": "جميع الحقوق محفوظة",
-  "welcomeTitle": "مرحباً بكم في نظام إدارة المعهد",
-  "welcomeSubtitle": "منصة متكاملة لإدارة بيانات الطلاب والموظفين والمناهج ومعلومات المعهد.",
-  "infoTitle": "معلومات هامة",
-  "infoSlide1": "يساعد هذا النظام في إدارة بيانات الطلاب بكفاءة.",
-  "infoSlide2": "إدارة متكاملة للموظفين وحقوق الوصول.",
-  "infoSlide3": "إدارة سهلة للمناهج وجداول الدروس.",
-  "infoSlide4": "أحدث أخبار وإعلانات المعهد.",
-  "infoSlide5": "ميزات شاملة لإعداد التقارير وتحليل البيانات.",
-  "infoSlide6": "سهولة الوصول لأولياء الأمور لمراقبة تقدم أبنائهم.",
-  "infoSlide7": "مصمم لتحسين كفاءة إدارة المعهد.",
+  "welcomeTitle": "أهلاً بكم في نظام إدارة المعهد",
+  "welcomeSubtitle": "حل متكامل لإدارة جميع الجوانب التشغيلية لمعهدكم بكفاءة.",
+  "infoTitle": "معلومات المعهد",
+  "infoSlide1": "تعليم عالي الجودة",
+  "infoSlide2": "بيئة إسلامية",
+  "infoSlide3": "مرافق حديثة",
+  "infoSlide4": "برنامج تحفيظ",
+  "infoSlide5": "أنشطة متنوعة",
+  "infoSlide6": "سكن مريح",
+  "infoSlide7": "معلمون محترفون",
+  "loginPageTitle": "تسجيل الدخول",
+  "loginFormTitle": "تسجيل الدخول إلى حسابك",
+  "loginFormDescription": "أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى لوحة التحكم.",
+  "emailLabel": "البريد الإلكتروني",
+  "emailPlaceholder": "name@example.com",
+  "passwordLabel": "كلمة المرور",
+  "loginButton": "تسجيل الدخول",
+  "registerPageTitle": "تسجيل",
+  "registerFormTitle": "إنشاء حساب جديد",
+  "registerFormDescription": "املأ النموذج أدناه للتسجيل.",
+  "fullNameLabel": "الاسم الكامل",
+  "fullNamePlaceholder": "أدخل اسمك الكامل",
+  "confirmPasswordLabel": "تأكيد كلمة المرور",
+  "registerButton": "تسجيل",
   "sidebar": {
-    "dashboard": "لوحة المعلومات",
-    "bankSantri": "بنك الطلاب",
-    "gradesAndAttendance": "الدرجات والحضور",
-    "announcements": "الإعلانات",
-    "settings": "الإعدادات",
-    "news": "الأخبار",
-    "logout": "تسجيل الخروج",
+    "dashboard": "لوحة التحكم",
     "santriManagement": "إدارة الطلاب",
     "santri": "الطلاب",
-    "waliSantri": "أولياء الأمور",
+    "registration": "التسجيل",
+    "waliSantri": "ولي الأمر",
+    "teacherAssignment": "تعيين المعلمين",
     "staffManagement": "إدارة الموظفين",
-    "staff": "الموظفين",
-    "accessRights": "حقوق الوصول",
+    "staff": "الموظفون",
+    "accessRights": "صلاحيات الوصول",
     "roles": "الأدوار",
-    "curriculum": "إدارة المناهج",
+    "curriculum": "المنهج الدراسي",
     "subjects": "المواد الدراسية",
-    "classPromotion": "ترقية الصف",
+    "classPromotion": "ترقية الفصول",
     "lessonSchedule": "جدول الدروس",
-    "pesantrenInfo": "معلومات المعهد",
-    "securityManagement": "إدارة الأمان",
-    "violations": "الانتهاكات",
+    "securityManagement": "إدارة الأمن والنظام",
+    "violations": "المخالفات",
     "educationManagement": "إدارة التعليم",
     "educationLevel": "المستوى التعليمي",
-    "class": "الصف",
-    "classGroup": "مجموعة الصف",
-    "educationGroup": "مجموعة التعليم",
+    "class": "الفصل",
+    "classGroup": "مجموعة الدراسة",
+    "educationGroup": "المجموعة التعليمية",
     "dormitory": "السكن",
     "program": "البرنامج",
     "information": "المعلومات",
+    "news": "الأخبار",
     "activitySchedule": "جدول الأنشطة",
     "masterData": "البيانات الرئيسية",
-    "job": "الوظائف",
+    "job": "المهنة",
+    "province": "المقاطعة",
+    "city": "المدينة",
+    "district": "المنطقة",
+    "village": "القرية",
+    "settings": "الإعدادات",
     "system": "النظام",
-    "navigation": "التنقل"
+    "navigation": "التنقل",
+    "santriInfo": "معلومات الطالب",
+    "gradesAndAttendance": "الدرجات والحضور",
+    "bankSantri": "بنك الطالب",
+    "announcements": "الإعلانات"
   },
-  "gradesAndAttendance": {
-    "title": "صفحة درجات الطلاب والحضور",
-    "placeholder": "سيتم عرض محتوى درجات الطلاب والحضور هنا."
-  },
-  "bankSantri": {
-    "title": "صفحة بنك الطلاب",
-    "placeholder": "سيتم عرض محتوى معلومات بنك الطلاب هنا."
-  },
-  "announcements": {
-    "title": "صفحة الإعلانات",
-    "placeholder": "سيتم عرض محتوى الإعلانات هنا."
-  },
-  "settings": {
-    "title": "صفحة إعدادات ولي الأمر",
-    "placeholder": "سيتم عرض محتوى إعدادات ولي الأمر هنا."
-  },
-  "welcome": {
-    "title": "مرحباً بكم في نظام إدارة المعهد",
-    "subtitle": "منصة متكاملة لإدارة بيانات الطلاب والموظفين والمناهج ومعلومات المعهد."
-  },
-  "info": {
-    "title": "معلومات هامة",
-    "slide1": "يساعد هذا النظام في إدارة بيانات الطلاب بكفاءة.",
-    "slide2": "إدارة متكاملة للموظفين وحقوق الوصول.",
-    "slide3": "إدارة سهلة للمناهج وجداول الدروس.",
-    "slide4": "أحدث أخبار وإعلانات المعهد.",
-    "slide5": "ميزات شاملة لإعداد التقارير وتحليل البيانات.",
-    "slide6": "سهولة الوصول لأولياء الأمور لمراقبة تقدم أبنائهم.",
-    "slide7": "مصمم لتحسين كفاءة إدارة المعهد."
+  "header": {
+    "toggleFullscreen": "تبديل وضع ملء الشاشة",
+    "selectLanguage": "اختر اللغة",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "usernamePlaceholder": "اسم المستخدم"
   },
   "footer": {
-    "rights": "جميع الحقوق محفوظة"
+    "copyright": "حقوق النشر © {{year}}"
+  },
+  "waliSantriDashboard": {
+    "title": "لوحة تحكم ولي الأمر",
+    "santriInfo": {
+      "title": "معلومات الطالب",
+      "name": "الاسم",
+      "class": "الفصل",
+      "status": "الحالة",
+      "statusValue": "نشط"
+    },
+    "latestGrades": {
+      "title": "أحدث الدرجات",
+      "math": "الرياضيات",
+      "arabic": "اللغة العربية",
+      "fiqh": "الفقه"
+    },
+    "attendance": {
+      "title": "الحضور",
+      "present": "حاضر: {{count}}",
+      "permission": "إذن: {{count}}",
+      "sick": "مريض: {{count}}"
+    },
+    "announcements": {
+      "title": "الإعلانات",
+      "noNew": "لا توجد إعلانات جديدة."
+    }
+  },
+  "teacherAssignment": {
+    "title": "تعيين المعلمين"
+  },
+  "bankSantri": {
+    "title": "بنك الطالب",
+    "placeholder": "هذه الميزة قيد التطوير."
+  },
+  "gradesAndAttendance": {
+    "title": "الدرجات والحضور",
+    "placeholder": "هذه الميزة قيد التطوير."
+  },
+  "announcements": {
+    "title": "الإعلانات",
+    "placeholder": "هذه الميزة قيد التطوير."
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "placeholder": "هذه الميزة قيد التطوير."
   }
 }

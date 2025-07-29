@@ -80,7 +80,7 @@ export interface CreateUpdateEmployeeRequest {
   first_name: string;
   last_name: string;
   email: string;
-  role_ids: number[];
+  roles: string[]; // Diubah dari role_ids: number[] menjadi roles: string[]
   code: string; // Added code for creation
   nik?: string; // Added nik
   phone?: string; // Added phone

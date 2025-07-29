@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,12 @@ import { useTheme } from '@/components/theme-provider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { useLogoutMutation } from '@/store/slices/authApi';
+import { logOut, selectCurrentUser } from '@/store/slices/authSlice';
+import * as toast from '@/utils/toast';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -46,7 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       icon: <Users className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
+        { titleKey: "sidebar.registration", href: "/dashboard/pendaftaran-santri", icon: <UserPlus className="h-4 w-4" /> },
         { titleKey: "sidebar.waliSantri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
+        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
       ],
     },
     {
@@ -99,6 +107,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       icon: <ClipboardList className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.job", href: "/dashboard/master-data/pekerjaan", icon: <Briefcase className="h-4 w-4" /> },
+        { titleKey: "sidebar.province", href: "/dashboard/wilayah/provinsi", icon: <Map className="h-4 w-4" /> },
+        { titleKey: "sidebar.city", href: "/dashboard/wilayah/kota", icon: <Building2 className="h-4 w-4" /> },
+        { titleKey: "sidebar.district", href: "/dashboard/wilayah/kecamatan", icon: <Tent className="h-4 w-4" /> },
+        { titleKey: "sidebar.village", href: "/dashboard/wilayah/desa", icon: <Home className="h-4 w-4" /> },
       ],
     },
     {
@@ -115,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
     { titleKey: "sidebar.dashboard", href: "/dashboard/wali-santri", icon: <LayoutDashboard className="h-5 w-5" /> },
     { titleKey: "sidebar.santriInfo", href: "/dashboard/informasi-santri", icon: <User className="h-5 w-5" /> },
     { titleKey: "sidebar.gradesAndAttendance", href: "/dashboard/nilai-absensi", icon: <BookOpenText className="h-5 w-5" /> },
-    { titleKey: "sidebar.bankSantri", href: "/dashboard/bank-santri", icon: <Landmark className="h-5 w-5" /> }, // Added Bank Santri
+    { titleKey: "sidebar.bankSantri", href: "/dashboard/bank-santri", icon: <Landmark className="h-5 w-5" /> },
     { titleKey: "sidebar.announcements", href: "/dashboard/pengumuman", icon: <Megaphone className="h-5 w-5" /> },
     { titleKey: "sidebar.settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" /> },
   ];
@@ -154,9 +166,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
               if (isCollapsed) {
                 return (
                   <DropdownMenu key={item.titleKey}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      {/* Tooltip wraps its trigger and content */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
                           <Button
                             variant={isActive ? "secondary" : "ghost"}
                             className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg p-0"
@@ -165,10 +178,20 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                             {item.icon}
                             <span className="sr-only">{t(item.titleKey)}</span>
                           </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
-                    </Tooltip>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
+                      </Tooltip>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {item.children.map((child) => (
+                        <DropdownMenuItem key={child.href} asChild>
+                          <Link to={child.href}>
+                            {child.icon}
+                            <span className="ml-3">{t(child.titleKey)}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
                   </DropdownMenu>
                 );
               } else {
@@ -177,7 +200,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     <AccordionTrigger
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
-                        isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                        isActive && "bg-sidebar-primary text-sidebar-primary-foreground"
                       )}
                     >
                       <div className="flex items-center flex-grow">
@@ -193,7 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                           className={cn(
                             "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
                             location.pathname.startsWith(child.href)
-                              ? "bg-sidebar-accent/50 text-sidebar-accent-foreground"
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
                               : "hover:bg-sidebar-accent/80"
                           )}
                         >
@@ -206,24 +229,41 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                 );
               }
             } else {
-              return (
-                <Tooltip key={item.titleKey}>
-                  <TooltipTrigger asChild>
-                    <Link
-                      to={item.href || "#"}
-                      className={cn(
-                        "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/80",
-                        isCollapsed ? "justify-center" : "px-4"
-                      )}
-                    >
-                      {item.icon}
-                      {!isCollapsed && <span className="ml-3">{t(item.titleKey)}</span>}
-                    </Link>
-                  </TooltipTrigger>
-                  {isCollapsed && <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>}
-                </Tooltip>
-              );
+              if (isCollapsed) {
+                return (
+                  <Tooltip key={item.titleKey}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={item.href || "#"}
+                        className={cn(
+                          "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
+                          isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
+                          "justify-center"
+                        )}
+                      >
+                        {item.icon}
+                        <span className="sr-only">{t(item.titleKey)}</span>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
+                  </Tooltip>
+                );
+              } else {
+                return (
+                  <Link
+                    key={item.titleKey}
+                    to={item.href || "#"}
+                    className={cn(
+                      "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
+                      isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
+                      "px-4"
+                    )}
+                  >
+                    {item.icon}
+                    <span className="ml-3">{t(item.titleKey)}</span>
+                  </Link>
+                );
+              }
             }
           })}
         </Accordion>
@@ -237,6 +277,10 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const { t, i18n } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hijriDate, setHijriDate] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [logoutApi] = useLogoutMutation();
+  const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -277,6 +321,18 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+      dispatch(logOut());
+      toast.showSuccess('Anda telah berhasil logout.');
+      navigate('/login');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+      toast.showError('Gagal logout. Silakan coba lagi.');
+    }
   };
 
   return (
@@ -345,13 +401,17 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span></DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/profile">
+                <User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span></DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <span className="font-medium hidden sm:block">{t('header.usernamePlaceholder')}</span>
+        <span className="font-medium hidden sm:block">{currentUser?.name || t('header.usernamePlaceholder')}</span>
       </div>
     </header>
   );

@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck } from 'lucide-react';
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import EventCalendar from '@/components/EventCalendar';
+import { useGetActivitiesQuery } from '@/store/slices/activityApi';
+import { Kegiatan } from '@/types/kegiatan';
+import { format } from 'date-fns';
+import ActivityDetailModal from '@/components/ActivityDetailModal';
+import { useSelector } from 'react-redux'; // Import useSelector
+import { selectIsAuthenticated } from '@/store/slices/authSlice'; // Import selectIsAuthenticated
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
   <Card className="transition-all hover:shadow-md">
@@ -34,7 +41,49 @@ const StatCardSkeleton: React.FC = () => (
 );
 
 const AdministrasiDashboard: React.FC = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated); // Dapatkan status autentikasi
+  const navigate = useNavigate(); // Inisialisasi useNavigate
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/'); // Arahkan ke halaman utama jika belum login
+    }
+  }, [isAuthenticated, navigate]);
+
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
+  const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
+
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State untuk modal
+  const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null); // State untuk kegiatan yang dipilih
+
+  const kegiatanList: Kegiatan[] = React.useMemo(() => {
+    if (!activitiesData?.data) return [];
+    return activitiesData.data.map(apiKegiatan => ({
+      id: apiKegiatan.id,
+      date: new Date(apiKegiatan.date),
+      name: apiKegiatan.name,
+      description: apiKegiatan.description,
+      status: apiKegiatan.status === 'inactive' ? 'Selesai' : 'Belum Selesai',
+    }));
+  }, [activitiesData]);
+
+  const handleDateClick = (date: Date) => {
+    console.log('Date clicked on dashboard calendar:', format(date, 'yyyy-MM-dd'));
+  };
+
+  const handleEventClick = (kegiatan: Kegiatan) => {
+    setSelectedKegiatan(kegiatan);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedKegiatan(null);
+  };
+
+  if (!isAuthenticated) {
+    return null; // Jangan render apa pun jika tidak diautentikasi (pengalihan akan terjadi)
+  }
 
   return (
     <DashboardLayout title="Dashboard Administrasi" role="administrasi">
@@ -85,7 +134,7 @@ const AdministrasiDashboard: React.FC = () => {
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
         <div className="flex flex-wrap gap-4">
-          <Link to="/dashboard/santri/add"> {/* Mengubah Button menjadi Link */}
+          <Link to="/dashboard/santri/add">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
             </Button>
@@ -98,6 +147,31 @@ const AdministrasiDashboard: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Jadwal Kegiatan</h2>
+        {isLoadingActivities ? (
+          <div className="text-center text-muted-foreground py-4">
+            Memuat jadwal kegiatan...
+          </div>
+        ) : isErrorActivities ? (
+          <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
+        ) : (
+          <div className="w-full lg:w-1/2">
+            <EventCalendar
+              kegiatanList={kegiatanList}
+              onDateClick={handleDateClick}
+              onEventClick={handleEventClick}
+            />
+          </div>
+        )}
+      </div>
+
+      <ActivityDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        kegiatan={selectedKegiatan}
+      />
     </DashboardLayout>
   );
 };

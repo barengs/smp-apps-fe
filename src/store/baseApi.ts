@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { RootState } from './index';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,9 +14,25 @@ if (!baseUrl) {
   );
 }
 
+const baseQuery = fetchBaseQuery({
+  baseUrl,
+  prepareHeaders: (headers, { getState }) => {
+    // Ambil token dari state auth
+    const token = (getState() as RootState).auth.token;
+    console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada'); // Tambahkan baris ini
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    // Tambahkan header Accept dan Content-Type
+    headers.set('Accept', 'application/json');
+    headers.set('Content-Type', 'application/json');
+    return headers;
+  },
+});
+
 export const smpApi = createApi({
   reducerPath: 'smpApi',
-  baseQuery: fetchBaseQuery({ baseUrl }),
+  baseQuery: baseQuery,
   tagTypes: [
     'Role',
     'Santri',
@@ -35,9 +52,13 @@ export const smpApi = createApi({
     'ClassGroup',
     'Menu',
     'EducationGroup',
-    'Pekerjaan', // Tambahkan tag type baru
+    'Pekerjaan',
     'Activity',
-    'Berita', // Tambahkan tag type 'Berita'
+    'Berita',
+    'CalonSantri',
+    'Study', // Tambahkan tag type 'Study' di sini
+    'User', // Tambahkan tag type 'User'
+    'Profile', // Tambahkan tag type 'Profile' di sini
   ],
   endpoints: () => ({}),
 });

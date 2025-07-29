@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { santriFormSchema, SantriFormValues, step1Fields, step2Fields, step3Fields, step4Fields } from './form-schemas';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Users, UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll } from 'lucide-react'; // Import new icons
+import { Users, UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import WaliSantriStep from './form-steps/WaliSantriStep';
@@ -12,18 +12,17 @@ import SantriProfileStep from './form-steps/SantriProfileStep';
 import EducationStep from './form-steps/EducationStep';
 import DocumentStep from './form-steps/DocumentStep';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const SantriFormPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const form = useForm<SantriFormValues>({
     resolver: zodResolver(santriFormSchema),
     mode: 'onChange',
     defaultValues: {
-      // Initialize default values to prevent uncontrolled component warnings
       nik: '',
       kk: '',
       firstName: '',
@@ -52,8 +51,8 @@ const SantriFormPage: React.FC = () => {
   });
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
-    { label: 'Tambah Santri', icon: <UserPlus className="h-4 w-4" /> },
+    { label: 'Pendaftaran Santri', href: '/dashboard/pendaftaran-santri', icon: <UserPlus className="h-4 w-4" /> },
+    { label: 'Formulir Pendaftaran', icon: <FileText className="h-4 w-4" /> },
   ];
 
   const nextStep = async () => {
@@ -86,8 +85,6 @@ const SantriFormPage: React.FC = () => {
     }
     console.log('Form Data Submitted:', data);
     toast.success('Proses submit data santri berhasil!');
-    // Here you would typically send the data to your API
-    // After successful submission, you might navigate or show a success message
   };
 
   const onSubmitAndReset = async () => {
@@ -96,12 +93,11 @@ const SantriFormPage: React.FC = () => {
       toast.error('Harap perbaiki semua kesalahan sebelum menyimpan.');
       return;
     }
-    const data = form.getValues(); // Get current form values
+    const data = form.getValues();
     console.log('Form Data Submitted (and reset):', data);
     toast.success('Proses submit data santri berhasil! Formulir direset.');
-    // Here you would typically send the data to your API
-    form.reset(); // Reset all fields to default values
-    setCurrentStep(1); // Go back to the first step
+    form.reset();
+    setCurrentStep(1);
   };
 
   const steps = [
@@ -112,11 +108,10 @@ const SantriFormPage: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout title="Tambah Santri Baru" role="administrasi">
-      <div className="container mx-auto pb-8 px-4">
+    <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
+      <div className="container mx-auto -mt-4 pb-8 px-4"> {/* Added -mt-4 here */}
         <CustomBreadcrumb items={breadcrumbItems} />
 
-        {/* Stepper */}
         <div className="mb-8">
           <div className="w-full max-w-3xl mx-auto">
             <div className="flex items-center justify-between">
@@ -143,7 +138,6 @@ const SantriFormPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Form Content */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="max-w-4xl mx-auto">
@@ -153,10 +147,9 @@ const SantriFormPage: React.FC = () => {
               {currentStep === 4 && <DocumentStep form={form} />}
             </div>
 
-            {/* Navigation Buttons */}
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
               <div className="flex space-x-2">
-                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/santri')}>
+                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')}>
                   <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>

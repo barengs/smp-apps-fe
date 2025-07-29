@@ -96,6 +96,11 @@ const AsramaTable: React.FC = () => {
   const columns: ColumnDef<Asrama>[] = useMemo(
     () => [
       {
+        header: 'No',
+        id: 'rowNumber',
+        cell: ({ row }) => row.index + 1,
+      },
+      {
         accessorKey: 'name',
         header: 'Nama Asrama',
       },
@@ -116,13 +121,6 @@ const AsramaTable: React.FC = () => {
                 onClick={() => handleEditData(asrama)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
-              </Button>
-              <Button
-                variant="destructive"
-                className="h-8 px-2 text-xs"
-                onClick={() => handleDeleteClick(asrama)}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
             </div>
           );

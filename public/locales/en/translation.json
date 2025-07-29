@@ -7,66 +7,125 @@
   "english": "English",
   "arabic": "Arabic",
   "footerRights": "All Rights Reserved",
-  "welcomeTitle": "Welcome to Pondok Management System",
-  "welcomeSubtitle": "An integrated platform for managing student, staff, curriculum, and pesantren information.",
-  "infoTitle": "Important Information",
-  "infoSlide1": "This system helps manage student data efficiently.",
-  "infoSlide2": "Integrated staff and access rights management.",
-  "infoSlide3": "Easy curriculum and lesson schedule management.",
-  "infoSlide4": "Latest pesantren news and announcements.",
-  "infoSlide5": "Comprehensive reporting and data analysis features.",
-  "infoSlide6": "Easy access for guardians to monitor their children's progress.",
-  "infoSlide7": "Designed to improve pesantren administration efficiency.",
+  "welcomeTitle": "Welcome to the Pesantren Management System",
+  "welcomeSubtitle": "An integrated solution to efficiently manage all operational aspects of your pesantren.",
+  "infoTitle": "Pesantren Information",
+  "infoSlide1": "Quality Education",
+  "infoSlide2": "Islamic Environment",
+  "infoSlide3": "Modern Facilities",
+  "infoSlide4": "Tahfidz Program",
+  "infoSlide5": "Various Extracurriculars",
+  "infoSlide6": "Comfortable Dormitory",
+  "infoSlide7": "Professional Educators",
+  "loginPageTitle": "Login",
+  "loginFormTitle": "Login to Your Account",
+  "loginFormDescription": "Enter your email and password to access the dashboard.",
+  "emailLabel": "Email",
+  "emailPlaceholder": "name@example.com",
+  "passwordLabel": "Password",
+  "loginButton": "Login",
+  "registerPageTitle": "Register",
+  "registerFormTitle": "Create a New Account",
+  "registerFormDescription": "Fill out the form below to register.",
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "confirmPasswordLabel": "Confirm Password",
+  "registerButton": "Register",
   "sidebar": {
     "dashboard": "Dashboard",
-    "bankSantri": "Student Bank",
-    "gradesAndAttendance": "Grades & Attendance",
-    "announcements": "Announcements",
-    "settings": "Settings",
-    "news": "News",
-    "logout": "Logout",
-    "santriManagement": "Student Management",
-    "santri": "Students",
-    "waliSantri": "Guardians",
+    "santriManagement": "Santri Management",
+    "santri": "Santri",
+    "registration": "Registration",
+    "waliSantri": "Parent/Guardian",
+    "teacherAssignment": "Teacher Assignment",
     "staffManagement": "Staff Management",
     "staff": "Staff",
     "accessRights": "Access Rights",
     "roles": "Roles",
-    "curriculum": "Curriculum Management",
+    "curriculum": "Curriculum",
     "subjects": "Subjects",
     "classPromotion": "Class Promotion",
     "lessonSchedule": "Lesson Schedule",
-    "pesantrenInfo": "Pesantren Information",
-    "securityManagement": "Security Management",
+    "securityManagement": "Security & Order",
     "violations": "Violations",
     "educationManagement": "Education Management",
     "educationLevel": "Education Level",
     "class": "Class",
-    "classGroup": "Class Group",
+    "classGroup": "Study Group",
     "educationGroup": "Education Group",
     "dormitory": "Dormitory",
     "program": "Program",
     "information": "Information",
+    "news": "News",
     "activitySchedule": "Activity Schedule",
     "masterData": "Master Data",
-    "job": "Jobs",
+    "job": "Occupation",
+    "province": "Province",
+    "city": "City",
+    "district": "District",
+    "village": "Village",
+    "settings": "Settings",
     "system": "System",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "santriInfo": "Santri Information",
+    "gradesAndAttendance": "Grades & Attendance",
+    "bankSantri": "Santri Bank",
+    "announcements": "Announcements"
   },
-  "gradesAndAttendance": {
-    "title": "Student Grades and Attendance Page",
-    "placeholder": "Content for student grades and attendance will be displayed here."
+  "header": {
+    "toggleFullscreen": "Toggle Fullscreen",
+    "selectLanguage": "Select Language",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "usernamePlaceholder": "Username"
+  },
+  "footer": {
+    "copyright": "Copyright © {{year}}"
+  },
+  "waliSantriDashboard": {
+    "title": "Parent/Guardian Dashboard",
+    "santriInfo": {
+      "title": "Santri Information",
+      "name": "Name",
+      "class": "Class",
+      "status": "Status",
+      "statusValue": "Active"
+    },
+    "latestGrades": {
+      "title": "Latest Grades",
+      "math": "Mathematics",
+      "arabic": "Arabic Language",
+      "fiqh": "Fiqh"
+    },
+    "attendance": {
+      "title": "Attendance",
+      "present": "Present: {{count}}",
+      "permission": "Permission: {{count}}",
+      "sick": "Sick: {{count}}"
+    },
+    "announcements": {
+      "title": "Announcements",
+      "noNew": "No new announcements."
+    }
+  },
+  "teacherAssignment": {
+    "title": "Teacher Assignment"
   },
   "bankSantri": {
-    "title": "Student Bank Page",
-    "placeholder": "Content for student bank information will be displayed here."
+    "title": "Santri Bank",
+    "placeholder": "This feature is under development."
+  },
+  "gradesAndAttendance": {
+    "title": "Grades & Attendance",
+    "placeholder": "This feature is under development."
   },
   "announcements": {
-    "title": "Announcements Page",
-    "placeholder": "Content for announcements will be displayed here."
+    "title": "Announcements",
+    "placeholder": "This feature is under development."
   },
   "settings": {
-    "title": "Guardian Settings Page",
-    "placeholder": "Content for guardian settings will be displayed here."
+    "title": "Settings",
+    "placeholder": "This feature is under development."
   }
 }

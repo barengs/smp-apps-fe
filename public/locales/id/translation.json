@@ -3,74 +3,129 @@
   "register": "Daftar",
   "login": "Masuk",
   "chooseLanguage": "Pilih Bahasa",
-  "indonesian": "Indonesia",
+  "indonesian": "Bahasa Indonesia",
   "english": "Inggris",
   "arabic": "Arab",
   "footerRights": "Hak Cipta Dilindungi",
-  "welcomeTitle": "Selamat Datang di Sistem Manajemen Pondok",
-  "welcomeSubtitle": "Platform terpadu untuk mengelola data santri, staf, kurikulum, dan informasi pondok pesantren.",
-  "infoTitle": "Informasi Penting",
-  "infoSlide1": "Sistem ini membantu pengelolaan data santri secara efisien.",
-  "infoSlide2": "Manajemen staf dan hak akses yang terintegrasi.",
-  "infoSlide3": "Pengelolaan kurikulum dan jadwal pelajaran yang mudah.",
-  "infoSlide4": "Informasi berita dan pengumuman pondok terkini.",
-  "infoSlide5": "Fitur pelaporan dan analisis data yang komprehensif.",
-  "infoSlide6": "Akses mudah untuk wali santri memantau perkembangan anak.",
-  "infoSlide7": "Dirancang untuk meningkatkan efisiensi administrasi pondok.",
+  "welcomeTitle": "Selamat Datang di Sistem Manajemen Pesantren",
+  "welcomeSubtitle": "Solusi terintegrasi untuk mengelola semua aspek operasional pesantren Anda secara efisien.",
+  "infoTitle": "Informasi Pesantren",
+  "infoSlide1": "Pendidikan Berkualitas",
+  "infoSlide2": "Lingkungan Islami",
+  "infoSlide3": "Fasilitas Modern",
+  "infoSlide4": "Program Tahfidz",
+  "infoSlide5": "Ekstrakurikuler Beragam",
+  "infoSlide6": "Asrama Nyaman",
+  "infoSlide7": "Tenaga Pendidik Profesional",
+  "loginPageTitle": "Masuk",
+  "loginFormTitle": "Masuk ke Akun Anda",
+  "loginFormDescription": "Masukkan email dan kata sandi Anda untuk mengakses dasbor.",
+  "emailLabel": "Email",
+  "emailPlaceholder": "nama@contoh.com",
+  "passwordLabel": "Kata Sandi",
+  "loginButton": "Masuk",
+  "registerPageTitle": "Daftar",
+  "registerFormTitle": "Buat Akun Baru",
+  "registerFormDescription": "Isi formulir di bawah ini untuk mendaftar.",
+  "fullNameLabel": "Nama Lengkap",
+  "fullNamePlaceholder": "Masukkan nama lengkap Anda",
+  "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+  "registerButton": "Daftar",
   "sidebar": {
     "dashboard": "Dasbor",
-    "santriInfo": "Informasi Santri",
-    "bankSantri": "Bank Santri",
-    "gradesAndAttendance": "Nilai & Absensi",
-    "announcements": "Pengumuman",
-    "settings": "Pengaturan",
-    "news": "Berita",
-    "logout": "Keluar",
     "santriManagement": "Manajemen Santri",
     "santri": "Santri",
+    "registration": "Pendaftaran",
     "waliSantri": "Wali Santri",
+    "teacherAssignment": "Guru Tugas",
     "staffManagement": "Manajemen Staf",
     "staff": "Staf",
     "accessRights": "Hak Akses",
     "roles": "Peran",
-    "curriculum": "Manajemen Kurikulum",
+    "curriculum": "Kurikulum",
     "subjects": "Mata Pelajaran",
     "classPromotion": "Kenaikan Kelas",
     "lessonSchedule": "Jadwal Pelajaran",
-    "pesantrenInfo": "Informasi Pesantren",
-    "securityManagement": "Manajemen Keamanan",
+    "securityManagement": "Keamanan & Ketertiban",
     "violations": "Pelanggaran",
     "educationManagement": "Manajemen Pendidikan",
     "educationLevel": "Jenjang Pendidikan",
     "class": "Kelas",
-    "classGroup": "Rombel",
+    "classGroup": "Rombongan Belajar",
     "educationGroup": "Kelompok Pendidikan",
     "dormitory": "Asrama",
     "program": "Program",
     "information": "Informasi",
+    "news": "Berita",
     "activitySchedule": "Jadwal Kegiatan",
     "masterData": "Data Master",
-    "jobs": "Pekerjaan",
+    "job": "Pekerjaan",
+    "province": "Provinsi",
+    "city": "Kota",
+    "district": "Kecamatan",
+    "village": "Desa",
+    "settings": "Pengaturan",
     "system": "Sistem",
-    "navigation": "Navigasi"
+    "navigation": "Navigasi",
+    "santriInfo": "Informasi Santri",
+    "gradesAndAttendance": "Nilai & Absensi",
+    "bankSantri": "Bank Santri",
+    "announcements": "Pengumuman"
   },
-  "gradesAndAttendance": {
-    "title": "Halaman Nilai dan Absensi Santri",
-    "placeholder": "Konten untuk nilai dan absensi santri akan ditampilkan di sini."
-  },
-  "bankSantri": {
-    "title": "Halaman Bank Santri",
-    "placeholder": "Konten untuk informasi bank santri akan ditampilkan di sini."
-  },
-  "announcements": {
-    "title": "Halaman Pengumuman",
-    "placeholder": "Konten untuk pengumuman akan ditampilkan di sini."
-  },
-  "settings": {
-    "title": "Halaman Pengaturan Wali Santri",
-    "placeholder": "Konten untuk pengaturan wali santri akan ditampilkan di sini."
+  "header": {
+    "toggleFullscreen": "Alihkan Layar Penuh",
+    "selectLanguage": "Pilih Bahasa",
+    "profile": "Profil",
+    "settings": "Pengaturan",
+    "logout": "Keluar",
+    "usernamePlaceholder": "Nama Pengguna"
   },
   "footer": {
-    "copyright": "Hak Cipta Dilindungi"
+    "copyright": "Hak Cipta © {{year}}"
+  },
+  "waliSantriDashboard": {
+    "title": "Dasbor Wali Santri",
+    "santriInfo": {
+      "title": "Informasi Santri",
+      "name": "Nama",
+      "class": "Kelas",
+      "status": "Status",
+      "statusValue": "Aktif"
+    },
+    "latestGrades": {
+      "title": "Nilai Terbaru",
+      "math": "Matematika",
+      "arabic": "Bahasa Arab",
+      "fiqh": "Fiqih"
+    },
+    "attendance": {
+      "title": "Kehadiran",
+      "present": "Hadir: {{count}}",
+      "permission": "Izin: {{count}}",
+      "sick": "Sakit: {{count}}"
+    },
+    "announcements": {
+      "title": "Pengumuman",
+      "noNew": "Tidak ada pengumuman baru."
+    }
+  },
+  "teacherAssignment": {
+    "title": "Penugasan Guru"
+  },
+  "bankSantri": {
+    "title": "Bank Santri",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
+  },
+  "gradesAndAttendance": {
+    "title": "Nilai & Absensi",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
+  },
+  "announcements": {
+    "title": "Pengumuman",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "placeholder": "Fitur ini sedang dalam pengembangan."
   }
 }

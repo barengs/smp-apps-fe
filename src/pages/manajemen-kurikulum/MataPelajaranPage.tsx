@@ -3,6 +3,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { BookCopy, BookMarked } from 'lucide-react';
+import MataPelajaranTable from './MataPelajaranTable';
 
 const MataPelajaranPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -12,7 +13,7 @@ const MataPelajaranPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Manajemen Mata Pelajaran" role="administrasi">
-      <div className="container mx-auto py-4 px-4">
+      <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
@@ -20,9 +21,7 @@ const MataPelajaranPage: React.FC = () => {
             <CardDescription>Kelola daftar mata pelajaran yang diajarkan.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center h-40">
-              <p className="text-muted-foreground">Fitur ini sedang dalam pengembangan.</p>
-            </div>
+            <MataPelajaranTable />
           </CardContent>
         </Card>
       </div>
