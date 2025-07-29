@@ -158,6 +158,7 @@ const PeranTable: React.FC = () => {
         header: 'Aksi',
         cell: ({ row }) => {
           const peran = row.original;
+          const isProtectedRole = peran.roleName === 'Superadmin' || peran.roleName === 'Wali Santri';
           return (
             <div className="flex space-x-2">
               <Button
@@ -171,6 +172,7 @@ const PeranTable: React.FC = () => {
                 variant="destructive"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleDeleteClick(peran)}
+                disabled={isProtectedRole} // Menonaktifkan tombol jika peran dilindungi
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
