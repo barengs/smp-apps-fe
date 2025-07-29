@@ -29,6 +29,10 @@ export const beritaApi = smpApi.injectEndpoints({
             ]
           : [{ type: 'Berita', id: 'LIST' }],
     }),
+    getBeritaById: builder.query<{ data: Berita }, number>({
+      query: (id) => `news/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Berita', id }],
+    }),
     createBerita: builder.mutation<Berita, BeritaPayload>({
       query: (newBerita) => ({
         url: 'news',
@@ -57,6 +61,7 @@ export const beritaApi = smpApi.injectEndpoints({
 
 export const {
   useGetBeritaQuery,
+  useGetBeritaByIdQuery,
   useCreateBeritaMutation,
   useUpdateBeritaMutation,
   useDeleteBeritaMutation,

@@ -43,6 +43,7 @@ import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
 import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
 import UserProfilePage from '@/pages/profile/UserProfilePage';
+import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/daftar" element={<Daftar />} />
+            <Route path="/berita/:id" element={<BeritaDetailPage />} />
 
             {/* Rute yang Dilindungi */}
             <Route element={<ProtectedRoute />}>

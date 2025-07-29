@@ -14,10 +14,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useLogoutMutation } from '@/store/slices/authApi';
-import { logOut, selectCurrentUser } from '@/store/slices/authSlice';
+import { logOut } from '@/store/authActions';
 import * as toast from '@/utils/toast';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { selectCurrentUser } from '@/store/slices/authSlice'; // Tambahkan import ini
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
