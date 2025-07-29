@@ -19,6 +19,7 @@ import KecamatanPage from "@/pages/data-wilayah/KecamatanPage";
 import DesaPage from "@/pages/data-wilayah/DesaPage";
 import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage";
 import ProgramPage from "@/pages/manajemen-pendidikan/ProgramPage";
+import TahunAjaranPage from "@/pages/manajemen-pendidikan/TahunAjaranPage";
 import AsramaPage from "@/pages/manajemen-pendidikan/AsramaPage";
 import JenjangPendidikanPage from "@/pages/manajemen-pendidikan/JenjangPendidikanPage";
 import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
               <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
               <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
+              <Route path="/dashboard/pendidikan/tahun-ajaran" element={<TahunAjaranPage />} />
               <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
               <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
               <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />

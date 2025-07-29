@@ -16,6 +16,7 @@ import './slices/cityApi';
 import './slices/districtApi';
 import './slices/villageApi'; // Import the new village slice
 import './slices/programApi'; // Import the new program slice
+import './slices/tahunAjaranApi';
 import './slices/hostelApi';
 import './slices/educationApi';
 import './slices/classroomApi';

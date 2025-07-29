@@ -77,7 +77,6 @@ const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) =>
   return result;
 };
 
-
 export const smpApi = createApi({
   reducerPath: 'smpApi',
   baseQuery: baseQueryWithReauth, // Gunakan baseQuery yang sudah dibungkus
@@ -104,9 +103,10 @@ export const smpApi = createApi({
     'Activity',
     'Berita',
     'CalonSantri',
-    'Study', // Tambahkan tag type 'Study' di sini
-    'User', // Tambahkan tag type 'User'
-    'Profile', // Tambahkan tag type 'Profile' di sini
+    'Study',
+    'User',
+    'Profile',
+    'TahunAjaran',
   ],
   endpoints: () => ({}),
 });
