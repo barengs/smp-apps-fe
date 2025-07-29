@@ -158,7 +158,7 @@ const PeranTable: React.FC = () => {
         header: 'Aksi',
         cell: ({ row }) => {
           const peran = row.original;
-          const isProtectedRole = peran.roleName === 'Superadmin' || peran.roleName === 'Wali Santri';
+          const isProtectedRole = peran.roleName === 'superadmin' || peran.roleName === 'orangtua';
           return (
             <div className="flex space-x-2">
               <Button
