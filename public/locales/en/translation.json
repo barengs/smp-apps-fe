@@ -71,7 +71,8 @@
     "gradesAndAttendance": "Grades & Attendance",
     "bankSantri": "Santri Bank",
     "announcements": "Announcements",
-    "academicYear": "Academic Year"
+    "academicYear": "Academic Year",
+    "internshipManagement": "Internship Management"
   },
   "header": {
     "toggleFullscreen": "Toggle Fullscreen",

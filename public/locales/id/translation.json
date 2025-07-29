@@ -71,7 +71,8 @@
     "gradesAndAttendance": "Nilai & Absensi",
     "bankSantri": "Bank Santri",
     "announcements": "Pengumuman",
-    "academicYear": "Tahun Ajaran"
+    "academicYear": "Tahun Ajaran",
+    "internshipManagement": "Manajemen Magang"
   },
   "header": {
     "toggleFullscreen": "Alihkan Layar Penuh",

@@ -71,7 +71,8 @@
     "gradesAndAttendance": "الدرجات والحضور",
     "bankSantri": "بنك الطالب",
     "announcements": "الإعلانات",
-    "academicYear": "السنة الدراسية"
+    "academicYear": "السنة الدراسية",
+    "internshipManagement": "إدارة التدريب"
   },
   "header": {
     "toggleFullscreen": "تبديل وضع ملء الشاشة",
