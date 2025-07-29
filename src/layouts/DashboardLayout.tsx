@@ -55,7 +55,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.santri", href: "/dashboard/santri", icon: <UserCheck className="h-4 w-4" /> },
         { titleKey: "sidebar.registration", href: "/dashboard/pendaftaran-santri", icon: <UserPlus className="h-4 w-4" /> },
         { titleKey: "sidebar.waliSantri", href: "/dashboard/wali-santri-list", icon: <UserPlus className="h-4 w-4" /> },
-        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
+      ],
+    },
+    {
+      titleKey: "sidebar.internshipManagement", // Menu baru
+      icon: <Briefcase className="h-5 w-5" />,
+      children: [
+        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> }, // Dipindahkan ke sini
       ],
     },
     {
@@ -139,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const defaultOpenItem = React.useMemo(() => {
     if (isCollapsed) return undefined;
     for (const item of sidebarNavItems) {
-      if (item.children?.some(child => location.pathname.startsWith(child.href))) {
+      if (item.children?.some(child => location.pathname.startsWith(child.href)) || location.pathname.startsWith(item.href ?? '___')) {
         return item.titleKey;
       }
     }
