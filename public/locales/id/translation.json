@@ -72,7 +72,8 @@
     "bankSantri": "Bank Santri",
     "announcements": "Pengumuman",
     "academicYear": "Tahun Ajaran",
-    "internshipManagement": "Manajemen Magang"
+    "internshipManagement": "Manajemen Magang",
+    "responsiblePerson": "Penanggung Jawab"
   },
   "header": {
     "toggleFullscreen": "Alihkan Layar Penuh",
