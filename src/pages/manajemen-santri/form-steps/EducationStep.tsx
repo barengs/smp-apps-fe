@@ -1,32 +1,26 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
+import Webcam from 'react-webcam';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { UploadCloud, Camera, Loader2 } from 'lucide-react'; // Import Loader2 for loading spinner
+import { UploadCloud, Camera } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { showError } from '@/utils/toast';
 
 interface EducationStepProps {
   form: any;
 }
 
-type CameraStatus = 'idle' | 'requesting_permission' | 'initializing_stream' | 'ready' | 'error';
-
 const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   const { control, watch, setValue } = useFormContext<SantriFormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isVideoReady, setIsVideoReady] = useState(false);
-  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle'); // New state for camera status
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const webcamRef = useRef<Webcam>(null);
 
   const fotoSantriFile = watch('fotoSantri');
 
@@ -42,138 +36,38 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     }
   }, [fotoSantriFile]);
 
-  // Cleanup stream on component unmount or dialog close
-  useEffect(() => {
-    // This cleanup runs when component unmounts or isCameraOpen/stream changes
-    return () => {
-      if (stream) {
-        console.log("Stopping camera stream due to unmount or dialog close.");
-        stream.getTracks().forEach(track => track.stop());
-        setStream(null); // Clear stream state
-        setIsVideoReady(false);
-        setCameraStatus('idle');
-      }
-    };
-  }, [isCameraOpen, stream]); // Depend on isCameraOpen and stream for cleanup
-
-  // Effect to set video srcObject and attach listeners when stream and videoRef are ready
-  useEffect(() => {
-    if (stream && videoRef.current) {
-      console.log("Stream and videoRef are available. Setting srcObject and attaching listeners.");
-      const videoElement = videoRef.current;
-      videoElement.srcObject = stream;
-
-      const handleLoadedMetadata = () => {
-        console.log("Video metadata loaded. Setting status to initializing_stream.");
-        setCameraStatus('initializing_stream');
-      };
-
-      const handleCanPlay = () => {
-        console.log("Video can play. Setting isVideoReady to true and status to ready.");
-        setIsVideoReady(true);
-        setCameraStatus('ready');
-      };
-
-      const handleError = (event: Event) => {
-        console.error("Video element error:", event);
-        showError("Terjadi kesalahan pada video stream. Coba lagi.");
-        handleCloseCamera();
-        setCameraStatus('error');
-      };
-
-      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
-      videoElement.addEventListener('canplay', handleCanPlay);
-      videoElement.addEventListener('error', handleError);
-
-      videoElement.play().catch(err => {
-        console.error("Error playing video:", err);
-        showError("Gagal memutar video kamera. Coba lagi.");
-        handleCloseCamera();
-        setCameraStatus('error');
-      });
-
-      // Cleanup event listeners when component unmounts or dependencies change
-      return () => {
-        console.log("Cleaning up video event listeners.");
-        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        videoElement.removeEventListener('canplay', handleCanPlay);
-        videoElement.removeEventListener('error', handleError);
-      };
+  // Helper function to convert base64 data URL to a File object
+  const dataURLtoFile = (dataurl: string, filename: string): File | null => {
+    const arr = dataurl.split(',');
+    if (arr.length < 2) { return null; }
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    if (!mimeMatch) { return null; }
+    const mime = mimeMatch[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
     }
-  }, [stream, videoRef.current]); // Dependencies: stream and videoRef.current
-
-  const handleOpenCamera = async () => {
-    setIsVideoReady(false);
-    setCameraStatus('requesting_permission'); // Set status to requesting permission
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      console.log("Camera stream obtained successfully.");
-      setStream(mediaStream); // This will trigger the useEffect above
-      setIsCameraOpen(true); // Open the dialog
-    } catch (err: any) { // Catch specific error types if possible
-      console.error("Error accessing camera:", err);
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        showError("Akses kamera ditolak. Mohon izinkan akses kamera di pengaturan browser Anda.");
-      } else if (err.name === 'NotFoundError') {
-        showError("Tidak ada kamera yang ditemukan. Pastikan kamera terhubung dan berfungsi.");
-      } else {
-        showError("Terjadi kesalahan saat mengakses kamera: " + err.message);
-      }
-      setCameraStatus('error'); // Set status to error
-      setIsCameraOpen(false); // Keep dialog closed if error
-    }
+    return new File([u8arr], filename, { type: mime });
   };
 
-  const handleCloseCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    setStream(null);
-    setIsCameraOpen(false);
-    setIsVideoReady(false);
-    setCameraStatus('idle'); // Reset status to idle
-  };
-
-  const handleCapturePhoto = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    if (!isVideoReady || !video || !canvas) { // Check isVideoReady before proceeding
-      showError("Video stream belum siap. Mohon tunggu sebentar atau coba lagi.");
-      console.error("Video stream not ready for capture.");
-      return;
-    }
-
-    // Ensure video dimensions are available
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-      showError("Video stream tidak memiliki dimensi yang valid. Coba lagi.");
-      console.error("Video dimensions are 0, cannot capture.");
-      return;
-    }
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    
-    if (!context) {
-      showError("Gagal mendapatkan konteks 2D dari kanvas.");
-      console.error("Canvas context is null.");
-      return;
-    }
-
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-        setValue('fotoSantri', file, { shouldValidate: true });
-        handleCloseCamera(); 
+  const handleCapturePhoto = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
+        const file = dataURLtoFile(imageSrc, `capture-${Date.now()}.jpg`);
+        if (file) {
+          setValue('fotoSantri', file, { shouldValidate: true });
+          setIsCameraOpen(false); // Close dialog on capture
+        } else {
+          showError("Gagal mengonversi gambar. Coba lagi.");
+        }
       } else {
-        console.error("Failed to create blob from canvas.");
         showError("Gagal mengambil gambar. Coba lagi.");
       }
-    }, 'image/jpeg');
-  };
+    }
+  }, [webcamRef, setValue]);
 
   return (
     <div className="space-y-6">
@@ -261,9 +155,9 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                     </FormItem>
                   )}
                 />
-                <Dialog open={isCameraOpen} onOpenChange={(open) => !open && handleCloseCamera()}>
+                <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
                   <DialogTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full" onClick={handleOpenCamera}>
+                    <Button type="button" variant="outline" className="w-full" onClick={() => setIsCameraOpen(true)}>
                       <Camera className="mr-2 h-4 w-4" />
                       Ambil Foto dari Kamera
                     </Button>
@@ -273,22 +167,22 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                       <DialogTitle>Ambil Foto</DialogTitle>
                       <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription>
                     </DialogHeader>
-                    <div className="relative w-full h-64 bg-muted flex items-center justify-center rounded-md overflow-hidden">
-                      {cameraStatus !== 'ready' && isCameraOpen && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 text-white z-10">
-                          <Loader2 className="h-8 w-8 animate-spin mb-2" />
-                          {cameraStatus === 'requesting_permission' && <p>Meminta izin kamera...</p>}
-                          {cameraStatus === 'initializing_stream' && <p>Memuat kamera...</p>}
-                          {cameraStatus === 'error' && <p>Gagal memuat kamera. Coba lagi.</p>}
-                          <p className="text-sm mt-1 text-center px-4">Pastikan Anda telah memberikan izin kamera di browser Anda.</p>
-                        </div>
-                      )}
-                      <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                      <canvas ref={canvasRef} className="hidden" />
+                    <div className="relative w-full bg-muted flex items-center justify-center rounded-md overflow-hidden">
+                      <Webcam
+                        audio={false}
+                        ref={webcamRef}
+                        screenshotFormat="image/jpeg"
+                        className="w-full h-auto"
+                        videoConstraints={{
+                          width: 1280,
+                          height: 720,
+                          facingMode: "user"
+                        }}
+                      />
                     </div>
                     <DialogFooter>
-                      <Button variant="outline" onClick={handleCloseCamera}>Batal</Button>
-                      <Button onClick={handleCapturePhoto} disabled={!isVideoReady}>Ambil Gambar</Button>
+                      <Button variant="outline" onClick={() => setIsCameraOpen(false)}>Batal</Button>
+                      <Button onClick={handleCapturePhoto}>Ambil Gambar</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
