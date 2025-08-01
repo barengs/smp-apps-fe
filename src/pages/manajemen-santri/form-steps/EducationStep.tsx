@@ -44,19 +44,63 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
 
   // Cleanup stream on component unmount or dialog close
   useEffect(() => {
-    if (!isCameraOpen && stream) { // Only stop stream if camera dialog is closed
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-      setIsVideoReady(false);
-      setCameraStatus('idle');
-    }
+    // This cleanup runs when component unmounts or isCameraOpen/stream changes
     return () => {
-      // This cleanup runs when component unmounts
       if (stream) {
+        console.log("Stopping camera stream due to unmount or dialog close.");
         stream.getTracks().forEach(track => track.stop());
+        setStream(null); // Clear stream state
+        setIsVideoReady(false);
+        setCameraStatus('idle');
       }
     };
-  }, [isCameraOpen, stream]); // Depend on isCameraOpen to trigger cleanup when dialog closes
+  }, [isCameraOpen, stream]); // Depend on isCameraOpen and stream for cleanup
+
+  // Effect to set video srcObject and attach listeners when stream and videoRef are ready
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      console.log("Stream and videoRef are available. Setting srcObject and attaching listeners.");
+      const videoElement = videoRef.current;
+      videoElement.srcObject = stream;
+
+      const handleLoadedMetadata = () => {
+        console.log("Video metadata loaded. Setting status to initializing_stream.");
+        setCameraStatus('initializing_stream');
+      };
+
+      const handleCanPlay = () => {
+        console.log("Video can play. Setting isVideoReady to true and status to ready.");
+        setIsVideoReady(true);
+        setCameraStatus('ready');
+      };
+
+      const handleError = (event: Event) => {
+        console.error("Video element error:", event);
+        showError("Terjadi kesalahan pada video stream. Coba lagi.");
+        handleCloseCamera();
+        setCameraStatus('error');
+      };
+
+      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.addEventListener('canplay', handleCanPlay);
+      videoElement.addEventListener('error', handleError);
+
+      videoElement.play().catch(err => {
+        console.error("Error playing video:", err);
+        showError("Gagal memutar video kamera. Coba lagi.");
+        handleCloseCamera();
+        setCameraStatus('error');
+      });
+
+      // Cleanup event listeners when component unmounts or dependencies change
+      return () => {
+        console.log("Cleaning up video event listeners.");
+        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        videoElement.removeEventListener('canplay', handleCanPlay);
+        videoElement.removeEventListener('error', handleError);
+      };
+    }
+  }, [stream, videoRef.current]); // Dependencies: stream and videoRef.current
 
   const handleOpenCamera = async () => {
     setIsVideoReady(false);
@@ -64,52 +108,19 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       console.log("Camera stream obtained successfully.");
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-
-        // Event listener for when video metadata is loaded (e.g., dimensions)
-        videoRef.current.onloadedmetadata = () => {
-          console.log("Video metadata loaded. Setting status to initializing_stream.");
-          setCameraStatus('initializing_stream');
-        };
-
-        // Event listener for when video is ready to play
-        videoRef.current.oncanplay = () => {
-          console.log("Video can play. Setting isVideoReady to true and status to ready.");
-          setIsVideoReady(true);
-          setCameraStatus('ready');
-        };
-
-        // Handle potential errors during video playback
-        videoRef.current.onerror = (event) => {
-          console.error("Video element error:", event);
-          showError("Terjadi kesalahan pada video stream. Coba lagi.");
-          handleCloseCamera();
-          setCameraStatus('error');
-        };
-
-        videoRef.current.play().catch(err => {
-          console.error("Error playing video:", err);
-          showError("Gagal memutar video kamera. Coba lagi.");
-          handleCloseCamera();
-          setCameraStatus('error');
-        });
-      }
-      setIsCameraOpen(true);
+      setStream(mediaStream); // This will trigger the useEffect above
+      setIsCameraOpen(true); // Open the dialog
     } catch (err: any) { // Catch specific error types if possible
       console.error("Error accessing camera:", err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         showError("Akses kamera ditolak. Mohon izinkan akses kamera di pengaturan browser Anda.");
-        setCameraStatus('error'); // Set status to error
       } else if (err.name === 'NotFoundError') {
         showError("Tidak ada kamera yang ditemukan. Pastikan kamera terhubung dan berfungsi.");
-        setCameraStatus('error'); // Set status to error
       } else {
         showError("Terjadi kesalahan saat mengakses kamera: " + err.message);
-        setCameraStatus('error'); // Set status to error
       }
-      setIsCameraOpen(false);
+      setCameraStatus('error'); // Set status to error
+      setIsCameraOpen(false); // Keep dialog closed if error
     }
   };
 
