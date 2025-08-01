@@ -139,6 +139,12 @@ const SantriFormPage: React.FC = () => {
       });
     }
 
+    // Log FormData content for debugging
+    console.log('Data FormData yang akan dikirim:');
+    for (const pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+
     try {
       await registerSantri(formData).unwrap();
       showSuccess(`Proses submit data santri berhasil! ${reset ? 'Formulir direset.' : ''}`);
