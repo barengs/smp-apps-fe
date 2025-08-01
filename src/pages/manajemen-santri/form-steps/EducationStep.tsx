@@ -16,12 +16,15 @@ interface EducationStepProps {
   form: any;
 }
 
+type CameraStatus = 'idle' | 'requesting_permission' | 'initializing_stream' | 'ready' | 'error';
+
 const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   const { control, watch, setValue } = useFormContext<SantriFormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle'); // New state for camera status
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -39,24 +42,31 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     }
   }, [fotoSantriFile]);
 
-  // Cleanup stream on component unmount
+  // Cleanup stream on component unmount or dialog close
   useEffect(() => {
+    if (!isCameraOpen && stream) { // Only stop stream if camera dialog is closed
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+      setIsVideoReady(false);
+      setCameraStatus('idle');
+    }
     return () => {
+      // This cleanup runs when component unmounts
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [stream]);
+  }, [isCameraOpen, stream]); // Depend on isCameraOpen to trigger cleanup when dialog closes
 
   // Effect to monitor video readyState and set isVideoReady
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
-    if (isCameraOpen && videoRef.current) {
+    if (isCameraOpen && videoRef.current && cameraStatus === 'initializing_stream') {
       intervalId = setInterval(() => {
         if (videoRef.current && videoRef.current.readyState >= 3 && !isVideoReady) {
-          // Video has enough data to play, set isVideoReady to true
-          console.log("Video readyState is >= 3, setting isVideoReady to true.");
+          console.log("Video readyState is >= 3, setting isVideoReady to true and cameraStatus to 'ready'.");
           setIsVideoReady(true);
+          setCameraStatus('ready');
         }
       }, 500); // Check every 500ms
     }
@@ -65,25 +75,38 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
         clearInterval(intervalId);
       }
     };
-  }, [isCameraOpen, isVideoReady]); // Add isVideoReady to dependencies to re-run when it changes
+  }, [isCameraOpen, isVideoReady, cameraStatus]); // Add cameraStatus to dependencies
 
   const handleOpenCamera = async () => {
-    setIsVideoReady(false); // Reset video readiness when opening camera
+    setIsVideoReady(false);
+    setCameraStatus('requesting_permission'); // Set status to requesting permission
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      console.log("Camera stream obtained successfully.");
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        setCameraStatus('initializing_stream'); // Set status to initializing stream
         videoRef.current.play().catch(err => {
           console.error("Error playing video:", err);
           showError("Gagal memutar video kamera. Coba lagi.");
           handleCloseCamera();
+          setCameraStatus('error'); // Set status to error
         });
       }
       setIsCameraOpen(true);
-    } catch (err) {
+    } catch (err: any) { // Catch specific error types if possible
       console.error("Error accessing camera:", err);
-      showError("Tidak dapat mengakses kamera. Pastikan Anda telah memberikan izin.");
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        showError("Akses kamera ditolak. Mohon izinkan akses kamera di pengaturan browser Anda.");
+        setCameraStatus('error'); // Set status to error
+      } else if (err.name === 'NotFoundError') {
+        showError("Tidak ada kamera yang ditemukan. Pastikan kamera terhubung dan berfungsi.");
+        setCameraStatus('error'); // Set status to error
+      } else {
+        showError("Terjadi kesalahan saat mengakses kamera: " + err.message);
+        setCameraStatus('error'); // Set status to error
+      }
       setIsCameraOpen(false);
     }
   };
@@ -94,7 +117,8 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     }
     setStream(null);
     setIsCameraOpen(false);
-    setIsVideoReady(false); // Reset video readiness when closing camera
+    setIsVideoReady(false);
+    setCameraStatus('idle'); // Reset status to idle
   };
 
   const handleCapturePhoto = () => {
@@ -237,10 +261,12 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                       <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription>
                     </DialogHeader>
                     <div className="relative w-full h-64 bg-muted flex items-center justify-center rounded-md overflow-hidden">
-                      {!isVideoReady && isCameraOpen && (
+                      {cameraStatus !== 'ready' && isCameraOpen && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 text-white z-10">
                           <Loader2 className="h-8 w-8 animate-spin mb-2" />
-                          <p>Memuat kamera...</p>
+                          {cameraStatus === 'requesting_permission' && <p>Meminta izin kamera...</p>}
+                          {cameraStatus === 'initializing_stream' && <p>Memuat kamera...</p>}
+                          {cameraStatus === 'error' && <p>Gagal memuat kamera. Coba lagi.</p>}
                           <p className="text-sm mt-1 text-center px-4">Pastikan Anda telah memberikan izin kamera di browser Anda.</p>
                         </div>
                       )}
