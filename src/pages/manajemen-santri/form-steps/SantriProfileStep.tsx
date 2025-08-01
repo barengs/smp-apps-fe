@@ -12,8 +12,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { id } from 'date-fns/locale'; // Import 'id' locale
 import { CalendarIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+import { CustomCalendar as Calendar } from '@/components/CustomCalendar';
 
 interface SantriProfileStepProps {
   form: any;
@@ -113,7 +114,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "PPP", { locale: id })
                           ) : (
                             <span>Pilih tanggal lahir</span>
                           )}
@@ -129,10 +130,6 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
-                        initialFocus
-                        captionLayout="dropdown" // Enable dropdown for month and year
-                        fromYear={1900} // Set a reasonable start year
-                        toYear={new Date().getFullYear()} // Set current year as end year
                       />
                     </PopoverContent>
                   </Popover>
