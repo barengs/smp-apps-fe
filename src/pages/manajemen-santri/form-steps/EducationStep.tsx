@@ -9,7 +9,7 @@ import { UploadCloud, Camera } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from '@/components/ui/dialog'; // Import DialogDescription
 import { showError } from '@/utils/toast';
 
 interface EducationStepProps {
@@ -21,6 +21,7 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [isVideoReady, setIsVideoReady] = useState(false); // New state for video readiness
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -48,12 +49,21 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   }, [stream]);
 
   const handleOpenCamera = async () => {
+    setIsVideoReady(false); // Reset video readiness when opening camera
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        videoRef.current.play(); 
+        // Listen for 'playing' event to ensure video is actually streaming
+        videoRef.current.onplaying = () => {
+          setIsVideoReady(true);
+        };
+        videoRef.current.play().catch(err => {
+          console.error("Error playing video:", err);
+          showError("Gagal memutar video kamera. Coba lagi.");
+          handleCloseCamera();
+        });
       }
       setIsCameraOpen(true);
     } catch (err) {
@@ -69,45 +79,48 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     }
     setStream(null);
     setIsCameraOpen(false);
+    setIsVideoReady(false); // Reset video readiness when closing camera
   };
 
   const handleCapturePhoto = () => {
-    // Deklarasikan variabel di sini untuk memastikan mereka dideklarasikan sebelum digunakan
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
-    if (video && canvas) { // Pastikan ref tidak null
-      // Ensure video dimensions are available
-      if (video.videoWidth === 0 || video.videoHeight === 0) {
-        showError("Video stream not ready. Please try again.");
-        console.error("Video dimensions are 0, cannot capture.");
-        return;
-      }
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const context = canvas.getContext('2d');
-      
-      if (!context) {
-        showError("Failed to get 2D context from canvas.");
-        console.error("Canvas context is null.");
-        return;
-      }
-
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-          setValue('fotoSantri', file, { shouldValidate: true });
-          // Close camera ONLY after the file has been set
-          handleCloseCamera(); 
-        } else {
-          console.error("Failed to create blob from canvas.");
-          showError("Gagal mengambil gambar. Coba lagi.");
-        }
-      }, 'image/jpeg');
+    if (!isVideoReady || !video || !canvas) { // Check isVideoReady before proceeding
+      showError("Video stream belum siap. Mohon tunggu sebentar atau coba lagi.");
+      console.error("Video stream not ready for capture.");
+      return;
     }
+
+    // Ensure video dimensions are available
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      showError("Video stream tidak memiliki dimensi yang valid. Coba lagi.");
+      console.error("Video dimensions are 0, cannot capture.");
+      return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    
+    if (!context) {
+      showError("Gagal mendapatkan konteks 2D dari kanvas.");
+      console.error("Canvas context is null.");
+      return;
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        setValue('fotoSantri', file, { shouldValidate: true });
+        handleCloseCamera(); 
+      } else {
+        console.error("Failed to create blob from canvas.");
+        showError("Gagal mengambil gambar. Coba lagi.");
+      }
+    }, 'image/jpeg');
   };
 
   return (
@@ -206,6 +219,7 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                   <DialogContent className="sm:max-w-[625px]">
                     <DialogHeader>
                       <DialogTitle>Ambil Foto</DialogTitle>
+                      <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription> {/* Added DialogDescription */}
                     </DialogHeader>
                     <div className="flex flex-col items-center">
                       <video ref={videoRef} autoPlay playsInline className="w-full h-auto rounded-md bg-muted" />
@@ -213,7 +227,7 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={handleCloseCamera}>Batal</Button>
-                      <Button onClick={handleCapturePhoto}>Ambil Gambar</Button>
+                      <Button onClick={handleCapturePhoto} disabled={!isVideoReady}>Ambil Gambar</Button> {/* Disable if video not ready */}
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
