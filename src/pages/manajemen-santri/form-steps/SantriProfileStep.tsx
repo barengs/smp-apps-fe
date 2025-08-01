@@ -103,7 +103,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
               control={control}
               name="tanggalLahir"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem className="flex flex-col mt-2"> {/* Added mt-2 here */}
                   <FormLabel>Tanggal Lahir</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
