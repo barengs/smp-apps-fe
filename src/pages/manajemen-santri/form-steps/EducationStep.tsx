@@ -53,7 +53,6 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        // Menambahkan panggilan play() untuk memastikan video dimulai
         videoRef.current.play(); 
       }
       setIsCameraOpen(true);
@@ -73,22 +72,41 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   };
 
   const handleCapturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
+    // Deklarasikan variabel di sini untuk memastikan mereka dideklarasikan sebelum digunakan
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (video && canvas) { // Pastikan ref tidak null
+      // Ensure video dimensions are available
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        showError("Video stream not ready. Please try again.");
+        console.error("Video dimensions are 0, cannot capture.");
+        return;
+      }
+
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const context = canvas.getContext('2d');
-      context?.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      if (!context) {
+        showError("Failed to get 2D context from canvas.");
+        console.error("Canvas context is null.");
+        return;
+      }
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
       canvas.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
           setValue('fotoSantri', file, { shouldValidate: true });
+          // Close camera ONLY after the file has been set
+          handleCloseCamera(); 
+        } else {
+          console.error("Failed to create blob from canvas.");
+          showError("Gagal mengambil gambar. Coba lagi.");
         }
       }, 'image/jpeg');
-
-      handleCloseCamera();
     }
   };
 
