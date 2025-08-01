@@ -58,25 +58,6 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     };
   }, [isCameraOpen, stream]); // Depend on isCameraOpen to trigger cleanup when dialog closes
 
-  // Effect to monitor video readyState and set isVideoReady
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-    if (isCameraOpen && videoRef.current && cameraStatus === 'initializing_stream') {
-      intervalId = setInterval(() => {
-        if (videoRef.current && videoRef.current.readyState >= 3 && !isVideoReady) {
-          console.log("Video readyState is >= 3, setting isVideoReady to true and cameraStatus to 'ready'.");
-          setIsVideoReady(true);
-          setCameraStatus('ready');
-        }
-      }, 500); // Check every 500ms
-    }
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [isCameraOpen, isVideoReady, cameraStatus]); // Add cameraStatus to dependencies
-
   const handleOpenCamera = async () => {
     setIsVideoReady(false);
     setCameraStatus('requesting_permission'); // Set status to requesting permission
@@ -86,12 +67,33 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        setCameraStatus('initializing_stream'); // Set status to initializing stream
+
+        // Event listener for when video metadata is loaded (e.g., dimensions)
+        videoRef.current.onloadedmetadata = () => {
+          console.log("Video metadata loaded. Setting status to initializing_stream.");
+          setCameraStatus('initializing_stream');
+        };
+
+        // Event listener for when video is ready to play
+        videoRef.current.oncanplay = () => {
+          console.log("Video can play. Setting isVideoReady to true and status to ready.");
+          setIsVideoReady(true);
+          setCameraStatus('ready');
+        };
+
+        // Handle potential errors during video playback
+        videoRef.current.onerror = (event) => {
+          console.error("Video element error:", event);
+          showError("Terjadi kesalahan pada video stream. Coba lagi.");
+          handleCloseCamera();
+          setCameraStatus('error');
+        };
+
         videoRef.current.play().catch(err => {
           console.error("Error playing video:", err);
           showError("Gagal memutar video kamera. Coba lagi.");
           handleCloseCamera();
-          setCameraStatus('error'); // Set status to error
+          setCameraStatus('error');
         });
       }
       setIsCameraOpen(true);
