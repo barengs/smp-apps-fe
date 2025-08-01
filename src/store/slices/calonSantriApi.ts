@@ -3,7 +3,7 @@ import { smpApi } from '../baseApi';
 export const calonSantriApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCalonSantri: builder.query<any[], void>({ 
-      query: () => 'calon-santri',
+      query: () => 'registration', // Mengubah endpoint dari 'calon-santri' menjadi 'registration'
       providesTags: ['CalonSantri'],
     }),
     registerSantri: builder.mutation<any, FormData>({
