@@ -48,6 +48,25 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     };
   }, [stream]);
 
+  // Effect to monitor video readyState and set isVideoReady
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    if (isCameraOpen && videoRef.current) {
+      intervalId = setInterval(() => {
+        if (videoRef.current && videoRef.current.readyState >= 3 && !isVideoReady) {
+          // Video has enough data to play, set isVideoReady to true
+          console.log("Video readyState is >= 3, setting isVideoReady to true.");
+          setIsVideoReady(true);
+        }
+      }, 500); // Check every 500ms
+    }
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isCameraOpen, isVideoReady]); // Add isVideoReady to dependencies to re-run when it changes
+
   const handleOpenCamera = async () => {
     setIsVideoReady(false); // Reset video readiness when opening camera
     try {
@@ -55,10 +74,6 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        // Listen for 'playing' event to ensure video is actually streaming
-        videoRef.current.onplaying = () => {
-          setIsVideoReady(true);
-        };
         videoRef.current.play().catch(err => {
           console.error("Error playing video:", err);
           showError("Gagal memutar video kamera. Coba lagi.");
@@ -229,7 +244,7 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                           <p className="text-sm mt-1 text-center px-4">Pastikan Anda telah memberikan izin kamera di browser Anda.</p>
                         </div>
                       )}
-                      <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                      <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
                       <canvas ref={canvasRef} className="hidden" />
                     </div>
                     <DialogFooter>
