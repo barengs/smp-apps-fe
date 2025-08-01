@@ -18,7 +18,7 @@ if (!baseUrl) {
 
 const baseQuery = fetchBaseQuery({
   baseUrl,
-  prepareHeaders: (headers, { getState }) => {
+  prepareHeaders: (headers, { getState, endpoint }) => {
     // Ambil token dari state auth
     const token = (getState() as RootState).auth.token;
     console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada'); // Tambahkan baris ini
@@ -27,7 +27,11 @@ const baseQuery = fetchBaseQuery({
     }
     // Tambahkan header Accept dan Content-Type
     headers.set('Accept', 'application/json');
-    headers.set('Content-Type', 'application/json');
+    
+    // Jangan set Content-Type untuk endpoint registrasi karena menggunakan FormData
+    if (endpoint !== 'registerSantri') {
+      headers.set('Content-Type', 'application/json');
+    }
     return headers;
   },
 });

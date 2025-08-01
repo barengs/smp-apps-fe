@@ -1,14 +1,21 @@
 import { smpApi } from '../baseApi';
-import { CalonSantri } from '@/types/calonSantri';
 
 export const calonSantriApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCalonSantri: builder.query<CalonSantri[], void>({
-      query: () => 'registration', // Mengubah endpoint menjadi '/registration'
+    getCalonSantri: builder.query<any[], void>({ 
+      query: () => 'calon-santri',
       providesTags: ['CalonSantri'],
-      transformResponse: (response: any) => response.data, // Asumsi data berada di dalam properti 'data'
+    }),
+    registerSantri: builder.mutation<any, FormData>({
+      query: (formData) => ({
+        url: 'registration',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['CalonSantri'],
     }),
   }),
+  overrideExisting: true,
 });
 
-export const { useGetCalonSantriQuery } = calonSantriApi;
+export const { useGetCalonSantriQuery, useRegisterSantriMutation } = calonSantriApi;
