@@ -33,6 +33,7 @@ export const santriFormSchema = z.object({
   tanggalLahir: z.date({ required_error: "Tanggal lahir wajib diisi." }),
   jenisKelamin: z.enum(['L', 'P'], { required_error: "Jenis kelamin santri wajib dipilih." }),
   alamatSantri: z.string({ required_error: "Alamat lengkap santri wajib diisi." }).min(1, "Alamat lengkap santri wajib diisi."),
+  villageCode: z.string({ required_error: "Desa wajib dipilih." }).min(1, "Desa wajib dipilih."), // New field
 
   // Step 3: Education & Photo
   sekolahAsal: z.string({ required_error: "Nama sekolah wajib diisi." }).min(1, "Nama sekolah wajib diisi."),
@@ -49,6 +50,6 @@ export type SantriFormValues = z.infer<typeof santriFormSchema>;
 
 // Define fields for each step to trigger validation correctly
 export const step1Fields: (keyof SantriFormValues)[] = ['nik', 'kk', 'firstName', 'gender', 'parentAs', 'phone', 'pekerjaanValue', 'alamatKtp'];
-export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nisn', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri'];
+export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nisn', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri', 'villageCode']; // Add villageCode here
 export const step3Fields: (keyof SantriFormValues)[] = ['sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah', 'fotoSantri'];
 export const step4Fields: (keyof SantriFormValues)[] = ['ijazahFile', 'optionalDocuments']; // Add optionalDocuments here

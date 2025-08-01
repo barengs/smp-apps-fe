@@ -12,9 +12,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale'; // Import 'id' locale
-import { CalendarIcon } from 'lucide-react';
+import { id } from 'date-fns/locale';
+import { CalendarIcon, Loader2 } from 'lucide-react'; // Import Loader2 for loading state
 import { CustomCalendar as Calendar } from '@/components/CustomCalendar';
+import { useGetVillagesQuery } from '@/store/slices/villageApi'; // Import the API hook
 
 interface SantriProfileStepProps {
   form: any;
@@ -22,6 +23,7 @@ interface SantriProfileStepProps {
 
 const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
   const { control } = useFormContext<SantriFormValues>();
+  const { data: villagesData, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery({ page: 1, per_page: 1000 }); // Fetch all villages, adjust per_page if needed
 
   return (
     <div className="space-y-6">
@@ -152,6 +154,38 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
                     <SelectContent>
                       <SelectItem value="L">Laki-laki</SelectItem>
                       <SelectItem value="P">Perempuan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="villageCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Desa</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={isLoadingVillages || isErrorVillages}>
+                    <FormControl>
+                      <SelectTrigger>
+                        {isLoadingVillages ? (
+                          <div className="flex items-center">
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Memuat desa...
+                          </div>
+                        ) : isErrorVillages ? (
+                          "Gagal memuat desa"
+                        ) : (
+                          <SelectValue placeholder="Pilih desa" />
+                        )}
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {villagesData?.data?.map((village) => (
+                        <SelectItem key={village.id} value={village.code}>
+                          {village.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
