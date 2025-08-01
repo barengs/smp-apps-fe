@@ -5,11 +5,11 @@ import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UploadCloud, Camera } from 'lucide-react';
+import { UploadCloud, Camera, Loader2 } from 'lucide-react'; // Import Loader2 for loading spinner
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from '@/components/ui/dialog'; // Import DialogDescription
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { showError } from '@/utils/toast';
 
 interface EducationStepProps {
@@ -21,7 +21,7 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isVideoReady, setIsVideoReady] = useState(false); // New state for video readiness
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -219,15 +219,22 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                   <DialogContent className="sm:max-w-[625px]">
                     <DialogHeader>
                       <DialogTitle>Ambil Foto</DialogTitle>
-                      <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription> {/* Added DialogDescription */}
+                      <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription>
                     </DialogHeader>
-                    <div className="flex flex-col items-center">
-                      <video ref={videoRef} autoPlay playsInline className="w-full h-auto rounded-md bg-muted" />
+                    <div className="relative w-full h-64 bg-muted flex items-center justify-center rounded-md overflow-hidden">
+                      {!isVideoReady && isCameraOpen && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 text-white z-10">
+                          <Loader2 className="h-8 w-8 animate-spin mb-2" />
+                          <p>Memuat kamera...</p>
+                          <p className="text-sm mt-1 text-center px-4">Pastikan Anda telah memberikan izin kamera di browser Anda.</p>
+                        </div>
+                      )}
+                      <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
                       <canvas ref={canvasRef} className="hidden" />
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={handleCloseCamera}>Batal</Button>
-                      <Button onClick={handleCapturePhoto} disabled={!isVideoReady}>Ambil Gambar</Button> {/* Disable if video not ready */}
+                      <Button onClick={handleCapturePhoto} disabled={!isVideoReady}>Ambil Gambar</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
