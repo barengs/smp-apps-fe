@@ -53,6 +53,8 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        // Menambahkan panggilan play() untuk memastikan video dimulai
+        videoRef.current.play(); 
       }
       setIsCameraOpen(true);
     } catch (err) {
