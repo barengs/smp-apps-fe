@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { santriFormSchema, SantriFormValues, step1Fields, step2Fields, step3Fields, step4Fields } from './form-schemas';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Users, UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll } from 'lucide-react';
+import { UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import WaliSantriStep from './form-steps/WaliSantriStep';
@@ -13,11 +13,15 @@ import EducationStep from './form-steps/EducationStep';
 import DocumentStep from './form-steps/DocumentStep';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { useRegisterSantriMutation } from '@/store/slices/calonSantriApi';
+import { showError, showSuccess } from '@/utils/toast';
+import { format } from 'date-fns';
 
 const SantriFormPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   const navigate = useNavigate();
+  const [registerSantri, { isLoading }] = useRegisterSantriMutation();
 
   const form = useForm<SantriFormValues>({
     resolver: zodResolver(santriFormSchema),
@@ -42,11 +46,13 @@ const SantriFormPage: React.FC = () => {
       tanggalLahir: undefined,
       jenisKelamin: undefined,
       alamatSantri: '',
+      villageCode: '', // Add default value for villageCode
       sekolahAsal: '',
       jenjangSebelumnya: '',
       alamatSekolah: '',
       fotoSantri: undefined,
       ijazahFile: undefined,
+      optionalDocuments: [],
     },
   });
 
@@ -77,28 +83,88 @@ const SantriFormPage: React.FC = () => {
     }
   };
 
-  const onSubmit = async (data: SantriFormValues) => {
+  const handleFormSubmit = async (data: SantriFormValues, reset: boolean = false) => {
     const isValid = await form.trigger(step4Fields);
     if (!isValid) {
-      toast.error('Harap perbaiki semua kesalahan sebelum menyimpan.');
+      showError('Harap perbaiki semua kesalahan sebelum menyimpan.');
       return;
     }
-    console.log('Form Data Submitted:', data);
-    toast.success('Proses submit data santri berhasil!');
+
+    const formData = new FormData();
+
+    // Helper to append value if it exists
+    const appendIfExists = (key: string, value: any) => {
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value);
+      }
+    };
+
+    // Append all fields from data
+    appendIfExists('wali_nik', data.nik);
+    appendIfExists('wali_kk', data.kk);
+    appendIfExists('wali_nama_depan', data.firstName);
+    appendIfExists('wali_nama_belakang', data.lastName);
+    appendIfExists('wali_jenis_kelamin', data.gender);
+    appendIfExists('wali_sebagai', data.parentAs);
+    appendIfExists('wali_telepon', data.phone);
+    appendIfExists('wali_email', data.email);
+    appendIfExists('wali_pekerjaan_id', data.pekerjaanValue);
+    appendIfExists('wali_alamat_ktp', data.alamatKtp);
+    appendIfExists('wali_alamat_domisili', data.alamatDomisili);
+
+    appendIfExists('santri_nama_depan', data.firstNameSantri);
+    appendIfExists('santri_nama_belakang', data.lastNameSantri);
+    appendIfExists('santri_nisn', data.nisn);
+    appendIfExists('santri_nik', data.nikSantri);
+    appendIfExists('santri_tempat_lahir', data.tempatLahir);
+    if (data.tanggalLahir) {
+      appendIfExists('santri_tanggal_lahir', format(data.tanggalLahir, 'yyyy-MM-dd'));
+    }
+    appendIfExists('santri_jenis_kelamin', data.jenisKelamin);
+    appendIfExists('santri_alamat', data.alamatSantri);
+    appendIfExists('santri_desa_code', data.villageCode); // Append villageCode
+
+    appendIfExists('pendidikan_sekolah_asal', data.sekolahAsal);
+    appendIfExists('pendidikan_jenjang_sebelumnya', data.jenjangSebelumnya);
+    appendIfExists('pendidikan_alamat_sekolah', data.alamatSekolah);
+
+    appendIfExists('dokumen_foto_santri', data.fotoSantri);
+    appendIfExists('dokumen_ijazah', data.ijazahFile);
+
+    // Append optional documents
+    if (data.optionalDocuments) {
+      data.optionalDocuments.forEach((doc, index) => {
+        if (doc.name && doc.file) {
+          appendIfExists(`dokumen_opsional[${index}][nama]`, doc.name);
+          appendIfExists(`dokumen_opsional[${index}][file]`, doc.file);
+        }
+      });
+    }
+
+    // Log FormData content for debugging
+    console.log('Data FormData yang akan dikirim:');
+    for (const pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+
+    try {
+      await registerSantri(formData).unwrap();
+      showSuccess(`Proses submit data santri berhasil! ${reset ? 'Formulir direset.' : ''}`);
+      if (reset) {
+        form.reset();
+        setCurrentStep(1);
+      } else {
+        navigate('/dashboard/pendaftaran-santri'); // Navigate to santri list page
+      }
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
+      showError(errorMessage);
+      console.error('Form Data Submission Error:', error);
+    }
   };
 
-  const onSubmitAndReset = async () => {
-    const isValid = await form.trigger(step4Fields);
-    if (!isValid) {
-      toast.error('Harap perbaiki semua kesalahan sebelum menyimpan.');
-      return;
-    }
-    const data = form.getValues();
-    console.log('Form Data Submitted (and reset):', data);
-    toast.success('Proses submit data santri berhasil! Formulir direset.');
-    form.reset();
-    setCurrentStep(1);
-  };
+  const onSubmit = (data: SantriFormValues) => handleFormSubmit(data, false);
+  const onSubmitAndReset = () => handleFormSubmit(form.getValues(), true);
 
   const steps = [
     { number: 1, title: 'Data Wali', icon: <UserCheck className="h-5 w-5" /> },
@@ -109,7 +175,7 @@ const SantriFormPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Pendaftaran Santri Baru" role="administrasi">
-      <div className="container mx-auto -mt-4 pb-8 px-4"> {/* Added -mt-4 here */}
+      <div className="container mx-auto pb-8 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
 
         <div className="mb-8">
@@ -149,29 +215,29 @@ const SantriFormPage: React.FC = () => {
 
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
               <div className="flex space-x-2">
-                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')}>
+                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
                   <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>
-                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Kembali
                 </Button>
               </div>
               <div className="flex space-x-2">
                 {currentStep < totalSteps ? (
-                  <Button type="button" onClick={nextStep}>
+                  <Button type="button" onClick={nextStep} disabled={isLoading}>
                     Lanjutkan
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
                   <>
-                    <Button type="button" variant="outline" onClick={onSubmitAndReset}>
-                      <SaveAll className="mr-2 h-4 w-4" />
+                    <Button type="button" variant="outline" onClick={onSubmitAndReset} disabled={isLoading}>
+                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <SaveAll className="mr-2 h-4 w-4" />}
                       Simpan dan Entri Ulang
                     </Button>
-                    <Button type="submit">
-                      <Save className="mr-2 h-4 w-4" />
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                       Simpan
                     </Button>
                   </>

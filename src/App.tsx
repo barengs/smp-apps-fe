@@ -19,6 +19,7 @@ import KecamatanPage from "@/pages/data-wilayah/KecamatanPage";
 import DesaPage from "@/pages/data-wilayah/DesaPage";
 import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage";
 import ProgramPage from "@/pages/manajemen-pendidikan/ProgramPage";
+import TahunAjaranPage from "@/pages/manajemen-pendidikan/TahunAjaranPage";
 import AsramaPage from "@/pages/manajemen-pendidikan/AsramaPage";
 import JenjangPendidikanPage from "@/pages/manajemen-pendidikan/JenjangPendidikanPage";
 import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
@@ -44,6 +45,7 @@ import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
 import UserProfilePage from '@/pages/profile/UserProfilePage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
+import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage'; // Mengubah dari '@/pages/manajemen-magang/PenanggungJawabPage'
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -93,11 +95,13 @@ const App = () => (
               <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
+              <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} /> {/* New route */}
               <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
               <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
               <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
               <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
               <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
+              <Route path="/dashboard/pendidikan/tahun-ajaran" element={<TahunAjaranPage />} />
               <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
               <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
               <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />

@@ -70,7 +70,9 @@
     "santriInfo": "معلومات الطالب",
     "gradesAndAttendance": "الدرجات والحضور",
     "bankSantri": "بنك الطالب",
-    "announcements": "الإعلانات"
+    "announcements": "الإعلانات",
+    "academicYear": "السنة الدراسية",
+    "internshipManagement": "إدارة التدريب"
   },
   "header": {
     "toggleFullscreen": "تبديل وضع ملء الشاشة",

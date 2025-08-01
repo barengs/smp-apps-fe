@@ -70,7 +70,10 @@
     "santriInfo": "Informasi Santri",
     "gradesAndAttendance": "Nilai & Absensi",
     "bankSantri": "Bank Santri",
-    "announcements": "Pengumuman"
+    "announcements": "Pengumuman",
+    "academicYear": "Tahun Ajaran",
+    "internshipManagement": "Manajemen Magang",
+    "responsiblePerson": "Penanggung Jawab"
   },
   "header": {
     "toggleFullscreen": "Alihkan Layar Penuh",

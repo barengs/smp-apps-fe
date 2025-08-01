@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useFieldArray } from 'react-hook-form'; // Import useFieldArray
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,40 +11,36 @@ import { Trash2, PlusCircle, UploadCloud } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
 
-interface DocumentRow {
-  id: number;
-  name: string;
-  file: File | null;
-}
-
 interface DocumentStepProps {
   form: any;
 }
 
 const DocumentStep: React.FC<DocumentStepProps> = ({ form }) => {
-  const { control } = useFormContext<SantriFormValues>();
-  const [documents, setDocuments] = useState<DocumentRow[]>([
-    { id: Date.now(), name: '', file: null },
-  ]);
+  const { control, register, setValue, getValues } = useFormContext<SantriFormValues>();
 
-  const handleDocumentNameChange = (id: number, name: string) => {
-    setDocuments(documents.map(doc =>
-      doc.id === id ? { ...doc, name: name } : doc
-    ));
-  };
+  // Use useFieldArray for optionalDocuments
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "optionalDocuments", // This matches the field in santriFormSchema
+  });
 
-  const handleDocumentFileChange = (id: number, file: File | null) => {
-    setDocuments(documents.map(doc =>
-      doc.id === id ? { ...doc, file: file } : doc
-    ));
+  // Add one empty row initially if no optional documents exist
+  React.useEffect(() => {
+    if (fields.length === 0) {
+      append({ name: '', file: null });
+    }
+  }, [fields, append]);
+
+  const handleDocumentFileChange = (index: number, file: File | null) => {
+    setValue(`optionalDocuments.${index}.file`, file, { shouldValidate: true });
   };
 
   const addDocumentRow = () => {
-    setDocuments([...documents, { id: Date.now(), name: '', file: null }]);
+    append({ name: '', file: null });
   };
 
-  const removeDocumentRow = (id: number) => {
-    setDocuments(documents.filter(doc => doc.id !== id));
+  const removeDocumentRow = (index: number) => {
+    remove(index);
   };
 
   return (
@@ -73,6 +69,9 @@ const DocumentStep: React.FC<DocumentStepProps> = ({ form }) => {
                         <span className="font-semibold">Klik untuk mengunggah</span> atau seret
                       </p>
                       <p className="text-xs text-muted-foreground">PDF, JPG, PNG (MAX. 2MB)</p>
+                      {field.value && field.value.name && (
+                        <p className="text-sm text-primary mt-1">{field.value.name}</p>
+                      )}
                     </div>
                     <FormControl>
                       <Input
@@ -103,28 +102,38 @@ const DocumentStep: React.FC<DocumentStepProps> = ({ form }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {documents.map((doc) => (
-                    <TableRow key={doc.id}>
+                  {fields.map((field, index) => (
+                    <TableRow key={field.id}> {/* useFieldArray provides a unique 'id' for each field */}
                       <TableCell>
                         <Input
                           placeholder="Contoh: Kartu Keluarga"
-                          value={doc.name}
-                          onChange={(e) => handleDocumentNameChange(doc.id, e.target.value)}
+                          {...register(`optionalDocuments.${index}.name`)} // Register name field
                         />
+                        <FormMessage className="mt-1">
+                          {form.formState.errors.optionalDocuments?.[index]?.name?.message}
+                        </FormMessage>
                       </TableCell>
                       <TableCell>
                         <Input
                           type="file"
                           className="text-sm text-muted-foreground file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                          onChange={(e) => handleDocumentFileChange(doc.id, e.target.files ? e.target.files[0] : null)}
+                          onChange={(e) => handleDocumentFileChange(index, e.target.files ? e.target.files[0] : null)}
                         />
+                        {getValues(`optionalDocuments.${index}.file`)?.name && (
+                          <p className="text-sm text-primary mt-1">
+                            {getValues(`optionalDocuments.${index}.file`)?.name}
+                          </p>
+                        )}
+                        <FormMessage className="mt-1">
+                          {form.formState.errors.optionalDocuments?.[index]?.file?.message}
+                        </FormMessage>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => removeDocumentRow(doc.id)}
-                          disabled={documents.length <= 1}
+                          onClick={() => removeDocumentRow(index)}
+                          disabled={fields.length <= 1} // Disable remove if only one row left
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
