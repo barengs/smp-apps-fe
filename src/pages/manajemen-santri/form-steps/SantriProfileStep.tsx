@@ -283,7 +283,13 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih Desa/Kelurahan">
                           {field.value ? (
-                            villagesToDisplay.find(v => v.code === field.value)?.name || "Pilih Desa/Kelurahan"
+                            // Prioritize NIK data if it matches the current value and is available
+                            villageNikData?.data?.code === field.value ? (
+                              villageNikData.data.name // Display name from NIK data
+                            ) : (
+                              // Otherwise, try to find it in the general list
+                              villagesToDisplay.find(v => v.code === field.value)?.name || "Pilih Desa/Kelurahan"
+                            )
                           ) : (
                             "Pilih Desa/Kelurahan"
                           )}
