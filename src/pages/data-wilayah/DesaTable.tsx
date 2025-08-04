@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import DesaForm from './DesaForm.tsx';
-import { useGetVillagesQuery } from '@/store/slices/villageApi';
+import { useLazyGetVillagesQuery } from '@/store/slices/villageApi'; // Mengubah import menjadi useLazyGetVillagesQuery
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
@@ -31,10 +31,16 @@ const DesaTable: React.FC = () => {
     pageSize: 5,
   });
 
-  const { data: villagesResponse, error, isLoading, isFetching } = useGetVillagesQuery({
-    page: pagination.pageIndex + 1, // 1-based page index for API
-    per_page: pagination.pageSize,
-  });
+  // Menggunakan useLazyGetVillagesQuery
+  const [triggerGetVillages, { data: villagesResponse, error, isLoading, isFetching }] = useLazyGetVillagesQuery();
+
+  // Memicu pengambilan data saat komponen dimuat atau paginasi berubah
+  useEffect(() => {
+    triggerGetVillages({
+      page: pagination.pageIndex + 1, // 1-based page index for API
+      per_page: pagination.pageSize,
+    });
+  }, [pagination, triggerGetVillages]); // Tambahkan triggerGetVillages ke dependency array
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDesa, setEditingDesa] = useState<Desa | undefined>(undefined);

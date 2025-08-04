@@ -90,13 +90,13 @@ export const villageApi = smpApi.injectEndpoints({
     }),
     // Corrected: Endpoint to get village by NIK
     getVillageByNik: builder.query<GetVillageByNikResponse, string>({
-      query: (nik) => `village/nik/${nik}`, // Endpoint yang sudah diperbaiki
+      query: (nik) => `village/nik/${nik}`,
     }),
   }),
 });
 
 export const {
-  useGetVillagesQuery,
+  useLazyGetVillagesQuery, // Mengubah ini menjadi lazy query
   useCreateVillageMutation,
   useUpdateVillageMutation,
   useDeleteVillageMutation,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetVillagesQuery, useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
+import { useLazyGetVillagesQuery, useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
 import { toast } from 'sonner';
 
 interface SantriProfileStepProps {
@@ -33,19 +33,28 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
   
   const nikSantriValue = watch('nikSantri'); // Watch nikSantri field
 
-  // Fetch all villages for the select dropdown
-  const { data: villagesResponse, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery({ page: 1, per_page: 9999 });
-  const villages = villagesResponse?.data || [];
+  // Lazy hook for fetching all villages (only triggered when needed)
+  const [triggerGetAllVillages, { data: allVillagesResponse, isLoading: isLoadingAllVillages, isError: isErrorAllVillages }] = useLazyGetVillagesQuery();
+  const allVillages = allVillagesResponse?.data || [];
 
   // Hook for lazy fetching village data by NIK
-  const [triggerGetVillageByNik, { data: villageNikData, isLoading: isLoadingVillageNik, isError: isErrorVillageNik, error: villageNikError }] = useLazyGetVillageByNikQuery();
+  const [triggerGetVillageByNik, { data: villageNikData, isLoading: isLoadingVillageNik, isError: isErrorVillageNik, error: villageNikError, reset: resetVillageNikQuery }] = useLazyGetVillageByNikQuery();
+
+  // State to control whether to show all villages for manual selection
+  const [showAllVillagesForManualSelection, setShowAllVillagesForManualSelection] = useState(false);
 
   // Effect to trigger village lookup when nikSantri is 16 digits
   useEffect(() => {
     if (nikSantriValue && nikSantriValue.length === 16) {
       triggerGetVillageByNik(nikSantriValue);
+      setShowAllVillagesForManualSelection(false); // Hide all villages while NIK lookup is active
+    } else {
+      // If NIK is not 16 digits or cleared, reset NIK lookup and hide all villages
+      resetVillageNikQuery();
+      setValue('villageCode', ''); // Clear village code if NIK is incomplete/cleared
+      setShowAllVillagesForManualSelection(false);
     }
-  }, [nikSantriValue, triggerGetVillageByNik]);
+  }, [nikSantriValue, triggerGetVillageByNik, resetVillageNikQuery, setValue]);
 
   // Effect to handle village lookup response
   useEffect(() => {
@@ -61,6 +70,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
         description: `Desa/Kelurahan: ${villageNikData.data.name} telah diisi.`,
       });
       setValue('villageCode', villageNikData.data.code);
+      setShowAllVillagesForManualSelection(false); // Ensure manual selection is off
     }
 
     if (isErrorVillageNik) {
@@ -70,15 +80,32 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
         toast.info('Data desa tidak ditemukan untuk NIK ini.', {
           description: 'Silakan pilih desa/kelurahan secara manual.',
         });
+        setShowAllVillagesForManualSelection(true); // Show all villages for manual selection
+        triggerGetAllVillages({ page: 1, per_page: 9999 }); // Trigger fetching all villages
       } else {
         toast.error('Gagal mengecek data desa.', {
           // @ts-ignore
           description: villageNikError?.data?.message || 'Terjadi kesalahan pada server.',
         });
+        setShowAllVillagesForManualSelection(true); // Also show all villages on other errors
+        triggerGetAllVillages({ page: 1, per_page: 9999 }); // Trigger fetching all villages
       }
     }
-  }, [villageNikData, isLoadingVillageNik, isErrorVillageNik, villageNikError, setValue]);
+  }, [villageNikData, isLoadingVillageNik, isErrorVillageNik, villageNikError, setValue, triggerGetAllVillages]);
 
+  // Determine which villages to display in the Select component
+  const villagesToDisplay = useMemo(() => {
+    if (villageNikData && villageNikData.data && !showAllVillagesForManualSelection) {
+      // If NIK lookup found a village and not in manual selection mode, only show that one
+      return [villageNikData.data];
+    }
+    if (showAllVillagesForManualSelection) {
+      // If in manual selection mode, show all fetched villages
+      return allVillages;
+    }
+    // Otherwise, show nothing (initial state or NIK incomplete)
+    return [];
+  }, [villageNikData, allVillages, showAllVillagesForManualSelection]);
 
   return (
     <div className="space-y-6">
@@ -239,20 +266,21 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isLoadingVillages && (
-                        <SelectItem value="loading" disabled>Memuat desa/kelurahan...</SelectItem>
-                      )}
-                      {isErrorVillages && (
-                        <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
-                      )}
-                      {!isLoadingVillages && !isErrorVillages && villages.length === 0 && (
+                      {isLoadingVillageNik ? (
+                        <SelectItem value="loading-nik" disabled>Mengecek NIK...</SelectItem>
+                      ) : showAllVillagesForManualSelection && isLoadingAllVillages ? (
+                        <SelectItem value="loading-all" disabled>Memuat desa/kelurahan...</SelectItem>
+                      ) : showAllVillagesForManualSelection && isErrorAllVillages ? (
+                        <SelectItem value="error-all" disabled>Gagal memuat data.</SelectItem>
+                      ) : villagesToDisplay.length === 0 ? (
                         <SelectItem value="no-data" disabled>Tidak ada data desa/kelurahan.</SelectItem>
+                      ) : (
+                        villagesToDisplay.map((village) => (
+                          <SelectItem key={village.code} value={village.code}>
+                            {village.name}
+                          </SelectItem>
+                        ))
                       )}
-                      {villages.map((village) => (
-                        <SelectItem key={village.code} value={village.code}>
-                          {village.name}
-                        </SelectItem>
-                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
