@@ -16,13 +16,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
-import { CalonSantri } from '@/types/calonSantri';
+import { CalonSantri, PaginatedResponse, CalonSantriApiResponse } from '@/types/calonSantri'; // Import CalonSantriApiResponse
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: calonSantri, isLoading, isError, error } = useGetCalonSantriQuery();
+  // Destructure data correctly, it will be CalonSantriApiResponse
+  const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriQuery();
+
+  // Extract the actual array of santri data from the nested 'data' property
+  const calonSantriData = apiResponse?.data?.data || [];
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -31,22 +35,23 @@ const CalonSantriPage: React.FC = () => {
 
   const columns: ColumnDef<CalonSantri>[] = [
     {
-      accessorKey: 'nomor_pendaftaran',
+      accessorKey: 'registration_number',
       header: 'No. Pendaftaran',
     },
     {
-      accessorKey: 'nama_lengkap',
+      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(), // Convert to uppercase
+      id: 'nama_lengkap',
       header: 'Nama Lengkap',
     },
     {
-      accessorKey: 'asal_sekolah',
+      accessorKey: 'previous_school',
       header: 'Asal Sekolah',
     },
     {
-      accessorKey: 'tanggal_daftar',
+      accessorKey: 'created_at',
       header: 'Tanggal Daftar',
       cell: ({ row }) => {
-        const date = new Date(row.original.tanggal_daftar);
+        const date = new Date(row.original.created_at);
         return date.toLocaleDateString('id-ID');
       },
     },
@@ -75,7 +80,7 @@ const CalonSantriPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate(`/dashboard/pendaftaran-santri/${santri.id}`)}>
+              <DropdownMenuItem onClick={() => navigate(`/dashboard/calon-santri/${santri.id}`)}>
                 Lihat Detail
               </DropdownMenuItem>
               <DropdownMenuItem>Terima</DropdownMenuItem>
@@ -115,7 +120,7 @@ const CalonSantriPage: React.FC = () => {
             ) : (
               <DataTable
                 columns={columns}
-                data={calonSantri || []}
+                data={calonSantriData}
                 exportFileName="calon_santri"
                 exportTitle="Data Calon Santri"
                 onAddData={handleAddData}
