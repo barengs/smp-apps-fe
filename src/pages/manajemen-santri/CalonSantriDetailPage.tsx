@@ -1,17 +1,18 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'; // Ensure CardFooter is imported
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil } from 'lucide-react'; // Import Pencil icon
+import { User, Pencil } from 'lucide-react';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { Badge } from '@/components/ui/badge'; // Import Badge component
-import { CardFooter } from '@/components/ui/card'; // Import CardFooter
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button'; // Import Button component
 
 const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
 
@@ -110,7 +111,7 @@ const CalonSantriDetailPage: React.FC = () => {
                       )}
                     </div>
                   </CardContent>
-                  <CardFooter className="px-4 py-2 text-center border-t"> {/* Changed p-4 to px-4 py-2 */}
+                  <CardFooter className="px-4 py-2 text-center border-t">
                     <h3 className="text-xl font-bold w-full mb-0">{calonSantri.first_name} {calonSantri.last_name}</h3>
                   </CardFooter>
                 </Card>
@@ -138,6 +139,15 @@ const CalonSantriDetailPage: React.FC = () => {
               </div>
             )}
           </CardContent>
+          {/* New CardFooter for action buttons */}
+          <CardFooter className="flex justify-end gap-2 border-t pt-4">
+            <Button variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')}>
+              Kembali
+            </Button>
+            <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)}>
+              Edit
+            </Button>
+          </CardFooter>
         </Card>
       </div>
     </DashboardLayout>
