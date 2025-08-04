@@ -93,6 +93,23 @@ const CalonSantriDetailPage: React.FC = () => {
                 <DetailRow label="Alamat Sekolah Asal" value={calonSantri.previous_school_address} />
                 <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
                 {/* Add more fields here if needed */}
+
+                {calonSantri.photo && (
+                  <Card className="mt-6 p-4">
+                    <CardHeader className="p-0 pb-2">
+                      <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0 flex justify-center items-center">
+                      <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
+                        <img
+                          src={calonSantri.photo}
+                          alt="Foto Calon Santri"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
 
@@ -115,23 +132,6 @@ const CalonSantriDetailPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
-
-            {calonSantri.photo && (
-              <Card className="mt-6 p-4">
-                <CardHeader className="p-0 pb-2">
-                  <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 flex justify-center items-center">
-                  <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
-                    <img
-                      src={calonSantri.photo}
-                      alt="Foto Calon Santri"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
             )}
           </CardContent>
         </Card>
