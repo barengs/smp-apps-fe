@@ -88,9 +88,9 @@ export const villageApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
-    // NEW: Endpoint to get village by NIK
+    // Corrected: Endpoint to get village by NIK
     getVillageByNik: builder.query<GetVillageByNikResponse, string>({
-      query: (nik) => `village/nik/${nik}/cek`,
+      query: (nik) => `village/nik/${nik}`, // Endpoint yang sudah diperbaiki
     }),
   }),
 });
@@ -100,5 +100,5 @@ export const {
   useCreateVillageMutation,
   useUpdateVillageMutation,
   useDeleteVillageMutation,
-  useLazyGetVillageByNikQuery // NEW: Export the lazy query hook
+  useLazyGetVillageByNikQuery
 } = villageApi;
