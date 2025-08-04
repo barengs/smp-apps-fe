@@ -127,11 +127,17 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                         {!isLoadingEducationLevels && !isErrorEducationLevels && educationLevels.length === 0 && (
                           <SelectItem value="" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
                         )}
-                        {educationLevels.map((level) => (
-                          <SelectItem key={level.id} value={level.education_class.code}>
-                            {level.education_class.name}
-                          </SelectItem>
-                        ))}
+                        {educationLevels.map((level) => {
+                          // Filter out items with empty or missing education_class.code
+                          if (!level.education_class || !level.education_class.code) {
+                            return null;
+                          }
+                          return (
+                            <SelectItem key={level.id} value={level.education_class.code}>
+                              {level.education_class.name}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <FormMessage />
