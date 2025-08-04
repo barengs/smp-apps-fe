@@ -48,3 +48,10 @@ export interface PaginatedResponse<T> {
   message?: string;
   status?: number;
 }
+
+// New interface for the full API response structure
+export interface CalonSantriApiResponse {
+  message: string;
+  status: number;
+  data: PaginatedResponse<CalonSantri>;
+}

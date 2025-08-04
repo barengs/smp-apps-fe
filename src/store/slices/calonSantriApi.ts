@@ -1,9 +1,9 @@
 import { smpApi } from '../baseApi';
-import { CalonSantri, PaginatedResponse } from '@/types/calonSantri'; // Import new types
+import { CalonSantri, PaginatedResponse, CalonSantriApiResponse } from '@/types/calonSantri'; // Import new types
 
 export const calonSantriApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCalonSantri: builder.query<PaginatedResponse<CalonSantri>, void>({ // Change return type to PaginatedResponse
+    getCalonSantri: builder.query<CalonSantriApiResponse, void>({ // Change return type to CalonSantriApiResponse
       query: () => 'registration',
       providesTags: ['CalonSantri'],
     }),
