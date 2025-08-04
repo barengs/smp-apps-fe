@@ -80,7 +80,7 @@ const CalonSantriPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate(`/dashboard/pendaftaran-santri/${santri.id}`)}>
+              <DropdownMenuItem onClick={() => navigate(`/dashboard/calon-santri/${santri.id}`)}>
                 Lihat Detail
               </DropdownMenuItem>
               <DropdownMenuItem>Terima</DropdownMenuItem>

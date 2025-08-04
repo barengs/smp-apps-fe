@@ -55,3 +55,10 @@ export interface CalonSantriApiResponse {
   status: number;
   data: PaginatedResponse<CalonSantri>;
 }
+
+// New interface for single CalonSantri API response
+export interface SingleCalonSantriApiResponse {
+  message: string;
+  status: number;
+  data: CalonSantri;
+}

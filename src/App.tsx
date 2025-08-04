@@ -46,6 +46,7 @@ import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
 import UserProfilePage from '@/pages/profile/UserProfilePage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage'; // Mengubah dari '@/pages/manajemen-magang/PenanggungJawabPage'
+import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage'; // New import
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -86,6 +87,7 @@ const App = () => (
               <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
               <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
               <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} />
+              <Route path="/dashboard/calon-santri/:id" element={<CalonSantriDetailPage />} /> {/* New route for detail */}
 
               <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
               <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
