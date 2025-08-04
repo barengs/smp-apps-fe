@@ -262,7 +262,13 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Pilih Desa/Kelurahan" />
+                        <SelectValue placeholder="Pilih Desa/Kelurahan">
+                          {field.value ? (
+                            villagesToDisplay.find(v => v.code === field.value)?.name || "Pilih Desa/Kelurahan"
+                          ) : (
+                            "Pilih Desa/Kelurahan"
+                          )}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
