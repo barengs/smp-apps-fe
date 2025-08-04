@@ -24,7 +24,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => { // Menghapus { for
   const { control } = useFormContext<SantriFormValues>();
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
-  const pekerjaanList = pekerjaanResponse?.data || [];
+  const pekerjaanList = pekerjaanResponse || []; // FIX: Mengakses langsung pekerjaanResponse karena sudah berupa array
 
   return (
     <div className="space-y-6">

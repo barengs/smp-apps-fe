@@ -29,7 +29,10 @@ interface SantriProfileStepProps {
 
 const SantriProfileStep: React.FC<SantriProfileStepProps> = () => { // Menghapus { form }
   const { control, watch } = useFormContext<SantriFormValues>();
-  const villageCode = watch('villageCode');
+  // FIX: Workaround untuk TS2554 dengan watch, menggunakan variabel yang di-type secara eksplisit untuk nama field
+  // Error ini seringkali merupakan masalah caching TypeScript. Pastikan untuk refresh atau rebuild aplikasi.
+  const villageCodeFieldName: keyof SantriFormValues = 'villageCode';
+  const villageCode = watch(villageCodeFieldName); 
 
   const { data: villagesResponse, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery();
   const villages = villagesResponse?.data || [];
