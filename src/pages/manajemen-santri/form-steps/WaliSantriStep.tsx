@@ -16,29 +16,26 @@ import {
 } from "@/components/ui/select";
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from 'sonner'; // Menggunakan sonner untuk toast
 
 interface WaliSantriStepProps {}
 
 const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
-  const { control, getValues, setValue } = useFormContext<SantriFormValues>();
+  const { control, getValues, setValue, watch } = useFormContext<SantriFormValues>();
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
 
   const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
 
-  const handleCekNik = async () => {
-    const nik = getValues('nik');
-    if (!nik || nik.length !== 16) {
-      toast.error('NIK tidak valid.', {
-        description: 'Pastikan NIK terdiri dari 16 digit.',
-      });
-      return;
+  // Watch for changes in the 'nik' field
+  const nikValue = watch('nik');
+
+  useEffect(() => {
+    if (nikValue && nikValue.length === 16) {
+      triggerGetParentByNik(nikValue);
     }
-    triggerGetParentByNik(nik);
-  };
+  }, [nikValue, triggerGetParentByNik]);
 
   useEffect(() => {
     let toastId: string | number | undefined;
@@ -92,7 +89,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
       <Card>
         <CardHeader>
           <CardTitle>Langkah 1: Data Wali Santri</CardTitle>
-          <CardDescription>Isi informasi pribadi wali santri. Anda bisa memulai dengan memasukkan NIK dan klik "Cek NIK".</CardDescription>
+          <CardDescription>Isi informasi pribadi wali santri. NIK akan dicek secara otomatis setelah 16 digit terisi.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -102,14 +99,9 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>NIK Wali</FormLabel>
-                  <div className="flex items-center gap-2">
-                    <FormControl>
-                      <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
-                    </FormControl>
-                    <Button type="button" onClick={handleCekNik} disabled={isLoadingNik}>
-                      {isLoadingNik ? 'Mengecek...' : 'Cek NIK'}
-                    </Button>
-                  </div>
+                  <FormControl>
+                    <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
