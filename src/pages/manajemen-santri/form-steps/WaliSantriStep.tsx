@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,23 +15,84 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
+import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
-interface WaliSantriStepProps {
-  // form: any; // Dihapus karena menggunakan useFormContext
-}
+interface WaliSantriStepProps {}
 
-const WaliSantriStep: React.FC<WaliSantriStepProps> = () => { // Menghapus { form }
-  const { control } = useFormContext<SantriFormValues>();
+const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
+  const { control, getValues, setValue } = useFormContext<SantriFormValues>();
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
-  const pekerjaanList = pekerjaanResponse || []; // FIX: Mengakses langsung pekerjaanResponse karena sudah berupa array
+  const pekerjaanList = pekerjaanResponse || [];
+
+  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
+
+  const handleCekNik = async () => {
+    const nik = getValues('nik');
+    if (!nik || nik.length !== 16) {
+      toast.error('NIK tidak valid.', {
+        description: 'Pastikan NIK terdiri dari 16 digit.',
+      });
+      return;
+    }
+    triggerGetParentByNik(nik);
+  };
+
+  useEffect(() => {
+    let toastId: string | number | undefined;
+
+    if (isLoadingNik) {
+      toastId = toast.loading('Mengecek NIK...');
+    }
+
+    if (nikData && nikData.data) {
+      if (toastId) toast.dismiss(toastId);
+      toast.success('Data wali ditemukan.', {
+        description: 'Formulir telah diisi secara otomatis.',
+      });
+      const parentData = nikData.data;
+      setValue('kk', parentData.kk);
+      setValue('firstName', parentData.first_name);
+      setValue('lastName', parentData.last_name || '');
+      setValue('gender', parentData.gender);
+      setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
+      setValue('phone', parentData.phone || '');
+      setValue('email', parentData.email || '');
+      setValue('alamatKtp', parentData.card_address || '');
+      setValue('alamatDomisili', parentData.domicile_address || '');
+
+      if (parentData.occupation && pekerjaanList.length > 0) {
+        const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
+        if (foundPekerjaan) {
+          setValue('pekerjaanValue', foundPekerjaan.id.toString());
+        }
+      }
+    }
+
+    if (isErrorNik) {
+      if (toastId) toast.dismiss(toastId);
+      // @ts-ignore
+      if (nikError?.status === 404) {
+        toast.info('NIK tidak ditemukan.', {
+          description: 'Silakan isi data wali secara manual.',
+        });
+      } else {
+        toast.error('Gagal mengecek NIK.', {
+          // @ts-ignore
+          description: nikError?.data?.message || 'Terjadi kesalahan pada server.',
+        });
+      }
+    }
+  }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList]);
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Langkah 1: Data Wali Santri</CardTitle>
-          <CardDescription>Isi informasi pribadi wali santri.</CardDescription>
+          <CardDescription>Isi informasi pribadi wali santri. Anda bisa memulai dengan memasukkan NIK dan klik "Cek NIK".</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -41,9 +102,14 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => { // Menghapus { for
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>NIK Wali</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
-                  </FormControl>
+                  <div className="flex items-center gap-2">
+                    <FormControl>
+                      <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
+                    </FormControl>
+                    <Button type="button" onClick={handleCekNik} disabled={isLoadingNik}>
+                      {isLoadingNik ? 'Mengecek...' : 'Cek NIK'}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -96,7 +162,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => { // Menghapus { for
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                       className="flex flex-row space-x-4"
                     >
                       <FormItem className="flex items-center space-x-2 space-y-0">
@@ -126,7 +192,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => { // Menghapus { for
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                       className="flex flex-row space-x-4"
                     >
                       <FormItem className="flex items-center space-x-2 space-y-0">
