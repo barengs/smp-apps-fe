@@ -18,7 +18,7 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
-    { label: 'Pendaftaran Santri Baru', href: '/dashboard/pendaftaran-santri' }, // Corrected href
+    { label: 'Pendaftaran Santri Baru', href: '/dashboard/pendaftaran-santri' },
     { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
   ];
 
@@ -56,6 +56,14 @@ const CalonSantriDetailPage: React.FC = () => {
     );
   }
 
+  // Helper function to render a detail row
+  const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="grid grid-cols-2 gap-x-4 py-1">
+      <span className="font-medium text-gray-600">{label}:</span>
+      <span>{value || '-'}</span>
+    </div>
+  );
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -66,46 +74,64 @@ const CalonSantriDetailPage: React.FC = () => {
             <CardDescription>Informasi lengkap mengenai calon santri.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Informasi Umum</h3>
-                <p><strong>No. Pendaftaran:</strong> {calonSantri.registration_number}</p>
-                <p><strong>Tanggal Daftar:</strong> {new Date(calonSantri.created_at).toLocaleDateString('id-ID')}</p>
-                <p><strong>Status:</strong> <Badge className="capitalize">{calonSantri.status}</Badge></p>
-                <p><strong>Nama Lengkap:</strong> {calonSantri.first_name} {calonSantri.last_name}</p>
-                <p><strong>Jenis Kelamin:</strong> {calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
-                <p><strong>Tempat, Tanggal Lahir:</strong> {calonSantri.born_in}, {new Date(calonSantri.born_at).toLocaleDateString('id-ID')}</p>
-                <p><strong>Alamat:</strong> {calonSantri.address}</p>
-                <p><strong>Kode Pos:</strong> {calonSantri.postal_code || '-'}</p>
-                <p><strong>Telepon:</strong> {calonSantri.phone || '-'}</p>
+                <DetailRow label="No. Pendaftaran" value={calonSantri.registration_number} />
+                <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
+                <DetailRow label="Status" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
+                <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name}`} />
+                <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
+                <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />
+                <DetailRow label="Alamat" value={calonSantri.address} />
+                <DetailRow label="Kode Pos" value={calonSantri.postal_code} />
+                <DetailRow label="Telepon" value={calonSantri.phone} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-2">Informasi Pendidikan & Lainnya</h3>
-                <p><strong>Asal Sekolah:</strong> {calonSantri.previous_school || '-'}</p>
-                <p><strong>Alamat Sekolah Asal:</strong> {calonSantri.previous_school_address || '-'}</p>
-                <p><strong>Nomor Ijazah:</strong> {calonSantri.certificate_number || '-'}</p>
-                {/* You can add more fields here based on CalonSantri interface */}
-                {calonSantri.photo && (
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold mb-2">Foto</h3>
-                    <img src={calonSantri.photo} alt="Foto Calon Santri" className="w-32 h-32 object-cover rounded-md" />
-                  </div>
-                )}
+                <DetailRow label="Asal Sekolah" value={calonSantri.previous_school} />
+                <DetailRow label="Alamat Sekolah Asal" value={calonSantri.previous_school_address} />
+                <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
+                {/* Add more fields here if needed */}
               </div>
             </div>
+
             {calonSantri.parent && (
               <div className="mt-6 border-t pt-4">
                 <h3 className="text-lg font-semibold mb-2">Informasi Orang Tua/Wali</h3>
-                <p><strong>Nama Ayah/Ibu:</strong> {calonSantri.parent.first_name} {calonSantri.parent.last_name}</p>
-                <p><strong>Hubungan:</strong> {calonSantri.parent.parent_as}</p>
-                <p><strong>NIK:</strong> {calonSantri.parent.nik}</p>
-                <p><strong>No. KK:</strong> {calonSantri.parent.kk}</p>
-                <p><strong>Telepon Orang Tua:</strong> {calonSantri.parent.phone || '-'}</p>
-                <p><strong>Email Orang Tua:</strong> {calonSantri.parent.email || '-'}</p>
-                <p><strong>Pekerjaan:</strong> {calonSantri.parent.occupation || '-'}</p>
-                <p><strong>Pendidikan:</strong> {calonSantri.parent.education || '-'}</p>
-                <p><strong>Alamat Domisili:</strong> {calonSantri.parent.domicile_address || '-'}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                  <div>
+                    <DetailRow label="Nama Ayah/Ibu" value={`${calonSantri.parent.first_name} ${calonSantri.parent.last_name}`} />
+                    <DetailRow label="Hubungan" value={calonSantri.parent.parent_as} />
+                    <DetailRow label="NIK" value={calonSantri.parent.nik} />
+                    <DetailRow label="No. KK" value={calonSantri.parent.kk} />
+                  </div>
+                  <div>
+                    <DetailRow label="Telepon Orang Tua" value={calonSantri.parent.phone} />
+                    <DetailRow label="Email Orang Tua" value={calonSantri.parent.email} />
+                    <DetailRow label="Pekerjaan" value={calonSantri.parent.occupation} />
+                    <DetailRow label="Pendidikan" value={calonSantri.parent.education} />
+                    <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address} />
+                  </div>
+                </div>
               </div>
+            )}
+
+            {calonSantri.photo && (
+              <Card className="mt-6 p-4">
+                <CardHeader className="p-0 pb-2">
+                  <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 flex justify-center items-center">
+                  <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
+                    <img
+                      src={calonSantri.photo}
+                      alt="Foto Calon Santri"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </CardContent>
         </Card>
