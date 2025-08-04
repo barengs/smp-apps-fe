@@ -110,7 +110,7 @@ const CalonSantriDetailPage: React.FC = () => {
                       )}
                     </div>
                   </CardContent>
-                  <CardFooter className="p-4 text-center border-t">
+                  <CardFooter className="px-4 py-2 text-center border-t"> {/* Changed p-4 to px-4 py-2 */}
                     <h3 className="text-xl font-bold w-full mb-0">{calonSantri.first_name} {calonSantri.last_name}</h3>
                   </CardFooter>
                 </Card>
