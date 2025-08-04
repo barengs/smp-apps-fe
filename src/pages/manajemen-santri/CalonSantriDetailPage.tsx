@@ -9,7 +9,7 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-const BASE_IMAGE_URL = "https://api.smp.barengsaya.com";
+const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
 const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

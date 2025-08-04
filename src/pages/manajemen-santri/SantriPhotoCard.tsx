@@ -7,7 +7,7 @@ interface SantriPhotoCardProps {
   name: string;
 }
 
-const BASE_IMAGE_URL = "https://api.smp.barengsaya.com";
+const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
 const SantriPhotoCard: React.FC<SantriPhotoCardProps> = ({ photoUrl, name }) => {
   const fullPhotoUrl = photoUrl ? `${BASE_IMAGE_URL}${photoUrl}` : null;
