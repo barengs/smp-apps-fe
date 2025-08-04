@@ -7,6 +7,7 @@ import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
 import { User, Pencil } from 'lucide-react'; // Import Pencil icon
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge'; // Import Badge component
+import { CardFooter } from '@/components/ui/card'; // Import CardFooter
 
 const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,10 +96,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 {/* Add more fields here if needed */}
 
                 {/* Always render the photo card, show Pencil icon if no photo */}
-                <Card className="mt-4 p-4">
-                  <CardHeader className="p-0 pb-2">
-                    <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
-                  </CardHeader>
+                <Card className="mt-4 p-4 w-fit mx-auto">
                   <CardContent className="p-0 flex justify-center items-center">
                     <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
                       {calonSantri.photo ? (
@@ -112,6 +110,9 @@ const CalonSantriDetailPage: React.FC = () => {
                       )}
                     </div>
                   </CardContent>
+                  <CardFooter className="p-4 text-center border-t">
+                    <h3 className="text-xl font-bold w-full">{calonSantri.first_name} {calonSantri.last_name}</h3>
+                  </CardFooter>
                 </Card>
               </div>
             </div>
