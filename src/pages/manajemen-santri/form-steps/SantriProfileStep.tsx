@@ -32,6 +32,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
   const { control, watch, setValue } = useFormContext<SantriFormValues>();
   
   const nikSantriValue = watch('nikSantri'); // Watch nikSantri field
+  const villageCodeValue = watch('villageCode'); // Watch villageCode field
 
   // Lazy hook for fetching all villages (only triggered when needed)
   const [triggerGetAllVillages, { data: allVillagesResponse, isLoading: isLoadingAllVillages, isError: isErrorAllVillages }] = useLazyGetVillagesQuery();
@@ -95,17 +96,35 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
 
   // Determine which villages to display in the Select component
   const villagesToDisplay = useMemo(() => {
-    if (villageNikData && villageNikData.data && !showAllVillagesForManualSelection) {
-      // If NIK lookup found a village and not in manual selection mode, only show that one
-      return [villageNikData.data];
+    const options = [];
+
+    // If NIK lookup found a village and we're not in manual selection mode, add it
+    if (villageNikData?.data && !showAllVillagesForManualSelection) {
+      options.push(villageNikData.data);
     }
+
+    // If in manual selection mode, add all fetched villages
     if (showAllVillagesForManualSelection) {
-      // If in manual selection mode, show all fetched villages
-      return allVillages;
+      options.push(...allVillages);
     }
-    // Otherwise, show nothing (initial state or NIK incomplete)
-    return [];
-  }, [villageNikData, allVillages, showAllVillagesForManualSelection]);
+
+    // Ensure the currently selected value is always in the options,
+    // even if it's not from the primary source (e.g., NIK lookup result
+    // when manual selection is active, or vice-versa, or initial load).
+    if (villageCodeValue && !options.some(v => v.code === villageCodeValue)) {
+      // Try to find the selected village from either source (NIK data or all villages)
+      const selectedVillage = villageNikData?.data?.code === villageCodeValue
+        ? villageNikData.data
+        : allVillages.find(v => v.code === villageCodeValue);
+      
+      if (selectedVillage) {
+        options.push(selectedVillage);
+      }
+    }
+
+    // Remove duplicates if any (though unlikely with this logic)
+    return Array.from(new Map(options.map(item => [item.code, item])).values());
+  }, [villageNikData, allVillages, showAllVillagesForManualSelection, villageCodeValue]);
 
   return (
     <div className="space-y-6">
