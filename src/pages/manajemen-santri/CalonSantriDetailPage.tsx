@@ -111,7 +111,7 @@ const CalonSantriDetailPage: React.FC = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 text-center border-t">
-                    <h3 className="text-xl font-bold w-full">{calonSantri.first_name} {calonSantri.last_name}</h3>
+                    <h3 className="text-xl font-bold w-full mb-0">{calonSantri.first_name} {calonSantri.last_name}</h3>
                   </CardFooter>
                 </Card>
               </div>
