@@ -120,7 +120,7 @@ const CalonSantriPage: React.FC = () => {
             ) : (
               <DataTable
                 columns={columns}
-                data={calonSantriData} // Pass the extracted data array
+                data={calonSantriData.data} // Pass the extracted data array
                 exportFileName="calon_santri"
                 exportTitle="Data Calon Santri"
                 onAddData={handleAddData}
