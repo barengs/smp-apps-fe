@@ -73,7 +73,7 @@ const CalonSantriDetailPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
-              <CardTitle className="text-2xl font-bold">Detail Calon Santri: {calonSantri.first_name} {calonSantri.last_name}</CardTitle>
+              <CardTitle className="text-2xl font-bold">Detail Calon Santri: {`${calonSantri.first_name} ${calonSantri.last_name}`.toUpperCase()}</CardTitle>
               <CardDescription>Informasi lengkap mengenai calon santri.</CardDescription>
             </div>
             <div className="flex gap-2">
@@ -94,7 +94,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 <DetailRow label="No. Pendaftaran" value={calonSantri.registration_number} />
                 <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
                 <DetailRow label="Status" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
-                <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name}`} />
+                <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name}`.toUpperCase()} />
                 <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
                 <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />
                 <DetailRow label="Alamat" value={calonSantri.address} />
@@ -124,7 +124,7 @@ const CalonSantriDetailPage: React.FC = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="px-4 py-2 text-center border-t">
-                    <h3 className="text-xl font-bold w-full mb-0">{calonSantri.first_name} {calonSantri.last_name}</h3>
+                    <h3 className="text-xl font-bold w-full mb-0">{`${calonSantri.first_name} ${calonSantri.last_name}`.toUpperCase()}</h3>
                   </CardFooter>
                 </Card>
               </div>

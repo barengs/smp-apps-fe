@@ -39,7 +39,7 @@ const CalonSantriPage: React.FC = () => {
       header: 'No. Pendaftaran',
     },
     {
-      accessorFn: row => `${row.first_name} ${row.last_name}`,
+      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(), // Convert to uppercase
       id: 'nama_lengkap',
       header: 'Nama Lengkap',
     },
