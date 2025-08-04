@@ -11,6 +11,14 @@ import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { showError } from '@/utils/toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 
 interface EducationStepProps {
   form: any;
@@ -23,6 +31,10 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
   const webcamRef = useRef<Webcam>(null);
 
   const fotoSantriFile = watch('fotoSantri');
+
+  // Fetch education levels
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
+  const educationLevels = educationLevelsResponse?.data || [];
 
   useEffect(() => {
     if (fotoSantriFile && fotoSantriFile instanceof File) {
@@ -99,9 +111,29 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Jenjang Pendidikan</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Contoh: SMP/Mts" />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jenjang pendidikan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isLoadingEducationLevels && (
+                          <SelectItem value="" disabled>Memuat jenjang pendidikan...</SelectItem>
+                        )}
+                        {isErrorEducationLevels && (
+                          <SelectItem value="" disabled>Gagal memuat data.</SelectItem>
+                        )}
+                        {!isLoadingEducationLevels && !isErrorEducationLevels && educationLevels.length === 0 && (
+                          <SelectItem value="" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
+                        )}
+                        {educationLevels.map((level) => (
+                          <SelectItem key={level.id} value={level.education_class.code}>
+                            {level.education_class.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
