@@ -95,7 +95,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 {/* Add more fields here if needed */}
 
                 {calonSantri.photo && (
-                  <Card className="mt-6 p-4">
+                  <Card className="mt-4 p-4">
                     <CardHeader className="p-0 pb-2">
                       <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
                     </CardHeader>
