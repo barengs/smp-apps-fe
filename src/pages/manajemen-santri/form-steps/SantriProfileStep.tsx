@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,28 +21,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetVillagesQuery } from '@/store/slices/villageApi';
+import { useGetVillagesQuery, useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
+import { toast } from 'sonner';
 
 interface SantriProfileStepProps {
   // form: any; // Dihapus karena menggunakan useFormContext
 }
 
-const SantriProfileStep: React.FC<SantriProfileStepProps> = () => { // Menghapus { form }
-  const { control, watch } = useFormContext<SantriFormValues>();
-  // FIX: Workaround untuk TS2554 dengan watch, menggunakan variabel yang di-type secara eksplisit untuk nama field
-  // Error ini seringkali merupakan masalah caching TypeScript. Pastikan untuk refresh atau rebuild aplikasi.
-  const villageCodeFieldName: keyof SantriFormValues = 'villageCode';
-  const villageCode = watch(villageCodeFieldName); 
+const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
+  const { control, watch, setValue } = useFormContext<SantriFormValues>();
+  
+  const nikSantriValue = watch('nikSantri'); // Watch nikSantri field
 
-  const { data: villagesResponse, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery();
+  // Fetch all villages for the select dropdown
+  const { data: villagesResponse, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery({ page: 1, per_page: 9999 });
   const villages = villagesResponse?.data || [];
+
+  // Hook for lazy fetching village data by NIK
+  const [triggerGetVillageByNik, { data: villageNikData, isLoading: isLoadingVillageNik, isError: isErrorVillageNik, error: villageNikError }] = useLazyGetVillageByNikQuery();
+
+  // Effect to trigger village lookup when nikSantri is 16 digits
+  useEffect(() => {
+    if (nikSantriValue && nikSantriValue.length === 16) {
+      triggerGetVillageByNik(nikSantriValue);
+    }
+  }, [nikSantriValue, triggerGetVillageByNik]);
+
+  // Effect to handle village lookup response
+  useEffect(() => {
+    let toastId: string | number | undefined;
+
+    if (isLoadingVillageNik) {
+      toastId = toast.loading('Mengecek NIK Santri untuk data desa...');
+    }
+
+    if (villageNikData && villageNikData.data) {
+      if (toastId) toast.dismiss(toastId);
+      toast.success('Data desa ditemukan.', {
+        description: `Desa/Kelurahan: ${villageNikData.data.name} telah diisi.`,
+      });
+      setValue('villageCode', villageNikData.data.code);
+    }
+
+    if (isErrorVillageNik) {
+      if (toastId) toast.dismiss(toastId);
+      // @ts-ignore
+      if (villageNikError?.status === 404) {
+        toast.info('Data desa tidak ditemukan untuk NIK ini.', {
+          description: 'Silakan pilih desa/kelurahan secara manual.',
+        });
+      } else {
+        toast.error('Gagal mengecek data desa.', {
+          // @ts-ignore
+          description: villageNikError?.data?.message || 'Terjadi kesalahan pada server.',
+        });
+      }
+    }
+  }, [villageNikData, isLoadingVillageNik, isErrorVillageNik, villageNikError, setValue]);
+
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Langkah 2: Profil Santri</CardTitle>
-          <CardDescription>Isi informasi pribadi santri.</CardDescription>
+          <CardDescription>Isi informasi pribadi santri. NIK Santri akan dicek secara otomatis untuk mengisi data desa/kelurahan.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

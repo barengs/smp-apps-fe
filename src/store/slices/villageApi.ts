@@ -37,6 +37,22 @@ export interface CreateUpdateVillageRequest {
   district_code: string;
 }
 
+// NEW: Interface for GetVillageByNikResponse
+interface GetVillageByNikResponse {
+  status: string;
+  data: {
+    id: number;
+    code: string;
+    name: string;
+    district_code: string;
+    district: {
+      id: number;
+      code: string;
+      name: string;
+    };
+  };
+}
+
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
@@ -72,6 +88,10 @@ export const villageApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
+    // NEW: Endpoint to get village by NIK
+    getVillageByNik: builder.query<GetVillageByNikResponse, string>({
+      query: (nik) => `village/nik/${nik}/cek`,
+    }),
   }),
 });
 
@@ -80,4 +100,5 @@ export const {
   useCreateVillageMutation,
   useUpdateVillageMutation,
   useDeleteVillageMutation,
+  useLazyGetVillageByNikQuery // NEW: Export the lazy query hook
 } = villageApi;
