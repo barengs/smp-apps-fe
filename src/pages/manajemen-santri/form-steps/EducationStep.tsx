@@ -151,6 +151,19 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={control}
+                name="certificateNumber"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Nomor Ijazah</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Contoh: 001/IJZ/SMP/2023" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
           <div>
