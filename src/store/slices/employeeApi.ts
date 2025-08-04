@@ -123,6 +123,14 @@ export const employeeApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Employee'],
     }),
+    importEmployee: builder.mutation<{ message: string }, FormData>({
+      query: (formData) => ({
+        url: 'employee/import',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['Employee'],
+    }),
   }),
 });
 
@@ -132,4 +140,5 @@ export const {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
+  useImportEmployeeMutation,
 } = employeeApi;

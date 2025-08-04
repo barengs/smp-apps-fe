@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import StaffForm from './StaffForm';
+import StaffImportDialog from './StaffImportDialog';
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
@@ -57,6 +58,7 @@ const StaffTable: React.FC = () => {
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
@@ -88,6 +90,10 @@ const StaffTable: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleImportData = () => {
+    setIsImportModalOpen(true);
+  };
+
   const handleEditData = (staff: Staff) => {
     setEditingStaff(staff);
     setIsModalOpen(true);
@@ -117,6 +123,10 @@ const StaffTable: React.FC = () => {
   const handleFormSuccess = () => {
     setIsModalOpen(false);
     setEditingStaff(undefined);
+  };
+
+  const handleImportSuccess = () => {
+    setIsImportModalOpen(false);
   };
 
   const handleFormCancel = () => {
@@ -223,6 +233,7 @@ const StaffTable: React.FC = () => {
         exportFileName="data_staf"
         exportTitle="Data Staf Pesantren"
         onAddData={handleAddData}
+        onImportData={handleImportData}
         onRowClick={handleRowClick}
       />
 
@@ -241,6 +252,12 @@ const StaffTable: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
+
+      <StaffImportDialog
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={handleImportSuccess}
+      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
