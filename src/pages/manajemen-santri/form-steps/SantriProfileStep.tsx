@@ -65,13 +65,22 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
       toastId = toast.loading('Mengecek NIK Santri untuk data desa...');
     }
 
-    if (villageNikData && villageNikData.data) {
+    if (villageNikData) { // Response received
       if (toastId) toast.dismiss(toastId);
-      toast.success('Data desa ditemukan.', {
-        description: `Desa/Kelurahan: ${villageNikData.data.name} telah diisi.`,
-      });
-      setValue('villageCode', villageNikData.data.code);
-      setShowAllVillagesForManualSelection(false); // Ensure manual selection is off
+      if (villageNikData.length > 0) {
+        const foundVillage = villageNikData[0];
+        toast.success('Data desa ditemukan.', {
+          description: `Desa/Kelurahan: ${foundVillage.name} telah diisi.`,
+        });
+        setValue('villageCode', foundVillage.code);
+        setShowAllVillagesForManualSelection(false);
+      } else { // Empty array means not found
+        toast.info('Data desa tidak ditemukan untuk NIK ini.', {
+          description: 'Silakan pilih desa/kelurahan secara manual.',
+        });
+        setShowAllVillagesForManualSelection(true);
+        triggerGetAllVillages({ page: 1, per_page: 9999 });
+      }
     }
 
     if (isErrorVillageNik) {
@@ -81,26 +90,25 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
         toast.info('Data desa tidak ditemukan untuk NIK ini.', {
           description: 'Silakan pilih desa/kelurahan secara manual.',
         });
-        setShowAllVillagesForManualSelection(true); // Show all villages for manual selection
-        triggerGetAllVillages({ page: 1, per_page: 9999 }); // Trigger fetching all villages
       } else {
         toast.error('Gagal mengecek data desa.', {
           // @ts-ignore
           description: villageNikError?.data?.message || 'Terjadi kesalahan pada server.',
         });
-        setShowAllVillagesForManualSelection(true); // Also show all villages on other errors
-        triggerGetAllVillages({ page: 1, per_page: 9999 }); // Trigger fetching all villages
       }
+      setShowAllVillagesForManualSelection(true);
+      triggerGetAllVillages({ page: 1, per_page: 9999 });
     }
   }, [villageNikData, isLoadingVillageNik, isErrorVillageNik, villageNikError, setValue, triggerGetAllVillages]);
 
   // Determine which villages to display in the Select component
   const villagesToDisplay = useMemo(() => {
     const options = [];
+    const foundVillage = villageNikData && villageNikData.length > 0 ? villageNikData[0] : null;
 
     // If NIK lookup found a village and we're not in manual selection mode, add it
-    if (villageNikData?.data && !showAllVillagesForManualSelection) {
-      options.push(villageNikData.data);
+    if (foundVillage && !showAllVillagesForManualSelection) {
+      options.push(foundVillage);
     }
 
     // If in manual selection mode, add all fetched villages
@@ -108,13 +116,10 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
       options.push(...allVillages);
     }
 
-    // Ensure the currently selected value is always in the options,
-    // even if it's not from the primary source (e.g., NIK lookup result
-    // when manual selection is active, or vice-versa, or initial load).
+    // Ensure the currently selected value is always in the options
     if (villageCodeValue && !options.some(v => v.code === villageCodeValue)) {
-      // Try to find the selected village from either source (NIK data or all villages)
-      const selectedVillage = villageNikData?.data?.code === villageCodeValue
-        ? villageNikData.data
+      const selectedVillage = foundVillage?.code === villageCodeValue
+        ? foundVillage
         : allVillages.find(v => v.code === villageCodeValue);
       
       if (selectedVillage) {
@@ -122,7 +127,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
       }
     }
 
-    // Remove duplicates if any (though unlikely with this logic)
+    // Remove duplicates
     return Array.from(new Map(options.map(item => [item.code, item])).values());
   }, [villageNikData, allVillages, showAllVillagesForManualSelection, villageCodeValue]);
 
@@ -282,17 +287,9 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih Desa/Kelurahan">
-                          {field.value ? (
-                            // Prioritize NIK data if it matches the current value and is available
-                            villageNikData?.data?.code === field.value ? (
-                              villageNikData.data.name // Display name from NIK data
-                            ) : (
-                              // Otherwise, try to find it in the general list
-                              villagesToDisplay.find(v => v.code === field.value)?.name || "Pilih Desa/Kelurahan"
-                            )
-                          ) : (
-                            "Pilih Desa/Kelurahan"
-                          )}
+                          {field.value
+                            ? villagesToDisplay.find((v) => v.code === field.value)?.name || 'Memuat...'
+                            : 'Pilih Desa/Kelurahan'}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>

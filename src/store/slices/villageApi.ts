@@ -37,22 +37,6 @@ export interface CreateUpdateVillageRequest {
   district_code: string;
 }
 
-// NEW: Interface for GetVillageByNikResponse
-interface GetVillageByNikResponse {
-  status: string;
-  data: {
-    id: number;
-    code: string;
-    name: string;
-    district_code: string;
-    district: {
-      id: number;
-      code: string;
-      name: string;
-    };
-  };
-}
-
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
@@ -88,8 +72,8 @@ export const villageApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
-    // Corrected: Endpoint to get village by NIK
-    getVillageByNik: builder.query<GetVillageByNikResponse, string>({
+    // Corrected: Endpoint to get village by NIK, now returns an array
+    getVillageByNik: builder.query<VillageApiData[], string>({
       query: (nik) => `village/nik/${nik}`,
     }),
   }),
