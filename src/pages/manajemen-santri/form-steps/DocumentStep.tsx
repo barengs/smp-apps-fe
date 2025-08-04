@@ -1,59 +1,36 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useFormContext, useFieldArray } from 'react-hook-form'; // Import useFieldArray
+import React from 'react';
+import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trash2, PlusCircle, UploadCloud } from 'lucide-react';
+import { UploadCloud, PlusCircle, Trash2 } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
+import { Button } from '@/components/ui/button';
+import { useFieldArray } from 'react-hook-form';
 
 interface DocumentStepProps {
-  form: any;
+  // form: any; // Dihapus karena menggunakan useFormContext
 }
 
-const DocumentStep: React.FC<DocumentStepProps> = ({ form }) => {
-  const { control, register, setValue, getValues } = useFormContext<SantriFormValues>();
-
-  // Use useFieldArray for optionalDocuments
+const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
+  const { control } = useFormContext<SantriFormValues>();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "optionalDocuments", // This matches the field in santriFormSchema
+    name: "optionalDocuments",
   });
-
-  // Add one empty row initially if no optional documents exist
-  React.useEffect(() => {
-    if (fields.length === 0) {
-      append({ name: '', file: null });
-    }
-  }, [fields, append]);
-
-  const handleDocumentFileChange = (index: number, file: File | null) => {
-    setValue(`optionalDocuments.${index}.file`, file, { shouldValidate: true });
-  };
-
-  const addDocumentRow = () => {
-    append({ name: '', file: null });
-  };
-
-  const removeDocumentRow = (index: number) => {
-    remove(index);
-  };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Langkah 4: Kelengkapan Dokumen</CardTitle>
-          <CardDescription>Unggah ijazah terakhir dan dokumen pendukung lainnya.</CardDescription>
+          <CardDescription>Unggah dokumen pendukung lainnya.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Ijazah Terakhir */}
           <div>
-            <h3 className="text-lg font-medium mb-2">Ijazah Terakhir</h3>
+            <h3 className="text-lg font-medium mb-2">Dokumen Wajib</h3>
             <FormField
               control={control}
               name="ijazahFile"
@@ -64,95 +41,94 @@ const DocumentStep: React.FC<DocumentStepProps> = ({ form }) => {
                     className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <UploadCloud className="w-8 h-8 mb-3 text-muted-foreground" />
+                      <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
                       <p className="mb-2 text-sm text-muted-foreground">
                         <span className="font-semibold">Klik untuk mengunggah</span> atau seret
                       </p>
-                      <p className="text-xs text-muted-foreground">PDF, JPG, PNG (MAX. 2MB)</p>
-                      {field.value && field.value.name && (
-                        <p className="text-sm text-primary mt-1">{field.value.name}</p>
-                      )}
+                      <p className="text-xs text-muted-foreground">Scan Ijazah Terakhir (MAX. 2MB)</p>
                     </div>
                     <FormControl>
                       <Input
                         id="ijazah-file"
                         type="file"
                         className="hidden"
-                        accept="application/pdf,image/*"
+                        accept=".pdf,image/*"
                         onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
                       />
                     </FormControl>
                   </FormLabel>
                   <FormMessage className="mt-2" />
+                  {field.value && field.value instanceof File && (
+                    <p className="text-sm text-muted-foreground mt-1">File terpilih: {field.value.name}</p>
+                  )}
                 </FormItem>
               )}
             />
           </div>
 
-          {/* Dokumen Lainnya */}
           <div>
-            <h3 className="text-lg font-medium mb-2">Dokumen Lainnya (Opsional)</h3>
-            <div className="border rounded-md">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50%]">Nama Dokumen</TableHead>
-                    <TableHead className="w-[40%]">Unggah File</TableHead>
-                    <TableHead className="w-[10%] text-right">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fields.map((field, index) => (
-                    <TableRow key={field.id}> {/* useFieldArray provides a unique 'id' for each field */}
-                      <TableCell>
-                        <Input
-                          placeholder="Contoh: Kartu Keluarga"
-                          {...register(`optionalDocuments.${index}.name`)} // Register name field
-                        />
-                        <FormMessage className="mt-1">
-                          {form.formState.errors.optionalDocuments?.[index]?.name?.message}
-                        </FormMessage>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          type="file"
-                          className="text-sm text-muted-foreground file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                          onChange={(e) => handleDocumentFileChange(index, e.target.files ? e.target.files[0] : null)}
-                        />
-                        {getValues(`optionalDocuments.${index}.file`)?.name && (
-                          <p className="text-sm text-primary mt-1">
-                            {getValues(`optionalDocuments.${index}.file`)?.name}
-                          </p>
-                        )}
-                        <FormMessage className="mt-1">
-                          {form.formState.errors.optionalDocuments?.[index]?.file?.message}
-                        </FormMessage>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeDocumentRow(index)}
-                          disabled={fields.length <= 1} // Disable remove if only one row left
+            <h3 className="text-lg font-medium mb-2">Dokumen Opsional</h3>
+            <p className="text-sm text-muted-foreground mb-4">Anda dapat menambahkan dokumen pendukung lainnya seperti Akta Lahir, Kartu Keluarga, dll.</p>
+            <div className="space-y-4">
+              {fields.map((item, index) => (
+                <div key={item.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end border p-4 rounded-lg">
+                  <FormField
+                    control={control}
+                    name={`optionalDocuments.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nama Dokumen</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Contoh: Akta Lahir" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name={`optionalDocuments.${index}.file`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel
+                          htmlFor={`optional-file-${index}`}
+                          className="flex flex-col items-center justify-center w-full h-10 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                          <div className="flex items-center justify-center">
+                            <UploadCloud className="w-5 h-5 mr-2 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Pilih File (MAX. 2MB)</p>
+                          </div>
+                          <FormControl>
+                            <Input
+                              id={`optional-file-${index}`}
+                              type="file"
+                              className="hidden"
+                              accept=".pdf,image/*"
+                              onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
+                            />
+                          </FormControl>
+                        </FormLabel>
+                        <FormMessage />
+                        {field.value && field.value instanceof File && (
+                          <p className="text-sm text-muted-foreground mt-1">File terpilih: {field.value.name}</p>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="button" variant="destructive" onClick={() => remove(index)} className="md:col-span-1">
+                    <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => append({ name: '', file: undefined })}
+                className="w-full"
+              >
+                <PlusCircle className="mr-2 h-4 w-4" /> Tambah Dokumen Opsional
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-4"
-              onClick={addDocumentRow}
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Tambah Dokumen
-            </Button>
           </div>
         </CardContent>
       </Card>

@@ -51,6 +51,6 @@ export type SantriFormValues = z.infer<typeof santriFormSchema>;
 
 // Define fields for each step to trigger validation correctly
 export const step1Fields: (keyof SantriFormValues)[] = ['nik', 'kk', 'firstName', 'gender', 'parentAs', 'phone', 'pekerjaanValue', 'alamatKtp'];
-export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nisn', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri', 'villageCode']; // Add villageCode here
-export const step3Fields: (keyof SantriFormValues)[] = ['sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah', 'certificateNumber', 'fotoSantri']; // Add certificateNumber here
+export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri', 'villageCode']; // Remove nisn here
+export const step3Fields: (keyof SantriFormValues)[] = ['nisn', 'certificateNumber', 'sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah', 'fotoSantri']; // Add nisn and certificateNumber here
 export const step4Fields: (keyof SantriFormValues)[] = ['ijazahFile', 'optionalDocuments']; // Add optionalDocuments here

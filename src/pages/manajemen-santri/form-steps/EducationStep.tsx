@@ -21,10 +21,10 @@ import {
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 
 interface EducationStepProps {
-  form: any;
+  // form: any; // Dihapus karena menggunakan useFormContext
 }
 
-const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
+const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form }
   const { control, watch, setValue } = useFormContext<SantriFormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -90,8 +90,34 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium mb-2">Pendidikan Terakhir</h3>
+            <h3 className="text-lg font-medium mb-2">Data Pendidikan & Identitas</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={control}
+                name="nisn"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NISN</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Contoh: 0012345678" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="certificateNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nomor Ijazah</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Contoh: 001/IJZ/SMP/2023" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={control}
                 name="sekolahAsal"
@@ -153,19 +179,6 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                     <FormLabel>Alamat Sekolah Asal</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Contoh: Jl. Budi Utomo No. 1, Jakarta Pusat" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="certificateNumber"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Nomor Ijazah</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Contoh: 001/IJZ/SMP/2023" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

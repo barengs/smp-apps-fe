@@ -4,26 +4,35 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { CalendarIcon, Loader2 } from 'lucide-react'; // Import Loader2 for loading state
-import { CustomCalendar as Calendar } from '@/components/CustomCalendar';
-import { useGetVillagesQuery } from '@/store/slices/villageApi'; // Import the API hook
+import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetVillagesQuery } from '@/store/slices/villageApi';
 
 interface SantriProfileStepProps {
-  form: any;
+  // form: any; // Dihapus karena menggunakan useFormContext
 }
 
-const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
-  const { control } = useFormContext<SantriFormValues>();
-  const { data: villagesData, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery({ page: 1, per_page: 1000 }); // Fetch all villages, adjust per_page if needed
+const SantriProfileStep: React.FC<SantriProfileStepProps> = () => { // Menghapus { form }
+  const { control, watch } = useFormContext<SantriFormValues>();
+  const villageCode = watch('villageCode');
+
+  const { data: villagesResponse, isLoading: isLoadingVillages, isError: isErrorVillages } = useGetVillagesQuery();
+  const villages = villagesResponse?.data || [];
 
   return (
     <div className="space-y-6">
@@ -62,25 +71,12 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
             />
             <FormField
               control={control}
-              name="nisn"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>NISN</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Contoh: 0012345678" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
               name="nikSantri"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>NIK Santri</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" />
+                    <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,7 +99,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
               control={control}
               name="tanggalLahir"
               render={({ field }) => (
-                <FormItem className="flex flex-col mt-2"> {/* Added mt-2 here */}
+                <FormItem className="flex flex-col">
                   <FormLabel>Tanggal Lahir</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -132,6 +128,8 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
+                        initialFocus
+                        locale={id}
                       />
                     </PopoverContent>
                   </Popover>
@@ -143,51 +141,28 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
               control={control}
               name="jenisKelamin"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="space-y-3">
                   <FormLabel>Jenis Kelamin</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih jenis kelamin" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="L">Laki-laki</SelectItem>
-                      <SelectItem value="P">Perempuan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="villageCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Desa</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={isLoadingVillages || isErrorVillages}>
-                    <FormControl>
-                      <SelectTrigger>
-                        {isLoadingVillages ? (
-                          <div className="flex items-center">
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Memuat desa...
-                          </div>
-                        ) : isErrorVillages ? (
-                          "Gagal memuat desa"
-                        ) : (
-                          <SelectValue placeholder="Pilih desa" />
-                        )}
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {villagesData?.data?.map((village) => (
-                        <SelectItem key={village.id} value={village.code}>
-                          {village.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-row space-x-4"
+                    >
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="L" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Laki-laki</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="P" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Perempuan</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -199,8 +174,41 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ form }) => {
                 <FormItem className="md:col-span-2">
                   <FormLabel>Alamat Lengkap Santri</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: Jl. Raya No. 1, RT 01/RW 02, Desa/Kel. Contoh, Kec. Contoh, Kab/Kota Contoh, Provinsi Contoh" />
+                    <Input {...field} placeholder="Contoh: Jl. Raya No. 123, RT 001/RW 002" />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="villageCode"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Desa/Kelurahan</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih Desa/Kelurahan" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {isLoadingVillages && (
+                        <SelectItem value="loading" disabled>Memuat desa/kelurahan...</SelectItem>
+                      )}
+                      {isErrorVillages && (
+                        <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
+                      )}
+                      {!isLoadingVillages && !isErrorVillages && villages.length === 0 && (
+                        <SelectItem value="no-data" disabled>Tidak ada data desa/kelurahan.</SelectItem>
+                      )}
+                      {villages.map((village) => (
+                        <SelectItem key={village.code} value={village.code}>
+                          {village.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

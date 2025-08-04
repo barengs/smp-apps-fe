@@ -135,8 +135,8 @@ const SantriFormPage: React.FC = () => {
     if (data.optionalDocuments) {
       data.optionalDocuments.forEach((doc, index) => {
         if (doc.name && doc.file) {
-          appendIfExists(`dokumen_opsional[${index}][nama]`, doc.name);
-          appendIfExists(`dokumen_opsional[${index}][file]`, doc.file);
+          formData.append(`dokumen_opsional[${index}][nama]`, doc.name);
+          formData.append(`dokumen_opsional[${index}][file]`, doc.file);
         }
       });
     }
@@ -207,10 +207,10 @@ const SantriFormPage: React.FC = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="max-w-4xl mx-auto">
-              {currentStep === 1 && <WaliSantriStep form={form} />}
-              {currentStep === 2 && <SantriProfileStep form={form} />}
-              {currentStep === 3 && <EducationStep form={form} />}
-              {currentStep === 4 && <DocumentStep form={form} />}
+              {currentStep === 1 && <WaliSantriStep />}
+              {currentStep === 2 && <SantriProfileStep />}
+              {currentStep === 3 && <EducationStep />}
+              {currentStep === 4 && <DocumentStep />}
             </div>
 
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
@@ -219,7 +219,7 @@ const SantriFormPage: React.FC = () => {
                   <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>
-                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
+                <Button type="button" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Kembali
                 </Button>
