@@ -4,7 +4,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User } from 'lucide-react';
+import { User, Pencil } from 'lucide-react'; // Import Pencil icon
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge'; // Import Badge component
 
@@ -94,22 +94,25 @@ const CalonSantriDetailPage: React.FC = () => {
                 <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
                 {/* Add more fields here if needed */}
 
-                {calonSantri.photo && (
-                  <Card className="mt-4 p-4">
-                    <CardHeader className="p-0 pb-2">
-                      <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0 flex justify-center items-center">
-                      <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
+                {/* Always render the photo card, show Pencil icon if no photo */}
+                <Card className="mt-4 p-4">
+                  <CardHeader className="p-0 pb-2">
+                    <CardTitle className="text-lg font-semibold">Foto Calon Santri</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 flex justify-center items-center">
+                    <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
+                      {calonSantri.photo ? (
                         <img
                           src={calonSantri.photo}
                           alt="Foto Calon Santri"
                           className="w-full h-full object-cover"
                         />
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                      ) : (
+                        <Pencil className="h-24 w-24 text-muted-foreground" /> // Display Pencil icon
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
