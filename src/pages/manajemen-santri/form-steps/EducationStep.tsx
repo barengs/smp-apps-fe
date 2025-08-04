@@ -119,19 +119,26 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                       </FormControl>
                       <SelectContent>
                         {isLoadingEducationLevels && (
-                          <SelectItem value="" disabled>Memuat jenjang pendidikan...</SelectItem>
+                          <SelectItem value="loading" disabled>Memuat jenjang pendidikan...</SelectItem>
                         )}
                         {isErrorEducationLevels && (
-                          <SelectItem value="" disabled>Gagal memuat data.</SelectItem>
+                          <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
                         )}
                         {!isLoadingEducationLevels && !isErrorEducationLevels && educationLevels.length === 0 && (
-                          <SelectItem value="" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
+                          <SelectItem value="no-data" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
                         )}
-                        {educationLevels.map((level) => (
-                          <SelectItem key={level.id} value={level.id.toString()}>
-                            {level.name}
-                          </SelectItem>
-                        ))}
+                        {educationLevels.map((level) => {
+                          // Validasi untuk memastikan id adalah angka dan name tidak kosong
+                          if (typeof level.id !== 'number' || isNaN(level.id) || !level.name || level.name.trim() === '') {
+                            console.warn('Melewatkan jenjang pendidikan yang tidak valid (ID tidak valid atau nama kosong):', level);
+                            return null; // Lewati rendering item ini
+                          }
+                          return (
+                            <SelectItem key={level.id} value={level.id.toString()}>
+                              {level.name}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <FormMessage />
