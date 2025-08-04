@@ -1,18 +1,18 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'; // Ensure CardFooter is imported
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil } from 'lucide-react';
+import { User, Pencil, ArrowLeft } from 'lucide-react'; // Import ArrowLeft icon
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button'; // Import Button component
+import { Button } from '@/components/ui/button';
 
 const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const navigate = useNavigate();
 
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
 
@@ -71,9 +71,21 @@ const CalonSantriDetailPage: React.FC = () => {
       <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
-          <CardHeader>
-            <CardTitle>Detail Calon Santri: {calonSantri.first_name} {calonSantri.last_name}</CardTitle>
-            <CardDescription>Informasi lengkap mengenai calon santri.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle className="text-2xl font-bold">Detail Calon Santri: {calonSantri.first_name} {calonSantri.last_name}</CardTitle>
+              <CardDescription>Informasi lengkap mengenai calon santri.</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Kembali
+              </Button>
+              <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -139,15 +151,6 @@ const CalonSantriDetailPage: React.FC = () => {
               </div>
             )}
           </CardContent>
-          {/* New CardFooter for action buttons */}
-          <CardFooter className="flex justify-end gap-2 border-t pt-4">
-            <Button variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')}>
-              Kembali
-            </Button>
-            <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)}>
-              Edit
-            </Button>
-          </CardFooter>
         </Card>
       </div>
     </DashboardLayout>
