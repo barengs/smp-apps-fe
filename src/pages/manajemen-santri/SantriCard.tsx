@@ -18,12 +18,16 @@ interface SantriCardProps {
   santri: SantriData;
 }
 
+const BASE_IMAGE_URL = "https://api.smp.barengsaya.com";
+
 // Menggunakan React.forwardRef untuk meneruskan ref ke komponen
 const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }, ref) => {
   const fullName = `${santri.first_name} ${santri.last_name || ''}`.trim();
   const placeOfBirth = santri.born_in || '-';
   const dateOfBirth = santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
   const gender = santri.gender === 'L' ? 'Laki-Laki' : 'Perempuan';
+
+  const santriPhotoUrl = santri.photo ? `${BASE_IMAGE_URL}${santri.photo}` : null;
 
   return (
     // Ukuran kartu standar ID-1 (seperti kartu kredit)
@@ -41,8 +45,8 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
       <div className="flex flex-grow items-center space-x-3">
         {/* Foto Santri */}
         <div className="w-[25mm] h-[35mm] flex items-center justify-center border border-gray-200 rounded-sm p-0.5">
-          {santri.photo ? (
-            <img src={santri.photo} alt={fullName} className="w-full h-full object-cover" />
+          {santriPhotoUrl ? (
+            <img src={santriPhotoUrl} alt={fullName} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-sm">
               <User className="h-10 w-10 text-gray-400" />

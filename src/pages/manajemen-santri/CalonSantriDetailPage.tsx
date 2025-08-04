@@ -9,6 +9,8 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+const BASE_IMAGE_URL = "https://api.smp.barengsaya.com";
+
 const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
@@ -66,6 +68,8 @@ const CalonSantriDetailPage: React.FC = () => {
     </div>
   );
 
+  const calonSantriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -112,9 +116,9 @@ const CalonSantriDetailPage: React.FC = () => {
                 <Card className="mt-4 p-4 w-fit mx-auto">
                   <CardContent className="p-0 flex justify-center items-center">
                     <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
-                      {calonSantri.photo ? (
+                      {calonSantriPhotoUrl ? (
                         <img
-                          src={calonSantri.photo}
+                          src={calonSantriPhotoUrl}
                           alt="Foto Calon Santri"
                           className="w-full h-full object-cover"
                         />
