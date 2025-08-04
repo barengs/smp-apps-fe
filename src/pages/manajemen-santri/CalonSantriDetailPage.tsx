@@ -60,8 +60,8 @@ const CalonSantriDetailPage: React.FC = () => {
   // Helper function to render a detail row
   const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <div className="grid grid-cols-2 gap-x-4 py-1">
-      <span className="font-medium text-gray-600">{label}:</span>
-      <span>{value || '-'}</span>
+      <span className="font-medium text-gray-600">{label}</span>
+      <span>: {value || '-'}</span>
     </div>
   );
 
