@@ -266,20 +266,20 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isLoadingVillageNik ? (
-                        <SelectItem value="loading-nik" disabled>Mengecek NIK...</SelectItem>
-                      ) : showAllVillagesForManualSelection && isLoadingAllVillages ? (
-                        <SelectItem value="loading-all" disabled>Memuat desa/kelurahan...</SelectItem>
-                      ) : showAllVillagesForManualSelection && isErrorAllVillages ? (
-                        <SelectItem value="error-all" disabled>Gagal memuat data.</SelectItem>
-                      ) : villagesToDisplay.length === 0 ? (
-                        <SelectItem value="no-data" disabled>Tidak ada data desa/kelurahan.</SelectItem>
-                      ) : (
+                      {villagesToDisplay.length > 0 ? (
                         villagesToDisplay.map((village) => (
                           <SelectItem key={village.code} value={village.code}>
                             {village.name}
                           </SelectItem>
                         ))
+                      ) : isLoadingVillageNik ? (
+                        <SelectItem value="loading-nik" disabled>Mengecek NIK...</SelectItem>
+                      ) : showAllVillagesForManualSelection && isLoadingAllVillages ? (
+                        <SelectItem value="loading-all" disabled>Memuat desa/kelurahan...</SelectItem>
+                      ) : showAllVillagesForManualSelection && isErrorAllVillages ? (
+                        <SelectItem value="error-all" disabled>Gagal memuat data.</SelectItem>
+                      ) : (
+                        <SelectItem value="no-data" disabled>Tidak ada data desa/kelurahan.</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
