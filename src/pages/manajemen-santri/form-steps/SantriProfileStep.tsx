@@ -103,23 +103,26 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
 
   // Determine which villages to display in the Select component
   const villagesToDisplay = useMemo(() => {
-    const options = [];
-    const foundVillage = villageNikData && villageNikData.length > 0 ? villageNikData[0] : null;
+    let options = [];
 
-    // If NIK lookup found a village and we're not in manual selection mode, add it
-    if (foundVillage && !showAllVillagesForManualSelection) {
-      options.push(foundVillage);
+    // Always include the village found by NIK if it exists
+    const foundVillageByNik = villageNikData && villageNikData.length > 0 ? villageNikData[0] : null;
+    if (foundVillageByNik) {
+      options.push(foundVillageByNik);
     }
 
-    // If in manual selection mode, add all fetched villages
+    // If manual selection is active, add all villages fetched by triggerGetAllVillages
     if (showAllVillagesForManualSelection) {
       options.push(...allVillages);
     }
 
     // Ensure the currently selected value is always in the options
+    // This handles cases where the selected value might not be in the initial NIK result
+    // or the allVillages list (e.g., if it was pre-filled or came from a different source).
     if (villageCodeValue && !options.some(v => v.code === villageCodeValue)) {
-      const selectedVillage = foundVillage?.code === villageCodeValue
-        ? foundVillage
+      // Try to find the selected village from either source (NIK data or all villages)
+      const selectedVillage = foundVillageByNik?.code === villageCodeValue
+        ? foundVillageByNik
         : allVillages.find(v => v.code === villageCodeValue);
       
       if (selectedVillage) {
@@ -127,7 +130,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
       }
     }
 
-    // Remove duplicates
+    // Remove duplicates and return
     return Array.from(new Map(options.map(item => [item.code, item])).values());
   }, [villageNikData, allVillages, showAllVillagesForManualSelection, villageCodeValue]);
 
