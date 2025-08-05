@@ -50,7 +50,18 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         description: 'Formulir telah diisi secara otomatis.',
       });
       const parentData = nikData.data;
-      setValue('kk', parentData.kk);
+
+      // Validate and set KK
+      const kkValue = String(parentData.kk || '').trim();
+      if (kkValue.match(/^\d{16}$/)) {
+        setValue('kk', kkValue);
+      } else {
+        setValue('kk', ''); // Clear if invalid
+        toast.warning('Nomor Kartu Keluarga (KK) dari data NIK tidak valid.', {
+          description: 'Harap masukkan Nomor KK secara manual (harus 16 digit angka).',
+        });
+      }
+      
       setValue('firstName', parentData.first_name);
       setValue('lastName', parentData.last_name || '');
       setValue('gender', parentData.gender);
