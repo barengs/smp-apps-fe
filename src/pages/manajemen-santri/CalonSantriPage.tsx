@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { UserPlus, MoreHorizontal } from 'lucide-react';
+import { UserPlus, MoreHorizontal, Check, X } from 'lucide-react'; // Import Check and X icons
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -102,7 +102,7 @@ const CalonSantriPage: React.FC = () => {
                   handleAccept(santri);
                 }}
               >
-                Terima
+                <Check className="mr-2 h-4 w-4" /> Terima
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => {
@@ -111,7 +111,7 @@ const CalonSantriPage: React.FC = () => {
                 }}
                 className="text-red-600"
               >
-                Tolak
+                <X className="mr-2 h-4 w-4" /> Tolak
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
