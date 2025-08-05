@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch } from 'lucide-react'; // Import UserSearch icon
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText } from 'lucide-react'; // Import Receipt, Wallet, FileText icons
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -101,6 +101,15 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
         { titleKey: "sidebar.academicYear", href: "/dashboard/pendidikan/tahun-ajaran", icon: <Calendar className="h-4 w-4" /> },
+      ],
+    },
+    {
+      titleKey: "sidebar.bankSantri", // New menu item
+      icon: <Landmark className="h-5 w-5" />,
+      children: [
+        { titleKey: "sidebar.transactions", href: "/dashboard/bank-santri/transaksi", icon: <Receipt className="h-4 w-4" /> },
+        { titleKey: "sidebar.accounts", href: "/dashboard/bank-santri/rekening", icon: <Wallet className="h-4 w-4" /> },
+        { titleKey: "sidebar.reports", href: "/dashboard/bank-santri/laporan", icon: <FileText className="h-4 w-4" /> },
       ],
     },
     {

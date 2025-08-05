@@ -1,43 +1,13 @@
 {
-  "home": "Beranda",
-  "register": "Daftar",
-  "login": "Masuk",
-  "chooseLanguage": "Pilih Bahasa",
-  "indonesian": "Bahasa Indonesia",
-  "english": "Inggris",
-  "arabic": "Arab",
-  "footerRights": "Hak Cipta Dilindungi",
-  "welcomeTitle": "Selamat Datang di Sistem Manajemen Pesantren",
-  "welcomeSubtitle": "Solusi terintegrasi untuk mengelola semua aspek operasional pesantren Anda secara efisien.",
-  "infoTitle": "Informasi Pesantren",
-  "infoSlide1": "Pendidikan Berkualitas",
-  "infoSlide2": "Lingkungan Islami",
-  "infoSlide3": "Fasilitas Modern",
-  "infoSlide4": "Program Tahfidz",
-  "infoSlide5": "Ekstrakurikuler Beragam",
-  "infoSlide6": "Asrama Nyaman",
-  "infoSlide7": "Tenaga Pendidik Profesional",
-  "loginPageTitle": "Masuk",
-  "loginFormTitle": "Masuk ke Akun Anda",
-  "loginFormDescription": "Masukkan email dan kata sandi Anda untuk mengakses dasbor.",
-  "emailLabel": "Email",
-  "emailPlaceholder": "nama@contoh.com",
-  "passwordLabel": "Kata Sandi",
-  "loginButton": "Masuk",
-  "registerPageTitle": "Daftar",
-  "registerFormTitle": "Buat Akun Baru",
-  "registerFormDescription": "Isi formulir di bawah ini untuk mendaftar.",
-  "fullNameLabel": "Nama Lengkap",
-  "fullNamePlaceholder": "Masukkan nama lengkap Anda",
-  "confirmPasswordLabel": "Konfirmasi Kata Sandi",
-  "registerButton": "Daftar",
   "sidebar": {
-    "dashboard": "Dasbor",
+    "dashboard": "Dashboard",
     "santriManagement": "Manajemen Santri",
     "santri": "Santri",
-    "registration": "Pendaftaran",
+    "registration": "Pendaftaran Santri",
     "waliSantri": "Wali Santri",
+    "internshipManagement": "Manajemen Magang",
     "teacherAssignment": "Guru Tugas",
+    "responsiblePerson": "Penanggung Jawab Magang",
     "staffManagement": "Manajemen Staf",
     "staff": "Staf",
     "accessRights": "Hak Akses",
@@ -46,19 +16,24 @@
     "subjects": "Mata Pelajaran",
     "classPromotion": "Kenaikan Kelas",
     "lessonSchedule": "Jadwal Pelajaran",
-    "securityManagement": "Keamanan & Ketertiban",
+    "securityManagement": "Manajemen Kamtib",
     "violations": "Pelanggaran",
     "educationManagement": "Manajemen Pendidikan",
     "educationLevel": "Jenjang Pendidikan",
     "class": "Kelas",
-    "classGroup": "Rombongan Belajar",
+    "classGroup": "Rombel",
     "educationGroup": "Kelompok Pendidikan",
     "dormitory": "Asrama",
     "program": "Program",
+    "academicYear": "Tahun Ajaran",
+    "bankSantri": "Bank Santri",
+    "transactions": "Transaksi",
+    "accounts": "Rekening",
+    "reports": "Laporan",
     "information": "Informasi",
     "news": "Berita",
     "activitySchedule": "Jadwal Kegiatan",
-    "masterData": "Data Master",
+    "masterData": "Master Data",
     "job": "Pekerjaan",
     "province": "Provinsi",
     "city": "Kota",
@@ -69,66 +44,18 @@
     "navigation": "Navigasi",
     "santriInfo": "Informasi Santri",
     "gradesAndAttendance": "Nilai & Absensi",
-    "bankSantri": "Bank Santri",
-    "announcements": "Pengumuman",
-    "academicYear": "Tahun Ajaran",
-    "internshipManagement": "Manajemen Magang",
-    "responsiblePerson": "Penanggung Jawab"
+    "announcements": "Pengumuman"
   },
   "header": {
     "toggleFullscreen": "Alihkan Layar Penuh",
+    "toggleTheme": "Alihkan Tema",
     "selectLanguage": "Pilih Bahasa",
     "profile": "Profil",
     "settings": "Pengaturan",
     "logout": "Keluar",
-    "usernamePlaceholder": "Nama Pengguna"
+    "usernamePlaceholder": "Pengguna"
   },
   "footer": {
-    "copyright": "Hak Cipta © {{year}}"
-  },
-  "waliSantriDashboard": {
-    "title": "Dasbor Wali Santri",
-    "santriInfo": {
-      "title": "Informasi Santri",
-      "name": "Nama",
-      "class": "Kelas",
-      "status": "Status",
-      "statusValue": "Aktif"
-    },
-    "latestGrades": {
-      "title": "Nilai Terbaru",
-      "math": "Matematika",
-      "arabic": "Bahasa Arab",
-      "fiqh": "Fiqih"
-    },
-    "attendance": {
-      "title": "Kehadiran",
-      "present": "Hadir: {{count}}",
-      "permission": "Izin: {{count}}",
-      "sick": "Sakit: {{count}}"
-    },
-    "announcements": {
-      "title": "Pengumuman",
-      "noNew": "Tidak ada pengumuman baru."
-    }
-  },
-  "teacherAssignment": {
-    "title": "Penugasan Guru"
-  },
-  "bankSantri": {
-    "title": "Bank Santri",
-    "placeholder": "Fitur ini sedang dalam pengembangan."
-  },
-  "gradesAndAttendance": {
-    "title": "Nilai & Absensi",
-    "placeholder": "Fitur ini sedang dalam pengembangan."
-  },
-  "announcements": {
-    "title": "Pengumuman",
-    "placeholder": "Fitur ini sedang dalam pengembangan."
-  },
-  "settings": {
-    "title": "Pengaturan",
-    "placeholder": "Fitur ini sedang dalam pengembangan."
+    "copyright": "Hak Cipta © {{year}} SMP. Semua Hak Dilindungi."
   }
 }
