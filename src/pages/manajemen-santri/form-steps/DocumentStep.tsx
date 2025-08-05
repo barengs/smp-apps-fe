@@ -115,7 +115,7 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
                       </FormItem>
                     )}
                   />
-                  <Button type="button" variant="destructive" onClick={() => remove(index)} className="md:col-span-1">
+                  <Button type="button" variant="destructive" onClick={() => remove(index)} className="w-fit">
                     <Trash2 className="mr-2 h-4 w-4" /> Hapus
                   </Button>
                 </div>
