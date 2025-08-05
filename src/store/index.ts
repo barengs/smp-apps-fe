@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { smpApi } from './baseApi'; // Import baseApi
-import authReducer from './slices/authSlice'; // Import auth reducer
+import { smpApi } from './baseApi';
+import authReducer from './slices/authSlice';
 
-// Import slices to ensure endpoints are injected and available for reducer/middleware
-// Cukup import saja, tidak perlu mendaftarkan reducer/middleware mereka secara individual
-// karena mereka sudah di-inject ke smpApi.
+// These imports are crucial to run the `injectEndpoints` code.
+// They don't need to be individually added to the store config
+// if they are injected into smpApi.
 import './slices/authApi';
 import './slices/roleApi';
 import './slices/santriApi';
@@ -28,18 +28,24 @@ import './slices/pekerjaanApi';
 import './slices/beritaApi';
 import './slices/studyApi';
 import './slices/calonSantriApi';
-import './slices/bankApi';
+import { bankApi } from './slices/bankApi'; // bankApi is a separate API, so we need its export.
 import './slices/educationGroupApi';
 import './slices/activityApi';
 
 export const store = configureStore({
   reducer: {
-    [smpApi.reducerPath]: smpApi.reducer, // Ini sudah mencakup semua reducer dari endpoint yang di-inject
+    // Register the main API reducer. This handles all injected endpoints.
+    [smpApi.reducerPath]: smpApi.reducer,
+    // Register the separate bank API reducer.
+    [bankApi.reducerPath]: bankApi.reducer,
+    // Register the auth slice reducer.
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      smpApi.middleware, // Ini sudah mencakup semua middleware dari endpoint yang di-inject
+      // Add the middleware for the main API and the separate bank API.
+      smpApi.middleware,
+      bankApi.middleware
     ),
 });
 
