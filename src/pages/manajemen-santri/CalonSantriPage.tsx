@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, MoreHorizontal } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -11,6 +11,15 @@ import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import * as toast from '@/utils/toast';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +34,14 @@ const CalonSantriPage: React.FC = () => {
 
   const handleRowClick = (santri: CalonSantri) => {
     navigate(`/dashboard/calon-santri/${santri.id}`);
+  };
+
+  const handleAccept = (santri: CalonSantri) => {
+    toast.showWarning(`Fitur "Terima" untuk ${santri.first_name} akan segera tersedia.`);
+  };
+
+  const handleReject = (santri: CalonSantri) => {
+    toast.showWarning(`Fitur "Tolak" untuk ${santri.first_name} akan segera tersedia.`);
   };
 
   const columns: ColumnDef<CalonSantri>[] = [
@@ -60,7 +77,47 @@ const CalonSantriPage: React.FC = () => {
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
       },
     },
-    // Kolom 'Aksi' dihapus karena fungsionalitasnya dipindahkan ke onRowClick
+    {
+      id: 'actions',
+      header: 'Aksi',
+      cell: ({ row }) => {
+        const santri = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={(e) => e.stopPropagation()} // Mencegah klik baris
+              >
+                <span className="sr-only">Buka menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAccept(santri);
+                }}
+              >
+                Terima
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReject(santri);
+                }}
+                className="text-red-600"
+              >
+                Tolak
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
   ];
 
   const handleAddData = () => {
@@ -95,7 +152,7 @@ const CalonSantriPage: React.FC = () => {
                 exportFileName="calon_santri"
                 exportTitle="Data Calon Santri"
                 onAddData={handleAddData}
-                onRowClick={handleRowClick} // Meneruskan fungsi handleRowClick
+                onRowClick={handleRowClick}
               />
             )}
           </CardContent>
