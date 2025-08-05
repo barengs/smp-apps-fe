@@ -49,6 +49,15 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const adminSidebarNavItems: SidebarNavItem[] = [
     { titleKey: "sidebar.dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
     {
+      titleKey: "sidebar.bankSantri", // Moved to here
+      icon: <Landmark className="h-5 w-5" />,
+      children: [
+        { titleKey: "sidebar.transactions", href: "/dashboard/bank-santri/transaksi", icon: <Receipt className="h-4 w-4" /> },
+        { titleKey: "sidebar.accounts", href: "/dashboard/bank-santri/rekening", icon: <Wallet className="h-4 w-4" /> },
+        { titleKey: "sidebar.reports", href: "/dashboard/bank-santri/laporan", icon: <FileText className="h-4 w-4" /> },
+      ],
+    },
+    {
       titleKey: "sidebar.santriManagement",
       icon: <Users className="h-5 w-5" />,
       children: [
@@ -101,15 +110,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
         { titleKey: "sidebar.academicYear", href: "/dashboard/pendidikan/tahun-ajaran", icon: <Calendar className="h-4 w-4" /> },
-      ],
-    },
-    {
-      titleKey: "sidebar.bankSantri", // New menu item
-      icon: <Landmark className="h-5 w-5" />,
-      children: [
-        { titleKey: "sidebar.transactions", href: "/dashboard/bank-santri/transaksi", icon: <Receipt className="h-4 w-4" /> },
-        { titleKey: "sidebar.accounts", href: "/dashboard/bank-santri/rekening", icon: <Wallet className="h-4 w-4" /> },
-        { titleKey: "sidebar.reports", href: "/dashboard/bank-santri/laporan", icon: <FileText className="h-4 w-4" /> },
       ],
     },
     {
