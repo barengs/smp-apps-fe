@@ -32,7 +32,7 @@ import { useAddTransactionMutation } from '@/store/slices/bankApi';
 import * as toast from '@/utils/toast';
 
 const formSchema = z.object({
-  account_number: z.string().min(1, 'Nomor rekening harus diisi.'),
+  destination_account: z.string().min(1, 'Nomor rekening tujuan harus diisi.'),
   transaction_type: z.enum(['deposit', 'withdrawal'], {
     required_error: 'Tipe transaksi harus dipilih.',
   }),
@@ -51,7 +51,7 @@ const TransaksiForm: React.FC<TransaksiFormProps> = ({ isOpen, onClose }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      account_number: '',
+      destination_account: '',
       transaction_type: 'deposit',
       amount: 0,
       description: '',
@@ -60,7 +60,12 @@ const TransaksiForm: React.FC<TransaksiFormProps> = ({ isOpen, onClose }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await addTransaction(values).unwrap();
+      // Convert amount to string before sending to API
+      const transactionData = {
+        ...values,
+        amount: values.amount.toString(),
+      };
+      await addTransaction(transactionData).unwrap();
       toast.showSuccess('Transaksi berhasil ditambahkan.');
       form.reset();
       onClose();
@@ -83,12 +88,12 @@ const TransaksiForm: React.FC<TransaksiFormProps> = ({ isOpen, onClose }) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="account_number"
+              name="destination_account"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nomor Rekening Santri</FormLabel>
+                  <FormLabel>Nomor Rekening Tujuan</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan nomor rekening" {...field} />
+                    <Input placeholder="Masukkan nomor rekening tujuan" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

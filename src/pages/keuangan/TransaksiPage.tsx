@@ -21,17 +21,15 @@ import {
 import TransaksiForm from './TransaksiForm';
 
 const TransaksiPage: React.FC = () => {
-  // Destructuring langsung dari hook useGetTransactionsQuery
   const { data: apiResponse, isLoading, isError, error } = useGetTransactionsQuery();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // Mock data for development until API is ready
   const mockData: Transaksi[] = [
-    { id: 1, transaction_date: '2023-10-27', account_number: '123456789', santri_name: 'Ahmad Fauzi', transaction_type: 'deposit', amount: 500000, description: 'Setoran bulanan', created_at: '', updated_at: '' },
-    { id: 2, transaction_date: '2023-10-26', account_number: '987654321', santri_name: 'Budi Santoso', transaction_type: 'withdrawal', amount: 100000, description: 'Pembelian buku', created_at: '', updated_at: '' },
+    { id: 'trx_1', transaction_type: 'deposit', description: 'Setoran bulanan', amount: '500000', status: 'completed', reference_number: 'REF123', channel: 'web', source_account: 'SRC1', destination_account: 'DST1', created_at: '2023-10-27T14:15:22Z', updated_at: '2023-10-27T14:15:22Z' },
+    { id: 'trx_2', transaction_type: 'withdrawal', description: 'Pembelian buku', amount: '100000', status: 'pending', reference_number: 'REF456', channel: 'mobile', source_account: 'SRC2', destination_account: 'DST2', created_at: '2023-10-26T14:15:22Z', updated_at: '2023-10-26T14:15:22Z' },
   ];
 
-  const transactionsData = apiResponse?.data?.data || mockData;
+  const transactionsData = apiResponse?.data || mockData;
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -39,27 +37,29 @@ const TransaksiPage: React.FC = () => {
     { label: 'Transaksi', icon: <Receipt className="h-4 w-4" /> },
   ];
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: string | number) => {
+    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(numericAmount)) return 'N/A';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(numericAmount);
   };
 
   const columns: ColumnDef<Transaksi>[] = [
     {
-      accessorKey: 'transaction_date',
+      accessorKey: 'created_at',
       header: 'Tanggal',
-      cell: ({ row }) => new Date(row.original.transaction_date).toLocaleDateString('id-ID'),
+      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString('id-ID'),
     },
     {
-      accessorKey: 'account_number',
-      header: 'No. Rekening',
+      accessorKey: 'destination_account',
+      header: 'No. Rekening Tujuan',
     },
     {
-      accessorKey: 'santri_name',
-      header: 'Nama Santri',
+      accessorKey: 'description',
+      header: 'Deskripsi',
     },
     {
       accessorKey: 'transaction_type',
@@ -67,8 +67,7 @@ const TransaksiPage: React.FC = () => {
       cell: ({ row }) => {
         const type = row.original.transaction_type;
         const variant = type === 'deposit' ? 'default' : 'secondary';
-        const text = type === 'deposit' ? 'Setoran' : 'Penarikan';
-        return <Badge variant={variant} className="capitalize">{text}</Badge>;
+        return <Badge variant={variant} className="capitalize">{type}</Badge>;
       },
     },
     {
@@ -77,8 +76,13 @@ const TransaksiPage: React.FC = () => {
       cell: ({ row }) => formatCurrency(row.original.amount),
     },
     {
-      accessorKey: 'description',
-      header: 'Deskripsi',
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.original.status.toLowerCase();
+        const variant = status === 'completed' ? 'default' : status === 'pending' ? 'secondary' : 'destructive';
+        return <Badge variant={variant} className="capitalize">{row.original.status}</Badge>;
+      },
     },
     {
       id: 'actions',
@@ -94,6 +98,7 @@ const TransaksiPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
               <DropdownMenuItem>Edit</DropdownMenuItem>
               <DropdownMenuItem className="text-red-600">Hapus</DropdownMenuItem>
             </DropdownMenuContent>
@@ -133,6 +138,7 @@ const TransaksiPage: React.FC = () => {
                 onAddData={() => setIsFormOpen(true)}
                 filterableColumns={{
                   transaction_type: { placeholder: 'Filter by Tipe' },
+                  status: { placeholder: 'Filter by Status' },
                 }}
               />
             )}

@@ -8,18 +8,18 @@ export const bankApi = createApi({
   tagTypes: ['Transaksi'],
   endpoints: (builder) => ({
     getTransactions: builder.query<TransaksiApiResponse, void>({
-      query: () => '/transactions',
+      query: () => '/transaction',
       providesTags: (result) =>
         result
           ? [
-              ...result.data.data.map(({ id }) => ({ type: 'Transaksi' as const, id })),
+              ...result.data.map(({ id }) => ({ type: 'Transaksi' as const, id })),
               { type: 'Transaksi', id: 'LIST' },
             ]
           : [{ type: 'Transaksi', id: 'LIST' }],
     }),
     addTransaction: builder.mutation<SingleTransaksiApiResponse, Partial<Transaksi>>({
       query: (body) => ({
-        url: '/transactions',
+        url: '/transaction',
         method: 'POST',
         body,
       }),
