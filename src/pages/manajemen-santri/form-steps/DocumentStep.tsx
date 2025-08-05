@@ -71,12 +71,12 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
             <p className="text-sm text-muted-foreground mb-4">Anda dapat menambahkan dokumen pendukung lainnya seperti Akta Lahir, Kartu Keluarga, dll.</p>
             <div className="space-y-4">
               {fields.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end border p-4 rounded-lg">
+                <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border p-4 rounded-lg">
                   <FormField
                     control={control}
                     name={`optionalDocuments.${index}.name`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="md:col-span-5">
                         <FormLabel>Nama Dokumen</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="Contoh: Akta Lahir" />
@@ -89,7 +89,7 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
                     control={control}
                     name={`optionalDocuments.${index}.file`}
                     render={({ field }) => (
-                      <FormItem className="md:col-span-2">
+                      <FormItem className="md:col-span-5">
                         <FormLabel
                           htmlFor={`optional-file-${index}`}
                           className="flex flex-col items-center justify-center w-full h-10 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
@@ -115,9 +115,11 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
                       </FormItem>
                     )}
                   />
-                  <Button type="button" variant="destructive" onClick={() => remove(index)} className="w-fit">
-                    <Trash2 className="mr-2 h-4 w-4" /> Hapus
-                  </Button>
+                  <div className="md:col-span-2 flex justify-end">
+                    <Button type="button" variant="destructive" onClick={() => remove(index)} className="w-fit">
+                      <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                    </Button>
+                  </div>
                 </div>
               ))}
               <Button
