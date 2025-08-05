@@ -1,31 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, UserPlus, Users } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { DataTable } from '@/components/DataTable';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
-import { CalonSantri, PaginatedResponse, CalonSantriApiResponse } from '@/types/calonSantri'; // Import CalonSantriApiResponse
+import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
-  // Destructure data correctly, it will be CalonSantriApiResponse
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriQuery();
 
-  // Extract the actual array of santri data from the nested 'data' property
   const calonSantriData = apiResponse?.data?.data || [];
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -33,13 +23,17 @@ const CalonSantriPage: React.FC = () => {
     { label: 'Pendaftaran Santri Baru', icon: <UserPlus className="h-4 w-4" /> },
   ];
 
+  const handleRowClick = (santri: CalonSantri) => {
+    navigate(`/dashboard/calon-santri/${santri.id}`);
+  };
+
   const columns: ColumnDef<CalonSantri>[] = [
     {
       accessorKey: 'registration_number',
       header: 'No. Pendaftaran',
     },
     {
-      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(), // Convert to uppercase
+      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(),
       id: 'nama_lengkap',
       header: 'Nama Lengkap',
     },
@@ -66,30 +60,7 @@ const CalonSantriPage: React.FC = () => {
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
       },
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const santri = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Buka menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate(`/dashboard/calon-santri/${santri.id}`)}>
-                Lihat Detail
-              </DropdownMenuItem>
-              <DropdownMenuItem>Terima</DropdownMenuItem>
-              <DropdownMenuItem>Tolak</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    // Kolom 'Aksi' dihapus karena fungsionalitasnya dipindahkan ke onRowClick
   ];
 
   const handleAddData = () => {
@@ -124,6 +95,7 @@ const CalonSantriPage: React.FC = () => {
                 exportFileName="calon_santri"
                 exportTitle="Data Calon Santri"
                 onAddData={handleAddData}
+                onRowClick={handleRowClick} // Meneruskan fungsi handleRowClick
               />
             )}
           </CardContent>
