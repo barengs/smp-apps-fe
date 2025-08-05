@@ -68,13 +68,60 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
-        const file = dataURLtoFile(imageSrc, `capture-${Date.now()}.jpg`);
-        if (file) {
-          setValue('fotoSantri', file, { shouldValidate: true });
-          setIsCameraOpen(false); // Close dialog on capture
-        } else {
-          showError("Gagal mengonversi gambar. Coba lagi.");
-        }
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+          const video = webcamRef.current?.video;
+          if (!video) {
+            showError("Gagal mengakses stream video.");
+            return;
+          }
+
+          const videoWidth = video.videoWidth;
+          const videoHeight = video.videoHeight;
+
+          // Target aspect ratio for 3x4 photo (width:height)
+          const targetAspectRatio = 3 / 4;
+
+          let croppedWidth, croppedHeight, sx, sy;
+
+          // Determine the largest 3:4 rectangle that fits within the video feed
+          if (videoWidth / videoHeight > targetAspectRatio) {
+            // Video is wider than 3:4, limit by height
+            croppedHeight = videoHeight;
+            croppedWidth = croppedHeight * targetAspectRatio;
+            sx = (videoWidth - croppedWidth) / 2;
+            sy = 0;
+          } else {
+            // Video is taller or equal to 3:4, limit by width
+            croppedWidth = videoWidth;
+            croppedHeight = croppedWidth / targetAspectRatio;
+            sx = 0;
+            sy = (videoHeight - croppedHeight) / 2;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = croppedWidth;
+          canvas.height = croppedHeight;
+          const ctx = canvas.getContext('2d');
+
+          if (ctx) {
+            ctx.drawImage(img, sx, sy, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
+            const croppedImageSrc = canvas.toDataURL('image/jpeg');
+            const file = dataURLtoFile(croppedImageSrc, `capture-${Date.now()}.jpg`);
+            if (file) {
+              setValue('fotoSantri', file, { shouldValidate: true });
+              setIsCameraOpen(false); // Close dialog on capture
+            } else {
+              showError("Gagal mengonversi gambar yang dipotong. Coba lagi.");
+            }
+          } else {
+            showError("Gagal membuat konteks kanvas.");
+          }
+        };
+        img.onerror = () => {
+          showError("Gagal memuat gambar dari kamera.");
+        };
       } else {
         showError("Gagal mengambil gambar. Coba lagi.");
       }
@@ -244,6 +291,17 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
                           facingMode: "user"
                         }}
                       />
+                      {/* Center point indicators */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        {/* Plus sign */}
+                        <div className="absolute w-6 h-px bg-white opacity-70" />
+                        <div className="absolute h-6 w-px bg-white opacity-70" />
+                        {/* Corner brackets */}
+                        <div className="absolute top-0 left-0 w-1/4 h-1/4 border-l-2 border-t-2 border-white opacity-70" />
+                        <div className="absolute top-0 right-0 w-1/4 h-1/4 border-r-2 border-t-2 border-white opacity-70" />
+                        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 border-l-2 border-b-2 border-white opacity-70" />
+                        <div className="absolute bottom-0 right-0 w-1/4 h-1/4 border-r-2 border-b-2 border-white opacity-70" />
+                      </div>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsCameraOpen(false)}>Batal</Button>
