@@ -221,22 +221,9 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
             />
             <FormField
               control={control}
-              name="alamatSantri"
-              render={({ field }) => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>Alamat Lengkap Santri</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Contoh: Jl. Raya No. 123, RT 001/RW 002" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
               name="villageCode"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
+                <FormItem>
                   <FormLabel>Desa/Kelurahan</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -264,6 +251,19 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                       )}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="alamatSantri"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alamat Lengkap Santri</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Contoh: Jl. Raya No. 123, RT 001/RW 002" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
