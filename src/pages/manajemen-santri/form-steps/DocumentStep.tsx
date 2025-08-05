@@ -71,7 +71,7 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
             <p className="text-sm text-muted-foreground mb-4">Anda dapat menambahkan dokumen pendukung lainnya seperti Akta Lahir, Kartu Keluarga, dll.</p>
             <div className="space-y-4">
               {fields.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end border p-4 rounded-lg">
+                <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end border p-4 rounded-lg">
                   <FormField
                     control={control}
                     name={`optionalDocuments.${index}.name`}
@@ -89,7 +89,7 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
                     control={control}
                     name={`optionalDocuments.${index}.file`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="md:col-span-2">
                         <FormLabel
                           htmlFor={`optional-file-${index}`}
                           className="flex flex-col items-center justify-center w-full h-10 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
