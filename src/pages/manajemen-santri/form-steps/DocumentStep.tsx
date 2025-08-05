@@ -9,6 +9,12 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
 import { useFieldArray } from 'react-hook-form';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DocumentStepProps {
   // form: any; // Dihapus karena menggunakan useFormContext
@@ -116,9 +122,18 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
                     )}
                   />
                   <div className="md:col-span-2 flex justify-end">
-                    <Button type="button" variant="destructive" onClick={() => remove(index)} className="w-fit">
-                      <Trash2 className="mr-2 h-4 w-4" /> Hapus
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button type="button" variant="destructive" onClick={() => remove(index)} className="w-fit">
+                            <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Jika tombol hapus di tekan akan menghapus dokumen</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               ))}
