@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,20 +14,84 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
+import { toast } from 'sonner';
 
 interface SantriProfileStepProps {
   // form: any; // Dihapus karena menggunakan useFormContext
 }
 
 const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
-  const { control } = useFormContext<SantriFormValues>();
+  const { control, watch, setValue } = useFormContext<SantriFormValues>();
   
+  const nikSantriValue = watch('nikSantri'); // Watch nikSantri field
+
+  // Hook for lazy fetching village data by NIK
+  const [triggerGetVillageByNik, { data: villageNikData, isLoading: isLoadingVillageNik, isError: isErrorVillageNik, error: villageNikError, reset: resetVillageNikQuery }] = useLazyGetVillageByNikQuery();
+
+  // Effect to trigger village lookup when nikSantri is 16 digits
+  useEffect(() => {
+    if (nikSantriValue && nikSantriValue.length === 16) {
+      triggerGetVillageByNik(nikSantriValue);
+    } else {
+      // If NIK is not 16 digits or cleared, reset NIK lookup and clear village code
+      resetVillageNikQuery();
+      setValue('villageCode', '');
+    }
+  }, [nikSantriValue, triggerGetVillageByNik, resetVillageNikQuery, setValue]);
+
+  // Effect to handle village lookup response
+  useEffect(() => {
+    let toastId: string | number | undefined;
+
+    if (isLoadingVillageNik) {
+      toastId = toast.loading('Mengecek NIK Santri untuk data desa...');
+    }
+
+    if (villageNikData) { // Response received
+      if (toastId) toast.dismiss(toastId);
+      if (villageNikData.length > 0) {
+        const foundVillage = villageNikData[0];
+        toast.success('Data desa ditemukan.', {
+          description: `Desa/Kelurahan: ${foundVillage.name} telah diisi.`,
+        });
+        setValue('villageCode', foundVillage.code);
+      } else { // Empty array means not found
+        toast.info('Data desa tidak ditemukan untuk NIK ini.', {
+          description: 'Silakan pilih desa/kelurahan secara manual.',
+        });
+      }
+    }
+
+    if (isErrorVillageNik) {
+      if (toastId) toast.dismiss(toastId);
+      // @ts-ignore
+      if (villageNikError?.status === 404) {
+        toast.info('Data desa tidak ditemukan untuk NIK ini.', {
+          description: 'Silakan pilih desa/kelurahan secara manual.',
+        });
+      } else {
+        toast.error('Gagal mengecek data desa.', {
+          // @ts-ignore
+          description: villageNikError?.data?.message || 'Terjadi kesalahan pada server.',
+        });
+      }
+    }
+  }, [villageNikData, isLoadingVillageNik, isErrorVillageNik, villageNikError, setValue]);
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Langkah 2: Profil Santri</CardTitle>
-          <CardDescription>Isi informasi pribadi santri.</CardDescription>
+          <CardDescription>Isi informasi pribadi santri. NIK Santri akan dicek secara otomatis untuk mengisi data desa/kelurahan.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -164,6 +228,42 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Jl. Raya No. 123, RT 001/RW 002" />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="villageCode"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Desa/Kelurahan</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih Desa/Kelurahan">
+                          {field.value
+                            ? villageNikData?.find((v) => v.code === field.value)?.name || 'Memuat...'
+                            : 'Pilih Desa/Kelurahan'}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {isLoadingVillageNik ? (
+                        <SelectItem value="loading" disabled>Memuat desa/kelurahan...</SelectItem>
+                      ) : isErrorVillageNik ? (
+                        <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
+                      ) : villageNikData && villageNikData.length > 0 ? (
+                        villageNikData.map((village) => (
+                          <SelectItem key={village.id} value={village.code}>
+                            {village.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-data" disabled>Tidak ada data desa/kelurahan.</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

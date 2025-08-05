@@ -46,6 +46,7 @@ const SantriFormPage: React.FC = () => {
       tanggalLahir: undefined,
       jenisKelamin: undefined,
       alamatSantri: '',
+      villageCode: '', // Re-added
       sekolahAsal: '',
       jenjangSebelumnya: '',
       alamatSekolah: '',
@@ -121,6 +122,7 @@ const SantriFormPage: React.FC = () => {
     }
     appendIfExists('santri_jenis_kelamin', data.jenisKelamin);
     appendIfExists('santri_alamat', data.alamatSantri);
+    appendIfExists('santri_desa_code', data.villageCode); // Re-added
 
     appendIfExists('pendidikan_sekolah_asal', data.sekolahAsal);
     appendIfExists('pendidikan_jenjang_sebelumnya', data.jenjangSebelumnya);
