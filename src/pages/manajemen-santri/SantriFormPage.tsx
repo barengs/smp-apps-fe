@@ -215,7 +215,7 @@ const SantriFormPage: React.FC = () => {
 
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
               <div className="flex space-x-2">
-                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
+                <Button type="button" className="bg-yellow-500 text-white hover:bg-yellow-600" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
                   <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>
