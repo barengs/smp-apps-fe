@@ -55,7 +55,7 @@ const TransaksiPage: React.FC = () => {
     },
     {
       accessorKey: 'destination_account',
-      header: 'No. Rekening Tujuan',
+      header: 'Rekening Tujuan', // Perubahan di sini
     },
     {
       accessorKey: 'description',
