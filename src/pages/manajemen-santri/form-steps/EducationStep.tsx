@@ -11,18 +11,30 @@ import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { showError } from '@/utils/toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 
 interface EducationStepProps {
-  form: any;
+  // form: any; // Dihapus karena menggunakan useFormContext
 }
 
-const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
+const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form }
   const { control, watch, setValue } = useFormContext<SantriFormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const webcamRef = useRef<Webcam>(null);
 
   const fotoSantriFile = watch('fotoSantri');
+
+  // Fetch education levels
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
+  const educationLevels = educationLevelsResponse?.data || [];
 
   useEffect(() => {
     if (fotoSantriFile && fotoSantriFile instanceof File) {
@@ -56,13 +68,55 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
-        const file = dataURLtoFile(imageSrc, `capture-${Date.now()}.jpg`);
-        if (file) {
-          setValue('fotoSantri', file, { shouldValidate: true });
-          setIsCameraOpen(false); // Close dialog on capture
-        } else {
-          showError("Gagal mengonversi gambar. Coba lagi.");
-        }
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+          const imgWidth = img.width;
+          const imgHeight = img.height;
+
+          // Target aspect ratio for 3x4 photo (width:height)
+          const targetAspectRatio = 3 / 4;
+
+          let croppedWidth, croppedHeight, sx, sy;
+
+          // Determine the largest 3:4 rectangle that fits within the image
+          if (imgWidth / imgHeight > targetAspectRatio) {
+            // Image is wider than 3:4, limit by height
+            croppedHeight = imgHeight;
+            croppedWidth = croppedHeight * targetAspectRatio;
+            sx = (imgWidth - croppedWidth) / 2;
+            sy = 0;
+          } else {
+            // Image is taller or equal to 3:4, limit by width
+            croppedWidth = imgWidth;
+            croppedHeight = croppedWidth / targetAspectRatio;
+            sx = 0;
+            sy = (imgHeight - croppedHeight) / 2;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = croppedWidth;
+          canvas.height = croppedHeight;
+          const ctx = canvas.getContext('2d');
+
+          if (ctx) {
+            // Draw the cropped portion of the image onto the canvas
+            ctx.drawImage(img, sx, sy, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
+            const croppedImageSrc = canvas.toDataURL('image/jpeg');
+            const file = dataURLtoFile(croppedImageSrc, `capture-${Date.now()}.jpg`);
+            if (file) {
+              setValue('fotoSantri', file, { shouldValidate: true });
+              setIsCameraOpen(false); // Close dialog on capture
+            } else {
+              showError("Gagal mengonversi gambar yang dipotong. Coba lagi.");
+            }
+          } else {
+            showError("Gagal membuat konteks kanvas.");
+          }
+        };
+        img.onerror = () => {
+          showError("Gagal memuat gambar dari kamera.");
+        };
       } else {
         showError("Gagal mengambil gambar. Coba lagi.");
       }
@@ -78,8 +132,34 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium mb-2">Pendidikan Terakhir</h3>
+            <h3 className="text-lg font-medium mb-2">Data Pendidikan & Identitas</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={control}
+                name="nisn"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NISN</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Contoh: 0012345678" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="certificateNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nomor Ijazah</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Contoh: 001/IJZ/SMP/2023" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={control}
                 name="sekolahAsal"
@@ -99,9 +179,36 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Jenjang Pendidikan</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Contoh: SMP/Mts" />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} value={field.value === '' ? undefined : field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jenjang pendidikan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isLoadingEducationLevels && (
+                          <SelectItem value="loading" disabled>Memuat jenjang pendidikan...</SelectItem>
+                        )}
+                        {isErrorEducationLevels && (
+                          <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
+                        )}
+                        {!isLoadingEducationLevels && !isErrorEducationLevels && educationLevels.length === 0 && (
+                          <SelectItem value="no-data" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
+                        )}
+                        {educationLevels.map((level) => {
+                          // Validasi untuk memastikan id adalah angka dan name tidak kosong
+                          if (typeof level.id !== 'number' || isNaN(level.id) || !level.name || level.name.trim() === '') {
+                            console.warn('Melewatkan jenjang pendidikan yang tidak valid (ID tidak valid atau nama kosong):', level);
+                            return null; // Lewati rendering item ini
+                          }
+                          return (
+                            <SelectItem key={level.id} value={level.id.toString()}>
+                              {level.name}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -179,6 +286,17 @@ const EducationStep: React.FC<EducationStepProps> = ({ form }) => {
                           facingMode: "user"
                         }}
                       />
+                      {/* Center point indicators */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        {/* Plus sign */}
+                        <div className="absolute w-6 h-px bg-white opacity-70" />
+                        <div className="absolute h-6 w-px bg-white opacity-70" />
+                        {/* Corner brackets */}
+                        <div className="absolute top-0 left-0 w-1/4 h-1/4 border-l-2 border-t-2 border-white opacity-70" />
+                        <div className="absolute top-0 right-0 w-1/4 h-1/4 border-r-2 border-t-2 border-white opacity-70" />
+                        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 border-l-2 border-b-2 border-white opacity-70" />
+                        <div className="absolute bottom-0 right-0 w-1/4 h-1/4 border-r-2 border-b-2 border-white opacity-70" />
+                      </div>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsCameraOpen(false)}>Batal</Button>

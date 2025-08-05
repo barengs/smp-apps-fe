@@ -1,146 +1,117 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
-import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
-import { toast } from 'react-toastify';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
+import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
+import { toast } from 'sonner'; // Menggunakan sonner untuk toast
 
-interface WaliSantriStepProps {
-  form: any; // Pass the form object from react-hook-form
-}
+interface WaliSantriStepProps {}
 
-const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
-  const { control, setValue, trigger } = useFormContext<SantriFormValues>();
-  
-  // API Hooks
-  const { data: pekerjaanList, isLoading: isPekerjaanLoading, isError: isPekerjaanError } = useGetPekerjaanQuery();
-  const [triggerGetParent, { data: parentData, isLoading: isParentLoading, isSuccess, isError: isParentError }] = useLazyGetParentByNikQuery();
+const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
+  const { control, getValues, setValue, watch } = useFormContext<SantriFormValues>();
 
-  // Combobox State
-  const [pekerjaanOpen, setPekerjaanOpen] = useState(false);
+  const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
+  const pekerjaanList = pekerjaanResponse || [];
 
-  // Handler untuk perubahan input NIK
-  const handleNikChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newNik = e.target.value.replace(/\D/g, ''); // Hanya izinkan angka
-    setValue('nik', newNik);
-    if (newNik.length === 16) {
-      triggerGetParent(newNik);
-    }
-  };
+  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
 
-  // Function to clear all parent-related fields
-  const clearParentFields = () => {
-    setValue('kk', '');
-    setValue('firstName', '');
-    setValue('lastName', '');
-    setValue('gender', undefined);
-    setValue('parentAs', undefined);
-    setValue('phone', '');
-    setValue('email', '');
-    setValue('alamatKtp', '');
-    setValue('alamatDomisili', '');
-    setValue('pekerjaanValue', '');
-  };
+  // Watch for changes in the 'nik' field
+  const nikValue = watch('nik');
 
-  // Efek untuk menangani hasil dari API call
   useEffect(() => {
-    if (isSuccess) {
-      if (parentData?.data && Object.keys(parentData.data).length > 0) {
-        const data = parentData.data;
-        toast.success('Data wali santri ditemukan.');
-        
-        // Explicitly validate and set KK
-        const kkFromApi = data.kk;
-        if (typeof kkFromApi === 'string' && /^\d{16}$/.test(kkFromApi)) {
-          setValue('kk', kkFromApi);
-        } else {
-          setValue('kk', ''); // Set to empty if invalid, Zod will handle the error message
-        }
-
-        setValue('firstName', data.first_name);
-        setValue('lastName', data.last_name || '');
-        
-        // Fix for gender
-        const validGenders = ['L', 'P'];
-        if (data.gender && validGenders.includes(data.gender)) {
-          setValue('gender', data.gender as 'L' | 'P');
-        } else {
-          setValue('gender', undefined); // Set to undefined if not valid, let Zod handle required_error
-        }
-
-        // Fix for parentAs
-        const validParentAs = ['ayah', 'ibu', 'wali'];
-        if (data.parent_as && validParentAs.includes(data.parent_as)) {
-          setValue('parentAs', data.parent_as as 'ayah' | 'ibu' | 'wali');
-        } else {
-          setValue('parentAs', undefined); // Set to undefined if not valid, let Zod handle required_error
-        }
-
-        setValue('phone', data.phone || '');
-        setValue('email', data.email || '');
-        setValue('alamatKtp', data.card_address || '');
-        setValue('alamatDomisili', data.domicile_address || data.card_address || '');
-
-        if (data.occupation && pekerjaanList) {
-          const foundPekerjaan = pekerjaanList.find(p => p.name.toLowerCase() === data.occupation?.toLowerCase());
-          if (foundPekerjaan) {
-            setValue('pekerjaanValue', foundPekerjaan.id.toString());
-          } else {
-            setValue('pekerjaanValue', '');
-          }
-        }
-        // Trigger validation for all fields after auto-filling
-        trigger();
-      } else {
-        toast.error('Data wali belum ada, silahkan isi manual.');
-        clearParentFields(); // Clear fields if no data found
-      }
-    } else if (isParentError) {
-      toast.error('Terjadi kesalahan saat mencari data wali. Silakan coba lagi.');
-      clearParentFields(); // Clear fields on error
+    if (nikValue && nikValue.length === 16) {
+      triggerGetParentByNik(nikValue);
     }
-  }, [isSuccess, isParentError, parentData, pekerjaanList, setValue, trigger]);
+  }, [nikValue, triggerGetParentByNik]);
+
+  useEffect(() => {
+    let toastId: string | number | undefined;
+
+    if (isLoadingNik) {
+      toastId = toast.loading('Mengecek NIK...');
+    }
+
+    if (nikData && nikData.data) {
+      if (toastId) toast.dismiss(toastId);
+      toast.success('Data wali ditemukan.', {
+        description: 'Formulir telah diisi secara otomatis.',
+      });
+      const parentData = nikData.data;
+
+      // Validate and set KK
+      const kkValue = String(parentData.kk || '').trim();
+      if (kkValue.match(/^\d{16}$/)) {
+        setValue('kk', kkValue);
+      } else {
+        setValue('kk', ''); // Clear if invalid
+        toast.warning('Nomor Kartu Keluarga (KK) dari data NIK tidak valid.', {
+          description: 'Harap masukkan Nomor KK secara manual (harus 16 digit angka).',
+        });
+      }
+      
+      setValue('firstName', parentData.first_name);
+      setValue('lastName', parentData.last_name || '');
+      setValue('gender', parentData.gender);
+      setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
+      setValue('phone', parentData.phone || '');
+      setValue('email', parentData.email || '');
+      setValue('alamatKtp', parentData.card_address || '');
+      setValue('alamatDomisili', parentData.domicile_address || '');
+
+      if (parentData.occupation && pekerjaanList.length > 0) {
+        const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
+        if (foundPekerjaan) {
+          setValue('pekerjaanValue', foundPekerjaan.id.toString());
+        }
+      }
+    }
+
+    if (isErrorNik) {
+      if (toastId) toast.dismiss(toastId);
+      // @ts-ignore
+      if (nikError?.status === 404) {
+        toast.info('NIK tidak ditemukan.', {
+          description: 'Silakan isi data wali secara manual.',
+        });
+      } else {
+        toast.error('Gagal mengecek NIK.', {
+          // @ts-ignore
+          description: nikError?.data?.message || 'Terjadi kesalahan pada server.',
+        });
+      }
+    }
+  }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Langkah 1: Informasi Wali Santri</CardTitle>
-        <CardDescription>Masukkan NIK wali santri untuk mencari data yang sudah terdaftar. Jika tidak ditemukan, Anda bisa mengisi data baru di bawah.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4 py-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Langkah 1: Data Wali Santri</CardTitle>
+          <CardDescription>Isi informasi pribadi wali santri. NIK akan dicek secara otomatis setelah 16 digit terisi.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control}
               name="nik"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>NIK</FormLabel>
+                  <FormLabel>NIK Wali</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        placeholder="Contoh: 320xxxxxxxxxxxxx"
-                        onChange={handleNikChange}
-                        maxLength={16}
-                      />
-                      {isParentLoading && (
-                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
-                      )}
-                    </div>
+                    <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,21 +124,18 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
                 <FormItem>
                   <FormLabel>Nomor Kartu Keluarga (KK)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: 320xxxxxxxxxxxxxx" maxLength={16} />
+                    <Input {...field} placeholder="Contoh: 3201xxxxxxxxxxxx" maxLength={16} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control}
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Depan</FormLabel>
+                  <FormLabel>Nama Depan Wali</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Budi" />
                   </FormControl>
@@ -180,7 +148,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Belakang (opsional)</FormLabel>
+                  <FormLabel>Nama Belakang Wali</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Santoso" />
                   </FormControl>
@@ -198,15 +166,15 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
                     <RadioGroup
                       onValueChange={field.onChange}
                       value={field.value}
-                      className="flex space-x-4"
+                      className="flex flex-row space-x-4"
                     >
-                      <FormItem className="flex items-center space-x-2">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="L" />
                         </FormControl>
                         <FormLabel className="font-normal">Laki-laki</FormLabel>
                       </FormItem>
-                      <FormItem className="flex items-center space-x-2">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="P" />
                         </FormControl>
@@ -223,30 +191,30 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
               name="parentAs"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Sebagai Wali</FormLabel>
+                  <FormLabel>Peran Sebagai</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       value={field.value}
-                      className="flex space-x-4"
+                      className="flex flex-row space-x-4"
                     >
-                      <FormItem className="flex items-center space-x-2">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="ayah" />
                         </FormControl>
                         <FormLabel className="font-normal">Ayah</FormLabel>
                       </FormItem>
-                      <FormItem className="flex items-center space-x-2">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="ibu" />
                         </FormControl>
                         <FormLabel className="font-normal">Ibu</FormLabel>
                       </FormItem>
-                      <FormItem className="flex items-center space-x-2">
+                      <FormItem className="flex items-center space-x-2 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="wali" />
                         </FormControl>
-                        <FormLabel className="font-normal">Wali Lainnya</FormLabel>
+                        <FormLabel className="font-normal">Wali</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
@@ -274,7 +242,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" placeholder="Contoh: nama@example.com" />
+                    <Input {...field} placeholder="Contoh: wali@example.com" type="email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -284,59 +252,31 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
               control={control}
               name="pekerjaanValue"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel>Pekerjaan</FormLabel>
-                  {isPekerjaanLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : isPekerjaanError ? (
-                    <Input placeholder="Gagal memuat pekerjaan" disabled />
-                  ) : (
-                    <Popover open={pekerjaanOpen} onOpenChange={setPekerjaanOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-full justify-between font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? pekerjaanList?.find((p) => p.id.toString() === field.value)?.name
-                              : "Pilih Pekerjaan..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
-                          <CommandInput placeholder="Cari pekerjaan..." />
-                          <CommandEmpty>Tidak ada pekerjaan ditemukan.</CommandEmpty>
-                          <CommandGroup>
-                            {pekerjaanList?.map((pekerjaan) => (
-                              <CommandItem
-                                key={pekerjaan.id}
-                                value={pekerjaan.name}
-                                onSelect={() => {
-                                  field.onChange(pekerjaan.id.toString()); // Menggunakan field.onChange
-                                  setPekerjaanOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === pekerjaan.id.toString() ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {pekerjaan.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  )}
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih pekerjaan" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {isLoadingPekerjaan && (
+                        <SelectItem value="loading" disabled>Memuat pekerjaan...</SelectItem>
+                      )}
+                      {isErrorPekerjaan && (
+                        <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
+                      )}
+                      {!isLoadingPekerjaan && !isErrorPekerjaan && pekerjaanList.length === 0 && (
+                        <SelectItem value="no-data" disabled>Tidak ada data pekerjaan.</SelectItem>
+                      )}
+                      {pekerjaanList.map((pekerjaan) => (
+                        <SelectItem key={pekerjaan.id} value={pekerjaan.id.toString()}>
+                          {pekerjaan.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -345,10 +285,10 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
               control={control}
               name="alamatKtp"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alamat Sesuai KTP</FormLabel>
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Alamat Lengkap (Sesuai KTP)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: Jl. Merdeka No. 10, Jakarta Pusat" />
+                    <Input {...field} placeholder="Contoh: Jl. Merdeka No. 45, RT 001/RW 002" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -358,19 +298,19 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ form }) => {
               control={control}
               name="alamatDomisili"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alamat Domisili (opsional)</FormLabel>
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Alamat Domisili (Jika Berbeda dengan KTP)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: Jl. Pahlawan No. 5, Bandung" />
+                    <Input {...field} placeholder="Contoh: Jl. Damai No. 10, RT 003/RW 004" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

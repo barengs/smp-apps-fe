@@ -1,11 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, UserPlus, Users } from 'lucide-react';
+import { UserPlus, MoreHorizontal, Check, X } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { DataTable } from '@/components/DataTable';
+import { DataTable } from '@/components/DataTable'; // Perbaikan: Mengubah '=>' menjadi 'from'
+import { Badge } from '@/components/ui/badge';
+import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
+import { CalonSantri } from '@/types/calonSantri';
+import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,18 +19,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
-import { CalonSantri, PaginatedResponse, CalonSantriApiResponse } from '@/types/calonSantri'; // Import CalonSantriApiResponse
-import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import * as toast from '@/utils/toast';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
-  // Destructure data correctly, it will be CalonSantriApiResponse
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriQuery();
 
-  // Extract the actual array of santri data from the nested 'data' property
   const calonSantriData = apiResponse?.data?.data || [];
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -33,13 +32,25 @@ const CalonSantriPage: React.FC = () => {
     { label: 'Pendaftaran Santri Baru', icon: <UserPlus className="h-4 w-4" /> },
   ];
 
+  const handleRowClick = (santri: CalonSantri) => {
+    navigate(`/dashboard/calon-santri/${santri.id}`);
+  };
+
+  const handleAccept = (santri: CalonSantri) => {
+    toast.showWarning(`Fitur "Terima" untuk ${santri.first_name} akan segera tersedia.`);
+  };
+
+  const handleReject = (santri: CalonSantri) => {
+    toast.showWarning(`Fitur "Tolak" untuk ${santri.first_name} akan segera tersedia.`);
+  };
+
   const columns: ColumnDef<CalonSantri>[] = [
     {
       accessorKey: 'registration_number',
       header: 'No. Pendaftaran',
     },
     {
-      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(), // Convert to uppercase
+      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(),
       id: 'nama_lengkap',
       header: 'Nama Lengkap',
     },
@@ -67,24 +78,54 @@ const CalonSantriPage: React.FC = () => {
       },
     },
     {
+      accessorKey: 'payment_status',
+      header: 'Status Pembayaran',
+      cell: ({ row }) => {
+        const paymentStatus = row.original.payment_status;
+        // Perbaikan: Memetakan status pembayaran ke varian Badge yang valid
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'secondary';
+        if (paymentStatus === 'paid') variant = 'default';
+        if (paymentStatus === 'pending') variant = 'secondary'; // Menggunakan 'secondary' untuk 'pending'
+        if (paymentStatus === 'failed') variant = 'destructive';
+        return <Badge variant={variant} className="capitalize">{paymentStatus}</Badge>;
+      },
+    },
+    {
       id: 'actions',
+      header: 'Aksi',
       cell: ({ row }) => {
         const santri = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={(e) => e.stopPropagation()} // Mencegah klik baris
+              >
                 <span className="sr-only">Buka menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate(`/dashboard/calon-santri/${santri.id}`)}>
-                Lihat Detail
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAccept(santri);
+                }}
+              >
+                <Check className="mr-2 h-4 w-4" /> Terima
               </DropdownMenuItem>
-              <DropdownMenuItem>Terima</DropdownMenuItem>
-              <DropdownMenuItem>Tolak</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReject(santri);
+                }}
+                className="text-red-600"
+              >
+                <X className="mr-2 h-4 w-4" /> Tolak
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -124,6 +165,7 @@ const CalonSantriPage: React.FC = () => {
                 exportFileName="calon_santri"
                 exportTitle="Data Calon Santri"
                 onAddData={handleAddData}
+                onRowClick={handleRowClick}
               />
             )}
           </CardContent>

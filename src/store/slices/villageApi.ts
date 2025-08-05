@@ -72,12 +72,17 @@ export const villageApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
+    // Corrected: Endpoint to get village by NIK, now returns an array
+    getVillageByNik: builder.query<VillageApiData[], string>({
+      query: (nik) => `village/nik/${nik}`,
+    }),
   }),
 });
 
 export const {
-  useGetVillagesQuery,
+  useLazyGetVillagesQuery, // Mengubah ini menjadi lazy query
   useCreateVillageMutation,
   useUpdateVillageMutation,
   useDeleteVillageMutation,
+  useLazyGetVillageByNikQuery
 } = villageApi;

@@ -7,13 +7,17 @@ interface SantriPhotoCardProps {
   name: string;
 }
 
+const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
+
 const SantriPhotoCard: React.FC<SantriPhotoCardProps> = ({ photoUrl, name }) => {
+  const fullPhotoUrl = photoUrl ? `${BASE_IMAGE_URL}${photoUrl}` : null;
+
   return (
     <Card className="overflow-hidden">
       <div className="aspect-[3/4] w-full bg-muted flex items-center justify-center">
-        {photoUrl ? (
+        {fullPhotoUrl ? (
           <img
-            src={photoUrl}
+            src={fullPhotoUrl}
             alt={`Foto ${name}`}
             className="h-full w-full object-cover"
           />

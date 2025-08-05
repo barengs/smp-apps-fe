@@ -16,12 +16,26 @@ import { useNavigate } from 'react-router-dom';
 import { useRegisterSantriMutation } from '@/store/slices/calonSantriApi';
 import { showError, showSuccess } from '@/utils/toast';
 import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const SantriFormPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   const navigate = useNavigate();
   const [registerSantri, { isLoading }] = useRegisterSantriMutation();
+
+  // State untuk modal konfirmasi
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [actionType, setActionType] = useState<'save' | 'saveAndReset' | null>(null);
 
   const form = useForm<SantriFormValues>({
     resolver: zodResolver(santriFormSchema),
@@ -46,7 +60,7 @@ const SantriFormPage: React.FC = () => {
       tanggalLahir: undefined,
       jenisKelamin: undefined,
       alamatSantri: '',
-      villageCode: '', // Add default value for villageCode
+      villageCode: '',
       sekolahAsal: '',
       jenjangSebelumnya: '',
       alamatSekolah: '',
@@ -92,14 +106,12 @@ const SantriFormPage: React.FC = () => {
 
     const formData = new FormData();
 
-    // Helper to append value if it exists
     const appendIfExists = (key: string, value: any) => {
       if (value !== null && value !== undefined && value !== '') {
         formData.append(key, value);
       }
     };
 
-    // Append all fields from data
     appendIfExists('wali_nik', data.nik);
     appendIfExists('wali_kk', data.kk);
     appendIfExists('wali_nama_depan', data.firstName);
@@ -122,7 +134,7 @@ const SantriFormPage: React.FC = () => {
     }
     appendIfExists('santri_jenis_kelamin', data.jenisKelamin);
     appendIfExists('santri_alamat', data.alamatSantri);
-    appendIfExists('santri_desa_code', data.villageCode); // Append villageCode
+    appendIfExists('santri_desa_code', data.villageCode);
 
     appendIfExists('pendidikan_sekolah_asal', data.sekolahAsal);
     appendIfExists('pendidikan_jenjang_sebelumnya', data.jenjangSebelumnya);
@@ -131,17 +143,15 @@ const SantriFormPage: React.FC = () => {
     appendIfExists('dokumen_foto_santri', data.fotoSantri);
     appendIfExists('dokumen_ijazah', data.ijazahFile);
 
-    // Append optional documents
     if (data.optionalDocuments) {
       data.optionalDocuments.forEach((doc, index) => {
         if (doc.name && doc.file) {
-          appendIfExists(`dokumen_opsional[${index}][nama]`, doc.name);
-          appendIfExists(`dokumen_opsional[${index}][file]`, doc.file);
+          formData.append(`dokumen_opsional[${index}][nama]`, doc.name);
+          formData.append(`dokumen_opsional[${index}][file]`, doc.file);
         }
       });
     }
 
-    // Log FormData content for debugging
     console.log('Data FormData yang akan dikirim:');
     for (const pair of formData.entries()) {
       console.log(`${pair[0]}:`, pair[1]);
@@ -154,17 +164,47 @@ const SantriFormPage: React.FC = () => {
         form.reset();
         setCurrentStep(1);
       } else {
-        navigate('/dashboard/pendaftaran-santri'); // Navigate to santri list page
+        navigate('/dashboard/pendaftaran-santri');
       }
     } catch (error: any) {
       const errorMessage = error?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
       showError(errorMessage);
       console.error('Form Data Submission Error:', error);
+    } finally {
+      setShowConfirmModal(false); // Tutup modal setelah proses selesai
     }
   };
 
   const onSubmit = (data: SantriFormValues) => handleFormSubmit(data, false);
   const onSubmitAndReset = () => handleFormSubmit(form.getValues(), true);
+
+  const handleSaveClick = async () => {
+    const isValid = await form.trigger(step4Fields);
+    if (isValid) {
+      setActionType('save');
+      setShowConfirmModal(true);
+    } else {
+      showError('Harap perbaiki semua kesalahan sebelum menyimpan.');
+    }
+  };
+
+  const handleSaveAndResetClick = async () => {
+    const isValid = await form.trigger(step4Fields);
+    if (isValid) {
+      setActionType('saveAndReset');
+      setShowConfirmModal(true);
+    } else {
+      showError('Harap perbaiki semua kesalahan sebelum menyimpan.');
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    if (actionType === 'save') {
+      onSubmit(form.getValues());
+    } else if (actionType === 'saveAndReset') {
+      onSubmitAndReset();
+    }
+  };
 
   const steps = [
     { number: 1, title: 'Data Wali', icon: <UserCheck className="h-5 w-5" /> },
@@ -207,19 +247,19 @@ const SantriFormPage: React.FC = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="max-w-4xl mx-auto">
-              {currentStep === 1 && <WaliSantriStep form={form} />}
-              {currentStep === 2 && <SantriProfileStep form={form} />}
-              {currentStep === 3 && <EducationStep form={form} />}
-              {currentStep === 4 && <DocumentStep form={form} />}
+              {currentStep === 1 && <WaliSantriStep />}
+              {currentStep === 2 && <SantriProfileStep />}
+              {currentStep === 3 && <EducationStep />}
+              {currentStep === 4 && <DocumentStep />}
             </div>
 
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
               <div className="flex space-x-2">
-                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
+                <Button type="button" className="bg-yellow-500 text-white hover:bg-yellow-600" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
                   <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>
-                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
+                <Button type="button" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Kembali
                 </Button>
@@ -232,11 +272,11 @@ const SantriFormPage: React.FC = () => {
                   </Button>
                 ) : (
                   <>
-                    <Button type="button" variant="outline" onClick={onSubmitAndReset} disabled={isLoading}>
+                    <Button type="button" variant="outline" onClick={handleSaveAndResetClick} disabled={isLoading}>
                       {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <SaveAll className="mr-2 h-4 w-4" />}
                       Simpan dan Entri Ulang
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="button" onClick={handleSaveClick} disabled={isLoading}>
                       {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                       Simpan
                     </Button>
@@ -246,6 +286,24 @@ const SantriFormPage: React.FC = () => {
             </div>
           </form>
         </Form>
+
+        <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Konfirmasi Penyimpanan Data</AlertDialogTitle>
+              <AlertDialogDescription>
+                Apakah anda yakin untuk melanjutkan? Jika belum, periksa kembali data Anda dan lanjutkan!
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isLoading}>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmSubmit} disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Lanjutkan
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );

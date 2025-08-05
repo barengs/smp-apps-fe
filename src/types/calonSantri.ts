@@ -25,6 +25,8 @@ export interface CalonSantri {
   created_at: string; // Changed from tanggal_daftar
   updated_at: string;
   parent: any; // Anda bisa mendefinisikan antarmuka Parent jika diperlukan
+  payment_status: string; // New: Status pembayaran
+  payment_amount: number; // New: Jumlah pembayaran
 }
 
 export interface PaginatedResponse<T> {
@@ -33,7 +35,6 @@ export interface PaginatedResponse<T> {
   first_page_url: string;
   from: number;
   last_page: number;
-  last_page_url: string;
   links: Array<{
     url: string | null;
     label: string;
