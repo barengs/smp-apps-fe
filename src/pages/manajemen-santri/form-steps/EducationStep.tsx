@@ -71,33 +71,27 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
         const img = new Image();
         img.src = imageSrc;
         img.onload = () => {
-          const video = webcamRef.current?.video;
-          if (!video) {
-            showError("Gagal mengakses stream video.");
-            return;
-          }
-
-          const videoWidth = video.videoWidth;
-          const videoHeight = video.videoHeight;
+          const imgWidth = img.width;
+          const imgHeight = img.height;
 
           // Target aspect ratio for 3x4 photo (width:height)
           const targetAspectRatio = 3 / 4;
 
           let croppedWidth, croppedHeight, sx, sy;
 
-          // Determine the largest 3:4 rectangle that fits within the video feed
-          if (videoWidth / videoHeight > targetAspectRatio) {
-            // Video is wider than 3:4, limit by height
-            croppedHeight = videoHeight;
+          // Determine the largest 3:4 rectangle that fits within the image
+          if (imgWidth / imgHeight > targetAspectRatio) {
+            // Image is wider than 3:4, limit by height
+            croppedHeight = imgHeight;
             croppedWidth = croppedHeight * targetAspectRatio;
-            sx = (videoWidth - croppedWidth) / 2;
+            sx = (imgWidth - croppedWidth) / 2;
             sy = 0;
           } else {
-            // Video is taller or equal to 3:4, limit by width
-            croppedWidth = videoWidth;
+            // Image is taller or equal to 3:4, limit by width
+            croppedWidth = imgWidth;
             croppedHeight = croppedWidth / targetAspectRatio;
             sx = 0;
-            sy = (videoHeight - croppedHeight) / 2;
+            sy = (imgHeight - croppedHeight) / 2;
           }
 
           const canvas = document.createElement('canvas');
@@ -106,6 +100,7 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
           const ctx = canvas.getContext('2d');
 
           if (ctx) {
+            // Draw the cropped portion of the image onto the canvas
             ctx.drawImage(img, sx, sy, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
             const croppedImageSrc = canvas.toDataURL('image/jpeg');
             const file = dataURLtoFile(croppedImageSrc, `capture-${Date.now()}.jpg`);
