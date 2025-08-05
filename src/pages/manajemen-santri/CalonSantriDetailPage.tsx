@@ -70,6 +70,16 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const calonSantriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
 
+  // Format payment amount to IDR
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -97,7 +107,9 @@ const CalonSantriDetailPage: React.FC = () => {
                 <h3 className="text-lg font-semibold mb-2">Informasi Umum</h3>
                 <DetailRow label="No. Pendaftaran" value={calonSantri.registration_number} />
                 <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
-                <DetailRow label="Status" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
+                <DetailRow label="Status Pendaftaran" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
+                <DetailRow label="Status Pembayaran" value={<Badge className="capitalize">{calonSantri.payment_status}</Badge>} />
+                <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount)} />
                 <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name}`.toUpperCase()} />
                 <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
                 <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />

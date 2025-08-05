@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { UserPlus, MoreHorizontal, Check, X } from 'lucide-react'; // Import Check and X icons
+import { UserPlus, MoreHorizontal, Check, X } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { DataTable } from '@/components/DataTable';
+import { DataTable } from '@/components/DataTable'; // Perbaikan: Mengubah '=>' menjadi 'from'
 import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
@@ -75,6 +75,19 @@ const CalonSantriPage: React.FC = () => {
         if (status === 'diterima') variant = 'default';
         if (status === 'ditolak') variant = 'destructive';
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
+      },
+    },
+    {
+      accessorKey: 'payment_status',
+      header: 'Status Pembayaran',
+      cell: ({ row }) => {
+        const paymentStatus = row.original.payment_status;
+        // Perbaikan: Memetakan status pembayaran ke varian Badge yang valid
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'secondary';
+        if (paymentStatus === 'paid') variant = 'default';
+        if (paymentStatus === 'pending') variant = 'secondary'; // Menggunakan 'secondary' untuk 'pending'
+        if (paymentStatus === 'failed') variant = 'destructive';
+        return <Badge variant={variant} className="capitalize">{paymentStatus}</Badge>;
       },
     },
     {
