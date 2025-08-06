@@ -4,10 +4,16 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil, ArrowLeft, Printer } from 'lucide-react'; // Import Printer icon
+import { User, Pencil, ArrowLeft, Printer } from 'lucide-react';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'; // Import Tooltip components
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
@@ -102,14 +108,28 @@ const CalonSantriDetailPage: React.FC = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Kembali
               </Button>
-              <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-              <Button onClick={handlePrintForm}>
-                <Printer className="mr-2 h-4 w-4" />
-                Cetak Formulir
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)} size="icon">
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={handlePrintForm} size="icon">
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cetak Formulir</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </CardHeader>
           <CardContent>
