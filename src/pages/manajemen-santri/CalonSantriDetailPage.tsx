@@ -4,7 +4,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil, ArrowLeft } from 'lucide-react'; // Import ArrowLeft icon
+import { User, Pencil, ArrowLeft, Printer } from 'lucide-react'; // Import Printer icon
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -80,6 +80,13 @@ const CalonSantriDetailPage: React.FC = () => {
     }).format(amount);
   };
 
+  const handlePrintForm = () => {
+    // Placeholder for print logic
+    console.log('Cetak Formulir clicked for ID:', santriId);
+    // You can implement printing logic here, e.g., using react-to-print or jspdf
+    alert('Fungsi cetak formulir akan segera diimplementasikan!');
+  };
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -98,6 +105,10 @@ const CalonSantriDetailPage: React.FC = () => {
               <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
+              </Button>
+              <Button onClick={handlePrintForm}>
+                <Printer className="mr-2 h-4 w-4" />
+                Cetak Formulir
               </Button>
             </div>
           </CardHeader>
