@@ -4,7 +4,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil, ArrowLeft, Printer } from 'lucide-react';
+import { User, Pencil, ArrowLeft, Printer, DollarSign } from 'lucide-react'; // Import DollarSign icon
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'; // Import Tooltip components
+} from '@/components/ui/tooltip';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
@@ -89,8 +89,13 @@ const CalonSantriDetailPage: React.FC = () => {
   const handlePrintForm = () => {
     // Placeholder for print logic
     console.log('Cetak Formulir clicked for ID:', santriId);
-    // You can implement printing logic here, e.g., using react-to-print or jspdf
     alert('Fungsi cetak formulir akan segera diimplementasikan!');
+  };
+
+  const handleProcessPayment = () => {
+    // Placeholder for payment processing logic
+    console.log('Proses Pembayaran clicked for ID:', santriId);
+    alert('Fungsi proses pembayaran akan segera diimplementasikan!');
   };
 
   return (
@@ -127,6 +132,16 @@ const CalonSantriDetailPage: React.FC = () => {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Cetak Formulir</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={handleProcessPayment} size="icon">
+                      <DollarSign className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Proses Pembayaran</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
