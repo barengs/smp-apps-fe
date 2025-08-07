@@ -4,10 +4,16 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil, ArrowLeft } from 'lucide-react'; // Import ArrowLeft icon
+import { User, Pencil, ArrowLeft, Printer, DollarSign } from 'lucide-react'; // Import DollarSign icon
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
@@ -80,6 +86,18 @@ const CalonSantriDetailPage: React.FC = () => {
     }).format(amount);
   };
 
+  const handlePrintForm = () => {
+    // Placeholder for print logic
+    console.log('Cetak Formulir clicked for ID:', santriId);
+    alert('Fungsi cetak formulir akan segera diimplementasikan!');
+  };
+
+  const handleProcessPayment = () => {
+    // Placeholder for payment processing logic
+    console.log('Proses Pembayaran clicked for ID:', santriId);
+    alert('Fungsi proses pembayaran akan segera diimplementasikan!');
+  };
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -95,10 +113,38 @@ const CalonSantriDetailPage: React.FC = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Kembali
               </Button>
-              <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)} size="icon">
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={handlePrintForm} size="icon">
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cetak Formulir</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={handleProcessPayment} size="icon">
+                      <DollarSign className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Proses Pembayaran</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </CardHeader>
           <CardContent>

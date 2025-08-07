@@ -1,40 +1,52 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { smpApi } from './baseApi'; // Import baseApi
-import authReducer from './slices/authSlice'; // Import auth reducer
+import { smpApi } from './baseApi';
+import authReducer from './slices/authSlice';
 
-// Import slices to ensure endpoints are injected
-import './slices/authApi'; // Import the new auth slice
+// These imports are crucial to run the `injectEndpoints` code.
+// They don't need to be individually added to the store config
+// if they are injected into smpApi.
+import './slices/authApi';
 import './slices/roleApi';
 import './slices/santriApi';
 import './slices/employeeApi';
 import './slices/permissionApi';
 import './slices/studentApi';
 import './slices/parentApi';
-import './slices/dashboardApi'; // Import the new dashboard slice
+import './slices/dashboardApi';
 import './slices/provinceApi';
 import './slices/cityApi';
 import './slices/districtApi';
-import './slices/villageApi'; // Import the new village slice
-import './slices/programApi'; // Import the new program slice
+import './slices/villageApi';
+import './slices/programApi';
 import './slices/tahunAjaranApi';
 import './slices/hostelApi';
 import './slices/educationApi';
 import './slices/classroomApi';
 import './slices/classGroupApi';
-import './slices/menuApi'; // Import the new menu slice
-import './slices/pekerjaanApi'; // Import the new pekerjaan slice
-import './slices/beritaApi'; // Import the new berita slice
-import './slices/studyApi'; // Import the new study slice
+import './slices/menuApi';
+import './slices/pekerjaanApi';
+import './slices/beritaApi';
+import './slices/studyApi';
+import './slices/calonSantriApi';
+import { bankApi } from './slices/bankApi'; // bankApi is a separate API, so we need its export.
+import './slices/educationGroupApi';
+import './slices/activityApi';
 
 export const store = configureStore({
   reducer: {
+    // Register the main API reducer. This handles all injected endpoints.
     [smpApi.reducerPath]: smpApi.reducer,
+    // Register the separate bank API reducer.
+    [bankApi.reducerPath]: bankApi.reducer,
+    // Register the auth slice reducer.
     auth: authReducer,
-    // Anda bisa menambahkan reducer lain di sini jika diperlukan
   },
-  // Menambahkan middleware API untuk mengaktifkan fitur caching, invalidasi, polling, dll.
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(smpApi.middleware),
+    getDefaultMiddleware().concat(
+      // Add the middleware for the main API and the separate bank API.
+      smpApi.middleware,
+      bankApi.middleware
+    ),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

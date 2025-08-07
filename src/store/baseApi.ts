@@ -39,7 +39,7 @@ const baseQuery = fetchBaseQuery({
 // Buat mutex untuk mencegah beberapa permintaan refresh token secara bersamaan
 const mutex = new Mutex();
 
-const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) => {
+export const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) => {
   // Tunggu hingga mutex tidak terkunci sebelum melanjutkan
   await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
@@ -111,6 +111,7 @@ export const smpApi = createApi({
     'User',
     'Profile',
     'TahunAjaran',
+    'Transaksi', // Tambahkan tag Transaksi
   ],
   endpoints: () => ({}),
 });

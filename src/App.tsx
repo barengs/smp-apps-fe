@@ -47,6 +47,7 @@ import UserProfilePage from '@/pages/profile/UserProfilePage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage'; // Mengubah dari '@/pages/manajemen-magang/PenanggungJawabPage'
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage'; // New import
+import TransaksiPage from '@/pages/keuangan/TransaksiPage'; // New import
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -94,6 +95,7 @@ const App = () => (
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
               <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
+              <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} /> {/* New route */}
               <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />

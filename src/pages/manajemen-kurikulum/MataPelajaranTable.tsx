@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import MataPelajaranForm from './MataPelajaranForm';
+import MataPelajaranImportDialog from './MataPelajaranImportDialog'; // Import dialog impor
 import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
@@ -38,6 +39,7 @@ const MataPelajaranTable: React.FC = () => {
   const [deleteStudy] = useDeleteStudyMutation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedStudy, setSelectedStudy] = useState<MataPelajaran | undefined>(undefined);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
 
   const handleDelete = async (id: string) => {
     try {
@@ -58,6 +60,10 @@ const MataPelajaranTable: React.FC = () => {
   const handleAddDataClick = () => {
     setSelectedStudy(undefined); // Reset selected study for new entry
     setIsFormOpen(true); // Open the form dialog
+  };
+
+  const handleImportData = () => {
+    setIsImportModalOpen(true);
   };
 
   const columns: ColumnDef<MataPelajaran>[] = [
@@ -148,6 +154,12 @@ const MataPelajaranTable: React.FC = () => {
         exportFileName="DaftarMataPelajaran"
         exportTitle="Daftar Mata Pelajaran"
         onAddData={handleAddDataClick} // Meneruskan fungsi untuk tombol 'Tambah Data'
+        onImportData={handleImportData} // Meneruskan prop onImportData
+      />
+
+      <MataPelajaranImportDialog
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
       />
     </div>
   );
