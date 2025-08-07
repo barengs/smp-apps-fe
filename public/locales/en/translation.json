@@ -1,10 +1,57 @@
 {
+  "home": "Home",
+  "register": "Register",
+  "login": "Login",
+  "chooseLanguage": "Choose Language",
+  "indonesian": "Indonesian",
+  "english": "English",
+  "arabic": "Arabic",
+  "footerRights": "All Rights Reserved",
+  "welcomeTitle": "Welcome to Pesantren Management System",
+  "welcomeSubtitle": "A comprehensive application to digitally manage all operational aspects of the pesantren.",
+  "infoTitle": "Important Information",
+  "infoSlide1": "New Student Registration Open!",
+  "infoSlide2": "Daily Activity Schedule Available",
+  "infoSlide3": "Integrated Student Financial Information",
+  "infoSlide4": "Online Access to Grades and Attendance",
+  "infoSlide5": "Easy Communication with Student Guardians",
+  "infoSlide6": "Flexible Curriculum Management",
+  "infoSlide7": "Secure Staff and User Data",
+  "loginFormTitle": "Sign in to your account",
+  "loginFormDescription": "Enter your email and password to access the dashboard.",
+  "emailLabel": "Email",
+  "emailPlaceholder": "name@example.com",
+  "passwordLabel": "Password",
+  "loginButton": "Sign In",
+  "registerPageTitle": "Register New Account",
+  "registerFormTitle": "Register New Account",
+  "registerFormDescription": "Fill in your details to create a new account.",
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Your Full Name",
+  "confirmPasswordLabel": "Confirm Password",
+  "registerButton": "Register",
+  "header": {
+    "toggleFullscreen": "Toggle Fullscreen",
+    "toggleTheme": "Toggle Theme",
+    "selectLanguage": "Select Language",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "usernamePlaceholder": "User"
+  },
+  "footer": {
+    "copyright": "Copyright © {{year}} All Rights Reserved."
+  },
   "sidebar": {
     "dashboard": "Dashboard",
-    "santriManagement": "Santri Management",
-    "santri": "Santri",
-    "registration": "Santri Registration",
-    "waliSantri": "Guardian",
+    "bankSantri": "Student Bank",
+    "transactions": "Transactions",
+    "accounts": "Accounts",
+    "reports": "Reports",
+    "santriManagement": "Student Management",
+    "santri": "Students",
+    "registration": "New Student Registration",
+    "waliSantri": "Student Guardians",
     "internshipManagement": "Internship Management",
     "teacherAssignment": "Teacher Assignment",
     "responsiblePerson": "Responsible Person",
@@ -16,46 +63,78 @@
     "subjects": "Subjects",
     "classPromotion": "Class Promotion",
     "lessonSchedule": "Lesson Schedule",
-    "securityManagement": "Security Management",
+    "securityManagement": "Security & Order Management",
     "violations": "Violations",
     "educationManagement": "Education Management",
     "educationLevel": "Education Level",
-    "class": "Class",
-    "classGroup": "Class Group",
-    "educationGroup": "Education Group",
-    "dormitory": "Dormitory",
-    "program": "Program",
+    "class": "Classes",
+    "classGroup": "Study Groups",
+    "educationGroup": "Education Groups",
+    "dormitory": "Dormitories",
+    "program": "Programs",
     "academicYear": "Academic Year",
-    "bankSantri": "Santri Bank",
-    "transactions": "Transactions",
-    "accounts": "Accounts",
-    "reports": "Reports",
     "information": "Information",
     "news": "News",
     "activitySchedule": "Activity Schedule",
     "masterData": "Master Data",
-    "job": "Job",
-    "province": "Province",
-    "city": "City",
-    "district": "District",
-    "village": "Village",
+    "job": "Jobs",
+    "province": "Provinces",
+    "city": "Cities/Regencies",
+    "district": "Districts",
+    "village": "Villages/Sub-districts",
     "settings": "Settings",
     "system": "System",
     "navigation": "Navigation",
-    "santriInfo": "Santri Info",
+    "santriInfo": "Student Information",
     "gradesAndAttendance": "Grades & Attendance",
     "announcements": "Announcements"
   },
-  "header": {
-    "toggleFullscreen": "Toggle Fullscreen",
-    "toggleTheme": "Toggle Theme",
-    "selectLanguage": "Select Language",
-    "profile": "Profile",
-    "settings": "Settings",
-    "logout": "Logout",
-    "usernamePlaceholder": "User"
+  "waliSantriDashboard": {
+    "title": "Student Guardian Dashboard",
+    "santriInfo": {
+      "title": "Student Information",
+      "name": "Name",
+      "class": "Class",
+      "status": "Status",
+      "statusValue": "Active"
+    },
+    "latestGrades": {
+      "title": "Latest Grades",
+      "math": "Mathematics",
+      "arabic": "Arabic Language",
+      "fiqh": "Fiqh"
+    },
+    "attendance": {
+      "title": "Attendance",
+      "present": "Present: {{count}}",
+      "permission": "Permission: {{count}}",
+      "sick": "Sick: {{count}}"
+    },
+    "announcements": {
+      "title": "Latest Announcements",
+      "noNew": "No new announcements."
+    }
   },
-  "footer": {
-    "copyright": "Copyright © {{year}} SMP. All Rights Reserved."
+  "announcements": {
+    "title": "Announcements",
+    "placeholder": "This page will display important announcements from the pesantren."
+  },
+  "bankSantri": {
+    "title": "Student Bank",
+    "placeholder": "This page will display student bank account information."
+  },
+  "gradesAndAttendance": {
+    "title": "Grades & Attendance",
+    "placeholder": "This page will display student grades and attendance."
+  },
+  "settings": {
+    "title": "Settings",
+    "placeholder": "This page will display specific settings for student guardians."
+  },
+  "teacherAssignment": {
+    "title": "Teacher Assignment"
+  },
+  "profilePage": {
+    "errorLoading": "Failed to load user profile"
   }
 }
