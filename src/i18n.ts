@@ -12,8 +12,9 @@ i18n
     fallbackLng: 'id',
     debug: true, // Diubah menjadi true untuk debugging
     detection: {
-      order: ['queryString', 'cookie'],
-      caches: ['cookie'],
+      order: ['queryString', 'cookie', 'localStorage', 'navigator'], // Tambahkan localStorage dan navigator
+      caches: ['cookie', 'localStorage'], // Tambahkan localStorage ke caches
+      lookupLocalStorage: 'i18nextLng', // Nama kunci di localStorage
     },
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
