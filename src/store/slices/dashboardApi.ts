@@ -1,13 +1,15 @@
 import { smpApi } from '../baseApi';
 
 // Define the full API response structure
-// The stats are at the root level, not inside a 'data' object.
+// The stats are now expected inside a 'data' object.
 interface GetDashboardResponse {
   message: string;
-  santri: number;
-  asatidz: number;
-  alumni: number;
-  tugasan: number;
+  data: { // Added 'data' wrapper
+    santri: number;
+    asatidz: number;
+    alumni: number;
+    tugasan: number;
+  };
 }
 
 export const dashboardApi = smpApi.injectEndpoints({
