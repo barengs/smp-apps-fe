@@ -21,7 +21,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import AsramaForm from './AsramaForm'; // Import AsramaForm
+import AsramaForm from './AsramaForm';
+import AsramaImportDialog from './AsramaImportDialog'; // Import dialog impor
 import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
@@ -40,6 +41,7 @@ const AsramaTable: React.FC = () => {
   const [editingAsrama, setEditingAsrama] = useState<Asrama | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [asramaToDelete, setAsramaToDelete] = useState<Asrama | undefined>(undefined);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
 
   const asramas: Asrama[] = useMemo(() => {
     if (hostelsData?.data) {
@@ -91,6 +93,10 @@ const AsramaTable: React.FC = () => {
   const handleFormCancel = () => {
     setIsModalOpen(false);
     setEditingAsrama(undefined);
+  };
+
+  const handleImportData = () => {
+    setIsImportModalOpen(true);
   };
 
   const columns: ColumnDef<Asrama>[] = useMemo(
@@ -145,6 +151,7 @@ const AsramaTable: React.FC = () => {
         exportFileName="data_asrama"
         exportTitle="Data Asrama"
         onAddData={handleAddData}
+        onImportData={handleImportData}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -178,6 +185,11 @@ const AsramaTable: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AsramaImportDialog
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+      />
     </>
   );
 };

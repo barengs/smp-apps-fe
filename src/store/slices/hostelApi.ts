@@ -21,6 +21,11 @@ export interface CreateUpdateHostelRequest {
   description?: string;
 }
 
+// Structure for the import response
+export interface ImportHostelResponse {
+  message: string;
+}
+
 export const hostelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getHostels: builder.query<GetHostelsResponse, void>({
@@ -50,6 +55,14 @@ export const hostelApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
+    importHostels: builder.mutation<ImportHostelResponse, FormData>({
+      query: (formData) => ({
+        url: 'master/hostel/import',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['Hostel'],
+    }),
   }),
 });
 
@@ -58,4 +71,5 @@ export const {
   useCreateHostelMutation,
   useUpdateHostelMutation,
   useDeleteHostelMutation,
+  useImportHostelsMutation,
 } = hostelApi;
