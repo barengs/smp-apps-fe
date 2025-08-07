@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { useTranslation } from 'react-i18next';
@@ -8,9 +8,18 @@ import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { GuruTugas } from '@/types/guruTugas';
 import * as toast from '@/utils/toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import GuruTugasForm from './GuruTugasForm'; // Import the new form
 
 const GuruTugasPage: React.FC = () => {
   const { t } = useTranslation();
+  const [isFormOpen, setIsFormOpen] = useState(false); // State to control dialog visibility
 
   const breadcrumbItems = [
     { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> },
@@ -66,8 +75,16 @@ const GuruTugasPage: React.FC = () => {
   const totalPenanggungJawab = new Set(data.map(item => item.penanggungJawab)).size;
 
   const handleAssignment = () => {
-    toast.showWarning("Tombol 'Penugasan' diklik!");
-    // Logic for assignment will go here
+    setIsFormOpen(true); // Open the form dialog
+  };
+
+  const handleFormSuccess = () => {
+    setIsFormOpen(false);
+    // Optionally, refetch data or update table if needed
+  };
+
+  const handleFormCancel = () => {
+    setIsFormOpen(false);
   };
 
   return (
@@ -137,6 +154,19 @@ const GuruTugasPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Assignment Form Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Formulir Penugasan</DialogTitle>
+            <DialogDescription>
+              Isi detail penugasan guru tugas.
+            </DialogDescription>
+          </DialogHeader>
+          <GuruTugasForm onSuccess={handleFormSuccess} onCancel={handleFormCancel} />
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
