@@ -1,6 +1,11 @@
 import { smpApi } from '../baseApi';
 import { MataPelajaran } from '@/types/pendidikan';
 
+// New interface for the import response
+export interface ImportStudyResponse {
+  message: string;
+}
+
 export const studyApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getStudies: builder.query<MataPelajaran[], void>({
@@ -35,6 +40,14 @@ export const studyApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Study'],
     }),
+    importStudies: builder.mutation<ImportStudyResponse, FormData>({
+      query: (formData) => ({
+        url: 'master/study/import',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['Study'],
+    }),
   }),
 });
 
@@ -44,4 +57,5 @@ export const {
   useCreateStudyMutation,
   useUpdateStudyMutation,
   useDeleteStudyMutation,
+  useImportStudiesMutation,
 } = studyApi;
