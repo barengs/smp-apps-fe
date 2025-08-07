@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import { showSuccess, showError } from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import JenjangPendidikanForm from './JenjangPendidikanForm';
+import JenjangPendidikanImportDialog from './JenjangPendidikanImportDialog'; // Import dialog impor
 import { useGetEducationLevelsQuery, useDeleteEducationLevelMutation } from '@/store/slices/educationApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
@@ -43,6 +44,7 @@ const JenjangPendidikanTable: React.FC = () => {
   const [editingData, setEditingData] = useState<JenjangPendidikan | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [dataToDelete, setDataToDelete] = useState<JenjangPendidikan | undefined>(undefined);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
 
   const educationLevels: JenjangPendidikan[] = useMemo(() => {
     if (educationLevelsData?.data) {
@@ -75,11 +77,11 @@ const JenjangPendidikanTable: React.FC = () => {
     if (dataToDelete) {
       try {
         await deleteEducationLevel(dataToDelete.id).unwrap();
-        showSuccess(`Jenjang Pendidikan "${dataToDelete.name}" berhasil dihapus.`); // Updated call
+        showSuccess(`Jenjang Pendidikan "${dataToDelete.name}" berhasil dihapus.`);
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus data.';
-        showError(errorMessage); // Updated call
+        showError(errorMessage);
       } finally {
         setDataToDelete(undefined);
         setIsDeleteDialogOpen(false);
@@ -95,6 +97,10 @@ const JenjangPendidikanTable: React.FC = () => {
   const handleFormCancel = () => {
     setIsModalOpen(false);
     setEditingData(undefined);
+  };
+
+  const handleImportData = () => {
+    setIsImportModalOpen(true);
   };
 
   const columns: ColumnDef<JenjangPendidikan>[] = useMemo(
@@ -156,6 +162,7 @@ const JenjangPendidikanTable: React.FC = () => {
         exportFileName="data_jenjang_pendidikan"
         exportTitle="Data Jenjang Pendidikan"
         onAddData={handleAddData}
+        onImportData={handleImportData} // Meneruskan prop onImportData
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -189,6 +196,11 @@ const JenjangPendidikanTable: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <JenjangPendidikanImportDialog
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+      />
     </>
   );
 };

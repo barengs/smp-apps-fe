@@ -25,6 +25,11 @@ export interface CreateUpdateEducationLevelRequest {
   // education_class_code would be sent here if needed for creation/update
 }
 
+// New interface for the import response
+export interface ImportEducationLevelResponse {
+  message: string;
+}
+
 export const educationApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getEducationLevels: builder.query<GetEducationLevelsResponse, void>({
@@ -54,6 +59,14 @@ export const educationApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['EducationLevel'],
     }),
+    importEducationLevels: builder.mutation<ImportEducationLevelResponse, FormData>({
+      query: (formData) => ({
+        url: 'master/education/import',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['EducationLevel'],
+    }),
   }),
 });
 
@@ -62,4 +75,5 @@ export const {
   useCreateEducationLevelMutation,
   useUpdateEducationLevelMutation,
   useDeleteEducationLevelMutation,
+  useImportEducationLevelsMutation,
 } = educationApi;
