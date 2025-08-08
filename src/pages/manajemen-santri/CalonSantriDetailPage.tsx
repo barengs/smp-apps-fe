@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useReactToPrint } from 'react-to-print';
+import { useReactToPrint } from 'react-to-print'; // Hapus UseReactToPrintOptions dari import
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
@@ -43,11 +43,12 @@ const CalonSantriDetailPage: React.FC = () => {
     { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
   ];
 
+  // Langsung panggil useReactToPrint dengan casting ke 'any'
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
     onAfterPrint: () => setIsPrintDialogOpen(false),
-  });
+  } as any); // Casting ke 'any' untuk mengatasi masalah tipe
 
   if (isLoading) {
     return (

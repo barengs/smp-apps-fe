@@ -9,6 +9,7 @@ interface RegistrationFormPdfProps {
 }
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
+const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png"; // Path to the uploaded image
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode; className?: string }> = ({ label, value, className }) => (
   <div className={`flex text-[10px] leading-tight ${className}`}>
@@ -30,12 +31,9 @@ const RegistrationFormPdf = React.forwardRef<HTMLDivElement, RegistrationFormPdf
   return (
     <div ref={ref} className="p-8 bg-white text-gray-900 font-sans" style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
       {/* Header */}
-      <div className="flex items-center justify-center mb-6 border-b-2 border-black pb-4">
-        <BookOpenText className="h-12 w-12 mr-4 text-gray-800" />
-        <div>
-          <h1 className="text-2xl font-bold text-center">FORMULIR PENDAFTARAN</h1>
-          <h2 className="text-xl font-semibold text-center">SANTRI BARU</h2>
-        </div>
+      <div className="mb-6 border-b-2 border-black pb-4">
+        <img src={KOP_SURAT_IMAGE_URL} alt="Kop Pesantren" className="w-full h-auto" />
+        <h1 className="text-2xl font-bold text-center mt-4">FORMULIR PENDAFTARAN SANTRI BARU</h1>
       </div>
 
       {/* Section 1: Santri Profile & Photo */}
