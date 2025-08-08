@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil, ArrowLeft, Printer, DollarSign } from 'lucide-react'; // Import DollarSign icon
+import { User, Pencil, ArrowLeft, Printer, DollarSign } from 'lucide-react';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { useReactToPrint } from 'react-to-print';
+import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
@@ -23,14 +32,22 @@ const CalonSantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
-
   const calonSantri = apiResponse?.data;
+
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const printComponentRef = useRef<HTMLDivElement>(null);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
     { label: 'Pendaftaran Santri Baru', href: '/dashboard/pendaftaran-santri' },
     { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
   ];
+
+  const handlePrint = useReactToPrint({
+    content: () => printComponentRef.current,
+    documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
+    onAfterPrint: () => setIsPrintDialogOpen(false),
+  });
 
   if (isLoading) {
     return (
@@ -49,7 +66,7 @@ const CalonSantriDetailPage: React.FC = () => {
       <DashboardLayout title="Detail Calon Santri" role="administrasi">
         <div className="container mx-auto px-4 pb-4">
           <CustomBreadcrumb items={breadcrumbItems} />
-          <div className="text-red-500">Terjadi kesalahan saat memuat detail data. Silakan cek konsol untuk detail.</div>
+          <div className="text-red-500">Terjadi kesalahan saat memuat detail data.</div>
         </div>
       </DashboardLayout>
     );
@@ -66,7 +83,6 @@ const CalonSantriDetailPage: React.FC = () => {
     );
   }
 
-  // Helper function to render a detail row
   const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <div className="grid grid-cols-2 gap-x-4 py-1">
       <span className="font-medium text-gray-600">{label}</span>
@@ -76,7 +92,6 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const calonSantriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
 
-  // Format payment amount to IDR
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -86,14 +101,7 @@ const CalonSantriDetailPage: React.FC = () => {
     }).format(amount);
   };
 
-  const handlePrintForm = () => {
-    // Placeholder for print logic
-    console.log('Cetak Formulir clicked for ID:', santriId);
-    alert('Fungsi cetak formulir akan segera diimplementasikan!');
-  };
-
   const handleProcessPayment = () => {
-    // Placeholder for payment processing logic
     console.log('Proses Pembayaran clicked for ID:', santriId);
     alert('Fungsi proses pembayaran akan segera diimplementasikan!');
   };
@@ -126,7 +134,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={handlePrintForm} size="icon">
+                    <Button onClick={() => setIsPrintDialogOpen(true)} size="icon">
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -168,9 +176,6 @@ const CalonSantriDetailPage: React.FC = () => {
                 <DetailRow label="Asal Sekolah" value={calonSantri.previous_school} />
                 <DetailRow label="Alamat Sekolah Asal" value={calonSantri.previous_school_address} />
                 <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
-                {/* Add more fields here if needed */}
-
-                {/* Always render the photo card, show Pencil icon if no photo */}
                 <Card className="mt-4 p-4 w-fit mx-auto">
                   <CardContent className="p-0 flex justify-center items-center">
                     <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
@@ -181,7 +186,7 @@ const CalonSantriDetailPage: React.FC = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Pencil className="h-24 w-24 text-muted-foreground" /> // Display Pencil icon
+                        <Pencil className="h-24 w-24 text-muted-foreground" />
                       )}
                     </div>
                   </CardContent>
@@ -215,6 +220,23 @@ const CalonSantriDetailPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+        <DialogContent className="max-w-[210mm] h-[95vh] p-0 flex flex-col">
+          <DialogHeader className="p-4 border-b">
+            <DialogTitle>Pratinjau Formulir Pendaftaran</DialogTitle>
+          </DialogHeader>
+          <div className="flex-grow overflow-y-auto bg-gray-200 p-4">
+            <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
+          </div>
+          <DialogFooter className="p-4 border-t bg-background">
+            <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Batal</Button>
+            <Button onClick={handlePrint}>
+              <Printer className="mr-2 h-4 w-4" /> Cetak
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
