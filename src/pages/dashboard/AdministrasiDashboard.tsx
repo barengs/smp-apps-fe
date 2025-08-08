@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'; // Import useState and useEf
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck } from 'lucide-react';
+import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck, UserPlus } from 'lucide-react'; // Import UserPlus
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
+import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi'; // Import useGetCalonSantriQuery
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import EventCalendar from '@/components/EventCalendar';
@@ -52,6 +53,7 @@ const AdministrasiDashboard: React.FC = () => {
 
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
   const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
+  const { data: calonSantriData, isLoading: isLoadingCalonSantri, isError: isErrorCalonSantri } = useGetCalonSantriQuery(); // Fetch calon santri data
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State untuk modal
   const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null); // State untuk kegiatan yang dipilih
@@ -128,6 +130,20 @@ const AdministrasiDashboard: React.FC = () => {
               description="Santri yang sedang magang"
             />
           </>
+        )}
+        {isLoadingCalonSantri ? (
+          <StatCardSkeleton />
+        ) : isErrorCalonSantri ? (
+          <div className="col-span-1 text-red-500">Gagal memuat data calon santri.</div>
+        ) : (
+          <Link to="/dashboard/pendaftaran-santri">
+            <StatCard
+              title="Total Santri Baru"
+              value={calonSantriData?.data?.total ?? 0} // Mengakses total dari data paginasi
+              icon={<UserPlus className="h-6 w-6 text-muted-foreground" />}
+              description="Jumlah pendaftar santri baru"
+            />
+          </Link>
         )}
       </div>
 
