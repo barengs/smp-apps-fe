@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+import { CustomCalendar } from '@/components/CustomCalendar'; // Menggunakan CustomCalendar
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -173,7 +173,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
+                      <CustomCalendar // Menggunakan CustomCalendar di sini
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}

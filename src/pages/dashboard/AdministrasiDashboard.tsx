@@ -134,7 +134,7 @@ const AdministrasiDashboard: React.FC = () => {
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
         <div className="flex flex-wrap gap-4">
-          <Link to="/dashboard/santri/add">
+          <Link to="/dashboard/pendaftaran-santri/add">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
             </Button>
@@ -142,9 +142,11 @@ const AdministrasiDashboard: React.FC = () => {
           <Button variant="outline">
             Lihat Laporan Keuangan
           </Button>
-          <Button variant="secondary">
-            Kelola Pengumuman
-          </Button>
+          <Link to="/dashboard/berita">
+            <Button variant="outline">
+              Kelola Pengumuman
+            </Button>
+          </Link>
         </div>
       </div>
 
