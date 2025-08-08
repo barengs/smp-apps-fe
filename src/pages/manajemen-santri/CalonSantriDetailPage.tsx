@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Perbaikan sintaks import
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -26,7 +26,7 @@ import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
-const CalonSantriDetailPage: React.FC = () => {
+const CalonSantriDetailPage: React.FC = () => { // Mengembalikan definisi komponen
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
   const navigate = useNavigate();
@@ -44,13 +44,10 @@ const CalonSantriDetailPage: React.FC = () => {
   ];
 
   const handlePrint = useReactToPrint({
-    content: () => {
-      console.log("printComponentRef.current:", printComponentRef.current); // Debugging log
-      return printComponentRef.current;
-    },
+    content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
     onAfterPrint: () => setIsPrintDialogOpen(false),
-  }); // Menghapus casting 'as any'
+  } as any);
 
   if (isLoading) {
     return (
