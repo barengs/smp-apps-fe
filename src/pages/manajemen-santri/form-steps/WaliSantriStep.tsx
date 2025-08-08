@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
+import { useGetEducationLevelsQuery } from '@/store/slices/educationApi'; // Import useGetEducationLevelsQuery
 import { toast } from 'sonner'; // Menggunakan sonner untuk toast
 
 interface WaliSantriStepProps {}
@@ -25,6 +26,9 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
+
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery(); // Fetch education levels
+  const educationLevelsList = educationLevelsResponse?.data || [];
 
   const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
 
@@ -77,6 +81,15 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
           setValue('pekerjaanValue', foundPekerjaan.id.toString());
         }
       }
+
+      // Set education level if found
+      if (parentData.education && educationLevelsList.length > 0) {
+        const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
+        if (foundEducation) {
+          setValue('educationValue', foundEducation.id.toString());
+        }
+      }
+
     }
 
     if (isErrorNik) {
@@ -93,7 +106,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         });
       }
     }
-  }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList]);
+  }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList, educationLevelsList]);
 
   return (
     <div className="space-y-6">
@@ -273,6 +286,39 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
                       {pekerjaanList.map((pekerjaan) => (
                         <SelectItem key={pekerjaan.id} value={pekerjaan.id.toString()}>
                           {pekerjaan.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="educationValue"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pendidikan Terakhir</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih pendidikan terakhir" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {isLoadingEducationLevels && (
+                        <SelectItem value="loading" disabled>Memuat jenjang pendidikan...</SelectItem>
+                      )}
+                      {isErrorEducationLevels && (
+                        <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
+                      )}
+                      {!isLoadingEducationLevels && !isErrorEducationLevels && educationLevelsList.length === 0 && (
+                        <SelectItem value="no-data" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
+                      )}
+                      {educationLevelsList.map((level) => (
+                        <SelectItem key={level.id} value={level.id.toString()}>
+                          {level.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

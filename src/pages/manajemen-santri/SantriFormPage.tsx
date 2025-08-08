@@ -50,6 +50,7 @@ const SantriFormPage: React.FC = () => {
       phone: '',
       email: '',
       pekerjaanValue: '',
+      educationValue: '', // Added default value for new field
       alamatKtp: '',
       alamatDomisili: '',
       firstNameSantri: '',
@@ -121,6 +122,7 @@ const SantriFormPage: React.FC = () => {
     appendIfExists('wali_telepon', data.phone);
     appendIfExists('wali_email', data.email);
     appendIfExists('wali_pekerjaan_id', data.pekerjaanValue);
+    appendIfExists('wali_pendidikan_id', data.educationValue); // Added new field
     appendIfExists('wali_alamat_ktp', data.alamatKtp);
     appendIfExists('wali_alamat_domisili', data.alamatDomisili);
 
