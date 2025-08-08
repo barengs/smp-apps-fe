@@ -143,7 +143,7 @@ const AdministrasiDashboard: React.FC = () => {
             Lihat Laporan Keuangan
           </Button>
           <Link to="/dashboard/berita">
-            <Button variant="secondary">
+            <Button variant="outline">
               Kelola Pengumuman
             </Button>
           </Link>
