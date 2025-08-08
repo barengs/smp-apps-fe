@@ -197,7 +197,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 <h3 className="text-lg font-semibold mb-2">Informasi Orang Tua/Wali</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                   <div>
-                    <DetailRow label="Nama Ayah/Ibu" value={`${calonSantri.parent.first_name} ${calonSantri.parent.last_name}`} />
+                    <DetailRow label="Nama Ayah/Ibu" value={`${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`} />
                     <DetailRow label="Hubungan" value={calonSantri.parent.parent_as} />
                     <DetailRow label="NIK" value={calonSantri.parent.nik} />
                     <DetailRow label="No. KK" value={calonSantri.parent.kk} />
