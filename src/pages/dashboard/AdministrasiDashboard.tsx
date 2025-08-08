@@ -117,6 +117,20 @@ const AdministrasiDashboard: React.FC = () => {
                 description="Jumlah staf pengajar"
               />
             </Link>
+            {isLoadingCalonSantri ? (
+              <StatCardSkeleton />
+            ) : isErrorCalonSantri ? (
+              <div className="col-span-1 text-red-500">Gagal memuat data calon santri.</div>
+            ) : (
+              <Link to="/dashboard/pendaftaran-santri">
+                <StatCard
+                  title="Total Santri Baru"
+                  value={calonSantriData?.data?.total ?? 0} // Mengakses total dari data paginasi
+                  icon={<UserPlus className="h-6 w-6 text-muted-foreground" />}
+                  description="Jumlah pendaftar santri baru"
+                />
+              </Link>
+            )}
             <StatCard
               title="Total Alumni"
               value={dashboardData?.data?.alumni ?? 0} // Mengakses melalui .data
@@ -130,20 +144,6 @@ const AdministrasiDashboard: React.FC = () => {
               description="Santri yang sedang magang"
             />
           </>
-        )}
-        {isLoadingCalonSantri ? (
-          <StatCardSkeleton />
-        ) : isErrorCalonSantri ? (
-          <div className="col-span-1 text-red-500">Gagal memuat data calon santri.</div>
-        ) : (
-          <Link to="/dashboard/pendaftaran-santri">
-            <StatCard
-              title="Total Santri Baru"
-              value={calonSantriData?.data?.total ?? 0} // Mengakses total dari data paginasi
-              icon={<UserPlus className="h-6 w-6 text-muted-foreground" />}
-              description="Jumlah pendaftar santri baru"
-            />
-          </Link>
         )}
       </div>
 
