@@ -102,7 +102,7 @@ const AdministrasiDashboard: React.FC = () => {
             <Link to="/dashboard/santri">
               <StatCard
                 title="Total Santri"
-                value={dashboardData?.santri ?? 0}
+                value={dashboardData?.data?.santri ?? 0} // Mengakses melalui .data
                 icon={<Users className="h-6 w-6 text-muted-foreground" />}
                 description="Jumlah santri aktif saat ini"
               />
@@ -110,20 +110,20 @@ const AdministrasiDashboard: React.FC = () => {
             <Link to="/dashboard/staf">
               <StatCard
                 title="Total Asatidz"
-                value={dashboardData?.asatidz ?? 0}
+                value={dashboardData?.data?.asatidz ?? 0} // Mengakses melalui .data
                 icon={<Briefcase className="h-6 w-6 text-muted-foreground" />}
                 description="Jumlah staf pengajar"
               />
             </Link>
             <StatCard
               title="Total Alumni"
-              value={dashboardData?.alumni ?? 0}
+              value={dashboardData?.data?.alumni ?? 0} // Mengakses melalui .data
               icon={<GraduationCap className="h-6 w-6 text-muted-foreground" />}
               description="Jumlah santri yang telah lulus"
             />
             <StatCard
               title="Guru Tugas"
-              value={dashboardData?.tugasan ?? 0}
+              value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
               icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
               description="Santri yang sedang magang"
             />
