@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { useReactToPrint } from 'react-to-print'; // Import useReactToPrint
-import { Button } from '@/components/ui/button'; // Import Button
-import { Printer } from 'lucide-react'; // Import Printer icon
+import { useReactToPrint } from 'react-to-print';
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
 
 const RegistrationPdfPreviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,11 +13,19 @@ const RegistrationPdfPreviewPage: React.FC = () => {
   const { data: apiResponse, isLoading, isError } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
 
-  const printComponentRef = useRef<HTMLDivElement>(null); // Ref untuk komponen yang akan dicetak
+  const printComponentRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
+    // Menambahkan penundaan kecil sebelum mengambil konten untuk dicetak
+    onBeforeGetContent: () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(null);
+        }, 100); // Penundaan 100ms
+      });
+    },
   } as any);
 
   if (isLoading) {
@@ -51,7 +59,7 @@ const RegistrationPdfPreviewPage: React.FC = () => {
           <Printer className="mr-2 h-4 w-4" /> Cetak Formulir
         </Button>
       </div>
-      <div ref={printComponentRef}> {/* Bungkus RegistrationFormPdf dengan div yang direferensikan */}
+      <div ref={printComponentRef}>
         <RegistrationFormPdf calonSantri={calonSantri} />
       </div>
     </div>
