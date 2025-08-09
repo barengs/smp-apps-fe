@@ -37,25 +37,27 @@ const CalonSantriDetailPage: React.FC = () => {
   const calonSantri = apiResponse?.data;
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
-  const [showPrintComponent, setShowPrintComponent] = useState(false); // State baru untuk mengontrol rendering komponen cetak
+  const [showPrintComponent, setShowPrintComponent] = useState(false);
   const printComponentRef = useRef<HTMLDivElement>(null);
-
-  // Tidak perlu useEffect untuk logging ref lagi, karena kita akan mengontrolnya secara langsung
 
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
     onAfterPrint: () => {
-      setShowPrintComponent(false); // Sembunyikan kembali setelah cetak selesai
+      setShowPrintComponent(false);
     },
-  } as any); // Menambahkan 'as any' untuk mengatasi masalah tipe TypeScript
+  } as any);
+
+  // useEffect untuk memicu pencetakan setelah komponen PDF dirender dan ref tersedia
+  useEffect(() => {
+    if (showPrintComponent && printComponentRef.current) {
+      handlePrint();
+    }
+  }, [showPrintComponent, printComponentRef.current, handlePrint]); // handlePrint sudah stabil dari useReactToPrint
 
   const triggerPrint = () => {
-    setShowPrintComponent(true); // Tampilkan komponen cetak (secara logis, meskipun masih display:none)
-    // Beri sedikit waktu agar React merender komponen dan ref terpasang
-    setTimeout(() => {
-      handlePrint();
-    }, 100); // Penundaan kecil
+    setShowPrintComponent(true); // Hanya mengatur state untuk merender komponen cetak
+    // Pencetakan akan dipicu oleh useEffect setelah komponen dirender
   };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -257,7 +259,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 Tutup
               </Button>
             </DialogClose>
-            <Button onClick={triggerPrint}> {/* Menggunakan triggerPrint */}
+            <Button onClick={triggerPrint}>
               Cetak
             </Button>
           </DialogFooter>
@@ -265,8 +267,8 @@ const CalonSantriDetailPage: React.FC = () => {
       </Dialog>
 
       {/* Komponen tersembunyi untuk react-to-print (selalu ada di DOM) */}
-      {showPrintComponent && calonSantri && ( // Render hanya jika showPrintComponent true dan calonSantri ada
-        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}> {/* Posisikan di luar layar */}
+      {showPrintComponent && calonSantri && (
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
           <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
         </div>
       )}
