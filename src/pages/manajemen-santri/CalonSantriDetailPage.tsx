@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'; // Import useEffect
+import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -37,24 +37,26 @@ const CalonSantriDetailPage: React.FC = () => {
   const calonSantri = apiResponse?.data;
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
-  // Ref ini akan digunakan untuk komponen PDF yang tersembunyi (selalu ada di DOM)
+  const [showPrintComponent, setShowPrintComponent] = useState(false); // State baru untuk mengontrol rendering komponen cetak
   const printComponentRef = useRef<HTMLDivElement>(null);
 
-  // Tambahkan useEffect untuk memantau ketersediaan ref setelah data calonSantri dimuat
-  useEffect(() => {
-    if (calonSantri) {
-      console.log("useEffect: printComponentRef.current setelah calonSantri dimuat:", printComponentRef.current);
-    }
-  }, [calonSantri]);
+  // Tidak perlu useEffect untuk logging ref lagi, karena kita akan mengontrolnya secara langsung
 
   const handlePrint = useReactToPrint({
-    content: () => {
-      // Log ini akan menunjukkan apa nilai printComponentRef.current saat fungsi content dipanggil
-      console.log("handlePrint content function dipanggil. printComponentRef.current:", printComponentRef.current);
-      return printComponentRef.current;
-    },
+    content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
+    onAfterPrint: () => {
+      setShowPrintComponent(false); // Sembunyikan kembali setelah cetak selesai
+    },
   } as any); // Menambahkan 'as any' untuk mengatasi masalah tipe TypeScript
+
+  const triggerPrint = () => {
+    setShowPrintComponent(true); // Tampilkan komponen cetak (secara logis, meskipun masih display:none)
+    // Beri sedikit waktu agar React merender komponen dan ref terpasang
+    setTimeout(() => {
+      handlePrint();
+    }, 100); // Penundaan kecil
+  };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -147,7 +149,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={() => setIsPrintPreviewOpen(true)} size="icon" disabled={!calonSantri}>
+                    <Button onClick={() => { setIsPrintPreviewOpen(true); setShowPrintComponent(true); }} size="icon" disabled={!calonSantri}>
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -235,7 +237,7 @@ const CalonSantriDetailPage: React.FC = () => {
       </div>
 
       {/* Dialog untuk Pratinjau Cetak */}
-      <Dialog open={isPrintPreviewOpen} onOpenChange={setIsPrintPreviewOpen}>
+      <Dialog open={isPrintPreviewOpen} onOpenChange={(open) => { setIsPrintPreviewOpen(open); if (!open) setShowPrintComponent(false); }}>
         <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-2">
             <DialogTitle>Pratinjau Cetak Formulir</DialogTitle>
@@ -255,7 +257,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 Tutup
               </Button>
             </DialogClose>
-            <Button onClick={handlePrint}>
+            <Button onClick={triggerPrint}> {/* Menggunakan triggerPrint */}
               Cetak
             </Button>
           </DialogFooter>
@@ -263,9 +265,11 @@ const CalonSantriDetailPage: React.FC = () => {
       </Dialog>
 
       {/* Komponen tersembunyi untuk react-to-print (selalu ada di DOM) */}
-      <div style={{ display: 'none' }}>
-        {calonSantri && <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />}
-      </div>
+      {showPrintComponent && calonSantri && ( // Render hanya jika showPrintComponent true dan calonSantri ada
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}> {/* Posisikan di luar layar */}
+          <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
+        </div>
+      )}
     </DashboardLayout>
   );
 };
