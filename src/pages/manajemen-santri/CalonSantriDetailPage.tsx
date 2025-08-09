@@ -34,7 +34,6 @@ const CalonSantriDetailPage: React.FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
-    // onBeforeGetContent dihapus karena komponen PDF selalu dirender (meskipun tersembunyi)
   } as any);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -128,7 +127,11 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={handlePrint} size="icon"> {/* Mengubah onClick untuk memicu pencetakan langsung */}
+                    <Button
+                      onClick={handlePrint}
+                      size="icon"
+                      disabled={isLoading || !calonSantri} // Tombol dinonaktifkan jika data belum dimuat
+                    >
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
