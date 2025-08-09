@@ -14,15 +14,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { useReactToPrint } from 'react-to-print';
-import RegistrationFormPdf from '@/components/RegistrationFormPdf';
+// Menghapus import Dialog karena tidak lagi digunakan
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogFooter,
+// } from '@/components/ui/dialog';
+// Menghapus import useReactToPrint karena tidak lagi digunakan
+// import { useReactToPrint } from 'react-to-print';
+// Menghapus import RegistrationFormPdf karena tidak lagi dirender di sini
+// import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
@@ -34,9 +37,10 @@ const CalonSantriDetailPage: React.FC = () => {
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
 
-  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
-  const [showPdfContent, setShowPdfContent] = useState(false); // State baru untuk mengontrol rendering PDF
-  const printComponentRef = useRef<HTMLDivElement>(null);
+  // Menghapus state terkait dialog dan print
+  // const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  // const [showPdfContent, setShowPdfContent] = useState(false);
+  // const printComponentRef = useRef<HTMLDivElement>(null);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -44,11 +48,12 @@ const CalonSantriDetailPage: React.FC = () => {
     { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
   ];
 
-  const handlePrint = useReactToPrint({
-    content: () => printComponentRef.current,
-    documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
-    onAfterPrint: () => setIsPrintDialogOpen(false),
-  } as any);
+  // Menghapus handlePrint karena tidak lagi digunakan
+  // const handlePrint = useReactToPrint({
+  //   content: () => printComponentRef.current,
+  //   documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
+  //   onAfterPrint: () => setIsPrintDialogOpen(false),
+  // } as any);
 
   if (isLoading) {
     return (
@@ -107,6 +112,11 @@ const CalonSantriDetailPage: React.FC = () => {
     alert('Fungsi proses pembayaran akan segera diimplementasikan!');
   };
 
+  const handlePrintForm = () => {
+    // Membuka halaman pratinjau PDF di tab baru
+    window.open(`/registration-pdf-preview/${santriId}`, '_blank');
+  };
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -135,11 +145,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={() => {
-                      setIsPrintDialogOpen(true);
-                      // Beri waktu React untuk merender dialog dan kontennya
-                      setTimeout(() => setShowPdfContent(true), 50);
-                    }} size="icon">
+                    <Button onClick={handlePrintForm} size="icon"> {/* Mengubah onClick */}
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -226,10 +232,11 @@ const CalonSantriDetailPage: React.FC = () => {
         </Card>
       </div>
 
-      <Dialog open={isPrintDialogOpen} onOpenChange={(open) => {
+      {/* Menghapus komponen Dialog karena tidak lagi digunakan */}
+      {/* <Dialog open={isPrintDialogOpen} onOpenChange={(open) => {
         setIsPrintDialogOpen(open);
         if (!open) {
-          setShowPdfContent(false); // Reset state saat dialog ditutup
+          setShowPdfContent(false);
         }
       }}>
         <DialogContent className="max-w-[210mm] h-[95vh] p-0 flex flex-col">
@@ -237,7 +244,7 @@ const CalonSantriDetailPage: React.FC = () => {
             <DialogTitle>Pratinjau Formulir Pendaftaran</DialogTitle>
           </DialogHeader>
           <div className="flex-grow overflow-y-auto bg-gray-200 p-4">
-            {showPdfContent && calonSantri ? ( // Render PDF hanya jika showPdfContent true dan data tersedia
+            {showPdfContent && calonSantri ? (
               <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500">Memuat pratinjau...</div>
@@ -250,7 +257,7 @@ const CalonSantriDetailPage: React.FC = () => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </DashboardLayout>
   );
 };
