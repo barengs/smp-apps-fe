@@ -21,4 +21,10 @@ export default defineConfig(() => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Polyfill for Buffer in browser environments
+    global: 'window',
+    'process.env': {}, // Define process.env as an empty object if not already defined
+    Buffer: ['buffer', 'Buffer'],
+  },
 }));
