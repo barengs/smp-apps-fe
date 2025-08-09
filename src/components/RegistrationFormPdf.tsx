@@ -9,7 +9,7 @@ const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png";
 const styles = StyleSheet.create({
   page: {
     paddingHorizontal: 40,
-    paddingVertical: 20, // Mengurangi margin atas dari 30 menjadi 20
+    paddingVertical: 20,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
     fontSize: 10,
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#cccccc',
     paddingTop: 10,
-    marginTop: 5,
+    marginTop: 0, // Mengurangi margin atas dari 5 menjadi 0
   },
   sectionTitle: {
     fontSize: 12,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   signatureContainer: {
-    marginTop: 40, // Mengurangi margin atas dari 60 menjadi 40
+    marginTop: 20, // Mengurangi margin atas dari 40 menjadi 20
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
