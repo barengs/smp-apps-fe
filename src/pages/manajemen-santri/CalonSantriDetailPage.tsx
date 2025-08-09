@@ -34,6 +34,14 @@ const CalonSantriDetailPage: React.FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
+    // Menambahkan penundaan kecil sebelum mengambil konten untuk dicetak
+    onBeforeGetContent: () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(null);
+        }, 100); // Penundaan 100ms
+      });
+    },
   } as any);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
