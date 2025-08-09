@@ -1,109 +1,243 @@
 import React from 'react';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { CalonSantri } from '@/types/calonSantri';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { BookOpenText, User, School, Home } from 'lucide-react';
+
+const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
+const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png";
+
+const styles = StyleSheet.create({
+  page: {
+    paddingHorizontal: 40,
+    paddingVertical: 30,
+    backgroundColor: '#ffffff',
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+    lineHeight: 1.4,
+  },
+  header: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#000000',
+    paddingBottom: 10,
+    marginBottom: 20,
+    textAlign: 'center',
+    alignItems: 'center',
+  },
+  kopImage: {
+    width: '100%',
+    height: 'auto',
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 16,
+    fontFamily: 'Helvetica-Bold',
+    marginTop: 10,
+  },
+  section: {
+    marginBottom: 15,
+  },
+  sectionWithBorder: {
+    borderTopWidth: 1,
+    borderTopColor: '#cccccc',
+    paddingTop: 10,
+    marginTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#cccccc',
+    paddingBottom: 3,
+  },
+  flexRow: {
+    flexDirection: 'row',
+  },
+  photoContainer: {
+    width: '113.38px', // 40mm
+    height: '141.73px', // 50mm
+    borderWidth: 1,
+    borderColor: '#aaaaaa',
+    marginRight: 20,
+    padding: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0'
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  detailLabel: {
+    width: 120,
+    fontFamily: 'Helvetica-Bold',
+  },
+  detailValue: {
+    flex: 1,
+    fontFamily: 'Helvetica',
+  },
+  signatureContainer: {
+    marginTop: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  signatureBox: {
+    width: '40%',
+    textAlign: 'center',
+  },
+  signatureName: {
+    marginTop: 60,
+    fontFamily: 'Helvetica-Bold',
+  },
+});
 
 interface RegistrationFormPdfProps {
   calonSantri: CalonSantri;
 }
 
-const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
-const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png"; // Path to the uploaded image
-
-const DetailRow: React.FC<{ label: string; value?: React.ReactNode; className?: string }> = ({ label, value, className }) => (
-  <div className={`flex text-[10px] leading-tight ${className}`}>
-    <span className="font-semibold w-[120px] shrink-0">{label}</span>
-    <span className="flex-grow">: {value || '-'}</span>
-  </div>
-);
-
-const RegistrationFormPdf = React.forwardRef<HTMLDivElement, RegistrationFormPdfProps>(({ calonSantri }, ref) => {
+const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }) => {
   const fullNameSantri = `${calonSantri.first_name} ${calonSantri.last_name || ''}`.trim();
   const genderSantri = calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan';
   const formattedBornAt = calonSantri.born_at ? format(new Date(calonSantri.born_at), 'dd MMMM yyyy', { locale: id }) : '-';
   const formattedRegistrationDate = calonSantri.created_at ? format(new Date(calonSantri.created_at), 'dd MMMM yyyy', { locale: id }) : '-';
-
   const parentFullName = calonSantri.parent ? `${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`.trim() : '-';
-  
   const santriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
 
+  const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
+
   return (
-    <div ref={ref} className="p-8 bg-white text-gray-900 font-sans" style={{ width: '210mm', minHeight: '297mm', margin: '0 auto' }}>
-      {/* Header */}
-      <div className="mb-6 border-b-2 border-black pb-4">
-        <img src={KOP_SURAT_IMAGE_URL} alt="Kop Pesantren" className="w-full h-auto" />
-        <h1 className="text-2xl font-bold text-center mt-4">FORMULIR PENDAFTARAN SANTRI BARU</h1>
-      </div>
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Image style={styles.kopImage} src={absoluteKopUrl} />
+          <Text style={styles.title}>FORMULIR PENDAFTARAN SANTRI BARU</Text>
+        </View>
 
-      {/* Section 1: Santri Profile & Photo */}
-      <div className="flex mb-6">
-        <div className="w-[40mm] h-[50mm] flex-shrink-0 border-2 border-gray-400 rounded-md overflow-hidden mr-6 flex items-center justify-center bg-gray-100">
-          {santriPhotoUrl ? (
-            <img src={santriPhotoUrl} alt="Foto Santri" className="w-full h-full object-cover" />
-          ) : (
-            <User className="h-1/2 w-1/2 text-gray-400" />
-          )}
-        </div>
-        <div className="flex-grow space-y-1.5">
-          <h3 className="text-lg font-semibold mb-2 border-b border-gray-300 pb-1">DATA PRIBADI CALON SANTRI</h3>
-          <DetailRow label="No. Pendaftaran" value={<span className="font-bold">{calonSantri.registration_number}</span>} />
-          <DetailRow label="Tanggal Daftar" value={formattedRegistrationDate} />
-          <DetailRow label="Nama Lengkap" value={fullNameSantri.toUpperCase()} />
-          <DetailRow label="NISN" value={calonSantri.nisn || '-'} />
-          <DetailRow label="NIK" value={calonSantri.nik} />
-          <DetailRow label="Jenis Kelamin" value={genderSantri} />
-          <DetailRow label="Tempat, Tgl Lahir" value={`${calonSantri.born_in}, ${formattedBornAt}`} />
-          <DetailRow label="Alamat" value={calonSantri.address} />
-          <DetailRow label="Telepon" value={calonSantri.phone || '-'} />
-        </div>
-      </div>
+        <View style={[styles.section, styles.flexRow]}>
+          <View style={styles.photoContainer}>
+            {santriPhotoUrl ? <Image style={styles.photo} src={santriPhotoUrl} /> : <Text>Foto 3x4</Text>}
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.sectionTitle}>DATA PRIBADI CALON SANTRI</Text>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>No. Pendaftaran</Text>
+              <Text style={styles.detailValue}>: <Text style={{ fontFamily: 'Helvetica-Bold' }}>{calonSantri.registration_number}</Text></Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Tanggal Daftar</Text>
+              <Text style={styles.detailValue}>: {formattedRegistrationDate}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Nama Lengkap</Text>
+              <Text style={styles.detailValue}>: {fullNameSantri.toUpperCase()}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>NISN</Text>
+              <Text style={styles.detailValue}>: {calonSantri.nisn || '-'}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>NIK</Text>
+              <Text style={styles.detailValue}>: {calonSantri.nik}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Jenis Kelamin</Text>
+              <Text style={styles.detailValue}>: {genderSantri}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Tempat, Tgl Lahir</Text>
+              <Text style={styles.detailValue}>: {`${calonSantri.born_in}, ${formattedBornAt}`}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Alamat</Text>
+              <Text style={styles.detailValue}>: {calonSantri.address}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Telepon</Text>
+              <Text style={styles.detailValue}>: {calonSantri.phone || '-'}</Text>
+            </View>
+          </View>
+        </View>
 
-      {/* Section 2: Education Information */}
-      <div className="mb-6 border-t pt-4">
-        <h3 className="text-lg font-semibold mb-2 flex items-center border-b border-gray-300 pb-1">
-          <School className="h-5 w-5 mr-2" /> INFORMASI PENDIDIKAN
-        </h3>
-        <div className="space-y-1.5">
-          <DetailRow label="Asal Sekolah" value={calonSantri.previous_school} />
-          <DetailRow label="Alamat Sekolah" value={calonSantri.previous_school_address || '-'} />
-          <DetailRow label="No. Ijazah" value={calonSantri.certificate_number || '-'} />
-        </div>
-      </div>
+        <View style={[styles.section, styles.sectionWithBorder]}>
+          <Text style={styles.sectionTitle}>INFORMASI PENDIDIKAN</Text>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Asal Sekolah</Text>
+            <Text style={styles.detailValue}>: {calonSantri.previous_school}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Alamat Sekolah</Text>
+            <Text style={styles.detailValue}>: {calonSantri.previous_school_address || '-'}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>No. Ijazah</Text>
+            <Text style={styles.detailValue}>: {calonSantri.certificate_number || '-'}</Text>
+          </View>
+        </View>
 
-      {/* Section 3: Parent Information */}
-      {calonSantri.parent && (
-        <div className="mb-6 border-t pt-4">
-          <h3 className="text-lg font-semibold mb-2 flex items-center border-b border-gray-300 pb-1">
-            <Home className="h-5 w-5 mr-2" /> DATA ORANG TUA / WALI
-          </h3>
-          <div className="space-y-1.5">
-            <DetailRow label="Nama Lengkap" value={parentFullName} />
-            <DetailRow label="Hubungan" value={calonSantri.parent.parent_as} />
-            <DetailRow label="NIK" value={calonSantri.parent.nik} />
-            <DetailRow label="No. KK" value={calonSantri.parent.kk} />
-            <DetailRow label="Telepon" value={calonSantri.parent.phone || '-'} />
-            <DetailRow label="Email" value={calonSantri.parent.email || '-'} />
-            <DetailRow label="Pekerjaan" value={calonSantri.parent.occupation || '-'} />
-            <DetailRow label="Pendidikan" value={calonSantri.parent.education || '-'} />
-            <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address || '-'} />
-          </div>
-        </div>
-      )}
+        {calonSantri.parent && (
+          <View style={[styles.section, styles.sectionWithBorder]}>
+            <Text style={styles.sectionTitle}>DATA ORANG TUA / WALI</Text>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Nama Lengkap</Text>
+              <Text style={styles.detailValue}>: {parentFullName}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Hubungan</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.parent_as}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>NIK</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.nik}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>No. KK</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.kk}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Telepon</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.phone || '-'}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Email</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.email || '-'}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Pekerjaan</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.occupation || '-'}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Pendidikan</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.education || '-'}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Alamat Domisili</Text>
+              <Text style={styles.detailValue}>: {calonSantri.parent.domicile_address || '-'}</Text>
+            </View>
+          </View>
+        )}
 
-      {/* Footer / Signature Area */}
-      <div className="mt-16 text-sm">
-        <div className="float-right w-1/3 text-center">
-          <p>Hormat Kami,</p>
-          <p className="mt-16">( Panitia Pendaftaran )</p>
-        </div>
-        <div className="float-left w-1/3 text-center">
-          <p>Orang Tua / Wali,</p>
-          <p className="mt-16">( {parentFullName} )</p>
-        </div>
-      </div>
-    </div>
+        <View style={styles.signatureContainer}>
+          <View style={styles.signatureBox}>
+            <Text>Orang Tua / Wali,</Text>
+            <Text style={styles.signatureName}>( {parentFullName} )</Text>
+          </View>
+          <View style={styles.signatureBox}>
+            <Text>Hormat Kami,</Text>
+            <Text style={styles.signatureName}>( Panitia Pendaftaran )</Text>
+          </View>
+        </View>
+      </Page>
+    </Document>
   );
-});
+};
 
 export default RegistrationFormPdf;

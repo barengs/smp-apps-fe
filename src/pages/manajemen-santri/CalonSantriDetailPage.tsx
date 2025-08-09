@@ -1,10 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
-import { User, Pencil, ArrowLeft, Printer, DollarSign } from 'lucide-react';
+import { User, Pencil, ArrowLeft, Printer, DollarSign, Download } from 'lucide-react';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useReactToPrint } from 'react-to-print';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
@@ -37,28 +37,6 @@ const CalonSantriDetailPage: React.FC = () => {
   const calonSantri = apiResponse?.data;
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
-  const [showPrintComponent, setShowPrintComponent] = useState(false);
-  const printComponentRef = useRef<HTMLDivElement>(null);
-
-  const handlePrint = useReactToPrint({
-    content: () => printComponentRef.current,
-    documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
-    onAfterPrint: () => {
-      setShowPrintComponent(false);
-    },
-  } as any);
-
-  useEffect(() => {
-    // console.log("useEffect running. showPrintComponent:", showPrintComponent, "printComponentRef.current:", printComponentRef.current);
-    if (showPrintComponent && printComponentRef.current) {
-      // console.log("Condition met: showPrintComponent is true and printComponentRef.current is available. Calling handlePrint.");
-      handlePrint();
-    }
-  }, [showPrintComponent, printComponentRef.current, handlePrint]);
-
-  const triggerPrint = () => {
-    setShowPrintComponent(true);
-  };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -123,6 +101,9 @@ const CalonSantriDetailPage: React.FC = () => {
     alert('Fungsi proses pembayaran akan segera diimplementasikan!');
   };
 
+  const PdfDocument = <RegistrationFormPdf calonSantri={calonSantri} />;
+  const pdfFileName = `Formulir Pendaftaran - ${calonSantri.first_name} ${calonSantri.last_name || ''}.pdf`;
+
   return (
     <DashboardLayout title="Detail Calon Santri" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -151,12 +132,12 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={() => { setIsPrintPreviewOpen(true); setShowPrintComponent(true); }} size="icon" disabled={!calonSantri}>
+                    <Button onClick={() => setIsPrintPreviewOpen(true)} size="icon" disabled={!calonSantri}>
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Cetak Formulasi</p>
+                    <p>Cetak Formulir</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -238,20 +219,20 @@ const CalonSantriDetailPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Dialog untuk Pratinjau Cetak */}
-      <Dialog open={isPrintPreviewOpen} onOpenChange={(open) => { setIsPrintPreviewOpen(open); if (!open) setShowPrintComponent(false); }}>
+      <Dialog open={isPrintPreviewOpen} onOpenChange={setIsPrintPreviewOpen}>
         <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-2">
-            <DialogTitle>Pratinjau Cetak Formulir</DialogTitle>
+            <DialogTitle>Pratinjau Formulir</DialogTitle>
             <DialogDescription>
-              Ini adalah pratinjau dari formulir pendaftaran. Klik 'Cetak' untuk melanjutkan.
+              Ini adalah pratinjau dari formulir pendaftaran. Klik 'Unduh' untuk menyimpan sebagai PDF.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex-grow overflow-auto bg-gray-200 p-8">
-            <div className="mx-auto">
-              {/* Komponen ini HANYA untuk pratinjau visual di dalam dialog */}
-              {calonSantri && <RegistrationFormPdf calonSantri={calonSantri} />}
-            </div>
+          <div className="flex-grow bg-gray-200">
+            {typeof window !== 'undefined' && (
+              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+                {PdfDocument}
+              </PDFViewer>
+            )}
           </div>
           <DialogFooter className="p-6 pt-4 border-t">
             <DialogClose asChild>
@@ -259,19 +240,17 @@ const CalonSantriDetailPage: React.FC = () => {
                 Tutup
               </Button>
             </DialogClose>
-            <Button onClick={triggerPrint}>
-              Cetak
-            </Button>
+            <PDFDownloadLink document={PdfDocument} fileName={pdfFileName}>
+              {({ loading }) => (
+                <Button disabled={loading}>
+                  <Download className="mr-2 h-4 w-4" />
+                  {loading ? 'Membuat PDF...' : 'Unduh'}
+                </Button>
+              )}
+            </PDFDownloadLink>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Komponen tersembunyi untuk react-to-print (selalu ada di DOM) */}
-      {showPrintComponent && calonSantri && (
-        <div style={{ display: 'none' }}> {/* Mengubah kembali ke display: 'none' */}
-          <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
-        </div>
-      )}
     </DashboardLayout>
   );
 };
