@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
+import { useReactToPrint } from 'react-to-print'; // Import useReactToPrint
+import { Button } from '@/components/ui/button'; // Import Button
+import { Printer } from 'lucide-react'; // Import Printer icon
 
 const RegistrationPdfPreviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -9,6 +12,13 @@ const RegistrationPdfPreviewPage: React.FC = () => {
 
   const { data: apiResponse, isLoading, isError } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
+
+  const printComponentRef = useRef<HTMLDivElement>(null); // Ref untuk komponen yang akan dicetak
+
+  const handlePrint = useReactToPrint({
+    content: () => printComponentRef.current,
+    documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
+  } as any);
 
   if (isLoading) {
     return (
@@ -24,7 +34,7 @@ const RegistrationPdfPreviewPage: React.FC = () => {
         Terjadi kesalahan saat memuat data formulir.
       </div>
     );
-  } // Syntax error fixed here
+  }
 
   if (!calonSantri) {
     return (
@@ -35,8 +45,15 @@ const RegistrationPdfPreviewPage: React.FC = () => {
   }
 
   return (
-    <div className="flex justify-center p-4 bg-gray-100 min-h-screen">
-      <RegistrationFormPdf calonSantri={calonSantri} />
+    <div className="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
+      <div className="w-[210mm] flex justify-end mb-4">
+        <Button onClick={handlePrint}>
+          <Printer className="mr-2 h-4 w-4" /> Cetak Formulir
+        </Button>
+      </div>
+      <div ref={printComponentRef}> {/* Bungkus RegistrationFormPdf dengan div yang direferensikan */}
+        <RegistrationFormPdf calonSantri={calonSantri} />
+      </div>
     </div>
   );
 };
