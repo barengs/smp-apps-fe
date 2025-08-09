@@ -48,7 +48,7 @@ import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
 import TransaksiPage from '@/pages/keuangan/TransaksiPage';
-import RegistrationPdfPreviewPage from '@/pages/manajemen-santri/RegistrationPdfPreviewPage'; // Import halaman pratinjau PDF
+// import RegistrationPdfPreviewPage from '@/pages/manajemen-santri/RegistrationPdfPreviewPage'; // Import halaman pratinjau PDF
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -70,7 +70,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/daftar" element={<Daftar />} />
             <Route path="/berita/:id" element={<BeritaDetailPage />} />
-            <Route path="/registration-pdf-preview/:id" element={<RegistrationPdfPreviewPage />} /> {/* Rute baru untuk pratinjau PDF */}
+            {/* <Route path="/registration-pdf-preview/:id" element={<RegistrationPdfPreviewPage />} /> */} {/* Rute baru untuk pratinjau PDF */}
 
             {/* Rute yang Dilindungi */}
             <Route element={<ProtectedRoute />}>
