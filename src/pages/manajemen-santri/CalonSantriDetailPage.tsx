@@ -48,16 +48,16 @@ const CalonSantriDetailPage: React.FC = () => {
     },
   } as any);
 
-  // useEffect untuk memicu pencetakan setelah komponen PDF dirender dan ref tersedia
   useEffect(() => {
+    // console.log("useEffect running. showPrintComponent:", showPrintComponent, "printComponentRef.current:", printComponentRef.current);
     if (showPrintComponent && printComponentRef.current) {
+      // console.log("Condition met: showPrintComponent is true and printComponentRef.current is available. Calling handlePrint.");
       handlePrint();
     }
-  }, [showPrintComponent, printComponentRef.current, handlePrint]); // handlePrint sudah stabil dari useReactToPrint
+  }, [showPrintComponent, printComponentRef.current, handlePrint]);
 
   const triggerPrint = () => {
-    setShowPrintComponent(true); // Hanya mengatur state untuk merender komponen cetak
-    // Pencetakan akan dipicu oleh useEffect setelah komponen dirender
+    setShowPrintComponent(true);
   };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -268,7 +268,7 @@ const CalonSantriDetailPage: React.FC = () => {
 
       {/* Komponen tersembunyi untuk react-to-print (selalu ada di DOM) */}
       {showPrintComponent && calonSantri && (
-        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <div style={{ display: 'none' }}> {/* Mengubah kembali ke display: 'none' */}
           <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
         </div>
       )}
