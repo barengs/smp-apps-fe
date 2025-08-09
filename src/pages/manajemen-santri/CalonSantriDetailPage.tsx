@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -29,6 +29,16 @@ const CalonSantriDetailPage: React.FC = () => {
 
   // Ref untuk komponen PDF yang akan dicetak
   const printComponentRef = useRef<HTMLDivElement>(null);
+  const [isPrintReady, setIsPrintReady] = useState(false); // State baru untuk melacak kesiapan cetak
+
+  // useEffect untuk memastikan ref sudah terpasang sebelum mengaktifkan tombol cetak
+  useEffect(() => {
+    if (calonSantri && printComponentRef.current) {
+      setIsPrintReady(true);
+    } else {
+      setIsPrintReady(false);
+    }
+  }, [calonSantri, printComponentRef.current]); // Dependensi pada calonSantri dan ref.current
 
   // useReactToPrint hook untuk memicu pencetakan
   const handlePrint = useReactToPrint({
@@ -130,7 +140,7 @@ const CalonSantriDetailPage: React.FC = () => {
                     <Button
                       onClick={handlePrint}
                       size="icon"
-                      disabled={isLoading || !calonSantri} // Tombol dinonaktifkan jika data belum dimuat
+                      disabled={!isPrintReady} // Tombol dinonaktifkan jika ref belum siap
                     >
                       <Printer className="h-4 w-4" />
                     </Button>
