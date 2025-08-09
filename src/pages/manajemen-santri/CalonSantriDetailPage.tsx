@@ -43,7 +43,7 @@ const CalonSantriDetailPage: React.FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
-  });
+  } as any); // Menambahkan 'as any' untuk mengatasi masalah tipe TypeScript
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
