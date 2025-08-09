@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Perbaikan sintaks import
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -26,7 +26,7 @@ import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
-const CalonSantriDetailPage: React.FC = () => { // Mengembalikan definisi komponen
+const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ const CalonSantriDetailPage: React.FC = () => { // Mengembalikan definisi kompon
   const calonSantri = apiResponse?.data;
 
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [showPdfContent, setShowPdfContent] = useState(false); // State baru untuk mengontrol rendering PDF
   const printComponentRef = useRef<HTMLDivElement>(null);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -134,7 +135,11 @@ const CalonSantriDetailPage: React.FC = () => { // Mengembalikan definisi kompon
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={() => setIsPrintDialogOpen(true)} size="icon">
+                    <Button onClick={() => {
+                      setIsPrintDialogOpen(true);
+                      // Beri waktu React untuk merender dialog dan kontennya
+                      setTimeout(() => setShowPdfContent(true), 50);
+                    }} size="icon">
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -221,13 +226,22 @@ const CalonSantriDetailPage: React.FC = () => { // Mengembalikan definisi kompon
         </Card>
       </div>
 
-      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+      <Dialog open={isPrintDialogOpen} onOpenChange={(open) => {
+        setIsPrintDialogOpen(open);
+        if (!open) {
+          setShowPdfContent(false); // Reset state saat dialog ditutup
+        }
+      }}>
         <DialogContent className="max-w-[210mm] h-[95vh] p-0 flex flex-col">
           <DialogHeader className="p-4 border-b">
             <DialogTitle>Pratinjau Formulir Pendaftaran</DialogTitle>
           </DialogHeader>
           <div className="flex-grow overflow-y-auto bg-gray-200 p-4">
-            <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
+            {showPdfContent && calonSantri ? ( // Render PDF hanya jika showPdfContent true dan data tersedia
+              <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500">Memuat pratinjau...</div>
+            )}
           </div>
           <DialogFooter className="p-4 border-t bg-background">
             <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Batal</Button>
