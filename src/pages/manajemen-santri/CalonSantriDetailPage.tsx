@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react'; // Import useEffect
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -40,9 +40,19 @@ const CalonSantriDetailPage: React.FC = () => {
   // Ref ini akan digunakan untuk komponen PDF yang tersembunyi (selalu ada di DOM)
   const printComponentRef = useRef<HTMLDivElement>(null);
 
-  // Perbaikan di sini: Menggunakan contentRef sesuai referensi Anda
+  // Tambahkan useEffect untuk memantau ketersediaan ref setelah data calonSantri dimuat
+  useEffect(() => {
+    if (calonSantri) {
+      console.log("useEffect: printComponentRef.current setelah calonSantri dimuat:", printComponentRef.current);
+    }
+  }, [calonSantri]);
+
   const handlePrint = useReactToPrint({
-    content: () => printComponentRef.current,
+    content: () => {
+      // Log ini akan menunjukkan apa nilai printComponentRef.current saat fungsi content dipanggil
+      console.log("handlePrint content function dipanggil. printComponentRef.current:", printComponentRef.current);
+      return printComponentRef.current;
+    },
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
   } as any); // Menambahkan 'as any' untuk mengatasi masalah tipe TypeScript
 
@@ -142,7 +152,7 @@ const CalonSantriDetailPage: React.FC = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Cetak Formulir</p>
+                    <p>Cetak Formulasi</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
