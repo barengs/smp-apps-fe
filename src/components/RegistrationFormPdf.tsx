@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#cccccc',
     paddingTop: 10,
-    marginTop: 10,
+    marginTop: 5, // Mengurangi margin atas dari 10 menjadi 5
   },
   sectionTitle: {
     fontSize: 12,
