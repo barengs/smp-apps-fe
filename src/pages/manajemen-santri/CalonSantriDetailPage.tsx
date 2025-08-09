@@ -37,9 +37,9 @@ const CalonSantriDetailPage: React.FC = () => {
   const calonSantri = apiResponse?.data;
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  // Ref ini akan digunakan untuk komponen PDF yang tersembunyi (selalu ada di DOM)
   const printComponentRef = useRef<HTMLDivElement>(null);
 
-  // Perbaikan di sini: useReactToPrint menerima satu objek konfigurasi
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
@@ -223,6 +223,7 @@ const CalonSantriDetailPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Dialog untuk Pratinjau Cetak */}
       <Dialog open={isPrintPreviewOpen} onOpenChange={setIsPrintPreviewOpen}>
         <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-2">
@@ -233,8 +234,8 @@ const CalonSantriDetailPage: React.FC = () => {
           </DialogHeader>
           <div className="flex-grow overflow-auto bg-gray-200 p-8">
             <div className="mx-auto">
-              {/* Pastikan calonSantri ada sebelum merender RegistrationFormPdf */}
-              {calonSantri && <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />}
+              {/* Komponen ini HANYA untuk pratinjau visual di dalam dialog */}
+              {calonSantri && <RegistrationFormPdf calonSantri={calonSantri} />}
             </div>
           </div>
           <DialogFooter className="p-6 pt-4 border-t">
@@ -249,6 +250,11 @@ const CalonSantriDetailPage: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Komponen tersembunyi untuk react-to-print (selalu ada di DOM) */}
+      <div style={{ display: 'none' }}>
+        {calonSantri && <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />}
+      </div>
     </DashboardLayout>
   );
 };
