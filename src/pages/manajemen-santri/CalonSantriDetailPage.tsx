@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -9,13 +9,22 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useReactToPrint } from 'react-to-print'; // Import useReactToPrint
-import RegistrationFormPdf from '@/components/RegistrationFormPdf'; // Import RegistrationFormPdf
+import { useReactToPrint } from 'react-to-print';
+import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
 const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 
@@ -27,24 +36,14 @@ const CalonSantriDetailPage: React.FC = () => {
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
 
-  // Ref untuk komponen PDF yang akan dicetak
+  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const printComponentRef = useRef<HTMLDivElement>(null);
-  const [isPrintReady, setIsPrintReady] = useState(false); // State baru untuk melacak kesiapan cetak
 
-  // useEffect untuk memastikan ref sudah terpasang sebelum mengaktifkan tombol cetak
-  useEffect(() => {
-    if (calonSantri && printComponentRef.current) {
-      setIsPrintReady(true);
-    } else {
-      setIsPrintReady(false);
-    }
-  }, [calonSantri, printComponentRef.current]); // Dependensi pada calonSantri dan ref.current
-
-  // useReactToPrint hook untuk memicu pencetakan
+  // Perbaikan di sini: useReactToPrint menerima satu objek konfigurasi
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
-  } as any);
+  });
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -137,11 +136,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      onClick={handlePrint}
-                      size="icon"
-                      disabled={!isPrintReady} // Tombol dinonaktifkan jika ref belum siap
-                    >
+                    <Button onClick={() => setIsPrintPreviewOpen(true)} size="icon" disabled={!calonSantri}>
                       <Printer className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -228,10 +223,32 @@ const CalonSantriDetailPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Komponen tersembunyi untuk pencetakan */}
-      <div style={{ display: 'none' }}>
-        {calonSantri && <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />}
-      </div>
+      <Dialog open={isPrintPreviewOpen} onOpenChange={setIsPrintPreviewOpen}>
+        <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle>Pratinjau Cetak Formulir</DialogTitle>
+            <DialogDescription>
+              Ini adalah pratinjau dari formulir pendaftaran. Klik 'Cetak' untuk melanjutkan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-grow overflow-auto bg-gray-200 p-8">
+            <div className="mx-auto">
+              {/* Pastikan calonSantri ada sebelum merender RegistrationFormPdf */}
+              {calonSantri && <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />}
+            </div>
+          </div>
+          <DialogFooter className="p-6 pt-4 border-t">
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Tutup
+              </Button>
+            </DialogClose>
+            <Button onClick={handlePrint}>
+              Cetak
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
