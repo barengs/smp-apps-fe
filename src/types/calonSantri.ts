@@ -22,6 +22,7 @@ export interface CalonSantri {
   previous_school_address: string | null;
   certificate_number: string | null;
   education_level_id: number | null;
+  nisn: string; // Added nisn property
   created_at: string; // Changed from tanggal_daftar
   updated_at: string;
   parent: any; // Anda bisa mendefinisikan antarmuka Parent jika diperlukan

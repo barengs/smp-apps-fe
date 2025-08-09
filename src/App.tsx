@@ -45,9 +45,10 @@ import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
 import UserProfilePage from '@/pages/profile/UserProfilePage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
-import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage'; // Mengubah dari '@/pages/manajemen-magang/PenanggungJawabPage'
-import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage'; // New import
-import TransaksiPage from '@/pages/keuangan/TransaksiPage'; // New import
+import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
+import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
+import TransaksiPage from '@/pages/keuangan/TransaksiPage';
+// import RegistrationPdfPreviewPage from '@/pages/manajemen-santri/RegistrationPdfPreviewPage'; // Import halaman pratinjau PDF
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/daftar" element={<Daftar />} />
             <Route path="/berita/:id" element={<BeritaDetailPage />} />
+            {/* <Route path="/registration-pdf-preview/:id" element={<RegistrationPdfPreviewPage />} /> */} {/* Rute baru untuk pratinjau PDF */}
 
             {/* Rute yang Dilindungi */}
             <Route element={<ProtectedRoute />}>
@@ -88,18 +90,18 @@ const App = () => (
               <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
               <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
               <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} />
-              <Route path="/dashboard/calon-santri/:id" element={<CalonSantriDetailPage />} /> {/* New route for detail */}
+              <Route path="/dashboard/calon-santri/:id" element={<CalonSantriDetailPage />} />
 
               <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
               <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
               <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
-              <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} /> {/* New route */}
+              <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
               <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
-              <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} /> {/* New route */}
+              <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
               <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
               <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
               <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />

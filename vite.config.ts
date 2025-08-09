@@ -7,11 +7,24 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/storage': {
+        target: 'https://api.smp.barengsaya.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   plugins: [dyadComponentTagger(), react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  define: {
+    // Polyfill for Buffer in browser environments
+    global: 'window',
+    'process.env': {}, // Define process.env as an empty object if not already defined
+    Buffer: ['buffer', 'Buffer'],
   },
 }));
