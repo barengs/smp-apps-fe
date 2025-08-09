@@ -40,6 +40,7 @@ const CalonSantriDetailPage: React.FC = () => {
   // Ref ini akan digunakan untuk komponen PDF yang tersembunyi (selalu ada di DOM)
   const printComponentRef = useRef<HTMLDivElement>(null);
 
+  // Perbaikan di sini: Menggunakan contentRef sesuai referensi Anda
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
