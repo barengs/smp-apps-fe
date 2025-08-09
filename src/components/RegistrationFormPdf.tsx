@@ -4,7 +4,6 @@ import { CalonSantri } from '@/types/calonSantri';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
-const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
 const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png";
 
 const styles = StyleSheet.create({
@@ -110,16 +109,10 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }
   const formattedBornAt = calonSantri.born_at ? format(new Date(calonSantri.born_at), 'dd MMMM yyyy', { locale: id }) : '-';
   const formattedRegistrationDate = calonSantri.created_at ? format(new Date(calonSantri.created_at), 'dd MMMM yyyy', { locale: id }) : '-';
   const parentFullName = calonSantri.parent ? `${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`.trim() : '-';
-  const santriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
-
-  // Log the photo URL for debugging
-  console.log('Santri Photo URL:', santriPhotoUrl);
-  console.log('Calon Santri Photo filename:', calonSantri.photo);
-
+  
+  // Construct absolute URLs for images to work with the proxy
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
-  // Log the KOP image URL for debugging
-  console.log('KOP Image URL:', absoluteKopUrl);
-
+  const santriPhotoUrl = calonSantri.photo ? `${window.location.origin}/storage/${calonSantri.photo}` : null;
 
   return (
     <Document>

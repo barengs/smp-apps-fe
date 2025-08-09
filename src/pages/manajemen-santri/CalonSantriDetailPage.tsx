@@ -26,7 +26,7 @@ import {
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 
-const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
+const BASE_IMAGE_URL = "/storage/";
 
 const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -7,6 +7,13 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/storage': {
+        target: 'https://api.smp.barengsaya.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   plugins: [dyadComponentTagger(), react()],
   resolve: {
