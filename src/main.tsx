@@ -4,6 +4,12 @@ import App from "./App.tsx";
 import "./globals.css";
 import i18n from './i18n'; // Import i18n configuration
 import { I18nextProvider } from 'react-i18next'; // Import I18nextProvider
+import { Buffer } from 'buffer'; // Import Buffer dari package 'buffer'
+
+// Polyfill untuk Buffer.isBuffer jika belum ada di window.Buffer
+if (typeof window !== 'undefined' && typeof window.Buffer === 'function' && !window.Buffer.isBuffer) {
+  window.Buffer.isBuffer = Buffer.isBuffer;
+}
 
 createRoot(document.getElementById("root")!).render(
   <React.Suspense fallback="loading...">
