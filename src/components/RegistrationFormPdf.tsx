@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#cccccc',
     paddingTop: 10,
-    marginTop: 0, // Mengurangi margin atas dari 5 menjadi 0
+    marginTop: 0,
   },
   sectionTitle: {
     fontSize: 12,
@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   photoContainer: {
-    width: '113.38px', // 40mm
-    height: '141.73px', // 50mm
+    width: '113.38px',
+    height: '141.73px',
     borderWidth: 1,
     borderColor: '#aaaaaa',
     marginRight: 20,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   signatureContainer: {
-    marginTop: 20, // Mengurangi margin atas dari 40 menjadi 20
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -96,6 +96,42 @@ const styles = StyleSheet.create({
   signatureName: {
     marginTop: 60,
     fontFamily: 'Helvetica-Bold',
+  },
+  // New styles for contract page
+  contractTitle: {
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+    textDecoration: 'underline',
+    textAlign: 'center',
+  },
+  contractSubTitle: {
+    fontSize: 10,
+    fontFamily: 'Helvetica',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  bodyText: {
+    fontSize: 10,
+    fontFamily: 'Helvetica',
+    lineHeight: 1.5,
+    textAlign: 'justify',
+    marginBottom: 10,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  checkbox: {
+    width: 10,
+    height: 10,
+    borderWidth: 1,
+    borderColor: '#000',
+    marginRight: 10,
+  },
+  contractDetailLabel: {
+    width: 80,
+    fontFamily: 'Helvetica',
   },
 });
 
@@ -110,9 +146,10 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }
   const formattedRegistrationDate = calonSantri.created_at ? format(new Date(calonSantri.created_at), 'dd MMMM yyyy', { locale: id }) : '-';
   const parentFullName = calonSantri.parent ? `${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`.trim() : '-';
   
-  // Construct absolute URLs for images to work with the proxy
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
   const santriPhotoUrl = calonSantri.photo ? `${window.location.origin}/storage/${calonSantri.photo}` : null;
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <Document>
@@ -234,6 +271,74 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }
             <Text>Hormat Kami,</Text>
             <Text style={styles.signatureName}>( Panitia Pendaftaran )</Text>
           </View>
+        </View>
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Image style={styles.kopImage} src={absoluteKopUrl} />
+        </View>
+
+        <View style={{ alignItems: 'center' }}>
+          <Text style={styles.contractTitle}>SURAT PERJANJIAN KONTRAK</Text>
+          <Text style={styles.contractSubTitle}>No: ............/N/PPMUP/............/14....</Text>
+        </View>
+
+        <Text style={styles.bodyText}>Yang bertanda tangan di bawah ini adalah:</Text>
+        
+        <View style={{ marginBottom: 10, paddingLeft: 20 }}>
+          <View style={styles.detailRow}>
+            <Text style={styles.contractDetailLabel}>Nama Lengkap</Text>
+            <Text style={styles.detailValue}>: {fullNameSantri.toUpperCase()}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.contractDetailLabel}>Tetala</Text>
+            <Text style={styles.detailValue}>: {`${calonSantri.born_in}, ${formattedBornAt}`}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.contractDetailLabel}>Alamat</Text>
+            <Text style={styles.detailValue}>: {calonSantri.address}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.contractDetailLabel}>Orang tua</Text>
+            <Text style={styles.detailValue}>: {parentFullName}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.bodyText}>
+          Dengan ini saya menyatakan siap untuk menjadi santri Pondok Pesantren Miftahul Ulum Panyeppen terhitung sejak surat ini ditanda tangani sampai saya menyelesaikan studi pendidikan diniyah tingkat:
+        </Text>
+
+        <View style={{ marginBottom: 10, paddingLeft: 40 }}>
+          <View style={styles.checkboxContainer}>
+            <View style={styles.checkbox} />
+            <Text>ULA</Text>
+          </View>
+          <View style={styles.checkboxContainer}>
+            <View style={styles.checkbox} />
+            <Text>WUSTHO</Text>
+          </View>
+          <View style={styles.checkboxContainer}>
+            <View style={styles.checkbox} />
+            <Text>ULYA</Text>
+          </View>
+          <View style={styles.checkboxContainer}>
+            <View style={styles.checkbox} />
+            <Text>TUGAS</Text>
+          </View>
+        </View>
+
+        <Text style={styles.bodyText}>
+          Demikian surat perjanjian kontrak ini saya buat dengan sebenarnya dan dapat dipergunakan sebagaimana mestinya.
+        </Text>
+
+        <View style={{ marginTop: 30, alignItems: 'flex-end' }}>
+          <Text style={styles.bodyText}>Pamekasan, ______ / ______ / {currentYear}</Text>
+        </View>
+
+        <View style={{ marginTop: 20, alignItems: 'center' }}>
+          <Text style={styles.bodyText}>Saya yang berjanji :</Text>
+          <Text style={{ marginTop: 60, fontFamily: 'Helvetica-Bold' }}>( {fullNameSantri.toUpperCase()} )</Text>
         </View>
       </Page>
     </Document>
