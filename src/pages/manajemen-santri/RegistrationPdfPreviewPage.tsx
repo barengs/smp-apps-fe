@@ -18,14 +18,7 @@ const RegistrationPdfPreviewPage: React.FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printComponentRef.current,
     documentTitle: `Formulir Pendaftaran - ${calonSantri?.first_name || 'Santri'}`,
-    // Menambahkan penundaan kecil sebelum mengambil konten untuk dicetak
-    onBeforeGetContent: () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(null);
-        }, 100); // Penundaan 100ms
-      });
-    },
+    // onBeforeGetContent dihapus karena ref sekarang langsung ke komponen
   } as any);
 
   if (isLoading) {
@@ -59,9 +52,8 @@ const RegistrationPdfPreviewPage: React.FC = () => {
           <Printer className="mr-2 h-4 w-4" /> Cetak Formulir
         </Button>
       </div>
-      <div ref={printComponentRef}>
-        <RegistrationFormPdf calonSantri={calonSantri} />
-      </div>
+      {/* Meneruskan ref langsung ke komponen RegistrationFormPdf */}
+      <RegistrationFormPdf ref={printComponentRef} calonSantri={calonSantri} />
     </div>
   );
 };
