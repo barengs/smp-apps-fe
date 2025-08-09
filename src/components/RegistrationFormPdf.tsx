@@ -112,7 +112,14 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }
   const parentFullName = calonSantri.parent ? `${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`.trim() : '-';
   const santriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
 
+  // Log the photo URL for debugging
+  console.log('Santri Photo URL:', santriPhotoUrl);
+  console.log('Calon Santri Photo filename:', calonSantri.photo);
+
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
+  // Log the KOP image URL for debugging
+  console.log('KOP Image URL:', absoluteKopUrl);
+
 
   return (
     <Document>
