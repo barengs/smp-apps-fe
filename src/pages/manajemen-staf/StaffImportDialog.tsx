@@ -54,7 +54,7 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
     }
 
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append('file', selectedFile, selectedFile.name); // Menambahkan nama file secara eksplisit
 
     const toastId = toast.showLoading('Mengimpor data staf...');
 
