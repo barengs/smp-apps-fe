@@ -28,10 +28,16 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type === 'application/vnd.ms-excel') {
+      const validFileTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'text/csv' // .csv
+      ];
+
+      if (validFileTypes.includes(file.type)) {
         setSelectedFile(file);
       } else {
-        toast.showError('Format file tidak valid. Harap unggah file Excel (.xlsx atau .xls).');
+        toast.showError('Format file tidak valid. Harap unggah file Excel (.xlsx atau .xls) atau CSV (.csv).');
         setSelectedFile(null);
         if (event.target) {
             event.target.value = '';
@@ -54,7 +60,7 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
     }
 
     const formData = new FormData();
-    formData.append('file', selectedFile, selectedFile.name); // Menambahkan nama file secara eksplisit
+    formData.append('file', selectedFile, selectedFile.name);
 
     const toastId = toast.showLoading('Mengimpor data staf...');
 
@@ -84,7 +90,7 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
         <DialogHeader>
           <DialogTitle>Impor Data Staf</DialogTitle>
           <DialogDescription>
-            Unggah file Excel untuk mengimpor data staf secara massal. Pastikan format file sesuai dengan template yang disediakan.
+            Unggah file Excel atau CSV untuk mengimpor data staf secara massal. Pastikan format file sesuai dengan template yang disediakan.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -100,7 +106,7 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
             <Input
               id="excel-file"
               type="file"
-              accept=".xlsx, .xls"
+              accept=".xlsx, .xls, .csv"
               onChange={handleFileChange}
               className="cursor-pointer"
             />
