@@ -69,14 +69,14 @@ const ProgramTable: React.FC = () => {
 
     if (!hostels || hostels.length === 0) {
       return (
-        <div className="p-4 text-center text-sm text-gray-500 bg-gray-50">
+        <div className="text-center text-sm text-gray-500 bg-gray-50">
           Tidak ada data asrama untuk program ini.
         </div>
       );
     }
 
     return (
-      <div className="p-4 bg-gray-50">
+      <div className="bg-gray-50">
         <Table>
           <TableHeader>
             <TableRow>
