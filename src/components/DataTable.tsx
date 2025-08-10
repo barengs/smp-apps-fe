@@ -367,14 +367,17 @@ export function DataTable<TData, TValue>({
                     className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-2">
+                      <TableCell 
+                        key={cell.id} 
+                        className={cell.column.id === 'expander' ? "py-2 pr-0" : "py-2"}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                   {renderSubComponent && row.getIsExpanded() && (
                     <TableRow>
-                      <TableCell colSpan={row.getVisibleCells().length} className="p-0"> {/* Mengubah className di sini */}
+                      <TableCell colSpan={row.getVisibleCells().length} className="p-0">
                         {renderSubComponent({ row })}
                       </TableCell>
                     </TableRow>
