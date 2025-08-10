@@ -369,11 +369,14 @@ export function DataTable<TData, TValue>({
                     ))}
                   </TableRow>
                   {renderSubComponent && row.getIsExpanded() && (
-                    <TableRow>
-                      <TableCell colSpan={row.getVisibleCells().length}>
-                        {renderSubComponent({ row })}
-                      </TableCell>
-                    </TableRow>
+                    <>
+                      {console.log('Attempting to render sub-component for row:', row.id, 'Is Expanded:', row.getIsExpanded())} {/* Debug log */}
+                      <TableRow>
+                        <TableCell colSpan={row.getVisibleCells().length}>
+                          {renderSubComponent({ row })}
+                        </TableCell>
+                      </TableRow>
+                    </>
                   )}
                 </React.Fragment>
               ))

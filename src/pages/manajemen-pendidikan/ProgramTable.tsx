@@ -65,6 +65,7 @@ const ProgramTable: React.FC = () => {
 
   const renderSubComponent = ({ row }: { row: Row<Program> }) => {
     const hostels = row.original.hostels;
+    console.log('renderSubComponent called for row:', row.id, 'Hostels:', hostels); // Debug log
 
     if (!hostels || hostels.length === 0) {
       return (
