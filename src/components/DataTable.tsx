@@ -38,7 +38,7 @@ import { ChevronDown, FileDown, Search, PlusCircle, Upload, FileText } from 'luc
 import * as toast from '@/utils/toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import *as XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 import {
   Select,
   SelectContent,
@@ -96,6 +96,8 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [expanded, setExpanded] = useState<ExpandedState>({}); // State untuk baris turunan
+
+  console.log('DataTable - current expanded state:', expanded); // NEW LOG
 
   // State internal untuk paginasi sisi klien
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
@@ -370,7 +372,7 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                   {renderSubComponent && row.getIsExpanded() && (
                     <>
-                      {console.log('Attempting to render sub-component for row:', row.id, 'Is Expanded:', row.getIsExpanded())} {/* Debug log */}
+                      {console.log('DataTable - Attempting to render sub-component for row:', row.id, 'Is Expanded:', row.getIsExpanded())} {/* Debug log */}
                       <TableRow>
                         <TableCell colSpan={row.getVisibleCells().length}>
                           {renderSubComponent({ row })}
