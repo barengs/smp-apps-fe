@@ -38,7 +38,7 @@ import { ChevronDown, FileDown, Search, PlusCircle, Upload, FileText } from 'luc
 import * as toast from '@/utils/toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import *as XLSX from 'xlsx';
 import {
   Select,
   SelectContent,
@@ -101,6 +101,15 @@ export function DataTable<TData, TValue>({
     console.log('DataTable - state `expanded` berubah:', expanded);
   }, [expanded]);
 
+  // Wrapper untuk setExpanded untuk melacak pembaruan
+  const handleExpandedChange = (updater: ExpandedState | ((old: ExpandedState) => ExpandedState)) => {
+    setExpanded((oldExpanded) => {
+      const newExpanded = typeof updater === 'function' ? updater(oldExpanded) : updater;
+      console.log('DataTable - setExpanded dipanggil. Old:', oldExpanded, 'New:', newExpanded);
+      return newExpanded;
+    });
+  };
+
   // State internal untuk paginasi sisi klien
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -123,8 +132,7 @@ export function DataTable<TData, TValue>({
     },
     manualPagination,
     onPaginationChange: currentSetPaginationState,
-    pageCount: controlledPageCount,
-    onExpandedChange: setExpanded, // Handler untuk expanded
+    onExpandedChange: handleExpandedChange, // Gunakan wrapper di sini
     getExpandedRowModel: getExpandedRowModel(), // Aktifkan model expanded
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
