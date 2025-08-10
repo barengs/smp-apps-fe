@@ -11,9 +11,9 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   PaginationState,
-  getExpandedRowModel, // Import untuk baris turunan
-  type ExpandedState, // Import untuk baris turunan
-  type Row, // Import untuk baris turunan
+  getExpandedRowModel,
+  type ExpandedState,
+  type Row,
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FileDown, Search, PlusCircle, Upload, FileText } from 'lucide-react'; // Added FileText icon
+import { ChevronDown, FileDown, Search, PlusCircle, Upload, FileText } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -68,6 +68,8 @@ export interface DataTableProps<TData, TValue> {
   onAssignment?: () => void;
   renderSubComponent?: (props: { row: Row<TData> }) => React.ReactElement;
   getRowId?: (originalRow: TData) => string;
+  expanded?: ExpandedState;
+  onExpandedChange?: (updater: React.SetStateAction<ExpandedState>) => void;
 }
 
 function hasAccessorKey<TData>(
@@ -93,15 +95,12 @@ export function DataTable<TData, TValue>({
   onAssignment,
   renderSubComponent,
   getRowId,
+  expanded,
+  onExpandedChange,
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [expanded, setExpanded] = useState<ExpandedState>({});
-
-  useEffect(() => {
-    console.log('DataTable - state `expanded` berubah:', expanded);
-  }, [expanded]);
 
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -121,11 +120,11 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       columnFilters,
       pagination: effectivePaginationState,
-      expanded,
+      expanded: expanded || {},
     },
     manualPagination,
     onPaginationChange: currentSetPaginationState,
-    onExpandedChange: setExpanded, // Langsung gunakan setExpanded
+    onExpandedChange: onExpandedChange,
     getExpandedRowModel: getExpandedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

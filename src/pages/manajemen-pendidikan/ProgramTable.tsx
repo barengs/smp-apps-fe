@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { type ColumnDef, type Row } from '@tanstack/react-table';
+import { type ColumnDef, type Row, type ExpandedState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, ChevronDown, ChevronRight } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
@@ -34,6 +34,7 @@ const ProgramTable: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProgram, setEditingProgram] = useState<Program | undefined>(undefined);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const programs: Program[] = useMemo(() => {
     return (programsData || []).map(p => ({
@@ -109,12 +110,8 @@ const ProgramTable: React.FC = () => {
               variant="ghost"
               size="icon"
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                console.log('Expander clicked for row:', row.id);
-                console.log('Before toggle, isExpanded:', row.getIsExpanded());
                 row.getToggleExpandedHandler()();
-                console.log('After toggle, isExpanded (immediate):', row.getIsExpanded());
               }}
               className="h-8 w-8"
             >
@@ -174,6 +171,8 @@ const ProgramTable: React.FC = () => {
         onAddData={handleAddData}
         renderSubComponent={renderSubComponent}
         getRowId={(row) => String(row.id)}
+        expanded={expanded}
+        onExpandedChange={setExpanded}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
