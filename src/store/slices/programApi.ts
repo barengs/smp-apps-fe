@@ -2,11 +2,19 @@ import { smpApi } from '../baseApi';
 
 // --- API Response and Request Types ---
 
-// Structure for a single program object from the API, as per user feedback
+// Structure for a single hostel object nested within a program
+interface HostelInfo {
+  id: number;
+  name: string;
+  capacity: number;
+}
+
+// Structure for a single program object from the API, now including hostels
 interface ProgramApiData {
   id: number;
   name: string;
   description: string;
+  hostels?: HostelInfo[]; // Array of associated hostels
 }
 
 // The GET response is a direct array

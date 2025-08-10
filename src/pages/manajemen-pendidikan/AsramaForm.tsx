@@ -13,8 +13,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast';
 import { useCreateHostelMutation, useUpdateHostelMutation, type CreateUpdateHostelRequest } from '@/store/slices/hostelApi';
+import { useGetProgramsQuery } from '@/store/slices/programApi'; // Import hook untuk program
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
@@ -23,6 +31,12 @@ const formSchema = z.object({
     message: 'Nama Asrama harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
+  program_id: z.coerce.number().min(1, {
+    message: 'Program harus dipilih.',
+  }),
+  capacity: z.coerce.number().min(1, {
+    message: 'Kapasitas harus lebih dari 0.',
+  }),
 });
 
 interface AsramaFormProps {
@@ -30,6 +44,11 @@ interface AsramaFormProps {
     id: number;
     name: string;
     description: string;
+    program: {
+      id: number;
+      name: string;
+    };
+    capacity: number;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -38,12 +57,15 @@ interface AsramaFormProps {
 const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createHostel, { isLoading: isCreating }] = useCreateHostelMutation();
   const [updateHostel, { isLoading: isUpdating }] = useUpdateHostelMutation();
+  const { data: programsData, isLoading: isLoadingPrograms } = useGetProgramsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      name: '',
-      description: '',
+    defaultValues: {
+      name: initialData?.name || '',
+      description: initialData?.description || '',
+      program_id: initialData?.program?.id || undefined,
+      capacity: initialData?.capacity || undefined,
     },
   });
 
@@ -51,6 +73,8 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
     const payload: CreateUpdateHostelRequest = {
       name: values.name,
       description: values.description,
+      program_id: values.program_id,
+      capacity: values.capacity,
     };
 
     try {
@@ -93,6 +117,47 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
               <FormLabel>Nama Asrama</FormLabel>
               <FormControl>
                 <Input placeholder="Contoh: Asrama Putra A" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="program_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Program</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value?.toString()} disabled={isLoadingPrograms || isSubmitting}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Program" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {isLoadingPrograms ? (
+                    <SelectItem value="" disabled>Memuat program...</SelectItem>
+                  ) : (
+                    programsData?.map((program) => (
+                      <SelectItem key={program.id} value={program.id.toString()}>
+                        {program.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="capacity"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kapasitas</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="Contoh: 50" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
               </FormControl>
               <FormMessage />
             </FormItem>

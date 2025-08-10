@@ -10,7 +10,7 @@ i18n
   .init({
     supportedLngs: ['id', 'en', 'ar'],
     fallbackLng: 'id',
-    debug: true, // Diubah menjadi true untuk debugging
+    debug: false, // Diubah menjadi false untuk menghilangkan debugging log
     detection: {
       order: ['queryString', 'cookie', 'localStorage', 'navigator'], // Tambahkan localStorage dan navigator
       caches: ['cookie', 'localStorage'], // Tambahkan localStorage ke caches

@@ -98,6 +98,7 @@
   "header.profile": "الملف الشخصي",
   "header.logout": "تسجيل الخروج",
   "header.usernamePlaceholder": "المستخدم",
+  "header.settings": "الإعدادات",
   "footer.copyright": "حقوق النشر © {{year}} SMP. جميع الحقوق محفوظة.",
   "waliSantriDashboard.title": "لوحة تحكم ولي الأمر",
   "waliSantriDashboard.santriInfo.title": "معلومات الطالب",
