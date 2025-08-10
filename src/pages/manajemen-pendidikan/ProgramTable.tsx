@@ -110,6 +110,7 @@ const ProgramTable: React.FC = () => {
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault(); // Menambahkan ini untuk mencegah perilaku default browser
                 row.getToggleExpandedHandler()();
               }}
               className="h-8 w-8"
