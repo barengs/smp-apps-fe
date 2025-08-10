@@ -7,6 +7,11 @@ interface HostelApiData {
   id: number;
   name: string;
   description: string;
+  program: { // Menambahkan properti program
+    id: number;
+    name: string;
+  };
+  capacity: number; // Menambahkan properti capacity
 }
 
 // Structure for the GET /hostel response
@@ -19,6 +24,8 @@ interface GetHostelsResponse {
 export interface CreateUpdateHostelRequest {
   name: string;
   description?: string;
+  program_id?: number; // Asumsi untuk update/create jika diperlukan
+  capacity?: number; // Asumsi untuk update/create jika diperlukan
 }
 
 // Structure for the import response

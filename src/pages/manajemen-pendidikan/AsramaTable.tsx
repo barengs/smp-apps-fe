@@ -31,6 +31,11 @@ interface Asrama {
   id: number;
   name: string;
   description: string;
+  program: { // Menambahkan properti program
+    id: number;
+    name: string;
+  };
+  capacity: number; // Menambahkan properti capacity
 }
 
 const AsramaTable: React.FC = () => {
@@ -49,6 +54,8 @@ const AsramaTable: React.FC = () => {
         id: apiHostel.id,
         name: apiHostel.name,
         description: apiHostel.description || 'Tidak ada deskripsi',
+        program: apiHostel.program, // Memetakan data program
+        capacity: apiHostel.capacity, // Memetakan data capacity
       }));
     }
     return [];
@@ -111,6 +118,15 @@ const AsramaTable: React.FC = () => {
         header: 'Nama Asrama',
       },
       {
+        accessorKey: 'program.name', // Mengakses nama program
+        header: 'Program',
+        cell: ({ row }) => row.original.program?.name || '-', // Tampilkan nama program atau '-' jika tidak ada
+      },
+      {
+        accessorKey: 'capacity', // Mengakses kapasitas
+        header: 'Kapasitas',
+      },
+      {
         accessorKey: 'description',
         header: 'Deskripsi',
       },
@@ -127,6 +143,13 @@ const AsramaTable: React.FC = () => {
                 onClick={() => handleEditData(asrama)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="destructive"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleDeleteClick(asrama)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
             </div>
           );
