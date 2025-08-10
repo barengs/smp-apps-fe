@@ -359,7 +359,7 @@ export function DataTable<TData, TValue>({
                 <React.Fragment key={row.id}>
                   <TableRow
                     data-state={row.getIsSelected() && 'selected'}
-                    onClick={() => onRowClick && onRowClick(row.original)}
+                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                     className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
                   >
                     {row.getVisibleCells().map((cell) => (
