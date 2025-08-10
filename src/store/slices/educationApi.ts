@@ -2,7 +2,7 @@ import { smpApi } from '../baseApi';
 
 // --- API Response and Request Types ---
 
-interface NestedEducationClass {
+export interface NestedEducationClass { // Export interface ini agar bisa diimpor
   code: string;
   name: string;
 }
@@ -11,7 +11,7 @@ interface EducationApiData {
   id: number;
   name: string;
   description: string;
-  education_class: NestedEducationClass;
+  education_class: NestedEducationClass[]; // Mengubah menjadi array
 }
 
 interface GetEducationLevelsResponse {
