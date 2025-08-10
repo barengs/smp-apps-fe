@@ -77,7 +77,6 @@ const ProgramTable: React.FC = () => {
 
     return (
       <div className="p-4 bg-gray-50">
-        <h4 className="font-bold mb-2 text-base">Daftar Asrama Terkait</h4>
         <Table>
           <TableHeader>
             <TableRow>
