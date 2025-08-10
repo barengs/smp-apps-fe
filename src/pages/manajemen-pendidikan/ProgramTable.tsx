@@ -109,8 +109,17 @@ const ProgramTable: React.FC = () => {
               variant="ghost"
               size="icon"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                e.preventDefault(); // Menambahkan ini untuk mencegah perilaku default browser
+
+                // Hapus seleksi teks yang ada untuk mencegah error dari ekstensi browser
+                if (window.getSelection) {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    selection.removeAllRanges();
+                  }
+                }
+                
                 row.getToggleExpandedHandler()();
               }}
               className="h-8 w-8"
