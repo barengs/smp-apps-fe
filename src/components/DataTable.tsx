@@ -338,7 +338,10 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead 
+                      key={header.id} 
+                      className={header.column.id === 'expander' ? "w-10" : ""} // Menambahkan lebar tetap
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -369,7 +372,7 @@ export function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell 
                         key={cell.id} 
-                        className={cell.column.id === 'expander' ? "py-2 pr-0" : "py-2"}
+                        className={cell.column.id === 'expander' ? "py-2 pr-0 w-10" : "py-2"} // Menambahkan lebar tetap
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
