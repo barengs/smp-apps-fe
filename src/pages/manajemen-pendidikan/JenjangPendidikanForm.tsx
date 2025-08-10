@@ -13,8 +13,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import { showSuccess, showError } from '@/utils/toast';
 import { useCreateEducationLevelMutation, useUpdateEducationLevelMutation, type CreateUpdateEducationLevelRequest } from '@/store/slices/educationApi';
+import { useGetEducationGroupsQuery } from '@/store/slices/educationGroupApi';
+import MultiSelect, { type Option } from '@/components/MultiSelect';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
@@ -23,6 +25,7 @@ const formSchema = z.object({
     message: 'Nama Jenjang Pendidikan harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
+  education_class_codes: z.array(z.string()).optional(),
 });
 
 interface JenjangPendidikanFormProps {
@@ -30,6 +33,7 @@ interface JenjangPendidikanFormProps {
     id: number;
     name: string;
     description: string;
+    education_class: { code: string; name: string }[];
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -38,12 +42,14 @@ interface JenjangPendidikanFormProps {
 const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createEducationLevel, { isLoading: isCreating }] = useCreateEducationLevelMutation();
   const [updateEducationLevel, { isLoading: isUpdating }] = useUpdateEducationLevelMutation();
+  const { data: educationGroupsData, isLoading: isLoadingGroups } = useGetEducationGroupsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      name: '',
-      description: '',
+    defaultValues: {
+      name: initialData?.name || '',
+      description: initialData?.description || '',
+      education_class_codes: initialData?.education_class?.map(ec => ec.code) || [],
     },
   });
 
@@ -51,15 +57,16 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     const payload: CreateUpdateEducationLevelRequest = {
       name: values.name,
       description: values.description,
+      education_class_codes: values.education_class_codes,
     };
 
     try {
       if (initialData) {
         await updateEducationLevel({ id: initialData.id, data: payload }).unwrap();
-        showSuccess(`Jenjang Pendidikan "${values.name}" berhasil diperbarui.`); // Updated call
+        showSuccess(`Jenjang Pendidikan "${values.name}" berhasil diperbarui.`);
       } else {
         await createEducationLevel(payload).unwrap();
-        showSuccess(`Jenjang Pendidikan "${values.name}" berhasil ditambahkan.`); // Updated call
+        showSuccess(`Jenjang Pendidikan "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -76,11 +83,18 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      showError(`Gagal menyimpan jenjang pendidikan: ${errorMessage}`); // Updated call
+      showError(`Gagal menyimpan jenjang pendidikan: ${errorMessage}`);
     }
   };
 
   const isSubmitting = isCreating || isUpdating;
+
+  const educationGroupOptions: Option[] = React.useMemo(() => {
+    return educationGroupsData?.data.map(group => ({
+      value: group.code,
+      label: group.name,
+    })) || [];
+  }, [educationGroupsData]);
 
   return (
     <Form {...form}>
@@ -106,6 +120,25 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
               <FormLabel>Deskripsi</FormLabel>
               <FormControl>
                 <Textarea placeholder="Deskripsi singkat jenjang pendidikan ini..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="education_class_codes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kelompok Pendidikan</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={educationGroupOptions}
+                  selected={field.value || []}
+                  onChange={field.onChange}
+                  placeholder="Pilih kelompok pendidikan..."
+                  disabled={isSubmitting || isLoadingGroups}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

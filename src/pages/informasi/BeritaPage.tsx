@@ -81,13 +81,15 @@ const BeritaPage: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (values: { title: string; content: string; status: 'published' | 'draft' }) => {
+  const handleFormSubmit = async (formData: FormData) => {
     try {
       if (selectedBerita) {
-        await updateBerita({ id: selectedBerita.id, data: values }).unwrap();
+        // Gunakan POST dengan _method=PUT untuk update dengan file
+        formData.append('_method', 'PUT');
+        await updateBerita({ id: selectedBerita.id, data: formData }).unwrap();
         showSuccess('Berita berhasil diperbarui.');
       } else {
-        await createBerita(values).unwrap();
+        await createBerita(formData).unwrap();
         showSuccess('Berita berhasil ditambahkan.');
       }
       setIsFormOpen(false);

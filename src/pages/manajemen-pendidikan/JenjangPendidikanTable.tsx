@@ -22,18 +22,19 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import JenjangPendidikanForm from './JenjangPendidikanForm';
-import JenjangPendidikanImportDialog from './JenjangPendidikanImportDialog'; // Import dialog impor
+import JenjangPendidikanImportDialog from './JenjangPendidikanImportDialog';
 import { useGetEducationLevelsQuery, useDeleteEducationLevelMutation } from '@/store/slices/educationApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+
+// Mengimpor NestedEducationClass dari educationApi untuk konsistensi tipe
+import type { NestedEducationClass } from '@/store/slices/educationApi';
 
 interface JenjangPendidikan {
   id: number;
   name: string;
   description: string;
-  education_class: { // Menambahkan properti education_class
-    name: string;
-  };
+  education_class: NestedEducationClass[]; // Mengubah menjadi array objek
 }
 
 const JenjangPendidikanTable: React.FC = () => {
@@ -44,7 +45,7 @@ const JenjangPendidikanTable: React.FC = () => {
   const [editingData, setEditingData] = useState<JenjangPendidikan | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [dataToDelete, setDataToDelete] = useState<JenjangPendidikan | undefined>(undefined);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const educationLevels: JenjangPendidikan[] = useMemo(() => {
     if (educationLevelsData?.data) {
@@ -52,7 +53,8 @@ const JenjangPendidikanTable: React.FC = () => {
         id: item.id,
         name: item.name,
         description: item.description || 'Tidak ada deskripsi',
-        education_class: { name: item.education_class?.name || 'Tidak ada' }, // Memastikan education_class ada
+        // Memproses array education_class dan menggabungkan namanya
+        education_class: item.education_class || [], // Pastikan ini array
       }));
     }
     return [];
@@ -110,8 +112,15 @@ const JenjangPendidikanTable: React.FC = () => {
         header: 'Nama Jenjang',
       },
       {
-        accessorKey: 'education_class.name', // Menambahkan kolom untuk kelompok pendidikan
+        accessorKey: 'education_class', // Mengakses properti education_class (array)
         header: 'Kelompok Pendidikan',
+        cell: ({ row }) => {
+          const educationClasses = row.original.education_class;
+          // Menggabungkan nama-nama kelompok pendidikan menjadi satu string
+          return educationClasses && educationClasses.length > 0
+            ? educationClasses.map(ec => ec.name).join(', ')
+            : 'Tidak ada';
+        },
       },
       {
         accessorKey: 'description',
@@ -162,7 +171,7 @@ const JenjangPendidikanTable: React.FC = () => {
         exportFileName="data_jenjang_pendidikan"
         exportTitle="Data Jenjang Pendidikan"
         onAddData={handleAddData}
-        onImportData={handleImportData} // Meneruskan prop onImportData
+        onImportData={handleImportData}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

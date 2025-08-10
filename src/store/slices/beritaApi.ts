@@ -6,15 +6,9 @@ interface GetBeritaResponse {
   data: Berita[];
 }
 
-interface BeritaPayload {
-  title: string;
-  content: string;
-  status: 'published' | 'draft';
-}
-
 interface UpdateBeritaPayload {
   id: number;
-  data: Partial<BeritaPayload>;
+  data: FormData;
 }
 
 export const beritaApi = smpApi.injectEndpoints({
@@ -33,7 +27,7 @@ export const beritaApi = smpApi.injectEndpoints({
       query: (id) => `news/${id}`,
       providesTags: (result, error, id) => [{ type: 'Berita', id }],
     }),
-    createBerita: builder.mutation<Berita, BeritaPayload>({
+    createBerita: builder.mutation<Berita, FormData>({
       query: (newBerita) => ({
         url: 'news',
         method: 'POST',
@@ -44,17 +38,17 @@ export const beritaApi = smpApi.injectEndpoints({
     updateBerita: builder.mutation<Berita, UpdateBeritaPayload>({
       query: ({ id, data }) => ({
         url: `news/${id}`,
-        method: 'PUT',
+        method: 'POST', // Menggunakan POST untuk mengirim multipart/form-data
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Berita', id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Berita', id }, { type: 'Berita', id: 'LIST' }],
     }),
     deleteBerita: builder.mutation<{ message: string }, number>({
       query: (id) => ({
         url: `news/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [{ type: 'Berita', id: 'LIST' }],
+      invalidatesTags: (result, error, id) => [{ type: 'Berita', id }, { type: 'Berita', id: 'LIST' }],
     }),
   }),
 });
