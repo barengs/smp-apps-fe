@@ -112,7 +112,9 @@ const ProgramTable: React.FC = () => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Expander clicked for row:', row.id);
+                console.log('Before toggle, isExpanded:', row.getIsExpanded());
                 row.getToggleExpandedHandler()();
+                console.log('After toggle, isExpanded (immediate):', row.getIsExpanded());
               }}
               className="h-8 w-8"
             >

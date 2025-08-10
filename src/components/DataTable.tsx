@@ -103,14 +103,6 @@ export function DataTable<TData, TValue>({
     console.log('DataTable - state `expanded` berubah:', expanded);
   }, [expanded]);
 
-  const handleExpandedChange = (updater: ExpandedState | ((old: ExpandedState) => ExpandedState)) => {
-    setExpanded((oldExpanded) => {
-      const newExpanded = typeof updater === 'function' ? updater(oldExpanded) : updater;
-      console.log('DataTable - setExpanded dipanggil. Old:', oldExpanded, 'New:', newExpanded);
-      return newExpanded;
-    });
-  };
-
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -133,7 +125,7 @@ export function DataTable<TData, TValue>({
     },
     manualPagination,
     onPaginationChange: currentSetPaginationState,
-    onExpandedChange: handleExpandedChange,
+    onExpandedChange: setExpanded, // Langsung gunakan setExpanded
     getExpandedRowModel: getExpandedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
