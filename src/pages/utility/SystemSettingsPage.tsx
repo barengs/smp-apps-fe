@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -26,12 +26,14 @@ const SystemSettingsPage: React.FC = () => {
   const { i18n } = useTranslation();
 
   const { data: settings, isLoading, error } = useGetControlPanelSettingsQuery();
+  const initialSettingsApplied = useRef(false); // Tambahkan useRef ini
 
   // Set initial theme and language from API data if available
   useEffect(() => {
-    if (settings) {
+    if (settings && !initialSettingsApplied.current) { // Periksa apakah pengaturan awal sudah diterapkan
       setTheme(settings.app_theme);
       i18n.changeLanguage(settings.app_language);
+      initialSettingsApplied.current = true; // Tandai bahwa pengaturan awal sudah diterapkan
     }
   }, [settings, setTheme, i18n]);
 
