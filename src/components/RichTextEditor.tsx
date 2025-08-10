@@ -169,7 +169,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   // Update editor content when value prop changes externally
   React.useEffect(() => {
     if (editor && editor.getHTML() !== value) {
-      editor.commands.setContent(value, false); // false to prevent setting cursor to start
+      editor.commands.setContent(value, { emitUpdate: false }); // false to prevent setting cursor to start
     }
   }, [value, editor]);
 
