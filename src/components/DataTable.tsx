@@ -66,7 +66,8 @@ export interface DataTableProps<TData, TValue> {
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   isLoading?: boolean;
   onAssignment?: () => void;
-  renderSubComponent?: (props: { row: Row<TData> }) => React.ReactElement; // Prop untuk baris turunan
+  renderSubComponent?: (props: { row: Row<TData> }) => React.ReactElement;
+  getRowId?: (originalRow: TData) => string;
 }
 
 function hasAccessorKey<TData>(
@@ -90,18 +91,18 @@ export function DataTable<TData, TValue>({
   onPaginationChange: setControlledPagination,
   isLoading = false,
   onAssignment,
-  renderSubComponent, // Destructure prop baru
+  renderSubComponent,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [expanded, setExpanded] = useState<ExpandedState>({}); // State untuk baris turunan
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   useEffect(() => {
     console.log('DataTable - state `expanded` berubah:', expanded);
   }, [expanded]);
 
-  // Wrapper untuk setExpanded untuk melacak pembaruan
   const handleExpandedChange = (updater: ExpandedState | ((old: ExpandedState) => ExpandedState)) => {
     setExpanded((oldExpanded) => {
       const newExpanded = typeof updater === 'function' ? updater(oldExpanded) : updater;
@@ -110,10 +111,9 @@ export function DataTable<TData, TValue>({
     });
   };
 
-  // State internal untuk paginasi sisi klien
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10, // Ukuran halaman default
+    pageSize: 10,
   });
 
   const currentPaginationState = manualPagination ? controlledPagination : internalPagination;
@@ -123,17 +123,18 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getRowId,
     state: {
       globalFilter,
       columnVisibility,
       columnFilters,
       pagination: effectivePaginationState,
-      expanded, // Tambahkan state expanded
+      expanded,
     },
     manualPagination,
     onPaginationChange: currentSetPaginationState,
-    onExpandedChange: handleExpandedChange, // Gunakan wrapper di sini
-    getExpandedRowModel: getExpandedRowModel(), // Aktifkan model expanded
+    onExpandedChange: handleExpandedChange,
+    getExpandedRowModel: getExpandedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

@@ -171,6 +171,7 @@ const ProgramTable: React.FC = () => {
         exportTitle="Data Program Pendidikan"
         onAddData={handleAddData}
         renderSubComponent={renderSubComponent}
+        getRowId={(row) => String(row.id)}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
