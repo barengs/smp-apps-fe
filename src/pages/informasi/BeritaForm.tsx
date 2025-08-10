@@ -4,9 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+// import { Textarea } from '@/components/ui/textarea'; // Tidak lagi digunakan untuk konten
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import RichTextEditor from '@/components/RichTextEditor'; // Import komponen RichTextEditor yang baru
 import type { Berita } from '@/types/informasi';
 
 const formSchema = z.object({
@@ -61,7 +62,12 @@ const BeritaForm: React.FC<BeritaFormProps> = ({ initialData, onSuccess, onCance
             <FormItem>
               <FormLabel>Konten</FormLabel>
               <FormControl>
-                <Textarea placeholder="Tulis konten berita di sini..." {...field} rows={10} />
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Tulis konten berita di sini..."
+                  disabled={isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
