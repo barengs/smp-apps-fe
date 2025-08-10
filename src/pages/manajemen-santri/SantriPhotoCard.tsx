@@ -7,10 +7,11 @@ interface SantriPhotoCardProps {
   name: string;
 }
 
-const BASE_IMAGE_URL = "https://api.smp.barengsaya.com/storage/";
+// Gunakan variabel lingkungan untuk URL dasar penyimpanan gambar
+const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
 const SantriPhotoCard: React.FC<SantriPhotoCardProps> = ({ photoUrl, name }) => {
-  const fullPhotoUrl = photoUrl ? `${BASE_IMAGE_URL}${photoUrl}` : null;
+  const fullPhotoUrl = photoUrl ? `${STORAGE_BASE_URL}${photoUrl}` : null;
 
   return (
     <Card className="overflow-hidden">

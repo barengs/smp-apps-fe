@@ -100,6 +100,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       ],
     },
     {
+      titleKey: "sidebar.kepesantrenan", // Menu baru: Kepesantrenan
+      icon: <Tent className="h-5 w-5" />, // Icon untuk Kepesantrenan
+      children: [
+        { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
+        { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
+      ],
+    },
+    {
       titleKey: "sidebar.educationManagement",
       icon: <GraduationCap className="h-5 w-5" />,
       children: [
@@ -107,8 +115,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.class", href: "/dashboard/pendidikan/kelas", icon: <School className="h-4 w-4" /> },
         { titleKey: "sidebar.classGroup", href: "/dashboard/pendidikan/rombel", icon: <Users className="h-4 w-4" /> },
         { titleKey: "sidebar.educationGroup", href: "/dashboard/pendidikan/kelompok-pendidikan", icon: <Compass className="h-4 w-4" /> },
-        { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
-        { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
         { titleKey: "sidebar.academicYear", href: "/dashboard/pendidikan/tahun-ajaran", icon: <Calendar className="h-4 w-4" /> },
       ],
     },

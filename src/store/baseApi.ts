@@ -112,6 +112,7 @@ export const smpApi = createApi({
     'Profile',
     'TahunAjaran',
     'Transaksi', // Tambahkan tag Transaksi
+    'ControlPanelSettings', // Tambahkan tag baru ini
   ],
   endpoints: () => ({}),
 });
