@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ColumnDef,
   flexRender,
@@ -97,7 +97,9 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [expanded, setExpanded] = useState<ExpandedState>({}); // State untuk baris turunan
 
-  console.log('DataTable - current expanded state:', expanded); // NEW LOG
+  useEffect(() => {
+    console.log('DataTable - state `expanded` berubah:', expanded);
+  }, [expanded]);
 
   // State internal untuk paginasi sisi klien
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
@@ -371,14 +373,11 @@ export function DataTable<TData, TValue>({
                     ))}
                   </TableRow>
                   {renderSubComponent && row.getIsExpanded() && (
-                    <>
-                      {console.log('DataTable - Attempting to render sub-component for row:', row.id, 'Is Expanded:', row.getIsExpanded())} {/* Debug log */}
-                      <TableRow>
-                        <TableCell colSpan={row.getVisibleCells().length}>
-                          {renderSubComponent({ row })}
-                        </TableCell>
-                      </TableRow>
-                    </>
+                    <TableRow>
+                      <TableCell colSpan={row.getVisibleCells().length}>
+                        {renderSubComponent({ row })}
+                      </TableCell>
+                    </TableRow>
                   )}
                 </React.Fragment>
               ))

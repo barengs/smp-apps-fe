@@ -65,17 +65,34 @@ const ProgramTable: React.FC = () => {
 
   const renderSubComponent = ({ row }: { row: Row<Program> }) => {
     const hostels = row.original.hostels;
-    console.log('ProgramTable - renderSubComponent called for row:', row.id, 'Hostels:', hostels); // Debug log
 
-    // Temporary simplified rendering for debugging
+    if (!hostels || hostels.length === 0) {
+      return (
+        <div className="p-4 text-center text-sm text-gray-500 bg-gray-50">
+          Tidak ada data asrama untuk program ini.
+        </div>
+      );
+    }
+
     return (
-      <div className="p-4 bg-blue-100">
-        <p>Sub-component for row {row.id} is rendered!</p>
-        {hostels && hostels.length > 0 ? (
-          <p>Hostels found: {hostels.length}</p>
-        ) : (
-          <p>No hostels found.</p>
-        )}
+      <div className="p-4 bg-gray-50">
+        <h4 className="font-bold mb-2 text-base">Daftar Asrama Terkait</h4>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[70%]">Nama Asrama</TableHead>
+              <TableHead>Kapasitas</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {hostels.map((hostel) => (
+              <TableRow key={hostel.id}>
+                <TableCell>{hostel.name}</TableCell>
+                <TableCell>{hostel.capacity}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   };
@@ -94,9 +111,8 @@ const ProgramTable: React.FC = () => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Expander clicked for row:', row.id); // Log untuk debugging
+                console.log('Expander clicked for row:', row.id);
                 row.getToggleExpandedHandler()();
-                console.log('ProgramTable - Is row expanded after click handler?', row.getIsExpanded()); // NEW LOG
               }}
               className="h-8 w-8"
             >
