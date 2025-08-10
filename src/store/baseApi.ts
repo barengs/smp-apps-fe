@@ -28,8 +28,8 @@ const baseQuery = fetchBaseQuery({
     // Tambahkan header Accept dan Content-Type
     headers.set('Accept', 'application/json');
     
-    // Jangan set Content-Type untuk endpoint registrasi karena menggunakan FormData
-    if (endpoint !== 'registerSantri') {
+    // Jangan set Content-Type untuk endpoint registrasi atau import karena menggunakan FormData
+    if (endpoint !== 'registerSantri' && endpoint !== 'importEmployee') {
       headers.set('Content-Type', 'application/json');
     }
     return headers;
