@@ -22,7 +22,7 @@ interface GetEducationLevelsResponse {
 export interface CreateUpdateEducationLevelRequest {
   name: string;
   description?: string;
-  // education_class_code would be sent here if needed for creation/update
+  education_class_codes?: string[];
 }
 
 // New interface for the import response
