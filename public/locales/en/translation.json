@@ -88,6 +88,8 @@
   "sidebar.village": "Village",
   "sidebar.navigation": "Navigation",
   "sidebar.santriInfo": "Student Info",
+  "sidebar.settings": "Settings",
+  "sidebar.system": "System",
   "sidebar.gradesAndAttendance": "Grades & Attendance",
   "sidebar.announcements": "Announcements",
   "header.toggleFullscreen": "Toggle Fullscreen",

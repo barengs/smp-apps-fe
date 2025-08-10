@@ -97,6 +97,8 @@
   "header.logout": "Keluar",
   "header.usernamePlaceholder": "Pengguna",
   "footer.copyright": "Hak Cipta © {{year}} SMP. Semua Hak Dilindungi.",
+  "sidebar.settings": "Pengaturan",
+  "sidebar.system": "Sistem",
   "waliSantriDashboard.title": "Dashboard Wali Santri",
   "waliSantriDashboard.santriInfo.title": "Informasi Santri",
   "waliSantriDashboard.santriInfo.name": "Nama",

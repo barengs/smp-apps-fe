@@ -90,6 +90,8 @@
   "sidebar.santriInfo": "معلومات الطالب",
   "sidebar.gradesAndAttendance": "الدرجات والحضور",
   "sidebar.announcements": "الإعلانات",
+  "sidebar.settings": "الإعدادات",
+  "sidebar.system": "النظام",
   "header.toggleFullscreen": "تبديل وضع ملء الشاشة",
   "header.toggleTheme": "تبديل السمة",
   "header.selectLanguage": "اختر اللغة",
