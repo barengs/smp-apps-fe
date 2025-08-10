@@ -111,7 +111,13 @@ const ProgramTable: React.FC = () => {
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
-                row.getToggleExpandedHandler()();
+                setExpanded(prev => {
+                  const base = typeof prev === 'object' ? prev : {};
+                  return {
+                    ...base,
+                    [row.id]: !base[row.id],
+                  };
+                });
               }}
               className="h-8 w-8"
             >
