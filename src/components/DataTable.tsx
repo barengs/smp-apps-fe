@@ -374,7 +374,7 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                   {renderSubComponent && row.getIsExpanded() && (
                     <TableRow>
-                      <TableCell colSpan={row.getVisibleCells().length}>
+                      <TableCell colSpan={row.getVisibleCells().length} className="p-0"> {/* Mengubah className di sini */}
                         {renderSubComponent({ row })}
                       </TableCell>
                     </TableRow>
