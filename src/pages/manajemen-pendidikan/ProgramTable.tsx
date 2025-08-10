@@ -111,15 +111,7 @@ const ProgramTable: React.FC = () => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-
-                // Hapus seleksi teks yang ada untuk mencegah error dari ekstensi browser
-                if (window.getSelection) {
-                  const selection = window.getSelection();
-                  if (selection && selection.rangeCount > 0) {
-                    selection.removeAllRanges();
-                  }
-                }
-                
+                console.log('Expander clicked for row:', row.id); // Log untuk debugging
                 row.getToggleExpandedHandler()();
               }}
               className="h-8 w-8"
