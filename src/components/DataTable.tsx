@@ -11,6 +11,9 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   PaginationState,
+  getExpandedRowModel, // Import untuk baris turunan
+  type ExpandedState, // Import untuk baris turunan
+  type Row, // Import untuk baris turunan
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -62,7 +65,8 @@ export interface DataTableProps<TData, TValue> {
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   isLoading?: boolean;
-  onAssignment?: () => void; // New prop for assignment button
+  onAssignment?: () => void;
+  renderSubComponent?: (props: { row: Row<TData> }) => React.ReactElement; // Prop untuk baris turunan
 }
 
 function hasAccessorKey<TData>(
@@ -85,11 +89,13 @@ export function DataTable<TData, TValue>({
   pagination: controlledPagination,
   onPaginationChange: setControlledPagination,
   isLoading = false,
-  onAssignment, // Destructure new prop
+  onAssignment,
+  renderSubComponent, // Destructure prop baru
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [expanded, setExpanded] = useState<ExpandedState>({}); // State untuk baris turunan
 
   // State internal untuk paginasi sisi klien
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
@@ -97,14 +103,8 @@ export function DataTable<TData, TValue>({
     pageSize: 10, // Ukuran halaman default
   });
 
-  // Tentukan state paginasi dan setter mana yang akan digunakan
-  // Jika manualPagination true, gunakan props yang dikontrol. Jika tidak, gunakan state internal.
   const currentPaginationState = manualPagination ? controlledPagination : internalPagination;
   const currentSetPaginationState = manualPagination ? setControlledPagination : setInternalPagination;
-
-  // Pastikan currentPaginationState selalu objek yang valid untuk prop state useReactTable.
-  // Jika controlledPagination undefined (misalnya, pada render awal atau jika parent tidak menyediakannya),
-  // berikan nilai default. Ini penting untuk mencegah `undefined` diteruskan ke `pagination` di `state`.
   const effectivePaginationState = currentPaginationState || { pageIndex: 0, pageSize: 10 };
 
   const table = useReactTable({
@@ -114,11 +114,14 @@ export function DataTable<TData, TValue>({
       globalFilter,
       columnVisibility,
       columnFilters,
-      pagination: effectivePaginationState, // Selalu berikan state paginasi yang terdefinisi
+      pagination: effectivePaginationState,
+      expanded, // Tambahkan state expanded
     },
     manualPagination,
-    onPaginationChange: currentSetPaginationState, // Selalu berikan setter yang terdefinisi
-    pageCount: controlledPageCount, // Ini tidak masalah, react-table menangani undefined untuk perhitungan otomatis
+    onPaginationChange: currentSetPaginationState,
+    pageCount: controlledPageCount,
+    onExpandedChange: setExpanded, // Handler untuk expanded
+    getExpandedRowModel: getExpandedRowModel(), // Aktifkan model expanded
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -141,7 +144,7 @@ export function DataTable<TData, TValue>({
 
     const exportableColumns = columns.filter(
       (col): col is ColumnDef<TData> & { accessorKey: keyof TData } =>
-        hasAccessorKey(col) && col.id !== 'actions'
+        hasAccessorKey(col) && col.id !== 'actions' && col.id !== 'expander'
     );
 
     const headers = exportableColumns.map(col => String(col.header));
@@ -186,7 +189,7 @@ export function DataTable<TData, TValue>({
       const rowData: { [key: string]: any } = {};
       const exportableColumns = columns.filter(
         (col): col is ColumnDef<TData> & { accessorKey: keyof TData } =>
-          hasAccessorKey(col) && col.id !== 'actions'
+          hasAccessorKey(col) && col.id !== 'actions' && col.id !== 'expander'
       );
 
       exportableColumns.forEach(col => {
@@ -353,18 +356,26 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  onClick={() => onRowClick && onRowClick(row.original)}
-                  className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-2">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <React.Fragment key={row.id}>
+                  <TableRow
+                    data-state={row.getIsSelected() && 'selected'}
+                    onClick={() => onRowClick && onRowClick(row.original)}
+                    className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="py-2">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  {renderSubComponent && row.getIsExpanded() && (
+                    <TableRow>
+                      <TableCell colSpan={row.getVisibleCells().length}>
+                        {renderSubComponent({ row })}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))
             ) : (
               <TableRow>
@@ -382,11 +393,9 @@ export function DataTable<TData, TValue>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              // Bungkus pembaruan state dalam timeout untuk mencegah konflik render
-              // dengan manajemen state internal komponen Select.
               setTimeout(() => {
                 currentSetPaginationState && currentSetPaginationState({
-                  pageIndex: 0, // Reset ke halaman pertama saat ukuran halaman berubah
+                  pageIndex: 0,
                   pageSize: Number(value),
                 });
               }, 0);

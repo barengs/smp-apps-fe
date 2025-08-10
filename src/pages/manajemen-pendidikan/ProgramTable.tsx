@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
-import { toast } from 'sonner';
+import { Edit, ChevronDown, ChevronRight } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -15,11 +14,19 @@ import ProgramForm from './ProgramForm';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+interface Hostel {
+  id: number;
+  name: string;
+  capacity: number;
+}
 
 interface Program {
   id: number;
   name: string;
   description: string;
+  hostels?: Hostel[];
 }
 
 const ProgramTable: React.FC = () => {
@@ -29,10 +36,10 @@ const ProgramTable: React.FC = () => {
   const [editingProgram, setEditingProgram] = useState<Program | undefined>(undefined);
 
   const programs: Program[] = useMemo(() => {
-    // The API now returns a direct array
     return (programsData || []).map(p => ({
       ...p,
       description: p.description || 'Tidak ada deskripsi',
+      hostels: p.hostels || [],
     }));
   }, [programsData]);
 
@@ -56,8 +63,66 @@ const ProgramTable: React.FC = () => {
     setEditingProgram(undefined);
   };
 
+  const renderSubComponent = ({ row }: { row: Row<Program> }) => {
+    const hostels = row.original.hostels;
+
+    if (!hostels || hostels.length === 0) {
+      return (
+        <div className="p-4 text-center text-sm text-gray-500 bg-gray-50">
+          Tidak ada data asrama untuk program ini.
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-4 bg-gray-50">
+        <h4 className="font-bold mb-2 text-base">Daftar Asrama Terkait</h4>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[70%]">Nama Asrama</TableHead>
+              <TableHead>Kapasitas</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {hostels.map((hostel) => (
+              <TableRow key={hostel.id}>
+                <TableCell>{hostel.name}</TableCell>
+                <TableCell>{hostel.capacity}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   const columns: ColumnDef<Program>[] = useMemo(
     () => [
+      {
+        id: 'expander',
+        header: () => null,
+        cell: ({ row }) => {
+          const hasHostels = row.original.hostels && row.original.hostels.length > 0;
+          return hasHostels ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                row.getToggleExpandedHandler()();
+              }}
+              className="h-8 w-8"
+            >
+              {row.getIsExpanded() ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          ) : null;
+        },
+      },
       {
         accessorKey: 'name',
         header: 'Nama Program',
@@ -103,6 +168,7 @@ const ProgramTable: React.FC = () => {
         exportFileName="data_program"
         exportTitle="Data Program Pendidikan"
         onAddData={handleAddData}
+        renderSubComponent={renderSubComponent}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
