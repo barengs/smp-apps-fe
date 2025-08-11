@@ -213,7 +213,7 @@ const SystemSettingsPage: React.FC = () => {
                 <Textarea id="app-address" defaultValue={settings?.app_address || ""} />
               </div>
               <div className="flex justify-end">
-                <Button onClick={handleSaveChanges}>Simpan Perubahan</Button>
+                <Button onClick={handleSaveChanges} variant="success">Simpan Perubahan</Button>
               </div>
             </CardContent>
           </Card>
@@ -240,7 +240,7 @@ const SystemSettingsPage: React.FC = () => {
                   <Textarea id="maintenance-message" defaultValue={settings?.maintenance_message || "Sistem sedang dalam pemeliharaan. Mohon maaf atas ketidaknyamanannya."} />
                 </div>
               )}
-              <Button variant="outline">Ubah Kata Sandi</Button>
+              <Button variant="warning">Ubah Kata Sandi</Button>
             </CardContent>
           </Card>
         </div>

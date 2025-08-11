@@ -78,7 +78,7 @@ const MataPelajaranImportDialog: React.FC<MataPelajaranImportDialogProps> = ({ i
         <div className="space-y-4 py-4">
           <div className="flex flex-col space-y-2">
             <Label>Langkah 1: Unduh Template</Label>
-            <Button variant="outline" onClick={handleDownloadTemplate}>
+            <Button variant="info" onClick={handleDownloadTemplate}>
               <Download className="mr-2 h-4 w-4" />
               Unduh Template Excel
             </Button>
@@ -99,7 +99,7 @@ const MataPelajaranImportDialog: React.FC<MataPelajaranImportDialogProps> = ({ i
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Batal
           </Button>
-          <Button onClick={handleImport} disabled={!selectedFile || isLoading}>
+          <Button onClick={handleImport} variant="success" disabled={!selectedFile || isLoading}>
             {isLoading ? 'Mengimpor...' : 'Impor Data'}
           </Button>
         </DialogFooter>

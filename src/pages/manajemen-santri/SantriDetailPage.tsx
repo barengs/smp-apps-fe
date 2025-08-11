@@ -191,10 +191,10 @@ const SantriDetailPage: React.FC = () => {
                       <Button variant="outline" onClick={() => navigate('/dashboard/santri')}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                       </Button>
-                      <Button variant="outline" onClick={handleEdit}>
+                      <Button variant="warning" onClick={handleEdit}>
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </Button>
-                      <Button variant="outline" onClick={() => setIsPrintDialogOpen(true)}>
+                      <Button variant="info" onClick={() => setIsPrintDialogOpen(true)}>
                         <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
                       </Button>
                     </div>
@@ -285,7 +285,7 @@ const SantriDetailPage: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Batal</Button>
-            <Button onClick={handlePrint}>
+            <Button onClick={handlePrint} variant="success">
               <Printer className="mr-2 h-4 w-4" /> Cetak
             </Button>
           </DialogFooter>

@@ -254,12 +254,12 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
               </Button>
             )}
             {currentStep < steps.length - 1 && (
-              <Button type="button" onClick={handleNext}>
+              <Button type="button" variant="primary" onClick={handleNext}>
                 Lanjut
               </Button>
             )}
             {currentStep === steps.length - 1 && (
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" variant="success" disabled={isSubmitting}>
                 {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Staf')}
               </Button>
             )}

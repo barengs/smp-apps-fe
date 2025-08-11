@@ -124,10 +124,10 @@ const UserProfilePage: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-2 mt-4 md:mt-0">
-              <Button variant="outline" onClick={handleEditProfile}>
+              <Button variant="warning" onClick={handleEditProfile}>
                 <Pencil className="mr-2 h-4 w-4" /> Edit
               </Button>
-              <Button onClick={handleChangePassword}>
+              <Button onClick={handleChangePassword} variant="secondary">
                 <Key className="mr-2 h-4 w-4" /> Ganti Password
               </Button>
             </div>

@@ -153,7 +153,7 @@ const DesaForm: React.FC<DesaFormProps> = ({ initialData, onSuccess, onCancel })
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Desa')}
           </Button>
         </div>

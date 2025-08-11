@@ -181,7 +181,7 @@ const JadwalKegiatanPage: React.FC = () => {
                 setSelectedDate(new Date()); // Set today's date for new activity
                 setIsFormViewMode(false); // Start in edit mode for new activity
                 setIsDialogOpen(true);
-              }}>
+              }} variant="success">
                 <PlusCircle className="mr-2 h-4 w-4" /> Tambah Kegiatan
               </Button>
             </div>

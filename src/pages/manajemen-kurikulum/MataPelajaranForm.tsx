@@ -102,7 +102,7 @@ const MataPelajaranForm: React.FC<MataPelajaranFormProps> = ({ initialData, onSu
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" variant="success" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {initialData ? 'Simpan Perubahan' : 'Simpan'}
           </Button>
