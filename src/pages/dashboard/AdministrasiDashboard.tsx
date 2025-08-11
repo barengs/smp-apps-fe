@@ -142,47 +142,53 @@ const AdministrasiDashboard: React.FC = () => {
         )}
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
-        <div className="flex flex-wrap gap-4">
-          <Link to="/dashboard/pendaftaran-santri/add">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
-            </Button>
-          </Link>
-          <Button variant="outline">
-            Lihat Laporan Keuangan
-          </Button>
-          <Link to="/dashboard/berita">
-            <Button variant="outline">
-              Kelola Pengumuman
-            </Button>
-          </Link>
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column: Quick Actions and Activity Schedule */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
+            <div className="flex flex-wrap gap-4">
+              <Link to="/dashboard/pendaftaran-santri/add">
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
+                </Button>
+              </Link>
+              <Button variant="outline">
+                Lihat Laporan Keuangan
+              </Button>
+              <Link to="/dashboard/berita">
+                <Button variant="outline">
+                  Kelola Pengumuman
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Jadwal Kegiatan</h2>
+            {isLoadingActivities ? (
+              <div className="text-center text-muted-foreground py-4">
+                Memuat jadwal kegiatan...
+              </div>
+            ) : isErrorActivities ? (
+              <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
+            ) : (
+              <div className="w-full">
+                <EventCalendar
+                  kegiatanList={kegiatanList}
+                  onDateClick={handleDateClick}
+                  onEventClick={handleEventClick}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Jadwal Kegiatan</h2>
-        {isLoadingActivities ? (
-          <div className="text-center text-muted-foreground py-4">
-            Memuat jadwal kegiatan...
-          </div>
-        ) : isErrorActivities ? (
-          <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
-        ) : (
-          <div className="w-full lg:w-1/2">
-            <EventCalendar
-              kegiatanList={kegiatanList}
-              onDateClick={handleDateClick}
-              onEventClick={handleEventClick}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
-        <SantriGrowthChart />
+        {/* Right Column: Santri Statistics Chart */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
+          <SantriGrowthChart />
+        </div>
       </div>
 
       <ActivityDetailModal
