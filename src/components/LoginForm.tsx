@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
@@ -129,6 +129,12 @@ const LoginForm: React.FC = () => {
               </div>
             </form>
           </Form>
+          <div className="mt-4 text-center text-sm">
+            {t('noAccountYet')}{' '}
+            <Link to="/daftar" className="underline">
+              {t('registerLinkText')}
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

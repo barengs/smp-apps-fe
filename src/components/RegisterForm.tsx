@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate, Link } from 'react-router-dom'; // Import useNavigate and Link
 
 const RegisterForm: React.FC = () => {
   const { t } = useTranslation();
@@ -96,6 +96,12 @@ const RegisterForm: React.FC = () => {
                 {t('cancelButton')}
               </Button>
             </div>
+          </div>
+          <div className="mt-4 text-center text-sm">
+            {t('alreadyHaveAccount')}{' '}
+            <Link to="/login" className="underline">
+              {t('loginLinkText')}
+            </Link>
           </div>
         </CardContent>
       </Card>
