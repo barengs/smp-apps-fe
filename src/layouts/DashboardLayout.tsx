@@ -206,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
                       </Tooltip>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" forceMount>
+                    <DropdownMenuContent side="right" align="start" forceMount>
                       {item.children.map((child) => (
                         <DropdownMenuItem key={child.href} asChild>
                           <Link to={child.href}>
