@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import ActivityDetailModal from '@/components/ActivityDetailModal';
 import { useSelector } from 'react-redux'; // Import useSelector
 import { selectIsAuthenticated } from '@/store/slices/authSlice'; // Import selectIsAuthenticated
+import SantriGrowthChart from '@/components/SantriGrowthChart'; // Import SantriGrowthChart
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
   <Card className="transition-all hover:shadow-md">
@@ -177,6 +178,11 @@ const AdministrasiDashboard: React.FC = () => {
             />
           </div>
         )}
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
+        <SantriGrowthChart />
       </div>
 
       <ActivityDetailModal
