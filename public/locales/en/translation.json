@@ -149,5 +149,9 @@
   "usernameLabel": "Username",
   "usernamePlaceholder": "Enter your username",
   "loginButton": "Login",
-  "cancelButton": "Cancel"
+  "cancelButton": "Cancel",
+  "alreadyHaveAccount": "Already have an account?",
+  "loginLinkText": "Login here",
+  "noAccountYet": "Don't have an account yet?",
+  "registerLinkText": "Register now"
 }

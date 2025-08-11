@@ -147,5 +147,9 @@
   "loginFormDescription": "أدخل بيانات اعتمادك لتسجيل الدخول إلى حسابك.",
   "registerButton": "تسجيل",
   "cancelButton": "إلغاء",
-  "loginButton": "تسجيل الدخول"
+  "loginButton": "تسجيل الدخول",
+  "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+  "loginLinkText": "تسجيل الدخول هنا",
+  "registerLinkText": "تسجيل حساب جديد",
+  "noAccountYet": "ليس لديك حساب بعد؟"
 }

@@ -147,5 +147,9 @@
   "loginFormDescription": "Masuk ke akun Anda untuk mengakses sistem.",
   "usernameLabel": "Nama Pengguna",
   "usernamePlaceholder": "Masukkan nama pengguna",
-  "loginButton": "Masuk"
+  "loginButton": "Masuk",
+  "noAccountYet": "Belum punya akun?",
+  "registerLinkText": "Daftar sekarang",
+  "alreadyHaveAccount": "Sudah punya akun?",
+  "loginLinkText": "Masuk ke akun Anda"
 }
