@@ -123,16 +123,21 @@ const RegisterForm: React.FC = () => {
   );
 
   // Tentukan konten untuk kolom visual kiri dan kanan
-  let visualLeftColumnContent;
-  let visualRightColumnContent;
+  let leftVisualContent;
+  let rightVisualContent;
 
   if (isRTL) {
-    visualLeftColumnContent = infoContent;
-    visualRightColumnContent = formContent;
+    leftVisualContent = infoContent; // Dalam RTL, info ada di kiri secara visual
+    rightVisualContent = formContent; // Dalam RTL, form ada di kanan secara visual
   } else {
-    visualLeftColumnContent = formContent;
-    visualRightColumnContent = infoContent;
+    leftVisualContent = formContent; // Dalam LTR, form ada di kiri secara visual
+    rightVisualContent = infoContent; // Dalam LTR, info ada di kanan secara visual
   }
+
+  // Tentukan kelas untuk kolom visual kiri dan kanan
+  // Garis pemisah selalu ada di sisi "dalam" kolom pertama secara visual
+  const leftVisualColumnClasses = isRTL ? 'pl-8' : 'pr-8 md:border-r md:border-gray-200';
+  const rightVisualColumnClasses = isRTL ? 'pr-8 pt-8 md:pt-0 md:border-l md:border-gray-200' : 'pl-8 pt-8 md:pt-0';
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-160px)] py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50 to-white">
@@ -146,12 +151,12 @@ const RegisterForm: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Kolom Visual Kiri */}
-            <div className="pr-8 md:border-r md:border-gray-200">
-              {visualLeftColumnContent}
+            <div className={leftVisualColumnClasses}>
+              {leftVisualContent}
             </div>
             {/* Kolom Visual Kanan */}
-            <div className="pl-8 pt-8 md:pt-0">
-              {visualRightColumnContent}
+            <div className={rightVisualColumnClasses}>
+              {rightVisualContent}
             </div>
           </div>
         </CardContent>
