@@ -34,7 +34,8 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
         </div>
         <nav className="flex items-center space-x-6">
           <Link to="/" className="text-gray-700 hover:text-primary font-medium">{t('home')}</Link>
-          <Link to="/daftar" className="text-gray-700 hover:text-primary font-medium">{t('register')}</Link>
+          {/* Menambahkan key untuk memaksa re-render saat bahasa berubah */}
+          <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium">{t('register')}</Link>
           <Link to="/login" className="text-gray-700 hover:text-primary font-medium">{t('login')}</Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
