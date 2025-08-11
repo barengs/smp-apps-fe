@@ -12,13 +12,28 @@ interface GetDashboardResponse {
   };
 }
 
+// New interface for student statistics by period
+interface StudentStatistic {
+  period: string; // e.g., "2020/2021"
+  total: number;
+}
+
+interface GetStudentStatisticsByPeriodResponse {
+  message: string;
+  data: StudentStatistic[];
+}
+
 export const dashboardApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getDashboardStats: builder.query<GetDashboardResponse, void>({
       query: () => 'dashboard',
       providesTags: ['Dashboard'], // Tag this query for caching
     }),
+    getStudentStatisticsByPeriod: builder.query<GetStudentStatisticsByPeriodResponse, void>({
+      query: () => 'dashboard/student-statistics-by-period',
+      providesTags: ['StudentStatistics'], // Tag this query for caching
+    }),
   }),
 });
 
-export const { useGetDashboardStatsQuery } = dashboardApi;
+export const { useGetDashboardStatsQuery, useGetStudentStatisticsByPeriodQuery } = dashboardApi;
