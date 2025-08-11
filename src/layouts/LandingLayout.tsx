@@ -32,7 +32,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
           <BookOpenText className="h-10 w-10 mr-4 text-primary" />
           <span className="text-2xl font-bold text-primary">SMP</span>
         </div>
-        <nav className="flex items-center space-x-6">
+        <nav className="flex items-center gap-6"> {/* Mengubah space-x-6 menjadi gap-6 */}
           <Link to="/" className="text-gray-700 hover:text-primary font-medium">{t('home')}</Link>
           {/* Menambahkan key untuk memaksa re-render saat bahasa berubah */}
           <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium">{t('register')}</Link>
