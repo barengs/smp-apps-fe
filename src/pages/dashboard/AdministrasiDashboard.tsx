@@ -132,12 +132,14 @@ const AdministrasiDashboard: React.FC = () => {
                 />
               </Link>
             )}
-            <StatCard
-              title="Guru Tugas"
-              value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
-              icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
-              description="Santri yang sedang magang"
-            />
+            <Link to="/dashboard/manajemen-santri/guru-tugas">
+              <StatCard
+                title="Guru Tugas"
+                value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
+                icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
+                description="Santri yang sedang magang"
+              />
+            </Link>
           </>
         )}
       </div>
