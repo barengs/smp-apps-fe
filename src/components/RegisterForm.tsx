@@ -23,17 +23,17 @@ const RegisterForm: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-160px)] py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50 to-white">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full"> {/* Kontainer grid baru */}
-        {/* Kolom Kiri: Formulir Pendaftaran */}
-        <div>
-          <Card className="w-full">
-            <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl font-bold">{t('registerFormTitle')}</CardTitle>
-              <CardDescription>
-                {t('registerFormDescription')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+      <Card className="w-full max-w-4xl"> {/* Satu Card untuk seluruh konten */}
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">{t('registerFormTitle')}</CardTitle>
+          <CardDescription>
+            {t('registerFormDescription')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2"> {/* Grid untuk dua kolom */}
+            {/* Kolom Kiri: Formulir Pendaftaran */}
+            <div className="pr-8 md:border-r md:border-gray-200"> {/* Tambahkan padding kanan dan border kanan */}
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="name">{t('fullNameLabel')}</Label>
@@ -106,29 +106,29 @@ const RegisterForm: React.FC = () => {
                   {t('loginLinkText')}
                 </Link>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
 
-        {/* Kolom Kanan: Informasi Tata Cara Pendaftaran */}
-        <div className="flex flex-col justify-center p-6 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">
-            {t('registrationProcessTitle', 'Tata Cara Pendaftaran Santri Baru')}
-          </h2>
-          <p className="mb-4 text-gray-700">
-            <span className="font-semibold">{t('step1Title', 'Langkah 1:')}</span>{' '}
-            {t('step1Description', 'Wali santri membuat akun terlebih dahulu melalui formulir di samping.')}
-          </p>
-          <p className="mb-4 text-gray-700">
-            <span className="font-semibold">{t('step2Title', 'Langkah 2:')}</span>{' '}
-            {t('step2Description', 'Setelah berhasil mendaftar, wali santri dapat login untuk melengkapi profil pribadi.')}
-          </p>
-          <p className="text-gray-700">
-            <span className="font-semibold">{t('step3Title', 'Langkah 3:')}</span>{' '}
-            {t('step3Description', 'Kemudian, wali santri dapat mendaftarkan anak atau calon santri melalui dashboard yang tersedia.')}
-          </p>
-        </div>
-      </div>
+            {/* Kolom Kanan: Informasi Tata Cara Pendaftaran */}
+            <div className="pl-8 pt-8 md:pt-0"> {/* Tambahkan padding kiri dan padding atas untuk mobile */}
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                {t('registrationProcessTitle', 'Tata Cara Pendaftaran Santri Baru')}
+              </h2>
+              <p className="mb-4 text-gray-700">
+                <span className="font-semibold">{t('step1Title', 'Langkah 1:')}</span>{' '}
+                {t('step1Description', 'Wali santri membuat akun terlebih dahulu melalui formulir di samping.')}
+              </p>
+              <p className="mb-4 text-gray-700">
+                <span className="font-semibold">{t('step2Title', 'Langkah 2:')}</span>{' '}
+                {t('step2Description', 'Setelah berhasil mendaftar, wali santri dapat login untuk melengkapi profil pribadi.')}
+              </p>
+              <p className="text-gray-700">
+                <span className="font-semibold">{t('step3Title', 'Langkah 3:')}</span>{' '}
+                {t('step3Description', 'Kemudian, wali santri dapat mendaftarkan anak atau calon santri melalui dashboard yang tersedia.')}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
