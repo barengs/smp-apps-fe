@@ -122,22 +122,18 @@ const RegisterForm: React.FC = () => {
     </>
   );
 
-  // Tentukan konten untuk kolom visual kiri dan kanan
-  let leftVisualContent;
-  let rightVisualContent;
+  // Tentukan kelas untuk kolom formulir
+  // Border selalu berada di sisi "dalam" kolom formulir
+  const formColumnClasses = `
+    ${isRTL ? 'pr-8 md:border-l' : 'pr-8 md:border-r'}
+    md:border-gray-200
+  `;
 
-  if (isRTL) {
-    leftVisualContent = infoContent; // Dalam RTL, info ada di kiri secara visual
-    rightVisualContent = formContent; // Dalam RTL, form ada di kanan secara visual
-  } else {
-    leftVisualContent = formContent; // Dalam LTR, form ada di kiri secara visual
-    rightVisualContent = infoContent; // Dalam LTR, info ada di kanan secara visual
-  }
-
-  // Tentukan kelas untuk kolom visual kiri dan kanan
-  // Garis pemisah selalu ada di sisi "dalam" kolom pertama secara visual
-  const leftVisualColumnClasses = isRTL ? 'pl-8' : 'pr-8 md:border-r md:border-gray-200';
-  const rightVisualColumnClasses = isRTL ? 'pr-8 pt-8 md:pt-0 md:border-l md:border-gray-200' : 'pl-8 pt-8 md:pt-0';
+  // Tentukan kelas untuk kolom informasi
+  const infoColumnClasses = `
+    ${isRTL ? 'pl-8' : 'pl-8'}
+    pt-8 md:pt-0
+  `;
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-160px)] py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50 to-white">
@@ -150,14 +146,27 @@ const RegisterForm: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* Kolom Visual Kiri */}
-            <div className={leftVisualColumnClasses}>
-              {leftVisualContent}
-            </div>
-            {/* Kolom Visual Kanan */}
-            <div className={rightVisualColumnClasses}>
-              {rightVisualContent}
-            </div>
+            {isRTL ? (
+              <>
+                {/* Dalam RTL, info di kiri visual, form di kanan visual */}
+                <div className={infoColumnClasses}>
+                  {infoContent}
+                </div>
+                <div className={formColumnClasses}>
+                  {formContent}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Dalam LTR, form di kiri visual, info di kanan visual */}
+                <div className={formColumnClasses}>
+                  {formContent}
+                </div>
+                <div className={infoColumnClasses}>
+                  {infoContent}
+                </div>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
