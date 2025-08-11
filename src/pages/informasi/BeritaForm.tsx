@@ -142,7 +142,7 @@ const BeritaForm: React.FC<BeritaFormProps> = ({ initialData, onSuccess, onCance
           <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
             Batal
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" variant="success" disabled={isLoading}>
             {isLoading ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Berita')}
           </Button>
         </div>
