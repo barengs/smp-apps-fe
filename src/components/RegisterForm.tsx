@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterForm: React.FC = () => {
-  const { t, i18n } = useTranslation(); // Dapatkan instance i18n
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -21,17 +21,11 @@ const RegisterForm: React.FC = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  // Tentukan apakah arah bahasa adalah RTL
   const isRTL = i18n.dir() === 'rtl';
 
-  // Kelas kondisional untuk kolom formulir
-  const formColumnClasses = isRTL ? 'pl-8 md:border-l md:border-gray-200' : 'pr-8 md:border-r md:border-gray-200';
-  // Kelas kondisional untuk kolom informasi
-  const infoColumnClasses = isRTL ? 'pr-8 pt-8 md:pt-0' : 'pl-8 pt-8 md:pt-0';
-
-  // Komponen formulir
+  // Konten formulir (tanpa kelas layout)
   const formContent = (
-    <div className={formColumnClasses}>
+    <>
       <div className="grid gap-4">
         <div className="grid gap-2">
           <Label htmlFor="name">{t('fullNameLabel')}</Label>
@@ -104,12 +98,12 @@ const RegisterForm: React.FC = () => {
           {t('loginLinkText')}
         </Link>
       </div>
-    </div>
+    </>
   );
 
-  // Komponen informasi tata cara
+  // Konten informasi tata cara (tanpa kelas layout)
   const infoContent = (
-    <div className={infoColumnClasses}>
+    <>
       <h2 className="text-2xl font-bold mb-4 text-gray-800">
         {t('registrationProcessTitle', 'Tata Cara Pendaftaran Santri Baru')}
       </h2>
@@ -125,8 +119,20 @@ const RegisterForm: React.FC = () => {
         <span className="font-semibold">{t('step3Title', 'Langkah 3:')}</span>{' '}
         {t('step3Description', 'Kemudian, wali santri dapat mendaftarkan anak atau calon santri melalui dashboard yang tersedia.')}
       </p>
-    </div>
+    </>
   );
+
+  // Tentukan konten untuk kolom visual kiri dan kanan
+  let visualLeftColumnContent;
+  let visualRightColumnContent;
+
+  if (isRTL) {
+    visualLeftColumnContent = infoContent;
+    visualRightColumnContent = formContent;
+  } else {
+    visualLeftColumnContent = formContent;
+    visualRightColumnContent = infoContent;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-160px)] py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50 to-white">
@@ -139,17 +145,14 @@ const RegisterForm: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {isRTL ? (
-              <>
-                {infoContent}
-                {formContent}
-              </>
-            ) : (
-              <>
-                {formContent}
-                {infoContent}
-              </>
-            )}
+            {/* Kolom Visual Kiri */}
+            <div className="pr-8 md:border-r md:border-gray-200">
+              {visualLeftColumnContent}
+            </div>
+            {/* Kolom Visual Kanan */}
+            <div className="pl-8 pt-8 md:pt-0">
+              {visualRightColumnContent}
+            </div>
           </div>
         </CardContent>
       </Card>
