@@ -116,7 +116,7 @@ const GuruTugasPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-success">{totalGuruTugas}</div>
-                    <p className="text-xs text-success-foreground">
+                    <p className="text-xs text-foreground">
                       Jumlah keseluruhan guru yang ditugaskan
                     </p>
                   </CardContent>
@@ -130,7 +130,7 @@ const GuruTugasPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-info">{totalWilayah}</div>
-                    <p className="text-xs text-info-foreground">
+                    <p className="text-xs text-foreground">
                       Jumlah wilayah tugas
                     </p>
                   </CardContent>
