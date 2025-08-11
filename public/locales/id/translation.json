@@ -139,6 +139,8 @@
   "registerFormDescription": "Isi formulir berikut untuk mendaftar sebagai wali.",
   "fullNameLabel": "Nama Lengkap",
   "fullNamePlaceholder": "Masukkan nama lengkap wali",
+  "emailLabel": "Email",
+  "emailPlaceholder": "Masukkan alamat email wali",
   "passwordLabel": "Kata Sandi",
   "confirmPasswordLabel": "Konfirmasi Kata Sandi",
   "registerButton": "Daftar",
