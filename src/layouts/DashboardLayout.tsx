@@ -189,11 +189,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
             if (item.children) {
               if (isCollapsed) {
                 return (
-                  <DropdownMenu key={item.titleKey}>
-                    <DropdownMenuTrigger asChild>
-                      {/* Tooltip wraps its trigger and content */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                  <Tooltip key={item.titleKey}>
+                    <DropdownMenu>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
                           <Button
                             variant={isActive ? "secondary" : "ghost"}
                             className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg p-0"
@@ -202,21 +201,21 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                             {item.icon}
                             <span className="sr-only">{t(item.titleKey)}</span>
                           </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
-                      </Tooltip>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" forceMount>
-                      {item.children.map((child) => (
-                        <DropdownMenuItem key={child.href} asChild>
-                          <Link to={child.href}>
-                            {child.icon}
-                            <span className="ml-3">{t(child.titleKey)}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <DropdownMenuContent side="right" align="start" forceMount sideOffset={8} className="z-50">
+                        {item.children.map((child) => (
+                          <DropdownMenuItem key={child.href} asChild>
+                            <Link to={child.href}>
+                              {child.icon}
+                              <span className="ml-3">{t(child.titleKey)}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
+                  </Tooltip>
                 );
               } else {
                 return (
