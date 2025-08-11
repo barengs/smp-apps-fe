@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const RegisterForm: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate(); // Inisialisasi useNavigate
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -86,9 +88,14 @@ const RegisterForm: React.FC = () => {
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full">
-              {t('registerButton')}
-            </Button>
+            <div className="flex gap-2"> {/* Menggunakan flexbox untuk menata tombol */}
+              <Button type="submit" className="w-full">
+                {t('registerButton')}
+              </Button>
+              <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/')}>
+                {t('cancelButton')}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

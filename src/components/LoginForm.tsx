@@ -118,10 +118,15 @@ const LoginForm: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? 'Memproses...' : t('loginButton')}
-              </Button>
+              <div className="flex gap-2">
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading ? 'Memproses...' : t('loginButton')}
+                </Button>
+                <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/')}>
+                  {t('cancelButton')}
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

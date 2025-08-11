@@ -134,5 +134,18 @@
   "adminDashboard.quickActions.manageAnnouncements": "Kelola Pengumuman",
   "adminDashboard.activitySchedule.title": "Jadwal Kegiatan",
   "adminDashboard.activitySchedule.loading": "Memuat jadwal kegiatan...",
-  "adminDashboard.activitySchedule.error": "Gagal memuat jadwal kegiatan."
+  "adminDashboard.activitySchedule.error": "Gagal memuat jadwal kegiatan.",
+  "registerFormTitle": "Formulir Pendaftaran Santri Baru",
+  "registerFormDescription": "Isi formulir berikut untuk mendaftar sebagai santri baru.",
+  "fullNameLabel": "Nama Lengkap",
+  "fullNamePlaceholder": "Masukkan nama lengkap santri",
+  "passwordLabel": "Kata Sandi",
+  "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+  "registerButton": "Daftar",
+  "cancelButton": "Batal",
+  "loginFormTitle": "Formulir Masuk",
+  "loginFormDescription": "Masuk ke akun Anda untuk mengakses sistem.",
+  "usernameLabel": "Nama Pengguna",
+  "usernamePlaceholder": "Masukkan nama pengguna",
+  "loginButton": "Masuk"
 }

@@ -134,5 +134,20 @@
   "adminDashboard.quickActions.manageAnnouncements": "Manage Announcements",
   "adminDashboard.activitySchedule.title": "Activity Schedule",
   "adminDashboard.activitySchedule.loading": "Loading activity schedule...",
-  "adminDashboard.activitySchedule.error": "Failed to load activity schedule."
+  "adminDashboard.activitySchedule.error": "Failed to load activity schedule.",
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "emailLabel": "Email",
+  "emailPlaceholder": "Enter your email address",
+  "passwordLabel": "Password",
+  "confirmPasswordLabel": "Confirm Password",
+  "registerFormTitle": "New Student Registration Form",
+  "registerFormDescription": "Fill out the following form to register as a new student.",
+  "registerButton": "Register",
+  "loginFormTitle": "Login to Your Account",
+  "loginFormDescription": "Please enter your credentials to access the system.",
+  "usernameLabel": "Username",
+  "usernamePlaceholder": "Enter your username",
+  "loginButton": "Login",
+  "cancelButton": "Cancel"
 }
