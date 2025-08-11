@@ -177,7 +177,7 @@ const BeritaPage: React.FC = () => {
               <CardTitle>Daftar Berita</CardTitle>
               <CardDescription>Kelola berita dan pengumuman yang ditampilkan di sistem.</CardDescription>
             </div>
-            <Button onClick={handleAdd}>
+            <Button onClick={handleAdd} variant="success">
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Berita
             </Button>
           </div>

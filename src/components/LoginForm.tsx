@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
@@ -118,12 +118,23 @@ const LoginForm: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? 'Memproses...' : t('loginButton')}
-              </Button>
+              <div className="flex gap-2">
+                <Button type="submit" variant="success" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading ? 'Memproses...' : t('loginButton')}
+                </Button>
+                <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/')}>
+                  {t('cancelButton')}
+                </Button>
+              </div>
             </form>
           </Form>
+          <div className="mt-4 text-center text-sm">
+            {t('noAccountYet')}{' '}
+            <Link to="/daftar" className="underline">
+              {t('registerLinkText')}
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

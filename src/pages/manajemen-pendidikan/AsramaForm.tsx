@@ -180,7 +180,7 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Asrama')}
           </Button>
         </div>

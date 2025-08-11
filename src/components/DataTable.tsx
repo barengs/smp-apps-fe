@@ -221,7 +221,7 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           {onAddData && (
-            <Button onClick={onAddData}>
+            <Button variant="success" onClick={onAddData}>
               <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
             </Button>
           )}

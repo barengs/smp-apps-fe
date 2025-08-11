@@ -135,6 +135,7 @@
   "adminDashboard.activitySchedule.title": "Jadwal Kegiatan",
   "adminDashboard.activitySchedule.loading": "Memuat jadwal kegiatan...",
   "adminDashboard.activitySchedule.error": "Gagal memuat jadwal kegiatan.",
+<<<<<<< HEAD
   "registerFormTitle": "Formulir Pendaftaran",
   "registerFormDescription": "Isi formulir berikut untuk mendaftar sebagai pengguna baru.",
   "fullNameLabel": "Nama Lengkap",
@@ -154,3 +155,25 @@
   "loginFormSuccess": "Login berhasil! Selamat datang kembali.",
   "loginFormError": "Terjadi kesalahan saat masuk. Silakan coba lagi."
 }
+=======
+  "registerFormTitle": "Formulir Pendaftaran Wali",
+  "registerFormDescription": "Isi formulir berikut untuk mendaftar sebagai wali.",
+  "fullNameLabel": "Nama Lengkap",
+  "fullNamePlaceholder": "Masukkan nama lengkap wali",
+  "emailLabel": "Email",
+  "emailPlaceholder": "Masukkan alamat email wali",
+  "passwordLabel": "Kata Sandi",
+  "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+  "registerButton": "Daftar",
+  "cancelButton": "Batal",
+  "loginFormTitle": "Formulir Masuk",
+  "loginFormDescription": "Masuk ke akun Anda untuk mengakses sistem.",
+  "usernameLabel": "Nama Pengguna",
+  "usernamePlaceholder": "Masukkan nama pengguna",
+  "loginButton": "Masuk",
+  "noAccountYet": "Belum punya akun?",
+  "registerLinkText": "Daftar sekarang",
+  "alreadyHaveAccount": "Sudah punya akun?",
+  "loginLinkText": "Masuk ke akun Anda"
+}
+>>>>>>> e074c1fed75fbdd08732663be68fb6310e22df19

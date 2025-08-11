@@ -134,5 +134,22 @@
   "adminDashboard.quickActions.manageAnnouncements": "إدارة الإعلانات",
   "adminDashboard.activitySchedule.title": "جدول الأنشطة",
   "adminDashboard.activitySchedule.loading": "جارٍ تحميل جدول الأنشطة...",
-  "adminDashboard.activitySchedule.error": "فشل تحميل جدول الأنشطة."
+  "adminDashboard.activitySchedule.error": "فشل تحميل جدول الأنشطة.",
+  "fullNameLabel": "الاسم الكامل",
+  "emailLabel": "البريد الإلكتروني",
+  "fullNamePlaceholder": "أدخل اسمك الكامل",
+  "emailPlaceholder": "أدخل بريدك الإلكتروني",
+  "passwordLabel": "كلمة المرور",
+  "confirmPasswordLabel": "تأكيد كلمة المرور",
+  "registerFormTitle": "نموذج تسجيل ولي الأمر",
+  "registerFormDescription": "املأ النموذج التالي للتسجيل كولي أمر.",
+  "loginFormTitle": "تسجيل الدخول إلى حسابك",
+  "loginFormDescription": "أدخل بيانات اعتمادك لتسجيل الدخول إلى حسابك.",
+  "registerButton": "تسجيل",
+  "cancelButton": "إلغاء",
+  "loginButton": "تسجيل الدخول",
+  "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+  "loginLinkText": "تسجيل الدخول هنا",
+  "registerLinkText": "تسجيل حساب جديد",
+  "noAccountYet": "ليس لديك حساب بعد؟"
 }

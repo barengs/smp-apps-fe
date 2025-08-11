@@ -115,7 +115,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSuccess, onCan
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Program')}
           </Button>
         </div>

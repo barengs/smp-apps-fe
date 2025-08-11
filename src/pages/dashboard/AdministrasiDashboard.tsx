@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import ActivityDetailModal from '@/components/ActivityDetailModal';
 import { useSelector } from 'react-redux'; // Import useSelector
 import { selectIsAuthenticated } from '@/store/slices/authSlice'; // Import selectIsAuthenticated
+import SantriGrowthChart from '@/components/SantriGrowthChart'; // Import SantriGrowthChart
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
   <Card className="transition-all hover:shadow-md">
@@ -131,58 +132,65 @@ const AdministrasiDashboard: React.FC = () => {
                 />
               </Link>
             )}
-            <StatCard
-              title="Total Alumni"
-              value={dashboardData?.data?.alumni ?? 0} // Mengakses melalui .data
-              icon={<GraduationCap className="h-6 w-6 text-muted-foreground" />}
-              description="Jumlah santri yang telah lulus"
-            />
-            <StatCard
-              title="Guru Tugas"
-              value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
-              icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
-              description="Santri yang sedang magang"
-            />
+            <Link to="/dashboard/guru-tugas">
+              <StatCard
+                title="Guru Tugas"
+                value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
+                icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
+                description="Santri yang sedang magang"
+              />
+            </Link>
           </>
         )}
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
-        <div className="flex flex-wrap gap-4">
-          <Link to="/dashboard/pendaftaran-santri/add">
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
-            </Button>
-          </Link>
-          <Button variant="outline">
-            Lihat Laporan Keuangan
-          </Button>
-          <Link to="/dashboard/berita">
-            <Button variant="outline">
-              Kelola Pengumuman
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column: Quick Actions and Activity Schedule */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
+            <div className="flex flex-wrap gap-4">
+              <Link to="/dashboard/pendaftaran-santri/add">
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Tambah Santri Baru
+                </Button>
+              </Link>
+              <Button variant="outline">
+                Lihat Laporan Keuangan
+              </Button>
+              <Link to="/dashboard/berita">
+                <Button variant="outline">
+                  Kelola Pengumuman
+                </Button>
+              </Link>
+            </div>
+          </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Jadwal Kegiatan</h2>
-        {isLoadingActivities ? (
-          <div className="text-center text-muted-foreground py-4">
-            Memuat jadwal kegiatan...
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Jadwal Kegiatan</h2>
+            {isLoadingActivities ? (
+              <div className="text-center text-muted-foreground py-4">
+                Memuat jadwal kegiatan...
+              </div>
+            ) : isErrorActivities ? (
+              <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
+            ) : (
+              <div className="w-full">
+                <EventCalendar
+                  kegiatanList={kegiatanList}
+                  onDateClick={handleDateClick}
+                  onEventClick={handleEventClick}
+                />
+              </div>
+            )}
           </div>
-        ) : isErrorActivities ? (
-          <div className="text-red-500">Gagal memuat jadwal kegiatan.</div>
-        ) : (
-          <div className="w-full lg:w-1/2">
-            <EventCalendar
-              kegiatanList={kegiatanList}
-              onDateClick={handleDateClick}
-              onEventClick={handleEventClick}
-            />
-          </div>
-        )}
+        </div>
+
+        {/* Right Column: Santri Statistics Chart */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
+          <SantriGrowthChart />
+        </div>
       </div>
 
       <ActivityDetailModal

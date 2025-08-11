@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import * as toast from '@/utils/toast';
 import { Loader2 } from 'lucide-react';
+import CityCombobox from '@/components/CityCombobox'; // Import CityCombobox
 
 // Dummy data for Santri selection (replace with API call later)
 const dummySantriList = [
@@ -104,7 +105,11 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
             <FormItem>
               <FormLabel>Wilayah Tugas</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: Jakarta Pusat" {...field} />
+                <CityCombobox
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={isSubmitting}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -166,7 +171,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan...

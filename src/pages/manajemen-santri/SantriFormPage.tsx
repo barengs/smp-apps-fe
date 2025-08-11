@@ -257,28 +257,28 @@ const SantriFormPage: React.FC = () => {
 
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
               <div className="flex space-x-2">
-                <Button type="button" className="bg-yellow-500 text-white hover:bg-yellow-600" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
+                <Button type="button" variant="danger" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
                   <X className="mr-2 h-4 w-4" />
                   Batal
                 </Button>
-                <Button type="button" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
+                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1 || isLoading}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Kembali
                 </Button>
               </div>
               <div className="flex space-x-2">
                 {currentStep < totalSteps ? (
-                  <Button type="button" onClick={nextStep} disabled={isLoading}>
+                  <Button type="button" variant="primary" onClick={nextStep} disabled={isLoading}>
                     Lanjutkan
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
                   <>
-                    <Button type="button" variant="outline" onClick={handleSaveAndResetClick} disabled={isLoading}>
+                    <Button type="button" variant="info" onClick={handleSaveAndResetClick} disabled={isLoading}>
                       {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <SaveAll className="mr-2 h-4 w-4" />}
                       Simpan dan Entri Ulang
                     </Button>
-                    <Button type="button" onClick={handleSaveClick} disabled={isLoading}>
+                    <Button type="button" variant="success" onClick={handleSaveClick} disabled={isLoading}>
                       {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                       Simpan
                     </Button>
@@ -293,7 +293,7 @@ const SantriFormPage: React.FC = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Konfirmasi Penyimpanan Data</AlertDialogTitle>
-              <AlertDialogDescription>
+            <AlertDialogDescription>
                 Apakah anda yakin untuk melanjutkan? Jika belum, periksa kembali data Anda dan lanjutkan!
               </AlertDialogDescription>
             </AlertDialogHeader>

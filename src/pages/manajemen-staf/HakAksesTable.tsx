@@ -25,6 +25,7 @@ import HakAksesForm from './HakAksesForm';
 import { useGetPermissionsQuery, useDeletePermissionMutation } from '@/store/slices/permissionApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import ActionButton from '@/components/ActionButton';
 
 interface HakAkses {
   id: number;
@@ -112,20 +113,22 @@ const HakAksesTable: React.FC = () => {
           const hakAkses = row.original;
           return (
             <div className="flex space-x-2">
-              <Button
+              <ActionButton
                 variant="outline"
-                className="h-8 px-2 text-xs"
+                size="sm"
                 onClick={() => handleEditData(hakAkses)}
+                icon={<Edit className="h-4 w-4" />}
               >
-                <Edit className="h-4 w-4 mr-1" /> Edit
-              </Button>
-              <Button
-                variant="destructive"
-                className="h-8 px-2 text-xs"
+                Edit
+              </ActionButton>
+              <ActionButton
+                variant="danger"
+                size="sm"
                 onClick={() => handleDeleteClick(hakAkses)}
+                icon={<Trash2 className="h-4 w-4" />}
               >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
-              </Button>
+                Hapus
+              </ActionButton>
             </div>
           );
         },

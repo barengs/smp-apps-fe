@@ -107,44 +107,44 @@ const GuruTugasPage: React.FC = () => {
                 />
               </div>
               <div className="flex flex-col gap-4 lg:w-1/4">
-                <Card>
+                <Card className="bg-success/10">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
+                    <CardTitle className="text-sm font-medium text-success">
                       Total Guru Tugas
                     </CardTitle>
-                    <User className="h-6 w-6 text-muted-foreground" />
+                    <User className="h-6 w-6 text-success" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{totalGuruTugas}</div>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="text-2xl font-bold text-success">{totalGuruTugas}</div>
+                    <p className="text-xs text-foreground">
                       Jumlah keseluruhan guru yang ditugaskan
                     </p>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-info/10">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
+                    <CardTitle className="text-sm font-medium text-info">
                       Total Wilayah Tugas
                     </CardTitle>
-                    <MapPin className="h-6 w-6 text-muted-foreground" />
+                    <MapPin className="h-6 w-6 text-info" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{totalWilayah}</div>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="text-2xl font-bold text-info">{totalWilayah}</div>
+                    <p className="text-xs text-foreground">
                       Jumlah wilayah tugas
                     </p>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-warning/10">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
+                    <CardTitle className="text-sm font-medium text-warning">
                       Total Penanggung Jawab
                     </CardTitle>
-                    <UserCheck className="h-6 w-6 text-muted-foreground" />
+                    <UserCheck className="h-6 w-6 text-warning" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{totalPenanggungJawab}</div>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="text-2xl font-bold text-warning">{totalPenanggungJawab}</div>
+                    <p className="text-xs text-warning-foreground">
                       Jumlah penanggung jawab
                     </p>
                   </CardContent>

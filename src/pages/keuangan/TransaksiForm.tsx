@@ -150,7 +150,7 @@ const TransaksiForm: React.FC<TransaksiFormProps> = ({ isOpen, onClose }) => {
               <Button type="button" variant="outline" onClick={onClose}>
                 Batal
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" variant="success" disabled={isLoading}>
                 {isLoading ? 'Menyimpan...' : 'Simpan Transaksi'}
               </Button>
             </DialogFooter>

@@ -131,11 +131,11 @@ const JadwalKegiatanForm: React.FC<JadwalKegiatanFormProps> = ({ initialData, se
             Batal
           </Button>
           {initialData && !isEditingMode && ( // Show Edit button only if initialData exists and not in editing mode
-            <Button type="button" onClick={() => setIsEditingMode(true)}>
+            <Button type="button" variant="warning" onClick={() => setIsEditingMode(true)}>
               Edit
             </Button>
           )}
-          <Button type="submit" disabled={!isEditingMode}> {/* Disable submit button if not in editing mode */}
+          <Button type="submit" variant="success" disabled={!isEditingMode}> {/* Disable submit button if not in editing mode */}
             {initialData ? 'Simpan Perubahan' : 'Tambah Kegiatan'}
           </Button>
         </div>

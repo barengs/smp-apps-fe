@@ -206,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         <TooltipContent side="right">{t(item.titleKey)}</TooltipContent>
                       </Tooltip>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" forceMount>
                       {item.children.map((child) => (
                         <DropdownMenuItem key={child.href} asChild>
                           <Link to={child.href}>
@@ -224,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     <AccordionTrigger
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
-                        isActive && "bg-sidebar-primary text-sidebar-primary-foreground"
+                        isActive && "bg-primary text-primary-foreground" // Changed to primary
                       )}
                     >
                       <div className="flex items-center flex-grow">
@@ -240,7 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                           className={cn(
                             "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
                             location.pathname.startsWith(child.href)
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                              ? "bg-secondary text-secondary-foreground" // Changed to secondary
                               : "hover:bg-sidebar-accent/80"
                           )}
                         >
@@ -261,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         to={item.href || "#"}
                         className={cn(
                           "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                          isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
+                          isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-accent/80", // Changed to primary
                           "justify-center"
                         )}
                       >
@@ -279,7 +279,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     to={item.href || "#"}
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                      isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent/80",
+                      isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-accent/80", // Changed to primary
                       "px-4"
                     )}
                   >

@@ -96,7 +96,7 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
         <div className="space-y-4 py-4">
           <div className="flex flex-col space-y-2">
             <Label>Langkah 1: Unduh Template</Label>
-            <Button variant="outline" onClick={handleDownloadTemplate}>
+            <Button variant="info" onClick={handleDownloadTemplate}>
               <Download className="mr-2 h-4 w-4" />
               Unduh Template Excel
             </Button>
@@ -115,7 +115,7 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>Batal</Button>
-          <Button onClick={handleSubmit} disabled={!selectedFile || isLoading}>
+          <Button onClick={handleSubmit} variant="success" disabled={!selectedFile || isLoading}>
             {isLoading ? 'Mengimpor...' : 'Impor Data'}
           </Button>
         </DialogFooter>

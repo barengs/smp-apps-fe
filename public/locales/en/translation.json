@@ -135,6 +135,7 @@
   "adminDashboard.activitySchedule.title": "Activity Schedule",
   "adminDashboard.activitySchedule.loading": "Loading activity schedule...",
   "adminDashboard.activitySchedule.error": "Failed to load activity schedule.",
+<<<<<<< HEAD
   "registerFormTitle": "Register New Student",
   "registerFormDescription": "Fill in the details below to register a new student.",
   "fullNameLabel": "Full Name",
@@ -150,4 +151,25 @@
   "usernamePlaceholder": "Enter your username",
   "loginButton": "Login",
   "forgotPassword": "Forgot Password?"
+=======
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "emailLabel": "Email",
+  "emailPlaceholder": "Enter your email address",
+  "passwordLabel": "Password",
+  "confirmPasswordLabel": "Confirm Password",
+  "registerFormTitle": "New Parent Registration Form",
+  "registerFormDescription": "Fill out the following form to register as a parent.",
+  "registerButton": "Register",
+  "loginFormTitle": "Login to Your Account",
+  "loginFormDescription": "Please enter your credentials to access the system.",
+  "usernameLabel": "Username",
+  "usernamePlaceholder": "Enter your username",
+  "loginButton": "Login",
+  "cancelButton": "Cancel",
+  "alreadyHaveAccount": "Already have an account?",
+  "loginLinkText": "Login here",
+  "noAccountYet": "Don't have an account yet?",
+  "registerLinkText": "Register now"
+>>>>>>> e074c1fed75fbdd08732663be68fb6310e22df19
 }

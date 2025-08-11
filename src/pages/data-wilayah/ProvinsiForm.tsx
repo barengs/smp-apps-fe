@@ -116,7 +116,7 @@ const ProvinsiForm: React.FC<ProvinsiFormProps> = ({ initialData, onSuccess, onC
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             {isSubmitting ? 'Menyimpan...' : (initialData ? 'Simpan Perubahan' : 'Tambah Provinsi')}
           </Button>
         </div>

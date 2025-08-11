@@ -125,7 +125,7 @@ const DocumentStep: React.FC<DocumentStepProps> = () => { // Menghapus { form }
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button type="button" variant="destructive" onClick={() => remove(index)} className="w-fit">
+                          <Button type="button" variant="danger" onClick={() => remove(index)} className="w-fit">
                             <Trash2 className="mr-2 h-4 w-4" /> Hapus
                           </Button>
                         </TooltipTrigger>
