@@ -5,8 +5,8 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png";
-// Gunakan variabel lingkungan untuk URL dasar penyimpanan gambar
-const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
+// Gunakan variabel lingkungan untuk URL dasar API
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const styles = StyleSheet.create({
   page: {
@@ -149,8 +149,8 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }
   const parentFullName = calonSantri.parent ? `${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`.trim() : '-';
   
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
-  // Gunakan STORAGE_BASE_URL untuk foto santri
-  const santriPhotoUrl = calonSantri.photo ? `${STORAGE_BASE_URL}${calonSantri.photo}` : null;
+  // Gunakan API_BASE_URL untuk foto santri agar dapat diakses langsung oleh react-pdf
+  const santriPhotoUrl = calonSantri.photo ? `${API_BASE_URL}/storage${calonSantri.photo}` : null;
 
   const currentYear = new Date().getFullYear();
 
