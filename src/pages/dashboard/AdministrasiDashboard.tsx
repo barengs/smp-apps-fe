@@ -132,7 +132,7 @@ const AdministrasiDashboard: React.FC = () => {
                 />
               </Link>
             )}
-            <Link to="/dashboard/manajemen-santri/guru-tugas">
+            <Link to="/dashboard/guru-tugas">
               <StatCard
                 title="Guru Tugas"
                 value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
