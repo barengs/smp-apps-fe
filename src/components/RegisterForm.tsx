@@ -84,7 +84,7 @@ const RegisterForm: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white">
             {t('registerButton')}
           </Button>
           <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/')}>

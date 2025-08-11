@@ -119,7 +119,7 @@ const LoginForm: React.FC = () => {
                 )}
               />
               <div className="flex gap-2">
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? 'Memproses...' : t('loginButton')}
                 </Button>
