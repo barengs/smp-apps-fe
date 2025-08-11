@@ -293,7 +293,7 @@ const SantriFormPage: React.FC = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Konfirmasi Penyimpanan Data</AlertDialogTitle>
-              <AlertDialogDescription>
+            <AlertDialogDescription>
                 Apakah anda yakin untuk melanjutkan? Jika belum, periksa kembali data Anda dan lanjutkan!
               </AlertDialogDescription>
             </AlertDialogHeader>

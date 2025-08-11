@@ -166,7 +166,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan...
