@@ -49,6 +49,7 @@ import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
 import TransaksiPage from '@/pages/keuangan/TransaksiPage';
 import ProdukPage from '@/pages/keuangan/ProdukPage';
+import CoaPage from '@/pages/keuangan/CoaPage';
 // import RegistrationPdfPreviewPage from '@/pages/manajemen-santri/RegistrationPdfPreviewPage'; // Import halaman pratinjau PDF
 
 // Redux imports
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
               <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
               <Route path="/dashboard/bank-santri/produk" element={<ProdukPage />} />
+              <Route path="/dashboard/bank-santri/coa" element={<CoaPage />} />
               <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />

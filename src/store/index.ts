@@ -31,8 +31,9 @@ import './slices/calonSantriApi';
 import { bankApi } from './slices/bankApi'; // bankApi is a separate API, so we need its export.
 import './slices/educationGroupApi';
 import './slices/activityApi';
-import './slices/controlPanelApi'; // Import the new controlPanelApi
-import './slices/produkBankApi'; // Import the new produkBankApi
+import './slices/controlPanelApi';
+import './slices/produkBankApi';
+import './slices/coaApi';
 
 export const store = configureStore({
   reducer: {
