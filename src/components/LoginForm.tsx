@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -15,7 +14,7 @@ import * as toast from '@/utils/toast';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 const formSchema = z.object({
-  login: z.string().min(1, { message: 'Bidang login tidak boleh kosong.' }), // Mengubah 'email' menjadi 'login'
+  login: z.string().min(1, { message: 'Bidang login tidak boleh kosong.' }),
   password: z.string().min(1, { message: 'Kata sandi tidak boleh kosong.' }),
 });
 
@@ -25,12 +24,12 @@ const LoginForm: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [loginMutation, { isLoading }] = useLoginMutation(); // Mengganti nama variabel agar tidak bentrok dengan properti 'login'
+  const [loginMutation, { isLoading }] = useLoginMutation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      login: '', // Mengubah 'email' menjadi 'login'
+      login: '',
       password: '',
     },
   });
@@ -41,7 +40,7 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const loginResult = await loginMutation(values as LoginRequest).unwrap(); // Menggunakan loginMutation
+      const loginResult = await loginMutation(values as LoginRequest).unwrap();
       toast.showSuccess('Login berhasil!');
 
       const loggedInUser = loginResult.user;
@@ -74,12 +73,12 @@ const LoginForm: React.FC = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
-                name="login" // Mengubah 'email' menjadi 'login'
+                name="login"
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
-                    <FormLabel htmlFor="login">{t('emailLabel')}</FormLabel> {/* Tetap menggunakan 'emailLabel' untuk teks, bisa diganti jika perlu */}
+                    <FormLabel htmlFor="login">{t('emailLabel')}</FormLabel>
                     <FormControl>
-                      <Input id="login" type="text" placeholder={t('emailPlaceholder')} {...field} /> {/* Mengubah type menjadi text */}
+                      <Input id="login" type="text" placeholder={t('emailPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,29 +90,29 @@ const LoginForm: React.FC = () => {
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
                     <FormLabel htmlFor="password">{t('passwordLabel')}</FormLabel>
-                    <div className="relative">
-                      <FormControl>
+                    <FormControl> {/* FormControl sekarang membungkus div */}
+                      <div className="relative">
                         <Input
                           id="password"
                           type={showPassword ? 'text' : 'password'}
                           className="pr-10"
                           {...field}
                         />
-                      </FormControl>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={togglePasswordVisibility}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
