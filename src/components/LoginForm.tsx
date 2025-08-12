@@ -90,29 +90,29 @@ const LoginForm: React.FC = () => {
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
                     <FormLabel htmlFor="password">{t('passwordLabel')}</FormLabel>
-                    <FormControl> {/* FormControl sekarang membungkus div */}
-                      <div className="relative">
+                    <div className="relative">
+                      <FormControl>
                         <Input
                           id="password"
                           type={showPassword ? 'text' : 'password'}
                           className="pr-10"
                           {...field}
                         />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={togglePasswordVisibility}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
