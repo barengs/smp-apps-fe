@@ -37,6 +37,7 @@ const CalonSantriDetailPage: React.FC = () => {
   const calonSantri = apiResponse?.data;
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [isPaymentProcessDialogOpen, setIsPaymentProcessDialogOpen] = useState(false); // State baru untuk dialog pembayaran
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -97,8 +98,14 @@ const CalonSantriDetailPage: React.FC = () => {
   };
 
   const handleProcessPayment = () => {
-    console.log('Proses Pembayaran clicked for ID:', santriId);
-    alert('Fungsi proses pembayaran akan segera diimplementasikan!');
+    setIsPaymentProcessDialogOpen(true); // Buka dialog saat tombol diklik
+  };
+
+  const handleContinuePaymentProcess = () => {
+    // Logika untuk melanjutkan proses pembayaran (misalnya, navigasi ke halaman pembayaran atau API call)
+    console.log('Melanjutkan proses pembayaran untuk ID:', santriId);
+    alert('Fungsi lanjutan proses pembayaran akan diimplementasikan di sini!');
+    setIsPaymentProcessDialogOpen(false); // Tutup dialog setelah melanjutkan
   };
 
   const PdfDocument = <RegistrationFormPdf calonSantri={calonSantri} />;
@@ -248,6 +255,28 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Button>
               )}
             </PDFDownloadLink>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Proses Pembayaran */}
+      <Dialog open={isPaymentProcessDialogOpen} onOpenChange={setIsPaymentProcessDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Proses Pembayaran</DialogTitle>
+            <DialogDescription>
+              Buat nomor santri sebagai akun dan proses pembayaran.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Batal
+              </Button>
+            </DialogClose>
+            <Button type="button" onClick={handleContinuePaymentProcess}>
+              Lanjutkan
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
