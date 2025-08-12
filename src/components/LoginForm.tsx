@@ -15,7 +15,7 @@ import * as toast from '@/utils/toast';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Format email tidak valid.' }),
+  login: z.string().min(1, { message: 'Bidang login tidak boleh kosong.' }), // Mengubah 'email' menjadi 'login'
   password: z.string().min(1, { message: 'Kata sandi tidak boleh kosong.' }),
 });
 
@@ -25,12 +25,12 @@ const LoginForm: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [login, { isLoading }] = useLoginMutation();
+  const [loginMutation, { isLoading }] = useLoginMutation(); // Mengganti nama variabel agar tidak bentrok dengan properti 'login'
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      login: '', // Mengubah 'email' menjadi 'login'
       password: '',
     },
   });
@@ -41,7 +41,7 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const loginResult = await login(values as LoginRequest).unwrap();
+      const loginResult = await loginMutation(values as LoginRequest).unwrap(); // Menggunakan loginMutation
       toast.showSuccess('Login berhasil!');
 
       const loggedInUser = loginResult.user;
@@ -74,12 +74,12 @@ const LoginForm: React.FC = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="login" // Mengubah 'email' menjadi 'login'
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
-                    <FormLabel htmlFor="email">{t('emailLabel')}</FormLabel>
+                    <FormLabel htmlFor="login">{t('emailLabel')}</FormLabel> {/* Tetap menggunakan 'emailLabel' untuk teks, bisa diganti jika perlu */}
                     <FormControl>
-                      <Input id="email" type="email" placeholder={t('emailPlaceholder')} {...field} />
+                      <Input id="login" type="text" placeholder={t('emailPlaceholder')} {...field} /> {/* Mengubah type menjadi text */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
