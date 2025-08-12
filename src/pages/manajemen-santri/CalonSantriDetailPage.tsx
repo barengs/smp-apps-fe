@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/tooltip';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
+import { AlertCircle } from 'lucide-react'; // Import AlertCircle
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -263,7 +264,10 @@ const CalonSantriDetailPage: React.FC = () => {
       <Dialog open={isPaymentProcessDialogOpen} onOpenChange={setIsPaymentProcessDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Proses Pembayaran</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-yellow-500" /> {/* Ikon peringatan */}
+              Proses Pembayaran
+            </DialogTitle>
             <DialogDescription>
               Buat nomor santri sebagai akun dan proses pembayaran.
             </DialogDescription>
