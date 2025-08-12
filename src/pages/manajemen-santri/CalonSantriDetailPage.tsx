@@ -265,7 +265,7 @@ const CalonSantriDetailPage: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-yellow-500" /> {/* Ikon peringatan */}
+              <AlertCircle className="h-12 w-12 text-yellow-500" /> {/* Ikon peringatan diperbesar */}
               Proses Pembayaran
             </DialogTitle>
             <DialogDescription>
