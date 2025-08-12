@@ -222,7 +222,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                   <AccordionItem value={item.titleKey} key={item.titleKey} className="border-none">
                     <AccordionTrigger
                       className={cn(
-                        "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-accent/80 hover:no-underline",
+                        "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-menu-hover-background/80 hover:no-underline",
                         isActive && "bg-primary text-primary-foreground" // Changed to primary
                       )}
                     >
@@ -240,7 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                             "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
                             location.pathname.startsWith(child.href)
                               ? "bg-secondary text-secondary-foreground" // Changed to secondary
-                              : "hover:bg-sidebar-accent/80"
+                              : "hover:bg-sidebar-menu-hover-background/80"
                           )}
                         >
                           {child.icon}
@@ -260,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         to={item.href || "#"}
                         className={cn(
                           "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                          isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-accent/80", // Changed to primary
+                          isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-menu-hover-background/80", // Changed to primary
                           "justify-center"
                         )}
                       >
@@ -278,7 +278,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     to={item.href || "#"}
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                      isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-accent/80", // Changed to primary
+                      isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-menu-hover-background/80", // Changed to primary
                       "px-4"
                     )}
                   >

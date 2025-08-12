@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -15,7 +14,7 @@ import * as toast from '@/utils/toast';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Format email tidak valid.' }),
+  login: z.string().min(1, { message: 'Bidang login tidak boleh kosong.' }),
   password: z.string().min(1, { message: 'Kata sandi tidak boleh kosong.' }),
 });
 
@@ -25,12 +24,12 @@ const LoginForm: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [login, { isLoading }] = useLoginMutation();
+  const [loginMutation, { isLoading }] = useLoginMutation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      login: '',
       password: '',
     },
   });
@@ -41,7 +40,7 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const loginResult = await login(values as LoginRequest).unwrap();
+      const loginResult = await loginMutation(values as LoginRequest).unwrap();
       toast.showSuccess('Login berhasil!');
 
       const loggedInUser = loginResult.user;
@@ -74,12 +73,12 @@ const LoginForm: React.FC = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="login"
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
-                    <FormLabel htmlFor="email">{t('emailLabel')}</FormLabel>
+                    <FormLabel htmlFor="login">{t('emailLabel')}</FormLabel>
                     <FormControl>
-                      <Input id="email" type="email" placeholder={t('emailPlaceholder')} {...field} />
+                      <Input id="login" type="text" placeholder={t('emailPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

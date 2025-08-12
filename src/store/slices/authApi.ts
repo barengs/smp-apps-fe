@@ -18,7 +18,7 @@ interface AuthResponse {
 }
 
 export interface LoginRequest {
-  email: string;
+  login: string; // Mengubah 'email' menjadi 'login'
   password: string;
 }
 
