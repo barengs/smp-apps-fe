@@ -39,7 +39,7 @@ interface ProdukFormProps {
 
 const formSchema = z.object({
   product_name: z.string().min(3, 'Nama produk minimal 3 karakter'),
-  product_type: z.enum(['SAVINGS', 'FINANCING'], {
+  product_type: z.enum(['SAVINGS', 'CHECKING', 'LOAN', 'TIME_DEPOSIT'], { // Diperbarui
     required_error: 'Jenis produk harus dipilih',
   }),
   interest_rate: z.coerce.number().min(0, 'Suku bunga tidak boleh negatif'),
@@ -135,7 +135,9 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="SAVINGS">Simpanan (Savings)</SelectItem>
-                      <SelectItem value="FINANCING">Pembiayaan (Financing)</SelectItem>
+                      <SelectItem value="CHECKING">Giro (Checking)</SelectItem>
+                      <SelectItem value="LOAN">Pinjaman (Loan)</SelectItem>
+                      <SelectItem value="TIME_DEPOSIT">Deposito Berjangka (Time Deposit)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
