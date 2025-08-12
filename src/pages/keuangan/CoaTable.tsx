@@ -32,7 +32,7 @@ const CoaTable: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCoa, setSelectedCoa] = useState<Coa | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [coaToDelete, setCoaToDelete] = useState<number | null>(null);
+  const [coaToDelete, setCoaToDelete] = useState<string | null>(null);
 
   const handleAdd = () => {
     setSelectedCoa(null);
@@ -44,8 +44,8 @@ const CoaTable: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const openDeleteDialog = (id: number) => {
-    setCoaToDelete(id);
+  const openDeleteDialog = (code: string) => {
+    setCoaToDelete(code);
     setIsDeleteDialogOpen(true);
   };
 
@@ -64,48 +64,34 @@ const CoaTable: React.FC = () => {
 
   const columns: ColumnDef<Coa>[] = [
     {
-      accessorKey: 'kode_akun',
-      header: 'Kode Akun',
+      accessorKey: 'coa_code',
+      header: 'Kode COA',
     },
     {
-      accessorKey: 'nama_akun',
+      accessorKey: 'account_name',
       header: 'Nama Akun',
-      cell: ({ row }) => {
-        const level = row.original.level || 0;
-        return (
-          <div style={{ paddingLeft: `${level * 20}px` }}>
-            {row.original.nama_akun}
-          </div>
-        );
-      },
     },
     {
-      accessorKey: 'kategori_akun',
-      header: 'Kategori',
-      cell: ({ row }) => <span className="capitalize">{row.original.kategori_akun}</span>,
+      accessorKey: 'account_type',
+      header: 'Tipe Akun',
+      cell: ({ row }) => <span className="capitalize">{row.original.account_type.toLowerCase()}</span>,
     },
     {
-      accessorKey: 'posisi_akun',
-      header: 'Posisi Saldo',
-      cell: ({ row }) => <span className="capitalize">{row.original.posisi_akun}</span>,
+      accessorKey: 'parent_coa_code',
+      header: 'Induk Akun',
     },
     {
-      accessorKey: 'saldo_awal',
-      header: 'Saldo Awal',
-      cell: ({ row }) => `Rp ${row.original.saldo_awal.toLocaleString('id-ID')}`,
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
+      accessorKey: 'is_postable',
+      header: 'Dapat Diposting',
       cell: ({ row }) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.original.status === 'aktif'
+            row.original.is_postable
               ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
+              : 'bg-gray-100 text-gray-800'
           }`}
         >
-          {row.original.status}
+          {row.original.is_postable ? 'Ya' : 'Tidak'}
         </span>
       ),
     },
@@ -124,7 +110,7 @@ const CoaTable: React.FC = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleEdit(coa)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openDeleteDialog(coa.id)}>Hapus</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openDeleteDialog(coa.coa_code)}>Hapus</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );

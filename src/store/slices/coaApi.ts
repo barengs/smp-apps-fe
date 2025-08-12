@@ -1,18 +1,11 @@
 import { smpApi } from '../baseApi';
 
 export interface Coa {
-  id: number;
-  kode_akun: string;
-  nama_akun: string;
-  posisi_akun: 'debit' | 'kredit';
-  kategori_akun: 'aset' | 'liabilitas' | 'ekuitas' | 'pendapatan' | 'beban';
-  parent_id?: number | null;
-  parent?: { nama_akun: string } | null;
-  level: number;
-  saldo_awal: number;
-  status: 'aktif' | 'tidak_aktif';
-  created_at: string;
-  updated_at: string;
+  coa_code: string;
+  account_name: string;
+  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  parent_coa_code: string | null;
+  is_postable: boolean;
 }
 
 interface GetCoaResponse {
@@ -21,40 +14,38 @@ interface GetCoaResponse {
 }
 
 export interface CreateUpdateCoaRequest {
-  kode_akun: string;
-  nama_akun: string;
-  posisi_akun: 'debit' | 'kredit';
-  kategori_akun: 'aset' | 'liabilitas' | 'ekuitas' | 'pendapatan' | 'beban';
-  parent_id?: number | null;
-  saldo_awal: number;
-  status: 'aktif' | 'tidak_aktif';
+  coa_code: string;
+  account_name: string;
+  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  parent_coa_code?: string | null;
+  is_postable: boolean;
 }
 
 export const coaApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCoa: builder.query<GetCoaResponse, void>({
-      query: () => 'bank-santri/coa',
+      query: () => 'chart-of-account',
       providesTags: ['Coa'],
     }),
     createCoa: builder.mutation<Coa, CreateUpdateCoaRequest>({
       query: (newCoa) => ({
-        url: 'bank-santri/coa',
+        url: 'chart-of-account',
         method: 'POST',
         body: newCoa,
       }),
       invalidatesTags: ['Coa'],
     }),
-    updateCoa: builder.mutation<Coa, { id: number; data: CreateUpdateCoaRequest }>({
+    updateCoa: builder.mutation<Coa, { id: string; data: CreateUpdateCoaRequest }>({
         query: ({ id, data }) => ({
-            url: `bank-santri/coa/${id}`,
+            url: `chart-of-account/${id}`,
             method: 'PUT',
             body: data,
         }),
         invalidatesTags: ['Coa'],
     }),
-    deleteCoa: builder.mutation<{ message: string }, number>({
+    deleteCoa: builder.mutation<{ message: string }, string>({
         query: (id) => ({
-            url: `bank-santri/coa/${id}`,
+            url: `chart-of-account/${id}`,
             method: 'DELETE',
         }),
         invalidatesTags: ['Coa'],

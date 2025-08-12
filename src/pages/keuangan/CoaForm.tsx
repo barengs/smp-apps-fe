@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useCreateCoaMutation, useUpdateCoaMutation, useGetCoaQuery, Coa, CreateUpdateCoaRequest } from '@/store/slices/coaApi';
 import * as toast from '@/utils/toast';
 
@@ -37,13 +38,11 @@ interface CoaFormProps {
 }
 
 const formSchema = z.object({
-  kode_akun: z.string().min(1, 'Kode akun tidak boleh kosong'),
-  nama_akun: z.string().min(3, 'Nama akun minimal 3 karakter'),
-  posisi_akun: z.enum(['debit', 'kredit'], { required_error: 'Posisi akun harus dipilih' }),
-  kategori_akun: z.enum(['aset', 'liabilitas', 'ekuitas', 'pendapatan', 'beban'], { required_error: 'Kategori akun harus dipilih' }),
-  parent_id: z.coerce.number().optional().nullable(),
-  saldo_awal: z.coerce.number().min(0, 'Saldo awal tidak boleh negatif'),
-  status: z.enum(['aktif', 'tidak_aktif'], { required_error: 'Status harus dipilih' }),
+  coa_code: z.string().min(1, 'Kode COA tidak boleh kosong'),
+  account_name: z.string().min(3, 'Nama akun minimal 3 karakter'),
+  account_type: z.enum(['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE'], { required_error: 'Tipe akun harus dipilih' }),
+  parent_coa_code: z.string().optional().nullable(),
+  is_postable: z.boolean().default(true),
 });
 
 const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
@@ -54,13 +53,11 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      kode_akun: '',
-      nama_akun: '',
-      posisi_akun: undefined,
-      kategori_akun: undefined,
-      parent_id: null,
-      saldo_awal: 0,
-      status: 'aktif',
+      coa_code: '',
+      account_name: '',
+      account_type: undefined,
+      parent_coa_code: null,
+      is_postable: true,
     },
   });
 
@@ -68,17 +65,15 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
     if (coa) {
       form.reset({
         ...coa,
-        parent_id: coa.parent_id || null,
+        parent_coa_code: coa.parent_coa_code || null,
       });
     } else {
       form.reset({
-        kode_akun: '',
-        nama_akun: '',
-        posisi_akun: undefined,
-        kategori_akun: undefined,
-        parent_id: null,
-        saldo_awal: 0,
-        status: 'aktif',
+        coa_code: '',
+        account_name: '',
+        account_type: undefined,
+        parent_coa_code: null,
+        is_postable: true,
       });
     }
   }, [coa, form]);
@@ -86,7 +81,7 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (coa) {
-        await updateCoa({ id: coa.id, data: values as CreateUpdateCoaRequest }).unwrap();
+        await updateCoa({ id: coa.coa_code, data: values as CreateUpdateCoaRequest }).unwrap();
         toast.showSuccess('Akun berhasil diperbarui');
       } else {
         await createCoa(values as CreateUpdateCoaRequest).unwrap();
@@ -111,12 +106,12 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="kode_akun"
+              name="coa_code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kode Akun</FormLabel>
+                  <FormLabel>Kode COA</FormLabel>
                   <FormControl>
-                    <Input placeholder="Contoh: 1-10100" {...field} />
+                    <Input placeholder="Contoh: 1-10100" {...field} disabled={!!coa} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +119,7 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
             />
             <FormField
               control={form.control}
-              name="nama_akun"
+              name="account_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nama Akun</FormLabel>
@@ -137,20 +132,20 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
             />
             <FormField
               control={form.control}
-              name="kategori_akun"
+              name="account_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kategori Akun</FormLabel>
+                  <FormLabel>Tipe Akun</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Pilih kategori" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Pilih tipe" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="aset">Aset</SelectItem>
-                      <SelectItem value="liabilitas">Liabilitas</SelectItem>
-                      <SelectItem value="ekuitas">Ekuitas</SelectItem>
-                      <SelectItem value="pendapatan">Pendapatan</SelectItem>
-                      <SelectItem value="beban">Beban</SelectItem>
+                      <SelectItem value="ASSET">Aset (Asset)</SelectItem>
+                      <SelectItem value="LIABILITY">Kewajiban (Liability)</SelectItem>
+                      <SelectItem value="EQUITY">Ekuitas (Equity)</SelectItem>
+                      <SelectItem value="REVENUE">Pendapatan (Revenue)</SelectItem>
+                      <SelectItem value="EXPENSE">Beban (Expense)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -159,38 +154,19 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
             />
             <FormField
               control={form.control}
-              name="posisi_akun"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Posisi Saldo Normal</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Pilih posisi" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="debit">Debit</SelectItem>
-                      <SelectItem value="kredit">Kredit</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="parent_id"
+              name="parent_coa_code"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Akun Induk (Parent)</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} defaultValue={field.value?.toString()}>
+                  <Select onValueChange={(value) => field.onChange(value || null)} defaultValue={field.value?.toString()}>
                     <FormControl>
                       <SelectTrigger><SelectValue placeholder="Pilih akun induk (opsional)" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="">Tidak ada</SelectItem>
                       {coaList?.data.map((item) => (
-                        <SelectItem key={item.id} value={item.id.toString()}>
-                          {item.kode_akun} - {item.nama_akun}
+                        <SelectItem key={item.coa_code} value={item.coa_code}>
+                          {item.coa_code} - {item.account_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -201,33 +177,18 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
             />
             <FormField
               control={form.control}
-              name="saldo_awal"
+              name="is_postable"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Saldo Awal</FormLabel>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Dapat Diposting (Postable)</FormLabel>
+                  </div>
                   <FormControl>
-                    <Input type="number" placeholder="0" {...field} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Pilih status" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="aktif">Aktif</SelectItem>
-                      <SelectItem value="tidak_aktif">Tidak Aktif</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
                 </FormItem>
               )}
             />
