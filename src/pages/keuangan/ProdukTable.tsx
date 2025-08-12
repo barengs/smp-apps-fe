@@ -3,7 +3,7 @@ import { useGetProdukBankQuery, useDeleteProdukBankMutation, ProdukBank } from '
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal } from 'lucide-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table'; // Ditambahkan
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import * as toast from '@/utils/toast';
+import * as toast from '@/utils/toast'; // Diperbaiki
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import ProdukForm from './ProdukForm';
 
@@ -139,17 +139,12 @@ const ProdukTable: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Daftar Produk Bank</h2>
-        <Button onClick={handleAdd}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Tambah Produk
-        </Button>
-      </div>
       <DataTable 
         columns={columns} 
         data={data?.data || []} 
         exportFileName="produk_bank"
         exportTitle="Daftar Produk Bank"
+        onAddData={handleAdd} // Tombol "Tambah Produk" dipindahkan ke sini
       />
       <ProdukForm
         isOpen={isFormOpen}

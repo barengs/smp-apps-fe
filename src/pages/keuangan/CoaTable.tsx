@@ -3,7 +3,7 @@ import { useGetCoaQuery, useDeleteCoaMutation, Coa } from '@/store/slices/coaApi
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal } from 'lucide-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table'; // Ditambahkan
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,17 +129,12 @@ const CoaTable: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Bagan Akun Standar (COA)</h2>
-        <Button onClick={handleAdd}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Tambah Akun
-        </Button>
-      </div>
       <DataTable 
         columns={columns} 
         data={data?.data || []} 
         exportFileName="chart_of_accounts"
         exportTitle="Bagan Akun Standar"
+        onAddData={handleAdd} // Tombol "Tambah Akun" dipindahkan ke sini
       />
       <CoaForm
         isOpen={isFormOpen}
