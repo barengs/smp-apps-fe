@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -28,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useCreateProdukBankMutation, useUpdateProdukBankMutation, ProdukBank, CreateUpdateProdukBankRequest } from '@/store/slices/produkBankApi';
 import * as toast from '@/utils/toast';
 
@@ -38,16 +38,13 @@ interface ProdukFormProps {
 }
 
 const formSchema = z.object({
-  nama_produk: z.string().min(3, 'Nama produk minimal 3 karakter'),
-  deskripsi: z.string().min(10, 'Deskripsi minimal 10 karakter'),
-  jenis_produk: z.enum(['simpanan', 'pembiayaan'], {
+  product_name: z.string().min(3, 'Nama produk minimal 3 karakter'),
+  product_type: z.enum(['SAVINGS', 'FINANCING'], {
     required_error: 'Jenis produk harus dipilih',
   }),
-  saldo_minimum: z.coerce.number().min(0, 'Saldo minimum tidak boleh negatif'),
-  biaya_administrasi: z.coerce.number().min(0, 'Biaya administrasi tidak boleh negatif'),
-  status: z.enum(['aktif', 'tidak_aktif'], {
-    required_error: 'Status harus dipilih',
-  }),
+  interest_rate: z.coerce.number().min(0, 'Suku bunga tidak boleh negatif'),
+  admin_fee: z.coerce.number().min(0, 'Biaya administrasi tidak boleh negatif'),
+  is_active: z.boolean().default(true),
 });
 
 const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
@@ -57,26 +54,30 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nama_produk: '',
-      deskripsi: '',
-      jenis_produk: undefined,
-      saldo_minimum: 0,
-      biaya_administrasi: 0,
-      status: 'aktif',
+      product_name: '',
+      product_type: undefined,
+      interest_rate: 0,
+      admin_fee: 0,
+      is_active: true,
     },
   });
 
   useEffect(() => {
     if (produk) {
-      form.reset(produk);
+      form.reset({
+        product_name: produk.product_name,
+        product_type: produk.product_type,
+        interest_rate: produk.interest_rate,
+        admin_fee: produk.admin_fee,
+        is_active: produk.is_active,
+      });
     } else {
       form.reset({
-        nama_produk: '',
-        deskripsi: '',
-        jenis_produk: undefined,
-        saldo_minimum: 0,
-        biaya_administrasi: 0,
-        status: 'aktif',
+        product_name: '',
+        product_type: undefined,
+        interest_rate: 0,
+        admin_fee: 0,
+        is_active: true,
       });
     }
   }, [produk, form]);
@@ -84,7 +85,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (produk) {
-        await updateProduk({ id: produk.id, data: values as CreateUpdateProdukBankRequest }).unwrap();
+        await updateProduk({ id: produk.product_code, data: values as CreateUpdateProdukBankRequest }).unwrap();
         toast.showSuccess('Produk berhasil diperbarui');
       } else {
         await createProduk(values as CreateUpdateProdukBankRequest).unwrap();
@@ -109,7 +110,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="nama_produk"
+              name="product_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nama Produk</FormLabel>
@@ -122,20 +123,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
             />
             <FormField
               control={form.control}
-              name="deskripsi"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Deskripsi</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Jelaskan tentang produk ini" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="jenis_produk"
+              name="product_type"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Jenis Produk</FormLabel>
@@ -146,8 +134,8 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="simpanan">Simpanan</SelectItem>
-                      <SelectItem value="pembiayaan">Pembiayaan</SelectItem>
+                      <SelectItem value="SAVINGS">Simpanan (Savings)</SelectItem>
+                      <SelectItem value="FINANCING">Pembiayaan (Financing)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -156,10 +144,10 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
             />
             <FormField
               control={form.control}
-              name="saldo_minimum"
+              name="interest_rate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Saldo Minimum</FormLabel>
+                  <FormLabel>Suku Bunga (%)</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="0" {...field} />
                   </FormControl>
@@ -169,7 +157,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
             />
             <FormField
               control={form.control}
-              name="biaya_administrasi"
+              name="admin_fee"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Biaya Administrasi</FormLabel>
@@ -182,22 +170,18 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
             />
             <FormField
               control={form.control}
-              name="status"
+              name="is_active"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="aktif">Aktif</SelectItem>
-                      <SelectItem value="tidak_aktif">Tidak Aktif</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Status Aktif</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

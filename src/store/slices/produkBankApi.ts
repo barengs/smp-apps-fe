@@ -2,16 +2,15 @@ import { smpApi } from '../baseApi';
 
 // --- API Response and Request Types ---
 
+// Interface disesuaikan dengan struktur data dari endpoint /product
 export interface ProdukBank {
-  id: number;
-  nama_produk: string;
-  deskripsi: string;
-  jenis_produk: 'simpanan' | 'pembiayaan';
-  saldo_minimum: number;
-  biaya_administrasi: number;
-  status: 'aktif' | 'tidak_aktif';
-  created_at: string;
-  updated_at: string;
+  product_code: string;
+  product_name: string;
+  // Asumsi tipe produk selain SAVINGS adalah FINANCING
+  product_type: 'SAVINGS' | 'FINANCING';
+  interest_rate: number;
+  admin_fee: number;
+  is_active: boolean;
 }
 
 interface GetProdukBankResponse {
@@ -19,40 +18,40 @@ interface GetProdukBankResponse {
   data: ProdukBank[];
 }
 
+// Request interface disesuaikan untuk create/update
 export interface CreateUpdateProdukBankRequest {
-  nama_produk: string;
-  deskripsi: string;
-  jenis_produk: 'simpanan' | 'pembiayaan';
-  saldo_minimum: number;
-  biaya_administrasi: number;
-  status: 'aktif' | 'tidak_aktif';
+  product_name: string;
+  product_type: 'SAVINGS' | 'FINANCING';
+  interest_rate: number;
+  admin_fee: number;
+  is_active: boolean;
 }
 
 export const produkBankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProdukBank: builder.query<GetProdukBankResponse, void>({
-      query: () => 'bank-santri/produk',
+      query: () => 'product', // Endpoint diubah ke /product
       providesTags: ['ProdukBank'],
     }),
     createProdukBank: builder.mutation<ProdukBank, CreateUpdateProdukBankRequest>({
       query: (newProduk) => ({
-        url: 'bank-santri/produk',
+        url: 'product', // Endpoint diubah ke /product
         method: 'POST',
         body: newProduk,
       }),
       invalidatesTags: ['ProdukBank'],
     }),
-    updateProdukBank: builder.mutation<ProdukBank, { id: number; data: CreateUpdateProdukBankRequest }>({
+    updateProdukBank: builder.mutation<ProdukBank, { id: string; data: CreateUpdateProdukBankRequest }>({
         query: ({ id, data }) => ({
-            url: `bank-santri/produk/${id}`,
+            url: `product/${id}`, // Endpoint diubah dan id sekarang adalah product_code (string)
             method: 'PUT',
             body: data,
         }),
         invalidatesTags: ['ProdukBank'],
     }),
-    deleteProdukBank: builder.mutation<{ message: string }, number>({
+    deleteProdukBank: builder.mutation<{ message: string }, string>({
         query: (id) => ({
-            url: `bank-santri/produk/${id}`,
+            url: `product/${id}`, // Endpoint diubah dan id sekarang adalah product_code (string)
             method: 'DELETE',
         }),
         invalidatesTags: ['ProdukBank'],

@@ -32,7 +32,7 @@ const ProdukTable: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedProduk, setSelectedProduk] = useState<ProdukBank | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [produkToDelete, setProdukToDelete] = useState<number | null>(null);
+  const [produkToDelete, setProdukToDelete] = useState<string | null>(null);
 
   const handleAdd = () => {
     setSelectedProduk(null);
@@ -44,8 +44,8 @@ const ProdukTable: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const openDeleteDialog = (id: number) => {
-    setProdukToDelete(id);
+  const openDeleteDialog = (code: string) => {
+    setProdukToDelete(code);
     setIsDeleteDialogOpen(true);
   };
 
@@ -64,36 +64,40 @@ const ProdukTable: React.FC = () => {
 
   const columns: ColumnDef<ProdukBank>[] = [
     {
-      accessorKey: 'nama_produk',
+      accessorKey: 'product_code',
+      header: 'Kode Produk',
+    },
+    {
+      accessorKey: 'product_name',
       header: 'Nama Produk',
     },
     {
-      accessorKey: 'jenis_produk',
+      accessorKey: 'product_type',
       header: 'Jenis',
-      cell: ({ row }) => <span className="capitalize">{row.original.jenis_produk}</span>,
+      cell: ({ row }) => <span className="capitalize">{row.original.product_type.toLowerCase()}</span>,
     },
     {
-      accessorKey: 'saldo_minimum',
-      header: 'Saldo Minimum',
-      cell: ({ row }) => `Rp ${row.original.saldo_minimum.toLocaleString('id-ID')}`,
+      accessorKey: 'interest_rate',
+      header: 'Bunga (%)',
+      cell: ({ row }) => `${row.original.interest_rate}%`,
     },
     {
-      accessorKey: 'biaya_administrasi',
+      accessorKey: 'admin_fee',
       header: 'Biaya Admin',
-      cell: ({ row }) => `Rp ${row.original.biaya_administrasi.toLocaleString('id-ID')}`,
+      cell: ({ row }) => `Rp ${row.original.admin_fee.toLocaleString('id-ID')}`,
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'is_active',
       header: 'Status',
       cell: ({ row }) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.original.status === 'aktif'
+            row.original.is_active
               ? 'bg-green-100 text-green-800'
               : 'bg-red-100 text-red-800'
           }`}
         >
-          {row.original.status}
+          {row.original.is_active ? 'Aktif' : 'Tidak Aktif'}
         </span>
       ),
     },
@@ -114,7 +118,7 @@ const ProdukTable: React.FC = () => {
               <DropdownMenuItem onClick={() => handleEdit(produk)}>
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openDeleteDialog(produk.id)}>
+              <DropdownMenuItem onClick={() => openDeleteDialog(produk.product_code)}>
                 Hapus
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -125,7 +129,7 @@ const ProdukTable: React.FC = () => {
   ];
 
   if (isLoading) {
-    return <TableLoadingSkeleton numRows={5} />; // Mengubah 'count' menjadi 'numRows'
+    return <TableLoadingSkeleton numRows={5} />;
   }
 
   if (isError) {
@@ -144,8 +148,8 @@ const ProdukTable: React.FC = () => {
       <DataTable 
         columns={columns} 
         data={data?.data || []} 
-        exportFileName="produk_bank" // Menambahkan prop exportFileName
-        exportTitle="Daftar Produk Bank" // Menambahkan prop exportTitle
+        exportFileName="produk_bank"
+        exportTitle="Daftar Produk Bank"
       />
       <ProdukForm
         isOpen={isFormOpen}
