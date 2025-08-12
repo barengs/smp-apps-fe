@@ -115,6 +115,7 @@ export const smpApi = createApi({
     'Transaksi', // Tambahkan tag Transaksi
     'ControlPanelSettings', // Tambahkan tag baru ini
     'StudentStatistics', // Tambahkan tag baru ini
+    'ProdukBank', // Tambahkan tag ProdukBank di sini
   ],
   endpoints: () => ({}),
 });
