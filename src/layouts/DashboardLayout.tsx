@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText } from 'lucide-react'; // Import Receipt, Wallet, FileText icons
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -18,7 +18,7 @@ import { logOut } from '@/store/authActions';
 import * as toast from '@/utils/toast';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { selectCurrentUser } from '@/store/slices/authSlice'; // Tambahkan import ini
+import { selectCurrentUser } from '@/store/slices/authSlice';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -49,11 +49,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const adminSidebarNavItems: SidebarNavItem[] = [
     { titleKey: "sidebar.dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
     {
-      titleKey: "sidebar.bankSantri", // Moved to here
+      titleKey: "sidebar.bankSantri",
       icon: <Landmark className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.transactions", href: "/dashboard/bank-santri/transaksi", icon: <Receipt className="h-4 w-4" /> },
         { titleKey: "sidebar.accounts", href: "/dashboard/bank-santri/rekening", icon: <Wallet className="h-4 w-4" /> },
+        { titleKey: "sidebar.produk", href: "/dashboard/bank-santri/produk", icon: <Package className="h-4 w-4" /> },
+        { titleKey: "sidebar.coa", href: "/dashboard/bank-santri/coa", icon: <BookKey className="h-4 w-4" /> },
         { titleKey: "sidebar.reports", href: "/dashboard/bank-santri/laporan", icon: <FileText className="h-4 w-4" /> },
       ],
     },
@@ -67,11 +69,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       ],
     },
     {
-      titleKey: "sidebar.internshipManagement", // Menu baru
+      titleKey: "sidebar.internshipManagement",
       icon: <Briefcase className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> }, // Dipindahkan ke sini
-        { titleKey: "sidebar.responsiblePerson", href: "/dashboard/penanggung-jawab-magang", icon: <UserSearch className="h-4 w-4" /> }, // Submenu baru
+        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
+        { titleKey: "sidebar.responsiblePerson", href: "/dashboard/penanggung-jawab-magang", icon: <UserSearch className="h-4 w-4" /> },
       ],
     },
     {
@@ -100,8 +102,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       ],
     },
     {
-      titleKey: "sidebar.kepesantrenan", // Menu baru: Kepesantrenan
-      icon: <Tent className="h-5 w-5" />, // Icon untuk Kepesantrenan
+      titleKey: "sidebar.kepesantrenan",
+      icon: <Tent className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
         { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
@@ -223,7 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     <AccordionTrigger
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-menu-hover-background/80 hover:no-underline",
-                        isActive && "bg-primary text-primary-foreground" // Changed to primary
+                        isActive && "bg-primary text-primary-foreground"
                       )}
                     >
                       <div className="flex items-center flex-grow">
@@ -239,7 +241,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                           className={cn(
                             "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
                             location.pathname.startsWith(child.href)
-                              ? "bg-secondary text-secondary-foreground" // Changed to secondary
+                              ? "bg-secondary text-secondary-foreground"
                               : "hover:bg-sidebar-menu-hover-background/80"
                           )}
                         >
@@ -260,7 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                         to={item.href || "#"}
                         className={cn(
                           "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                          isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-menu-hover-background/80", // Changed to primary
+                          isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-menu-hover-background/80",
                           "justify-center"
                         )}
                       >
@@ -278,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     to={item.href || "#"}
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
-                      isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-menu-hover-background/80", // Changed to primary
+                      isActive ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-menu-hover-background/80",
                       "px-4"
                     )}
                   >
