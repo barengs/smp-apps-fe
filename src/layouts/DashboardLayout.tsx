@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote } from 'lucide-react'; // Menambahkan Banknote
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -58,11 +58,12 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       ],
     },
     {
-      titleKey: "sidebar.masterBank", // Menu baru
-      icon: <Banknote className="h-5 w-5" />, // Icon baru
+      titleKey: "sidebar.masterBank",
+      icon: <Banknote className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.produk", href: "/dashboard/bank-santri/produk", icon: <Package className="h-4 w-4" /> }, // Dipindahkan
-        { titleKey: "sidebar.coa", href: "/dashboard/bank-santri/coa", icon: <BookKey className="h-4 w-4" /> }, // Dipindahkan
+        { titleKey: "sidebar.produk", href: "/dashboard/bank-santri/produk", icon: <Package className="h-4 w-4" /> },
+        { titleKey: "sidebar.coa", href: "/dashboard/bank-santri/coa", icon: <BookKey className="h-4 w-4" /> },
+        { titleKey: "sidebar.transactionType", href: "/dashboard/bank-santri/jenis-transaksi", icon: <ArrowLeftRight className="h-4 w-4" /> },
       ],
     },
     {
