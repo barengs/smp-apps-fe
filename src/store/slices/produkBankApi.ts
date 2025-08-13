@@ -20,6 +20,7 @@ interface GetProdukBankResponse {
 
 // Request interface disesuaikan untuk create/update
 export interface CreateUpdateProdukBankRequest {
+  product_code?: string; // Ditambahkan, opsional karena tidak selalu ada (misal saat update)
   product_name: string;
   product_type: 'SAVINGS' | 'CHECKING' | 'LOAN' | 'TIME_DEPOSIT'; // Diperbarui
   interest_rate: number;
