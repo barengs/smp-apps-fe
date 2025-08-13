@@ -41,7 +41,7 @@ interface JenisTransaksiFormProps {
 const formSchema = z.object({
   code: z.string().min(1, 'Kode harus diisi'),
   name: z.string().min(3, 'Nama jenis transaksi minimal 3 karakter'),
-  category: z.enum(['TRANSFER', 'PAYMENT', 'CASH_OPERATION', 'FEE'], { // Diperbarui
+  category: z.enum(['transfer', 'payment', 'cash_operation', 'fee'], { // Diperbarui menjadi huruf kecil
     required_error: 'Kategori harus dipilih.',
   }),
   is_debit: z.boolean().default(false),
@@ -142,10 +142,10 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="TRANSFER">Transfer</SelectItem>
-                      <SelectItem value="PAYMENT">Pembayaran</SelectItem>
-                      <SelectItem value="CASH_OPERATION">Operasi Tunai</SelectItem>
-                      <SelectItem value="FEE">Biaya</SelectItem>
+                      <SelectItem value="transfer">Transfer</SelectItem>
+                      <SelectItem value="payment">Pembayaran</SelectItem>
+                      <SelectItem value="cash_operation">Operasi Tunai</SelectItem>
+                      <SelectItem value="fee">Biaya</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

@@ -29,7 +29,7 @@ export interface TransactionType {
   id: number;
   code: string;
   name: string;
-  category: 'TRANSFER' | 'PAYMENT' | 'CASH_OPERATION' | 'FEE'; // Diperbarui
+  category: 'transfer' | 'payment' | 'cash_operation' | 'fee'; // Diperbarui menjadi huruf kecil
   is_debit: boolean;
   is_credit: boolean;
 }
@@ -43,7 +43,7 @@ export interface TransactionTypeApiResponse {
 export interface CreateUpdateTransactionTypeRequest {
   code: string;
   name: string;
-  category: 'TRANSFER' | 'PAYMENT' | 'CASH_OPERATION' | 'FEE'; // Diperbarui
+  category: 'transfer' | 'payment' | 'cash_operation' | 'fee'; // Diperbarui menjadi huruf kecil
   is_debit: boolean;
   is_credit: boolean;
 }
