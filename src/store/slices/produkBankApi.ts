@@ -7,7 +7,7 @@ export interface ProdukBank {
   product_code: string;
   product_name: string;
   // Asumsi tipe produk selain SAVINGS adalah FINANCING
-  product_type: 'SAVINGS' | 'FINANCING';
+  product_type: 'SAVINGS' | 'CHECKING' | 'LOAN' | 'TIME_DEPOSIT'; // Diperbarui
   interest_rate: number;
   admin_fee: number;
   is_active: boolean;
@@ -21,7 +21,7 @@ interface GetProdukBankResponse {
 // Request interface disesuaikan untuk create/update
 export interface CreateUpdateProdukBankRequest {
   product_name: string;
-  product_type: 'SAVINGS' | 'FINANCING';
+  product_type: 'SAVINGS' | 'CHECKING' | 'LOAN' | 'TIME_DEPOSIT'; // Diperbarui
   interest_rate: number;
   admin_fee: number;
   is_active: boolean;

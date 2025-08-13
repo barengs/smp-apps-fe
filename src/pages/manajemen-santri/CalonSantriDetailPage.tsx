@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi';
+import { useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation } from '@/store/slices/calonSantriApi'; // Import new mutation
 import { User, Pencil, ArrowLeft, Printer, DollarSign, Download } from 'lucide-react';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ import {
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 import { AlertCircle } from 'lucide-react'; // Import AlertCircle
+import * as toast from '@/utils/toast'; // Import toast utilities
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -36,6 +37,8 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
+
+  const [processPayment, { isLoading: isProcessingPayment }] = useProcessRegistrationPaymentMutation(); // New mutation hook
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const [isPaymentProcessDialogOpen, setIsPaymentProcessDialogOpen] = useState(false); // State baru untuk dialog pembayaran
@@ -102,11 +105,37 @@ const CalonSantriDetailPage: React.FC = () => {
     setIsPaymentProcessDialogOpen(true); // Buka dialog saat tombol diklik
   };
 
-  const handleContinuePaymentProcess = () => {
-    // Logika untuk melanjutkan proses pembayaran (misalnya, navigasi ke halaman pembayaran atau API call)
-    console.log('Melanjutkan proses pembayaran untuk ID:', santriId);
-    alert('Fungsi lanjutan proses pembayaran akan diimplementasikan di sini!');
-    setIsPaymentProcessDialogOpen(false); // Tutup dialog setelah melanjutkan
+  const handleContinuePaymentProcess = async () => {
+    if (!calonSantri) return;
+
+    // Get current Hijri year
+    const today = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { year: 'numeric' });
+    let hijriYear = 0;
+    const parts = formatter.formatToParts(today);
+    for (const part of parts) {
+      if (part.type === 'year') {
+        hijriYear = parseInt(part.value);
+        break;
+      }
+    }
+
+    try {
+      await processPayment({
+        registration_id: calonSantri.id,
+        product_id: 1,
+        hijri_year: hijriYear,
+        amount: 0, // As per requirement
+        transaction_type_id: 1, // As per requirement
+        channel: 'TELLER', // As per requirement
+        registration_number: calonSantri.registration_number,
+      }).unwrap();
+      toast.showSuccess('Proses pembayaran registrasi berhasil!');
+      setIsPaymentProcessDialogOpen(false); // Tutup dialog setelah berhasil
+    } catch (err) {
+      console.error('Gagal memproses pembayaran:', err);
+      toast.showError('Gagal memproses pembayaran registrasi.');
+    }
   };
 
   const PdfDocument = <RegistrationFormPdf calonSantri={calonSantri} />;
@@ -150,7 +179,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={handleProcessPayment} size="icon">
+                    <Button onClick={handleProcessPayment} size="icon" disabled={isProcessingPayment}> {/* Disable button while processing */}
                       <DollarSign className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -274,12 +303,12 @@ const CalonSantriDetailPage: React.FC = () => {
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={isProcessingPayment}>
                 Batal
               </Button>
             </DialogClose>
-            <Button type="button" onClick={handleContinuePaymentProcess}>
-              Lanjutkan
+            <Button type="button" onClick={handleContinuePaymentProcess} disabled={isProcessingPayment}>
+              {isProcessingPayment ? 'Memproses...' : 'Lanjutkan'}
             </Button>
           </DialogFooter>
         </DialogContent>
