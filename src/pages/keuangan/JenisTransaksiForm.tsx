@@ -21,6 +21,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'; // Import Select components
 import { useCreateTransactionTypeMutation, useUpdateTransactionTypeMutation } from '@/store/slices/transactionTypeApi';
 import { TransactionType, CreateUpdateTransactionTypeRequest } from '@/types/keuangan';
 import * as toast from '@/utils/toast';
@@ -34,7 +41,9 @@ interface JenisTransaksiFormProps {
 const formSchema = z.object({
   code: z.string().min(1, 'Kode harus diisi'),
   name: z.string().min(3, 'Nama jenis transaksi minimal 3 karakter'),
-  category: z.string().min(1, 'Kategori harus diisi').default('transfer'),
+  category: z.enum(['TRANSFER', 'PAYMENT', 'CASH_OPERATION', 'FEE'], { // Diperbarui
+    required_error: 'Kategori harus dipilih.',
+  }),
   is_debit: z.boolean().default(false),
   is_credit: z.boolean().default(false),
 });
@@ -48,7 +57,7 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
     defaultValues: {
       code: '',
       name: '',
-      category: 'transfer',
+      category: undefined, // Set to undefined for Select to show placeholder
       is_debit: false,
       is_credit: false,
     },
@@ -61,7 +70,7 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
       form.reset({
         code: '',
         name: '',
-        category: 'transfer',
+        category: undefined,
         is_debit: false,
         is_credit: false,
       });
@@ -126,9 +135,19 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Kategori</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contoh: transfer" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih kategori" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="TRANSFER">Transfer</SelectItem>
+                      <SelectItem value="PAYMENT">Pembayaran</SelectItem>
+                      <SelectItem value="CASH_OPERATION">Operasi Tunai</SelectItem>
+                      <SelectItem value="FEE">Biaya</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

@@ -29,7 +29,7 @@ export interface TransactionType {
   id: number;
   code: string;
   name: string;
-  category: string;
+  category: 'TRANSFER' | 'PAYMENT' | 'CASH_OPERATION' | 'FEE'; // Diperbarui
   is_debit: boolean;
   is_credit: boolean;
 }
@@ -43,7 +43,7 @@ export interface TransactionTypeApiResponse {
 export interface CreateUpdateTransactionTypeRequest {
   code: string;
   name: string;
-  category: string;
+  category: 'TRANSFER' | 'PAYMENT' | 'CASH_OPERATION' | 'FEE'; // Diperbarui
   is_debit: boolean;
   is_credit: boolean;
 }
