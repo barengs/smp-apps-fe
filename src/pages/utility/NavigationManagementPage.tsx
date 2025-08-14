@@ -183,7 +183,8 @@ const NavigationManagementPage: React.FC = () => {
             <div className="flex space-x-2">
               <Button
                 variant="outline"
-                size="icon" // Changed to icon size
+                size="icon"
+                className="h-8 w-8" // Mengurangi ukuran tombol
                 onClick={() => handleEditData(item)}
               >
                 <Edit className="h-4 w-4" />
