@@ -23,7 +23,7 @@ import {
 import MenuForm from './MenuForm'; // Import the new form
 import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-
+import * as LucideIcons from 'lucide-react'; // Import all icons from lucide-react
 
 interface MenuItem {
   id: number;
@@ -116,8 +116,21 @@ const NavigationManagementPage: React.FC = () => {
         header: 'Rute',
       },
       {
+        accessorKey: 'icon',
+        header: 'Ikon',
+        cell: ({ row }) => {
+          const iconName = row.original.icon;
+          const IconComponent = iconName ? (LucideIcons as any)[iconName] : null;
+          return IconComponent ? <IconComponent className="h-4 w-4" /> : <span>-</span>;
+        },
+      },
+      {
         accessorKey: 'type',
         header: 'Tipe',
+      },
+      {
+        accessorKey: 'order',
+        header: 'Urutan',
       },
       {
         accessorKey: 'position',
@@ -126,10 +139,6 @@ const NavigationManagementPage: React.FC = () => {
       {
         accessorKey: 'status',
         header: 'Status',
-      },
-      {
-        accessorKey: 'order',
-        header: 'Urutan',
       },
       {
         accessorKey: 'child',
