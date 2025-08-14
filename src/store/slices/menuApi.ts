@@ -13,6 +13,7 @@ interface MenuItem {
   status: string;
   order: number | null;
   child: MenuItem[]; // Nested children
+  parent_id: number | null;
 }
 
 interface GetMenuResponse {
@@ -29,7 +30,7 @@ export interface CreateUpdateMenuRequest {
   position: string;
   status: string;
   order?: number | null;
-  // child items are usually managed separately or added after creation for simplicity
+  parent_id?: number | null;
 }
 
 export const menuApi = smpApi.injectEndpoints({
