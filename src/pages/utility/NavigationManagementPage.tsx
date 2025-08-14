@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Compass, Edit, PlusCircle } from 'lucide-react';
+import { Settings, Compass, Edit, PlusCircle, Trash2 } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
-import { useGetMenuQuery } from '@/store/slices/menuApi';
+import { useGetMenuQuery, useDeleteMenuMutation } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import MenuForm from './MenuForm'; // Import the new form
+import * as toast from '@/utils/toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 interface MenuItem {
   id: number;
@@ -36,9 +40,12 @@ interface MenuItem {
 
 const NavigationManagementPage: React.FC = () => {
   const { data: menuData, error, isLoading } = useGetMenuQuery();
+  const [deleteMenu, { isLoading: isDeleting }] = useDeleteMenuMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | undefined>(undefined);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
   const menuItems: MenuItem[] = useMemo(() => {
     if (menuData?.data) {
@@ -67,6 +74,25 @@ const NavigationManagementPage: React.FC = () => {
   const handleEditData = (item: MenuItem) => {
     setEditingMenuItem(item);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (item: MenuItem) => {
+    setItemToDelete(item);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (itemToDelete) {
+      try {
+        await deleteMenu(itemToDelete.id).unwrap();
+        toast.showSuccess(`Item navigasi "${itemToDelete.title}" berhasil dihapus.`);
+        setIsConfirmDeleteOpen(false);
+        setItemToDelete(null);
+      } catch (err) {
+        toast.showError('Gagal menghapus item navigasi.');
+        console.error('Failed to delete menu item:', err);
+      }
+    }
   };
 
   const handleFormSuccess = () => {
@@ -153,12 +179,20 @@ const NavigationManagementPage: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
+              <Button
+                variant="danger" // Changed from "destructive" to "danger"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleDeleteClick(item)}
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Hapus
+              </Button>
             </div>
           );
         },
       },
     ],
-    []
+    [isDeleting]
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={8} />;
@@ -179,7 +213,6 @@ const NavigationManagementPage: React.FC = () => {
                 <CardTitle>Daftar Item Navigasi</CardTitle>
                 <CardDescription>Kelola item-item navigasi yang muncul di sidebar dan menu lainnya.</CardDescription>
               </div>
-              {/* Tombol 'Tambah Data' yang duplikat telah dihapus dari sini */}
             </div>
           </CardHeader>
           <CardContent>
@@ -209,6 +242,23 @@ const NavigationManagementPage: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isConfirmDeleteOpen} onOpenChange={setIsConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Penghapusan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus item navigasi "{itemToDelete?.title}"? Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} disabled={isDeleting}>
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 };

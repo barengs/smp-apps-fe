@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast';
-import { useCreateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
+import { useCreateMenuMutation, useUpdateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { IconPicker } from '@/components/IconPicker';
@@ -68,7 +68,7 @@ interface MenuFormProps {
 
 const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createMenu, { isLoading: isCreating }] = useCreateMenuMutation();
-  // const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation(); // Uncomment if update mutation is added
+  const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation(); 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -107,8 +107,8 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
 
     try {
       if (initialData) {
-        // await updateMenu({ id: initialData.id, data: payload }).unwrap(); // Uncomment if update mutation is added
-        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui. (Simulasi)`);
+        await updateMenu({ id: initialData.id, data: payload }).unwrap(); 
+        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui.`);
       } else {
         await createMenu(payload).unwrap();
         showSuccess(`Item navigasi "${values.title}" berhasil ditambahkan.`);
@@ -132,7 +132,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     }
   };
 
-  const isSubmitting = isCreating; // || isUpdating; // Uncomment if update mutation is added
+  const isSubmitting = isCreating || isUpdating; 
 
   return (
     <Form {...form}>

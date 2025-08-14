@@ -46,8 +46,22 @@ export const menuApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Menu'],
     }),
-    // Add mutations for update, delete if needed later
+    updateMenu: builder.mutation<MenuItem, { id: number; data: CreateUpdateMenuRequest }>({
+      query: ({ id, data }) => ({
+        url: `master/menu/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Menu'],
+    }),
+    deleteMenu: builder.mutation<{ message: string }, number>({
+      query: (id) => ({
+        url: `master/menu/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Menu'],
+    }),
   }),
 });
 
-export const { useGetMenuQuery, useCreateMenuMutation } = menuApi;
+export const { useGetMenuQuery, useCreateMenuMutation, useUpdateMenuMutation, useDeleteMenuMutation } = menuApi;
