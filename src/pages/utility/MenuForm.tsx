@@ -105,6 +105,8 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       order: values.order,
     };
 
+    console.log('Payload being sent for update:', payload); // Tambahkan baris ini
+
     try {
       if (initialData) {
         await updateMenu({ id: initialData.id, data: payload }).unwrap(); 
