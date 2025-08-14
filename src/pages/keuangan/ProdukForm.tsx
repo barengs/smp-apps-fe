@@ -38,8 +38,9 @@ interface ProdukFormProps {
 }
 
 const formSchema = z.object({
+  product_code: z.string().min(1, 'Kode produk harus diisi').optional(), // Ditambahkan, opsional di schema
   product_name: z.string().min(3, 'Nama produk minimal 3 karakter'),
-  product_type: z.enum(['SAVINGS', 'CHECKING', 'LOAN', 'TIME_DEPOSIT'], { // Diperbarui
+  product_type: z.enum(['SAVINGS', 'CHECKING', 'LOAN', 'TIME_DEPOSIT'], {
     required_error: 'Jenis produk harus dipilih',
   }),
   interest_rate: z.coerce.number().min(0, 'Suku bunga tidak boleh negatif'),
@@ -54,6 +55,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      product_code: '', // Default value for new product
       product_name: '',
       product_type: undefined,
       interest_rate: 0,
@@ -65,6 +67,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   useEffect(() => {
     if (produk) {
       form.reset({
+        product_code: produk.product_code, // Set product_code for existing product
         product_name: produk.product_name,
         product_type: produk.product_type,
         interest_rate: produk.interest_rate,
@@ -73,6 +76,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
       });
     } else {
       form.reset({
+        product_code: '', // Clear for new product
         product_name: '',
         product_type: undefined,
         interest_rate: 0,
@@ -85,9 +89,12 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (produk) {
-        await updateProduk({ id: produk.product_code, data: values as CreateUpdateProdukBankRequest }).unwrap();
+        // For update, product_code is in the URL (id), not in the body
+        const { product_code, ...dataWithoutCode } = values; // Destructure to remove product_code from body
+        await updateProduk({ id: produk.product_code, data: dataWithoutCode as CreateUpdateProdukBankRequest }).unwrap();
         toast.showSuccess('Produk berhasil diperbarui');
       } else {
+        // For create, product_code is in the body
         await createProduk(values as CreateUpdateProdukBankRequest).unwrap();
         toast.showSuccess('Produk berhasil ditambahkan');
       }
@@ -108,6 +115,24 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="product_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kode Produk</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Contoh: PROD-001"
+                      {...field}
+                      readOnly={!!produk} // Read-only if editing
+                      required={!produk} // Required if adding new
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="product_name"

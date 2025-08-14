@@ -13,6 +13,7 @@ interface MenuItem {
   status: string;
   order: number | null;
   child: MenuItem[]; // Nested children
+  parent_id: number | null;
 }
 
 interface GetMenuResponse {
@@ -29,7 +30,7 @@ export interface CreateUpdateMenuRequest {
   position: string;
   status: string;
   order?: number | null;
-  // child items are usually managed separately or added after creation for simplicity
+  parent_id?: number | null;
 }
 
 export const menuApi = smpApi.injectEndpoints({
@@ -46,8 +47,22 @@ export const menuApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Menu'],
     }),
-    // Add mutations for update, delete if needed later
+    updateMenu: builder.mutation<MenuItem, { id: number; data: CreateUpdateMenuRequest }>({
+      query: ({ id, data }) => ({
+        url: `master/menu/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Menu'],
+    }),
+    deleteMenu: builder.mutation<{ message: string }, number>({
+      query: (id) => ({
+        url: `master/menu/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Menu'],
+    }),
   }),
 });
 
-export const { useGetMenuQuery, useCreateMenuMutation } = menuApi;
+export const { useGetMenuQuery, useCreateMenuMutation, useUpdateMenuMutation, useDeleteMenuMutation } = menuApi;

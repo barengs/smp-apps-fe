@@ -23,3 +23,27 @@ export interface SingleTransaksiApiResponse {
     status: number;
     data: Transaksi;
 }
+
+// Tipe baru untuk Jenis Transaksi
+export interface TransactionType {
+  id: number;
+  code: string;
+  name: string;
+  category: 'transfer' | 'payment' | 'cash_operation' | 'fee'; // Diperbarui menjadi huruf kecil
+  is_debit: boolean;
+  is_credit: boolean;
+}
+
+export interface TransactionTypeApiResponse {
+    message: string;
+    status: number;
+    data: TransactionType[];
+}
+
+export interface CreateUpdateTransactionTypeRequest {
+  code: string;
+  name: string;
+  category: 'transfer' | 'payment' | 'cash_operation' | 'fee'; // Diperbarui menjadi huruf kecil
+  is_debit: boolean;
+  is_credit: boolean;
+}

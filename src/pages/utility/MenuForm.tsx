@@ -20,10 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
-import { useCreateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
+import { showSuccess, showError } from '@/utils/toast';
+import { useCreateMenuMutation, useUpdateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { IconPicker } from '@/components/IconPicker';
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -34,7 +35,7 @@ const formSchema = z.object({
   route: z.string().min(1, {
     message: 'Rute tidak boleh kosong.',
   }),
-  type: z.enum(['main', 'sub', 'external'], {
+  type: z.enum(['main', 'sub-menu', 'external'], { // Diubah dari 'sub' menjadi 'sub-menu'
     required_error: 'Tipe harus dipilih.',
   }),
   position: z.enum(['sidebar', 'header', 'footer'], {
@@ -67,7 +68,7 @@ interface MenuFormProps {
 
 const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createMenu, { isLoading: isCreating }] = useCreateMenuMutation();
-  // const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation(); // Uncomment if update mutation is added
+  const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation(); 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,7 +77,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       description: initialData.description,
       icon: initialData.icon,
       route: initialData.route,
-      type: initialData.type as "main" | "sub" | "external",
+      type: initialData.type as "main" | "sub-menu" | "external", // Diubah dari 'sub' menjadi 'sub-menu'
       position: initialData.position as "sidebar" | "header" | "footer",
       status: initialData.status as "active" | "inactive",
       order: initialData.order,
@@ -96,7 +97,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     const payload: CreateUpdateMenuRequest = {
       title: values.title,
       description: values.description,
-      icon: values.icon,
+      icon: values.icon || undefined,
       route: values.route,
       type: values.type,
       position: values.position,
@@ -104,13 +105,15 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       order: values.order,
     };
 
+    console.log('Payload being sent for update:', payload);
+
     try {
       if (initialData) {
-        // await updateMenu({ id: initialData.id, data: payload }).unwrap(); // Uncomment if update mutation is added
-        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui. (Simulasi)`); // Updated call
+        await updateMenu({ id: initialData.id, data: payload }).unwrap(); 
+        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui.`);
       } else {
         await createMenu(payload).unwrap();
-        showSuccess(`Item navigasi "${values.title}" berhasil ditambahkan.`); // Updated call
+        showSuccess(`Item navigasi "${values.title}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -127,11 +130,11 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      showError(`Gagal menyimpan item navigasi: ${errorMessage}`); // Updated call
+      showError(`Gagal menyimpan item navigasi: ${errorMessage}`);
     }
   };
 
-  const isSubmitting = isCreating; // || isUpdating; // Uncomment if update mutation is added
+  const isSubmitting = isCreating || isUpdating; 
 
   return (
     <Form {...form}>
@@ -166,10 +169,10 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
           control={form.control}
           name="icon"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Ikon (Opsional)</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: Home (nama ikon Lucide)" {...field} value={field.value || ''} />
+                <IconPicker value={field.value || undefined} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -203,7 +206,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="main">Utama</SelectItem>
-                    <SelectItem value="sub">Sub-Menu</SelectItem>
+                    <SelectItem value="sub-menu">Sub-Menu</SelectItem> {/* Diubah dari 'sub' menjadi 'sub-menu' */}
                     <SelectItem value="external">Eksternal</SelectItem>
                   </SelectContent>
                 </Select>
