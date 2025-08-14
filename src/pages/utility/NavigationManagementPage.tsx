@@ -65,7 +65,7 @@ function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 
     return [
       ...acc,
       { ...item, parentId, depth, index },
-      ...flattenTree(item.child, item.id, depth + 1),
+      ...flattenTree(item.child ?? [], item.id, depth + 1), // Pastikan item.child selalu array
     ];
   }, []);
 }
@@ -84,6 +84,10 @@ function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
     for (const item of flattenedItems) {
         const node = itemsById[item.id];
         if (item.parentId && itemsById[item.parentId]) {
+            // Pastikan child array ada sebelum push
+            if (!itemsById[item.parentId].child) {
+                itemsById[item.parentId].child = [];
+            }
             itemsById[item.parentId].child.push(node);
         } else {
             rootItems.push(node);
@@ -93,7 +97,7 @@ function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
     // Sort children by order
     const sortChildren = (items: MenuItem[]) => {
         items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        items.forEach(item => sortChildren(item.child));
+        items.forEach(item => sortChildren(item.child ?? [])); // Pastikan item.child selalu array
     };
     sortChildren(rootItems);
 
