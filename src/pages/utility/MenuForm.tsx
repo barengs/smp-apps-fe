@@ -20,10 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import { showSuccess, showError } from '@/utils/toast';
 import { useCreateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { IconPicker } from '@/components/IconPicker';
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -96,7 +97,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     const payload: CreateUpdateMenuRequest = {
       title: values.title,
       description: values.description,
-      icon: values.icon,
+      icon: values.icon || undefined,
       route: values.route,
       type: values.type,
       position: values.position,
@@ -107,10 +108,10 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     try {
       if (initialData) {
         // await updateMenu({ id: initialData.id, data: payload }).unwrap(); // Uncomment if update mutation is added
-        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui. (Simulasi)`); // Updated call
+        showSuccess(`Item navigasi "${values.title}" berhasil diperbarui. (Simulasi)`);
       } else {
         await createMenu(payload).unwrap();
-        showSuccess(`Item navigasi "${values.title}" berhasil ditambahkan.`); // Updated call
+        showSuccess(`Item navigasi "${values.title}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -127,7 +128,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      showError(`Gagal menyimpan item navigasi: ${errorMessage}`); // Updated call
+      showError(`Gagal menyimpan item navigasi: ${errorMessage}`);
     }
   };
 
@@ -166,10 +167,10 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
           control={form.control}
           name="icon"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Ikon (Opsional)</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: Home (nama ikon Lucide)" {...field} value={field.value || ''} />
+                <IconPicker value={field.value || undefined} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
