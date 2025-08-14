@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Compass, Edit, GripVertical } from 'lucide-react';
+import { Settings, Compass, Edit, GripVertical, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
 import { useGetMenuQuery, useUpdateMenuMutation, useDeleteMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
@@ -12,12 +12,10 @@ import MenuForm from './MenuForm';
 import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import * as LucideIcons from 'lucide-react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverEvent, DragOverlay } from '@dnd-kit/core';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ChevronDown } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
 // --- Types ---
@@ -42,30 +40,12 @@ type FlattenedItem = MenuItem & {
 };
 
 // --- Tree Utility Functions ---
-function getDragDepth(offset: number, indentationWidth: number) {
-  return Math.round(offset / indentationWidth);
-}
-
-function getMaxDepth({ previousItem }: { previousItem: FlattenedItem }) {
-  if (previousItem) {
-    return previousItem.depth + 1;
-  }
-  return 0;
-}
-
-function getMinDepth({ nextItem }: { nextItem: FlattenedItem }) {
-  if (nextItem) {
-    return nextItem.depth;
-  }
-  return 0;
-}
-
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
   return items.reduce<FlattenedItem[]>((acc, item, index) => {
     return [
       ...acc,
       { ...item, parentId, depth, index },
-      ...flattenTree(item.child ?? [], item.id, depth + 1), // Pastikan item.child selalu array
+      ...flattenTree(item.child ?? [], item.id, depth + 1),
     ];
   }, []);
 }
@@ -74,45 +54,52 @@ function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
     const rootItems: MenuItem[] = [];
     const itemsById: Record<number, MenuItem> = {};
 
-    // First pass: create nodes and map them by ID
     for (const item of flattenedItems) {
-        const newItem: MenuItem = { ...item, child: [] };
-        itemsById[item.id] = newItem;
+        itemsById[item.id] = { ...item, child: [] };
     }
 
-    // Second pass: build the tree structure
     for (const item of flattenedItems) {
         const node = itemsById[item.id];
         if (item.parentId && itemsById[item.parentId]) {
-            // Pastikan child array ada sebelum push
-            if (!itemsById[item.parentId].child) {
-                itemsById[item.parentId].child = [];
-            }
             itemsById[item.parentId].child.push(node);
         } else {
             rootItems.push(node);
         }
     }
     
-    // Sort children by order
     const sortChildren = (items: MenuItem[]) => {
         items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        items.forEach(item => sortChildren(item.child ?? [])); // Pastikan item.child selalu array
+        items.forEach(item => sortChildren(item.child ?? []));
     };
     sortChildren(rootItems);
 
     return rootItems;
 }
 
+function getDescendantIds(items: FlattenedItem[], parentId: number): number[] {
+    const children = items.filter(item => item.parentId === parentId);
+    let descendantIds: number[] = [];
+    for (const child of children) {
+        descendantIds.push(child.id);
+        descendantIds = [...descendantIds, ...getDescendantIds(items, child.id)];
+    }
+    return descendantIds;
+}
+
+
 // --- Components ---
 const INDENTATION_WIDTH = 24;
 
 const SortableItem: React.FC<{
   item: FlattenedItem;
+  isDragging?: boolean;
   onEdit: (item: MenuItem) => void;
   onDelete: (item: MenuItem) => void;
-  isDragging?: boolean;
-}> = ({ item, onEdit, onDelete, isDragging = false }) => {
+  onIndent: (id: number) => void;
+  onOutdent: (id: number) => void;
+  canIndent: boolean;
+  canOutdent: boolean;
+}> = ({ item, isDragging, onEdit, onDelete, onIndent, onOutdent, canIndent, canOutdent }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const IconComponent = item.icon ? (LucideIcons as any)[item.icon] : null;
 
@@ -124,20 +111,31 @@ const SortableItem: React.FC<{
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center bg-background border-b last:border-b-0">
-      <Button variant="ghost" size="icon" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-shrink-0">
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
-      </Button>
-      <div className="flex-grow grid grid-cols-8 gap-4 items-center p-2 text-sm">
-        <div className="col-span-2 font-medium">{item.title}</div>
-        <div>{item.route}</div>
-        <div>{IconComponent ? <IconComponent className="h-4 w-4" /> : <span>-</span>}</div>
-        <div>{item.type}</div>
-        <div>{item.position}</div>
-        <div><Badge variant={item.status === 'active' ? 'default' : 'secondary'}>{item.status}</Badge></div>
-        <div className="flex space-x-2 justify-end">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>
+    <div ref={setNodeRef} style={style} className="flex items-center bg-background border-b last:border-b-0 group">
+      <div className="flex items-center flex-shrink-0">
+        <Button variant="ghost" size="icon" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-5 w-5 text-muted-foreground" />
+        </Button>
+      </div>
+      <div className="flex-grow grid grid-cols-12 gap-4 items-center p-2 text-sm">
+        <div className="col-span-4 font-medium">{item.title}</div>
+        <div className="col-span-2">{item.route}</div>
+        <div className="col-span-1">{IconComponent ? <IconComponent className="h-4 w-4" /> : <span>-</span>}</div>
+        <div className="col-span-1">{item.type}</div>
+        <div className="col-span-1">{item.position}</div>
+        <div className="col-span-1"><Badge variant={item.status === 'active' ? 'default' : 'secondary'}>{item.status}</Badge></div>
+        <div className="col-span-2 flex space-x-1 justify-end">
+           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onIndent(item.id)} disabled={!canIndent}>
+             <ArrowRight className="h-4 w-4" />
+           </Button>
+           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOutdent(item.id)} disabled={!canOutdent}>
+             <ArrowLeft className="h-4 w-4" />
+           </Button>
+           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>
             <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(item)}>
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -146,14 +144,12 @@ const SortableItem: React.FC<{
 };
 
 const NavigationManagementPage: React.FC = () => {
-  const { data: menuData, error, isLoading } = useGetMenuQuery();
+  const { data: menuData, error, isLoading, isFetching } = useGetMenuQuery();
   const [updateMenu] = useUpdateMenuMutation();
   const [deleteMenu, { isLoading: isDeleting }] = useDeleteMenuMutation();
 
   const [items, setItems] = useState<FlattenedItem[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
-  const [overId, setOverId] = useState<number | null>(null);
-  const [offsetLeft, setOffsetLeft] = useState(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | undefined>(undefined);
@@ -161,19 +157,13 @@ const NavigationManagementPage: React.FC = () => {
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
   useEffect(() => {
-    if (menuData?.data) {
+    if (menuData?.data && !isFetching) {
       const sortedData = [...menuData.data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       setItems(flattenTree(sortedData));
     }
-  }, [menuData]);
+  }, [menuData, isFetching]);
 
-  const flattenedItems = useMemo(() => {
-    const tree = buildTree(items);
-    return flattenTree(tree);
-  }, [items]);
-
-  const activeItem = activeId ? flattenedItems.find(({ id }) => id === activeId) : null;
-
+  const activeItem = activeId ? items.find(({ id }) => id === activeId) : null;
   const sensors = useSensors(useSensor(PointerSensor));
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -214,87 +204,98 @@ const NavigationManagementPage: React.FC = () => {
     setEditingMenuItem(undefined);
   };
 
-  function handleDragStart({ active }: DragStartEvent) {
-    setActiveId(active.id as number);
-    setOverId(active.id as number);
-  }
-
-  function handleDragOver({ over }: DragOverEvent) {
-    setOverId(over?.id as number | null);
-  }
-
-  function handleDragMove(event: any) {
-    setOffsetLeft(event.delta.x);
-  }
-
-  async function handleDragEnd({ active, over }: DragEndEvent) {
-    if (!activeItem || !over || active.id === over.id) {
-      resetState();
-      return;
-    }
-
-    const overItem = flattenedItems.find(({ id }) => id === over.id);
-    if (!overItem) {
-      resetState();
-      return;
-    }
-
-    const activeIndex = flattenedItems.findIndex(({ id }) => id === active.id);
-    const overIndex = flattenedItems.findIndex(({ id }) => id === over.id);
-    const activeItemData = flattenedItems[activeIndex];
-
-    const dragDepth = getDragDepth(offsetLeft, INDENTATION_WIDTH);
-    const newDepth = Math.max(0, Math.min(activeItemData.depth + dragDepth, getMaxDepth({ previousItem: flattenedItems[overIndex] })));
-
-    const newItems = arrayMove(flattenedItems, activeIndex, overIndex);
-    const movedItem = newItems[overIndex];
-    movedItem.depth = newDepth;
-
-    // Find new parent
-    let newParentId: number | null = null;
-    for (let i = overIndex - 1; i >= 0; i--) {
-      if (newItems[i].depth < newDepth) {
-        newParentId = newItems[i].id;
-        break;
-      }
-    }
-    movedItem.parentId = newParentId;
-
-    // Rebuild tree and re-flatten to get correct order and structure
-    const newTree = buildTree(newItems);
+  const updateStructure = async (updatedItems: FlattenedItem[]) => {
+    const newTree = buildTree(updatedItems);
     const finalItems = flattenTree(newTree);
     setItems(finalItems);
 
-    // --- API Update ---
     const itemsToUpdate = finalItems.map((item, index) => ({
         id: item.id,
         data: {
-            ...item,
+            title: item.title,
+            route: item.route,
+            icon: item.icon,
+            type: item.type,
+            position: item.position,
+            status: item.status,
+            description: item.description,
             order: index + 1,
             parent_id: item.parentId,
         } as CreateUpdateMenuRequest
     }));
 
-    toast.showWarning('Menyimpan urutan baru...');
+    toast.showWarning('Menyimpan struktur baru...');
     try {
         await Promise.all(itemsToUpdate.map(item => updateMenu(item)));
-        toast.showSuccess('Urutan navigasi berhasil diperbarui!');
+        toast.showSuccess('Struktur navigasi berhasil diperbarui!');
     } catch (err) {
-        toast.showError('Gagal memperbarui urutan.');
-        // Revert on failure
+        toast.showError('Gagal memperbarui struktur.');
         if (menuData?.data) {
             const sortedData = [...menuData.data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             setItems(flattenTree(sortedData));
         }
     }
+  };
 
-    resetState();
+  const handleIndent = (itemId: number) => {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+    if (itemIndex > 0) {
+        const newItems = [...items];
+        const currentItem = newItems[itemIndex];
+        const previousItem = newItems[itemIndex - 1];
+        
+        if (currentItem.depth <= previousItem.depth) {
+            currentItem.depth += 1;
+            currentItem.parentId = previousItem.id;
+            updateStructure(newItems);
+        }
+    }
+  };
+
+  const handleOutdent = (itemId: number) => {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+    const newItems = [...items];
+    const currentItem = newItems[itemIndex];
+
+    if (currentItem.depth > 0) {
+        const oldParent = items.find(item => item.id === currentItem.parentId);
+        currentItem.depth -= 1;
+        currentItem.parentId = oldParent ? oldParent.parentId : null;
+        updateStructure(newItems);
+    }
+  };
+
+  function handleDragStart({ active }: DragStartEvent) {
+    setActiveId(active.id as number);
   }
 
-  function resetState() {
+  async function handleDragEnd({ active, over }: DragEndEvent) {
+    if (over && active.id !== over.id) {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        const movedItems = arrayMove(items, oldIndex, newIndex);
+        
+        const movedItem = movedItems[newIndex];
+        const previousItem = movedItems[newIndex - 1];
+        
+        // Inherit depth from the item it's now under, but don't become its child automatically
+        const newDepth = previousItem ? previousItem.depth : 0;
+        const depthDifference = newDepth - movedItem.depth;
+        movedItem.depth = newDepth;
+        movedItem.parentId = previousItem ? (previousItem.depth < newDepth ? previousItem.id : previousItem.parentId) : null;
+
+        // Update depths of descendants
+        const descendantIds = getDescendantIds(items, movedItem.id);
+        const finalItems = movedItems.map(item => {
+            if (descendantIds.includes(item.id)) {
+                return { ...item, depth: item.depth + depthDifference };
+            }
+            return item;
+        });
+
+        await updateStructure(finalItems);
+    }
     setActiveId(null);
-    setOverId(null);
-    setOffsetLeft(0);
   }
 
   if (isLoading) return <TableLoadingSkeleton numCols={8} />;
@@ -310,7 +311,7 @@ const NavigationManagementPage: React.FC = () => {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle>Daftar Item Navigasi</CardTitle>
-                <CardDescription>Seret dan lepas untuk mengubah urutan dan membuat sub-menu.</CardDescription>
+                <CardDescription>Gunakan tombol panah untuk membuat sub-menu dan seret untuk mengubah urutan.</CardDescription>
               </div>
               <Button onClick={handleAddData}>Tambah Item</Button>
             </div>
@@ -318,34 +319,49 @@ const NavigationManagementPage: React.FC = () => {
           <CardContent>
             <div className="rounded-md border">
               <div className="flex items-center bg-muted/50 border-b font-medium text-sm">
-                <div style={{ width: `${INDENTATION_WIDTH + 32}px` }} className="flex-shrink-0"></div>
-                <div className="flex-grow grid grid-cols-8 gap-4 items-center p-2">
-                  <div className="col-span-2">Judul</div>
-                  <div>Rute</div>
-                  <div>Ikon</div>
-                  <div>Tipe</div>
-                  <div>Posisi</div>
-                  <div>Status</div>
-                  <div className="text-right">Aksi</div>
+                <div style={{ width: '48px' }} className="flex-shrink-0"></div>
+                <div className="flex-grow grid grid-cols-12 gap-4 items-center p-2">
+                  <div className="col-span-4">Judul</div>
+                  <div className="col-span-2">Rute</div>
+                  <div className="col-span-1">Ikon</div>
+                  <div className="col-span-1">Tipe</div>
+                  <div className="col-span-1">Posisi</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-2 text-right">Aksi</div>
                 </div>
               </div>
-              <DndContext
-                sensors={sensors}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-                onDragCancel={resetState}
-                onDragMove={handleDragMove}
-              >
-                <SortableContext items={flattenedItems.map(({ id }) => id)}>
-                  {flattenedItems.map((item) => (
-                    <SortableItem key={item.id} item={item} onEdit={handleEditData} onDelete={handleDeleteClick} />
-                  ))}
+              <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                <SortableContext items={items.map(({ id }) => id)}>
+                  {items.map((item, index) => {
+                      const canIndent = index > 0 && item.depth <= items[index - 1].depth;
+                      const canOutdent = item.depth > 0;
+                      return (
+                        <SortableItem 
+                            key={item.id} 
+                            item={item} 
+                            onEdit={handleEditData} 
+                            onDelete={handleDeleteClick}
+                            onIndent={handleIndent}
+                            onOutdent={handleOutdent}
+                            canIndent={canIndent}
+                            canOutdent={canOutdent}
+                        />
+                      )
+                  })}
                 </SortableContext>
                 {createPortal(
                   <DragOverlay dropAnimation={null}>
                     {activeId && activeItem ? (
-                      <SortableItem item={activeItem} onEdit={() => {}} onDelete={() => {}} isDragging />
+                      <SortableItem 
+                        item={activeItem} 
+                        isDragging 
+                        onEdit={() => {}} 
+                        onDelete={() => {}}
+                        onIndent={() => {}}
+                        onOutdent={() => {}}
+                        canIndent={false}
+                        canOutdent={false}
+                      />
                     ) : null}
                   </DragOverlay>,
                   document.body
