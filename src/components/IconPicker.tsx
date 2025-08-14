@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Check, ChevronsUpDown, Package } from 'lucide-react';
-import * as icons from 'lucide-react';
+import * as lucideIcons from 'lucide-react'; // Mengganti nama import untuk kejelasan
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -18,19 +18,22 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
+// Menentukan objek ikon yang sebenarnya, mempertimbangkan kemungkinan nested 'icons' object
+const allIcons = (lucideIcons as any).icons || lucideIcons;
+
 // Secara dinamis mendapatkan semua nama ikon dari lucide-react, memfilter ekspor non-ikon
-const iconNames = Object.keys(icons).filter(
+const iconNames = Object.keys(allIcons).filter(
   (key) =>
-    typeof (icons as any)[key] === 'object' &&
+    typeof (allIcons as any)[key] === 'object' &&
     key !== 'createLucideIcon' &&
     key !== 'LucideIcon' &&
-    key !== 'icons' &&
-    key !== 'default'
+    key !== 'icons' && // Mengecualikan objek 'icons' itu sendiri jika ada
+    key !== 'default' // Mengecualikan ekspor default jika ada
 );
 
 // Helper untuk merender ikon berdasarkan nama string-nya
 const renderIcon = (name: string) => {
-  const IconComponent = (icons as any)[name] as React.ElementType;
+  const IconComponent = (allIcons as any)[name] as React.ElementType;
   if (!IconComponent) {
     return <Package className="h-4 w-4" />; // Ikon fallback
   }
