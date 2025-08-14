@@ -13,7 +13,7 @@ import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import * as LucideIcons from 'lucide-react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable'; // Perbaikan sintaks import di sini
 import { CSS } from '@dnd-kit/utilities';
 import { Badge } from '@/components/ui/badge';
 import { createPortal } from 'react-dom';
@@ -33,7 +33,8 @@ interface MenuItem {
   child: MenuItem[];
 }
 
-type FlattenedItem = MenuItem & {
+// Mengubah FlattenedItem agar tidak memiliki properti 'child'
+type FlattenedItem = Omit<MenuItem, 'child'> & {
   parentId: number | null;
   depth: number;
   index: number;
@@ -42,10 +43,12 @@ type FlattenedItem = MenuItem & {
 // --- Tree Utility Functions ---
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
   return items.reduce<FlattenedItem[]>((acc, item, index) => {
+    // Pastikan item.child selalu array saat rekursi
+    const children = item.child ?? [];
     return [
       ...acc,
-      { ...item, parentId, depth, index },
-      ...flattenTree(item.child ?? [], item.id, depth + 1),
+      { ...item, parentId, depth, index, child: [] }, // Explicitly set child to empty array for flattened item
+      ...flattenTree(children, item.id, depth + 1),
     ];
   }, []);
 }
@@ -54,22 +57,31 @@ function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
     const rootItems: MenuItem[] = [];
     const itemsById: Record<number, MenuItem> = {};
 
+    // First pass: create nodes and map them by ID
     for (const item of flattenedItems) {
-        itemsById[item.id] = { ...item, child: [] };
+        // Pastikan child selalu diinisialisasi sebagai array kosong
+        const newItem: MenuItem = { ...item, child: [] };
+        itemsById[item.id] = newItem;
     }
 
+    // Second pass: build the tree structure
     for (const item of flattenedItems) {
         const node = itemsById[item.id];
         if (item.parentId && itemsById[item.parentId]) {
+            // Pastikan child array ada sebelum push
+            if (!itemsById[item.parentId].child) {
+                itemsById[item.parentId].child = [];
+            }
             itemsById[item.parentId].child.push(node);
         } else {
             rootItems.push(node);
         }
     }
     
+    // Sort children by order
     const sortChildren = (items: MenuItem[]) => {
         items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        items.forEach(item => sortChildren(item.child ?? []));
+        items.forEach(item => sortChildren(item.child ?? [])); // Pastikan item.child selalu array
     };
     sortChildren(rootItems);
 
@@ -131,10 +143,10 @@ const SortableItem: React.FC<{
            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOutdent(item.id)} disabled={!canOutdent}>
              <ArrowLeft className="h-4 w-4" />
            </Button>
-           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>
+           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit({ ...item, child: [] })}>
             <Edit className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(item)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete({ ...item, child: [] })}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -244,6 +256,7 @@ const NavigationManagementPage: React.FC = () => {
         const currentItem = newItems[itemIndex];
         const previousItem = newItems[itemIndex - 1];
         
+        // Hanya indent jika item saat ini tidak lebih dalam dari item sebelumnya
         if (currentItem.depth <= previousItem.depth) {
             currentItem.depth += 1;
             currentItem.parentId = previousItem.id;
@@ -258,6 +271,7 @@ const NavigationManagementPage: React.FC = () => {
     const currentItem = newItems[itemIndex];
 
     if (currentItem.depth > 0) {
+        // Cari parent dari parent saat ini
         const oldParent = items.find(item => item.id === currentItem.parentId);
         currentItem.depth -= 1;
         currentItem.parentId = oldParent ? oldParent.parentId : null;
@@ -279,16 +293,20 @@ const NavigationManagementPage: React.FC = () => {
         const previousItem = movedItems[newIndex - 1];
         
         // Inherit depth from the item it's now under, but don't become its child automatically
-        const newDepth = previousItem ? previousItem.depth : 0;
-        const depthDifference = newDepth - movedItem.depth;
-        movedItem.depth = newDepth;
-        movedItem.parentId = previousItem ? (previousItem.depth < newDepth ? previousItem.id : previousItem.parentId) : null;
-
-        // Update depths of descendants
-        const descendantIds = getDescendantIds(items, movedItem.id);
+        // This logic is simplified as indent/outdent are now explicit buttons
+        // The depth and parentId will be re-calculated by buildTree/flattenTree based on the new order
+        
+        // Update depths of descendants (this part is still needed for visual consistency before API update)
+        const descendantIds = getDescendantIds(items, movedItem.id); // Use original 'items' to find descendants
+        const depthDifference = movedItem.depth - (previousItem ? previousItem.depth : 0); // Calculate depth difference based on current and new position
+        
         const finalItems = movedItems.map(item => {
-            if (descendantIds.includes(item.id)) {
-                return { ...item, depth: item.depth + depthDifference };
+            if (item.id === movedItem.id) {
+                // For the moved item itself, its depth and parentId are determined by its new position
+                // We'll let buildTree/flattenTree re-calculate the exact depth and parentId based on the new order
+                return { ...item, depth: item.depth - depthDifference }; // Adjust depth relative to its new position
+            } else if (descendantIds.includes(item.id)) {
+                return { ...item, depth: item.depth + depthDifference }; // Adjust descendants' depth
             }
             return item;
         });
