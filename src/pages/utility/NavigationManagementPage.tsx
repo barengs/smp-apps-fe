@@ -179,14 +179,15 @@ const NavigationManagementPage: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              <Button
-                variant="danger" // Changed from "destructive" to "danger"
+              {/* Tombol Hapus dihilangkan sesuai permintaan */}
+              {/* <Button
+                variant="danger"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleDeleteClick(item)}
                 disabled={isDeleting}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
-              </Button>
+              </Button> */}
             </div>
           );
         },
