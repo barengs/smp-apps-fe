@@ -43,11 +43,11 @@ type FlattenedItem = Omit<MenuItem, 'child'> & {
 // --- Tree Utility Functions ---
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
   return items.reduce<FlattenedItem[]>((acc, item, index) => {
-    // Pastikan item.child selalu array saat rekursi
     const children = item.child ?? [];
+    const { child, ...rest } = item; // Exclude 'child' property
     return [
       ...acc,
-      { ...item, parentId, depth, index, child: [] }, // Explicitly set child to empty array for flattened item
+      { ...rest, parentId, depth, index }, // 'child' is now truly omitted
       ...flattenTree(children, item.id, depth + 1),
     ];
   }, []);
@@ -59,8 +59,20 @@ function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
 
     // First pass: create nodes and map them by ID
     for (const item of flattenedItems) {
-        // Pastikan child selalu diinisialisasi sebagai array kosong
-        const newItem: MenuItem = { ...item, child: [] };
+        // Explicitly pick properties that belong to MenuItem
+        const newItem: MenuItem = {
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            icon: item.icon,
+            route: item.route,
+            type: item.type,
+            position: item.position,
+            status: item.status,
+            order: item.order,
+            parent_id: item.parentId, // Use parentId from FlattenedItem as parent_id for MenuItem
+            child: [], // Initialize children as empty array
+        };
         itemsById[item.id] = newItem;
     }
 
@@ -294,29 +306,9 @@ const NavigationManagementPage: React.FC = () => {
         const newIndex = items.findIndex((item) => item.id === over.id);
         const movedItems = arrayMove(items, oldIndex, newIndex);
         
-        const movedItem = movedItems[newIndex];
-        const previousItem = movedItems[newIndex - 1];
-        
-        // Inherit depth from the item it's now under, but don't become its child automatically
-        // This logic is simplified as indent/outdent are now explicit buttons
-        // The depth and parentId will be re-calculated by buildTree/flattenTree based on the new order
-        
-        // Update depths of descendants (this part is still needed for visual consistency before API update)
-        const descendantIds = getDescendantIds(items, movedItem.id); // Use original 'items' to find descendants
-        const depthDifference = movedItem.depth - (previousItem ? previousItem.depth : 0); // Calculate depth difference based on current and new position
-        
-        const finalItems = movedItems.map(item => {
-            if (item.id === movedItem.id) {
-                // For the moved item itself, its depth and parentId are determined by its new position
-                // We'll let buildTree/flattenTree re-calculate the exact depth and parentId based on the new order
-                return { ...item, depth: item.depth - depthDifference }; // Adjust depth relative to its new position
-            } else if (descendantIds.includes(item.id)) {
-                return { ...item, depth: item.depth + depthDifference }; // Adjust descendants' depth
-            }
-            return item;
-        });
-
-        await updateStructure(finalItems);
+        // Simply pass the reordered items to updateStructure.
+        // The buildTree and flattenTree functions will correctly re-calculate depths and parentIds.
+        await updateStructure(movedItems);
     }
     setActiveId(null);
   }
