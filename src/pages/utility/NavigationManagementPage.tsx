@@ -9,7 +9,7 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import MenuForm from './MenuForm';
-import * as toast from '@/utils/toast'; // Baris ini diperbaiki
+import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import * as LucideIcons from 'lucide-react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
@@ -260,7 +260,7 @@ const NavigationManagementPage: React.FC = () => {
         if (currentItem.depth <= previousItem.depth) {
             currentItem.depth += 1;
             currentItem.parentId = previousItem.id;
-            currentItem.type = 'sub'; // Set type to 'sub' when indented
+            currentItem.type = 'sub-menu'; // Set type to 'sub-menu' when indented
             updateStructure(newItems);
         }
     }
