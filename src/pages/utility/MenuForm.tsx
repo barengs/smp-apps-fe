@@ -35,7 +35,7 @@ const formSchema = z.object({
   route: z.string().min(1, {
     message: 'Rute tidak boleh kosong.',
   }),
-  type: z.enum(['main', 'sub', 'external'], {
+  type: z.enum(['main', 'sub-menu', 'external'], { // Diubah dari 'sub' menjadi 'sub-menu'
     required_error: 'Tipe harus dipilih.',
   }),
   position: z.enum(['sidebar', 'header', 'footer'], {
@@ -77,7 +77,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       description: initialData.description,
       icon: initialData.icon,
       route: initialData.route,
-      type: initialData.type as "main" | "sub" | "external",
+      type: initialData.type as "main" | "sub-menu" | "external", // Diubah dari 'sub' menjadi 'sub-menu'
       position: initialData.position as "sidebar" | "header" | "footer",
       status: initialData.status as "active" | "inactive",
       order: initialData.order,
@@ -105,7 +105,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       order: values.order,
     };
 
-    console.log('Payload being sent for update:', payload); // Tambahkan baris ini
+    console.log('Payload being sent for update:', payload);
 
     try {
       if (initialData) {
@@ -206,7 +206,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="main">Utama</SelectItem>
-                    <SelectItem value="sub">Sub-Menu</SelectItem>
+                    <SelectItem value="sub-menu">Sub-Menu</SelectItem> {/* Diubah dari 'sub' menjadi 'sub-menu' */}
                     <SelectItem value="external">Eksternal</SelectItem>
                   </SelectContent>
                 </Select>
