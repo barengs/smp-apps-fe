@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -33,7 +33,6 @@ interface MenuItem {
   child: MenuItem[];
 }
 
-// Mengubah FlattenedItem agar tidak memiliki properti 'child'
 type FlattenedItem = Omit<MenuItem, 'child'> & {
   parentId: number | null;
   depth: number;
@@ -41,13 +40,40 @@ type FlattenedItem = Omit<MenuItem, 'child'> & {
 };
 
 // --- Tree Utility Functions ---
+
+/**
+ * Membangun struktur pohon dari daftar item datar yang diterima dari API.
+ * Ini memastikan item dengan parent_id ditempatkan di dalam array 'child' dari induknya.
+ */
+function buildTreeFromApi(items: MenuItem[]): MenuItem[] {
+    const itemsById: { [key: number]: MenuItem } = {};
+    const rootItems: MenuItem[] = [];
+
+    // Pass 1: Buat map dari semua item berdasarkan ID dan inisialisasi array child.
+    items.forEach(item => {
+        itemsById[item.id] = { ...item, child: [] };
+    });
+
+    // Pass 2: Hubungkan anak ke induknya.
+    items.forEach(item => {
+        const node = itemsById[item.id];
+        if (item.parent_id && itemsById[item.parent_id]) {
+            itemsById[item.parent_id].child.push(node);
+        } else {
+            rootItems.push(node);
+        }
+    });
+
+    return rootItems;
+}
+
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
   return items.reduce<FlattenedItem[]>((acc, item, index) => {
     const children = item.child ?? [];
-    const { child, ...rest } = item; // Exclude 'child' property
+    const { child, ...rest } = item;
     return [
       ...acc,
-      { ...rest, parentId, depth, index }, // 'child' is now truly omitted
+      { ...rest, parentId, depth, index },
       ...flattenTree(children, item.id, depth + 1),
     ];
   }, []);
@@ -57,59 +83,21 @@ function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
     const rootItems: MenuItem[] = [];
     const itemsById: Record<number, MenuItem> = {};
 
-    // First pass: create nodes and map them by ID
-    for (const item of flattenedItems) {
-        // Explicitly pick properties that belong to MenuItem
-        const newItem: MenuItem = {
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            icon: item.icon,
-            route: item.route,
-            type: item.type,
-            position: item.position,
-            status: item.status,
-            order: item.order,
-            parent_id: item.parentId, // Use parentId from FlattenedItem as parent_id for MenuItem
-            child: [], // Initialize children as empty array
-        };
-        itemsById[item.id] = newItem;
-    }
+    flattenedItems.forEach(item => {
+        itemsById[item.id] = { ...item, parent_id: item.parentId, child: [] };
+    });
 
-    // Second pass: build the tree structure
-    for (const item of flattenedItems) {
+    flattenedItems.forEach(item => {
         const node = itemsById[item.id];
         if (item.parentId && itemsById[item.parentId]) {
-            // Pastikan child array ada sebelum push
-            if (!itemsById[item.parentId].child) {
-                itemsById[item.parentId].child = [];
-            }
             itemsById[item.parentId].child.push(node);
         } else {
             rootItems.push(node);
         }
-    }
+    });
     
-    // Sort children by order
-    const sortChildren = (items: MenuItem[]) => {
-        items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        items.forEach(item => sortChildren(item.child ?? [])); // Pastikan item.child selalu array
-    };
-    sortChildren(rootItems);
-
     return rootItems;
 }
-
-function getDescendantIds(items: FlattenedItem[], parentId: number): number[] {
-    const children = items.filter(item => item.parentId === parentId);
-    let descendantIds: number[] = [];
-    for (const child of children) {
-        descendantIds.push(child.id);
-        descendantIds = [...descendantIds, ...getDescendantIds(items, child.id)];
-    }
-    return descendantIds;
-}
-
 
 // --- Components ---
 const INDENTATION_WIDTH = 24;
@@ -182,8 +170,22 @@ const NavigationManagementPage: React.FC = () => {
 
   useEffect(() => {
     if (menuData?.data && !isFetching) {
-      const sortedData = [...menuData.data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      setItems(flattenTree(sortedData));
+      // 1. Bangun struktur pohon yang benar dari data API
+      const treeData = buildTreeFromApi(menuData.data);
+
+      // 2. Urutkan pohon secara rekursif berdasarkan 'order'
+      const sortTree = (nodes: MenuItem[]) => {
+        nodes.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        nodes.forEach(node => {
+          if (node.child?.length) {
+            sortTree(node.child);
+          }
+        });
+      };
+      sortTree(treeData);
+
+      // 3. Ratakan (flatten) pohon yang sudah benar untuk ditampilkan di UI
+      setItems(flattenTree(treeData));
     }
   }, [menuData, isFetching]);
 
@@ -255,8 +257,8 @@ const NavigationManagementPage: React.FC = () => {
     } catch (err) {
         toast.showError('Gagal memperbarui struktur.');
         if (menuData?.data) {
-            const sortedData = [...menuData.data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-            setItems(flattenTree(sortedData));
+            const treeData = buildTreeFromApi(menuData.data);
+            setItems(flattenTree(treeData));
         }
     }
   };
@@ -268,11 +270,10 @@ const NavigationManagementPage: React.FC = () => {
         const currentItem = newItems[itemIndex];
         const previousItem = newItems[itemIndex - 1];
         
-        // Hanya indent jika item saat ini tidak lebih dalam dari item sebelumnya
         if (currentItem.depth <= previousItem.depth) {
             currentItem.depth += 1;
             currentItem.parentId = previousItem.id;
-            currentItem.type = 'sub-menu'; // Set type to 'sub-menu' when indented
+            currentItem.type = 'sub-menu';
             updateStructure(newItems);
         }
     }
@@ -284,13 +285,12 @@ const NavigationManagementPage: React.FC = () => {
     const currentItem = newItems[itemIndex];
 
     if (currentItem.depth > 0) {
-        // Cari parent dari parent saat ini
         const oldParent = items.find(item => item.id === currentItem.parentId);
         currentItem.depth -= 1;
         currentItem.parentId = oldParent ? oldParent.parentId : null;
         
         if (currentItem.parentId === null) {
-            currentItem.type = 'main'; // Set type to 'main' if it becomes a top-level item
+            currentItem.type = 'main';
         }
         updateStructure(newItems);
     }
@@ -306,8 +306,6 @@ const NavigationManagementPage: React.FC = () => {
         const newIndex = items.findIndex((item) => item.id === over.id);
         const movedItems = arrayMove(items, oldIndex, newIndex);
         
-        // Simply pass the reordered items to updateStructure.
-        // The buildTree and flattenTree functions will correctly re-calculate depths and parentIds.
         await updateStructure(movedItems);
     }
     setActiveId(null);
