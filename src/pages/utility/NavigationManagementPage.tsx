@@ -9,11 +9,11 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import MenuForm from './MenuForm';
-import * as toast from '@/utils/toast';
+import * as toast from '@/utils/toast'; // Baris ini diperbaiki
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import * as LucideIcons from 'lucide-react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable'; // Perbaikan sintaks import di sini
+import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge } from '@/components/ui/badge';
 import { createPortal } from 'react-dom';
@@ -260,6 +260,7 @@ const NavigationManagementPage: React.FC = () => {
         if (currentItem.depth <= previousItem.depth) {
             currentItem.depth += 1;
             currentItem.parentId = previousItem.id;
+            currentItem.type = 'sub'; // Set type to 'sub' when indented
             updateStructure(newItems);
         }
     }
@@ -275,6 +276,10 @@ const NavigationManagementPage: React.FC = () => {
         const oldParent = items.find(item => item.id === currentItem.parentId);
         currentItem.depth -= 1;
         currentItem.parentId = oldParent ? oldParent.parentId : null;
+        
+        if (currentItem.parentId === null) {
+            currentItem.type = 'main'; // Set type to 'main' if it becomes a top-level item
+        }
         updateStructure(newItems);
     }
   };
