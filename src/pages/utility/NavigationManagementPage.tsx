@@ -183,10 +183,10 @@ const NavigationManagementPage: React.FC = () => {
             <div className="flex space-x-2">
               <Button
                 variant="outline"
-                className="h-8 px-2 text-xs"
+                size="icon" // Changed to icon size
                 onClick={() => handleEditData(item)}
               >
-                <Edit className="h-4 w-4 mr-1" /> Edit
+                <Edit className="h-4 w-4" />
               </Button>
               {/* Tombol Hapus dihilangkan sesuai permintaan */}
               {/* <Button
