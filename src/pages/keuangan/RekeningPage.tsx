@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Wallet } from 'lucide-react'; // Import Wallet icon
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { useGetAccountsQuery, useCreateAccountMutation, useUpdateAccountMutation, useDeleteAccountMutation } from '@/store/slices/accountApi';
 import { RekeningTable } from './RekeningTable';
@@ -9,6 +9,8 @@ import { Account, CreateUpdateAccountRequest } from '@/types/keuangan';
 import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb'; // Import breadcrumb components
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'; // Import card components
 
 const RekeningPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -19,6 +21,12 @@ const RekeningPage: React.FC = () => {
   const [createAccount, { isLoading: isCreateLoading }] = useCreateAccountMutation();
   const [updateAccount, { isLoading: isUpdateLoading }] = useUpdateAccountMutation();
   const [deleteAccount] = useDeleteAccountMutation();
+
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: 'Dashboard', href: '/dashboard/administrasi' },
+    { label: 'Bank Santri' },
+    { label: 'Rekening', icon: <Wallet className="h-4 w-4" /> },
+  ];
 
   const handleFormOpen = (account?: Account) => {
     setSelectedAccount(account || null);
@@ -71,26 +79,34 @@ const RekeningPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Manajemen Rekening" role="administrasi">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Daftar Rekening</h1>
-        <Button onClick={() => handleFormOpen()}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Rekening
-        </Button>
+      <div className="container mx-auto px-4 pb-4">
+        <CustomBreadcrumb items={breadcrumbItems} />
+        <Card>
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div>
+              <CardTitle>Manajemen Rekening</CardTitle>
+              <CardDescription>Kelola semua rekening santri di bank.</CardDescription>
+            </div>
+            <Button onClick={() => handleFormOpen()}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Tambah Rekening
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {isGetLoading ? (
+              <TableLoadingSkeleton />
+            ) : isError ? (
+              <div className="text-red-500 text-center my-4">Gagal memuat data rekening. Silakan coba lagi.</div>
+            ) : (
+              <RekeningTable 
+                data={accountsData?.data || []} 
+                onEdit={handleFormOpen} 
+                onDelete={handleDeleteConfirmOpen} 
+              />
+            )}
+          </CardContent>
+        </Card>
       </div>
-      
-      {isGetLoading ? (
-        <TableLoadingSkeleton />
-      ) : isError ? (
-        <div className="text-red-500 text-center my-4">Gagal memuat data rekening. Silakan coba lagi.</div>
-      ) : (
-        <RekeningTable 
-          data={accountsData?.data || []} 
-          onEdit={handleFormOpen} 
-          onDelete={handleDeleteConfirmOpen} 
-        />
-      )}
-
       <RekeningForm
         isOpen={isFormOpen}
         onClose={handleFormClose}
