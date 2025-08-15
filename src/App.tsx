@@ -54,6 +54,7 @@ import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage'; // Re-import to ensure it's picked up
+import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage'; // Import the new OrganisasiPage
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
               <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
               <Route path="/dashboard/peran" element={<PeranPage />} />
+              <Route path="/dashboard/organisasi" element={<OrganisasiPage />} /> {/* New route for OrganisasiPage */}
               
               {/* Rute Manajemen Santri */}
               <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
