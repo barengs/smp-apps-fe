@@ -27,6 +27,7 @@ interface ComboboxProps {
   searchPlaceholder?: string;
   notFoundMessage?: string;
   disabled?: boolean;
+  isLoading?: boolean; // Added isLoading prop
 }
 
 export function Combobox({
@@ -37,6 +38,7 @@ export function Combobox({
   searchPlaceholder = "Search...",
   notFoundMessage = "No option found.",
   disabled = false,
+  isLoading = false,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
 

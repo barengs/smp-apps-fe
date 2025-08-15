@@ -53,6 +53,7 @@ import CoaPage from '@/pages/keuangan/CoaPage';
 import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
+import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage'; // Re-import to ensure it's picked up
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -121,6 +122,7 @@ const App = () => (
               <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
               <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
               <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
+              <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
               <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
               <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
               <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
