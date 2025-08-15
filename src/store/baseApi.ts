@@ -117,7 +117,8 @@ export const smpApi = createApi({
     'StudentStatistics',
     'ProdukBank',
     'Coa',
-    'TransactionType', // <-- Ditambahkan
+    'TransactionType',
+    'Account',
   ],
   endpoints: () => ({}),
 });

@@ -47,3 +47,33 @@ export interface CreateUpdateTransactionTypeRequest {
   is_debit: boolean;
   is_credit: boolean;
 }
+
+// Tipe baru untuk Rekening (Account)
+export interface Account {
+  id: number;
+  account_number: string;
+  balance: number;
+  status: 'active' | 'inactive' | 'frozen';
+  created_at: string;
+  updated_at: string;
+  santri: {
+    id: number;
+    nama: string;
+  };
+  produk: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface AccountApiResponse {
+  message: string;
+  status: number;
+  data: Account[];
+}
+
+export interface CreateUpdateAccountRequest {
+  santri_id?: number; // FIX: Made optional
+  produk_id?: number; // FIX: Made optional
+  status: 'active' | 'inactive' | 'frozen';
+}
