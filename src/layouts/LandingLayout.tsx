@@ -1,10 +1,15 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Globe, BookOpenText } from 'lucide-react';
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import { useTranslation } from 'react-i18next';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import { useLogoutMutation } from '@/store/slices/authApi';
+import { logOut } from '@/store/authActions';
+import * as toast from '@/utils/toast';
 
 interface LandingLayoutProps {
   children: React.ReactNode;
@@ -13,6 +18,10 @@ interface LandingLayoutProps {
 
 const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
   const { t, i18n } = useTranslation();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [logoutApi] = useLogoutMutation();
 
   useEffect(() => {
     document.title = `SMP | ${title}`;
@@ -24,6 +33,18 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
     i18n.changeLanguage(lng);
   };
 
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+      dispatch(logOut());
+      toast.showSuccess('Anda telah berhasil logout.');
+      navigate('/login');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+      toast.showError('Gagal logout. Silakan coba lagi.');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -32,11 +53,21 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
           <BookOpenText className="h-10 w-10 mr-4 text-primary" />
           <span className="text-2xl font-bold text-primary">SMP</span>
         </div>
-        <nav className="flex items-center gap-6"> {/* Mengubah space-x-6 menjadi gap-6 */}
+        <nav className="flex items-center gap-6">
           <Link to="/" className="text-gray-700 hover:text-primary font-medium">{t('home')}</Link>
-          {/* Menambahkan key untuk memaksa re-render saat bahasa berubah */}
-          <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium">{t('register')}</Link>
-          <Link to="/login" className="text-gray-700 hover:text-primary font-medium">{t('login')}</Link>
+          {isAuthenticated ? (
+            <>
+              <Link to="/dashboard/administrasi" className="text-gray-700 hover:text-primary font-medium">{t('dashboard')}</Link>
+              <Button variant="ghost" onClick={handleLogout} className="text-gray-700 hover:text-primary font-medium p-0 h-auto">
+                {t('logout')}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium">{t('register')}</Link>
+              <Link to="/login" className="text-gray-700 hover:text-primary font-medium">{t('login')}</Link>
+            </>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -60,7 +91,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow pt-20"> {/* Added pt-20 to account for fixed header */}
+      <main className="flex-grow pt-20">
         {children}
       </main>
 
