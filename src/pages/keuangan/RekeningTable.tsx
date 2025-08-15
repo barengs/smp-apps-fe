@@ -47,11 +47,11 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       ),
     },
     {
-      accessorFn: (row) => row.santri.nama, // FIX: Use accessorFn for nested property
+      accessorFn: (row) => row.santri.nama,
       header: 'Pemilik Rekening',
     },
     {
-      accessorFn: (row) => row.produk.name, // FIX: Use accessorFn for nested property
+      accessorFn: (row) => row.produk.name,
       header: 'Produk',
     },
     {
