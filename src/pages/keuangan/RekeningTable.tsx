@@ -99,5 +99,12 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
     },
   ];
 
-  return <DataTable<Account, any> columns={columns} data={data} />;
+  return (
+    <DataTable<Account, any>
+      columns={columns}
+      data={data}
+      exportFileName="data_rekening"
+      exportTitle="Data Rekening Santri"
+    />
+  );
 };
