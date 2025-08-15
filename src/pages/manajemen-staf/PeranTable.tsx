@@ -165,6 +165,7 @@ const PeranTable: React.FC = () => {
                 variant="outline"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleEditData(peran)}
+                disabled={isProtectedRole} // Menonaktifkan tombol jika peran dilindungi
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
