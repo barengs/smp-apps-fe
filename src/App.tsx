@@ -52,6 +52,7 @@ import ProdukPage from '@/pages/keuangan/ProdukPage';
 import CoaPage from '@/pages/keuangan/CoaPage';
 import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
+import LaporanPage from '@/pages/keuangan/LaporanPage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -104,6 +105,7 @@ const App = () => (
               <Route path="/dashboard/bank-santri/coa" element={<CoaPage />} />
               <Route path="/dashboard/bank-santri/jenis-transaksi" element={<JenisTransaksiPage />} />
               <Route path="/dashboard/bank-santri/rekening" element={<RekeningPage />} />
+              <Route path="/dashboard/bank-santri/laporan" element={<LaporanPage />} />
               <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
