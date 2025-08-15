@@ -122,7 +122,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
   ];
 
   return (
-    <DataTable<Account, any>
+    <DataTable
       columns={columns}
       data={data}
       exportFileName="data_rekening"
