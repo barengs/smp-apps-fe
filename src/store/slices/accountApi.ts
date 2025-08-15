@@ -4,12 +4,12 @@ import { Account, AccountApiResponse, CreateUpdateAccountRequest } from '@/types
 export const accountApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getAccounts: builder.query<AccountApiResponse, void>({
-      query: () => 'bank/account',
+      query: () => 'account', // Diubah dari 'bank/account'
       providesTags: ['Account'],
     }),
     createAccount: builder.mutation<Account, CreateUpdateAccountRequest>({
       query: (newAccount) => ({
-        url: 'bank/account',
+        url: 'account', // Diubah dari 'bank/account'
         method: 'POST',
         body: newAccount,
       }),
@@ -17,7 +17,7 @@ export const accountApi = smpApi.injectEndpoints({
     }),
     updateAccount: builder.mutation<Account, { id: number; data: CreateUpdateAccountRequest }>({
       query: ({ id, data }) => ({
-        url: `bank/account/${id}`,
+        url: `account/${id}`, // Diubah dari 'bank/account/${id}'
         method: 'PUT',
         body: data,
       }),
@@ -25,7 +25,7 @@ export const accountApi = smpApi.injectEndpoints({
     }),
     deleteAccount: builder.mutation<{ message: string }, number>({
       query: (id) => ({
-        url: `bank/account/${id}`,
+        url: `account/${id}`, // Diubah dari 'bank/account/${id}'
         method: 'DELETE',
       }),
       invalidatesTags: ['Account'],

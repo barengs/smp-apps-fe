@@ -99,5 +99,5 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
     },
   ];
 
-  return <DataTable columns={columns} data={data} filterKeys={['account_number']} />;
+  return <DataTable<Account, any> columns={columns} data={data} />;
 };

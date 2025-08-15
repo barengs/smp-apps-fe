@@ -61,7 +61,7 @@ const RekeningForm: React.FC<RekeningFormProps> = ({ initialData, onSuccess, onC
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // FIX: values from form.handleSubmit will conform to formSchema, so direct assignment is fine
-    const payload: CreateUpdateAccountRequest = values; 
+    const payload: CreateUpdateAccountRequest = values as CreateUpdateAccountRequest; 
 
     try {
       if (initialData) {
