@@ -47,3 +47,46 @@ export interface CreateUpdateTransactionTypeRequest {
   is_debit: boolean;
   is_credit: boolean;
 }
+
+// --- Tipe untuk Rekening (Account) ---
+
+export interface AccountCustomer {
+  id: number;
+  name: string;
+  nis: string;
+}
+
+export interface AccountProduct {
+  id: number;
+  name: string;
+  type: string;
+}
+
+export interface Account {
+  account_number: string;
+  customer_id: number;
+  product_id: number;
+  balance: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'FROZEN' | 'CLOSED';
+  open_date: string;
+  close_date: string | null;
+  customer: AccountCustomer;
+  product: AccountProduct;
+}
+
+export interface AccountApiResponse {
+  message: string;
+  data: Account[];
+}
+
+export interface SingleAccountApiResponse {
+  message: string;
+  data: Account;
+}
+
+export interface CreateUpdateAccountRequest {
+  customer_id: number;
+  product_id: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'FROZEN' | 'CLOSED';
+  open_date: string; // Format YYYY-MM-DD
+}

@@ -52,6 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       titleKey: "sidebar.bankSantri",
       icon: <Landmark className="h-5 w-5" />,
       children: [
+        { titleKey: "sidebar.account", href: "/dashboard/bank-santri/rekening", icon: <Wallet className="h-4 w-4" /> },
         { titleKey: "sidebar.transactions", href: "/dashboard/bank-santri/transaksi", icon: <Receipt className="h-4 w-4" /> },
         { titleKey: "sidebar.reports", href: "/dashboard/bank-santri/laporan", icon: <FileText className="h-4 w-4" /> },
       ],
