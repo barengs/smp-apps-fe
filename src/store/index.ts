@@ -34,6 +34,7 @@ import './slices/activityApi';
 import './slices/controlPanelApi';
 import './slices/produkBankApi';
 import './slices/coaApi';
+import './slices/accountApi';
 
 export const store = configureStore({
   reducer: {

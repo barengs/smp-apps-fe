@@ -51,7 +51,8 @@ import TransaksiPage from '@/pages/keuangan/TransaksiPage';
 import ProdukPage from '@/pages/keuangan/ProdukPage';
 import CoaPage from '@/pages/keuangan/CoaPage';
 import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
-// import RegistrationPdfPreviewPage from '@/pages/manajemen-santri/RegistrationPdfPreviewPage'; // Import halaman pratinjau PDF
+import RekeningPage from '@/pages/keuangan/RekeningPage';
+import LaporanPage from '@/pages/keuangan/LaporanPage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -73,7 +74,6 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/daftar" element={<Daftar />} />
             <Route path="/berita/:id" element={<BeritaDetailPage />} />
-            {/* <Route path="/registration-pdf-preview/:id" element={<RegistrationPdfPreviewPage />} /> */} {/* Rute baru untuk pratinjau PDF */}
 
             {/* Rute yang Dilindungi */}
             <Route element={<ProtectedRoute />}>
@@ -104,6 +104,8 @@ const App = () => (
               <Route path="/dashboard/bank-santri/produk" element={<ProdukPage />} />
               <Route path="/dashboard/bank-santri/coa" element={<CoaPage />} />
               <Route path="/dashboard/bank-santri/jenis-transaksi" element={<JenisTransaksiPage />} />
+              <Route path="/dashboard/bank-santri/rekening" element={<RekeningPage />} />
+              <Route path="/dashboard/bank-santri/laporan" element={<LaporanPage />} />
               <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />

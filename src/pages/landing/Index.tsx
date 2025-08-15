@@ -59,6 +59,10 @@ const Index = () => {
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
         <div className="text-center mb-12">
           <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
+          {/* Teks Assalamu'alaikum dalam bahasa Arab */}
+          <p className="text-5xl font-bold text-gray-800 mb-8" dir="rtl">
+            السلام عليكم
+          </p>
           <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
             {t('welcomeTitle')}
           </h1>
