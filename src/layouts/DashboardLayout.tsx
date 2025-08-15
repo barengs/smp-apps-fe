@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight, Bed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -114,6 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       children: [
         { titleKey: "sidebar.program", href: "/dashboard/pendidikan/program", icon: <ClipboardList className="h-4 w-4" /> },
         { titleKey: "sidebar.dormitory", href: "/dashboard/pendidikan/asrama", icon: <BedDouble className="h-4 w-4" /> },
+        { titleKey: "sidebar.room", href: "/dashboard/kepesantrenan/kamar", icon: <Bed className="h-4 w-4" /> },
       ],
     },
     {

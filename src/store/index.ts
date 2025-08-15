@@ -35,6 +35,7 @@ import './slices/controlPanelApi';
 import './slices/produkBankApi';
 import './slices/coaApi';
 import './slices/accountApi';
+import './slices/roomApi'; // Register the new room API slice
 
 export const store = configureStore({
   reducer: {

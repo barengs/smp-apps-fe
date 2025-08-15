@@ -119,6 +119,7 @@ export const smpApi = createApi({
     'Coa',
     'TransactionType',
     'Account',
+    'Room', // Add Room tag type
   ],
   endpoints: () => ({}),
 });
