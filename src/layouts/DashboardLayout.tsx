@@ -19,6 +19,8 @@ import * as toast from '@/utils/toast';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { selectCurrentUser } from '@/store/slices/authSlice';
+import { LockScreenProvider, useLockScreen } from '@/contexts/LockScreenContext';
+import LockScreen from '@/components/LockScreen';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -463,7 +465,8 @@ const Footer: React.FC = () => {
   );
 };
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role }) => {
+const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({ children, title, role }) => {
+  const { isLocked } = useLockScreen();
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -472,23 +475,32 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title, role
   }, [title]);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-background">
-      {!isMobile && (
-        <aside className={cn("flex-shrink-0 transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
-          <TooltipProvider delayDuration={0}>
-            <Sidebar role={role} isCollapsed={isCollapsed} />
-          </TooltipProvider>
-        </aside>
-      )}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <DashboardHeader title={title} role={role} isMobile={isMobile} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-        <main className="flex-1 overflow-y-auto p-4">
-          {children}
-        </main>
-        <Footer />
+    <>
+      {isLocked && <LockScreen />}
+      <div className={cn("flex h-screen bg-gray-50 dark:bg-background", isLocked ? "blur-md pointer-events-none" : "")}>
+        {!isMobile && (
+          <aside className={cn("flex-shrink-0 transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
+            <TooltipProvider delayDuration={0}>
+              <Sidebar role={role} isCollapsed={isCollapsed} />
+            </TooltipProvider>
+          </aside>
+        )}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <DashboardHeader title={title} role={role} isMobile={isMobile} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <main className="flex-1 overflow-y-auto p-4">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => (
+  <LockScreenProvider>
+    <DashboardLayoutWithLockScreen {...props} />
+  </LockScreenProvider>
+);
 
 export default DashboardLayout;
