@@ -72,12 +72,17 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   }, [permissionsData]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const payload = {
+      name: values.name,
+      permission: values.accessRights,
+    };
+
     try {
       if (initialData) {
-        await updateRole({ id: initialData.id, data: { name: values.name } }).unwrap();
+        await updateRole({ id: initialData.id, data: payload }).unwrap();
         toast.showSuccess(`Peran "${values.name}" berhasil diperbarui.`);
       } else {
-        await createRole({ name: values.name }).unwrap();
+        await createRole(payload).unwrap();
         toast.showSuccess(`Peran "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
