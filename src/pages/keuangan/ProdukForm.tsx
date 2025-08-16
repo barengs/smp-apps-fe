@@ -40,7 +40,7 @@ interface ProdukFormProps {
 const formSchema = z.object({
   product_code: z.string().min(1, 'Kode produk harus diisi').optional(), // Ditambahkan, opsional di schema
   product_name: z.string().min(3, 'Nama produk minimal 3 karakter'),
-  product_type: z.enum(['SAVINGS', 'TIME_DEPOSIT', 'LOAN'], {
+  product_type: z.enum(['Tabungan', 'Deposito', 'Pinjaman'], {
     required_error: 'Jenis produk harus dipilih',
   }),
   interest_rate: z.coerce.number().min(0, 'Suku bunga tidak boleh negatif'),
@@ -159,9 +159,9 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="SAVINGS">Tabungan</SelectItem>
-                      <SelectItem value="TIME_DEPOSIT">Deposito</SelectItem>
-                      <SelectItem value="LOAN">Pinjaman</SelectItem>
+                      <SelectItem value="Tabungan">Tabungan</SelectItem>
+                      <SelectItem value="Deposito">Deposito</SelectItem>
+                      <SelectItem value="Pinjaman">Pinjaman</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
