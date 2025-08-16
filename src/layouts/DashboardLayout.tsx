@@ -318,8 +318,9 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const [logoutApi] = useLogoutMutation();
   const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
 
-  const displayName = currentUser?.first_name && currentUser?.last_name
-    ? `${currentUser.first_name} ${currentUser.last_name}`
+  // Mengambil nama dari properti profile, dengan fallback ke name atau placeholder
+  const displayName = currentUser?.profile?.first_name && currentUser?.profile?.last_name
+    ? `${currentUser.profile.first_name} ${currentUser.profile.last_name}`
     : currentUser?.name || t('header.usernamePlaceholder');
 
   useEffect(() => {

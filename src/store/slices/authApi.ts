@@ -7,8 +7,36 @@ interface User {
   email: string;
   username: string;
   roles: { name: string }[];
-  first_name?: string; // Tambahkan properti ini
-  last_name?: string;  // Tambahkan properti ini
+  profile?: { // Menambahkan properti profile
+    id: number;
+    user_id: number;
+    code: string;
+    first_name: string;
+    last_name: string;
+    nik: string | null;
+    email: string;
+    phone: string | null;
+    address: string | null;
+    zip_code: string | null;
+    photo: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  employee?: { // Menambahkan properti employee sesuai struktur JSON yang diberikan
+    id: number;
+    user_id: number;
+    code: string;
+    first_name: string;
+    last_name: string;
+    nik: string | null;
+    email: string;
+    phone: string | null;
+    address: string | null;
+    zip_code: string | null;
+    photo: string | null;
+    created_at: string;
+    updated_at: string;
+  };
 }
 
 // Struktur AuthResponse disesuaikan dengan respons API yang diberikan
