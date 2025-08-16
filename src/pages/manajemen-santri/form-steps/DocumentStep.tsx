@@ -177,10 +177,12 @@ const DocumentStep: React.FC = () => {
                           <p className="text-sm">{ijazahFile.name}</p>
                         </div>
                       ) : (
-                        <div className="text-center text-muted-foreground">
-                          <UploadCloud className="w-10 h-10 mx-auto mb-3" />
-                          <p className="mb-2 text-sm"><span className="font-semibold">Klik atau seret file ijazah ke sini</span></p>
-                          <p className="text-xs">PNG, JPG, atau PDF (MAX. 2MB)</p>
+                        <div className="flex items-center gap-4 text-muted-foreground">
+                          <UploadCloud className="w-10 h-10 flex-shrink-0" />
+                          <div className="text-left">
+                            <p className="mb-1 text-sm"><span className="font-semibold">Klik atau seret file ijazah ke sini</span></p>
+                            <p className="text-xs">PNG, JPG, atau PDF (MAX. 2MB)</p>
+                          </div>
                         </div>
                       )}
                       <FormControl>
