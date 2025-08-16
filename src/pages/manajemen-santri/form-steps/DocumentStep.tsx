@@ -169,7 +169,7 @@ const DocumentStep: React.FC = () => {
                 name="ijazahFile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="doc-dropzone-file" className="flex flex-col items-center justify-center w-full min-h-[120px] p-4 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted">
+                    <FormLabel htmlFor="doc-dropzone-file" className="flex flex-col items-center justify-center w-full min-h-[100px] p-4 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted">
                       {ijazahFile instanceof File && ijazahFile.size > 0 ? (
                         <div className="text-center text-success-foreground">
                           <FileCheck2 className="w-12 h-12 mx-auto mb-2 text-success" />
