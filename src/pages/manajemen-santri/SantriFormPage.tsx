@@ -235,7 +235,7 @@ const SantriFormPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
 
         <div className="mb-8">
-          <div className="w-full max-w-4xl mx-auto">
+          <div className="w-full max-w-6xl mx-auto">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <React.Fragment key={step.number}>
@@ -262,7 +262,7 @@ const SantriFormPage: React.FC = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto">
               {currentStep === 1 && <WaliSantriStep />}
               {currentStep === 2 && <SantriProfileStep />}
               {currentStep === 3 && <EducationStep />}
@@ -270,7 +270,7 @@ const SantriFormPage: React.FC = () => {
               {currentStep === 5 && <DocumentStep />}
             </div>
 
-            <div className="flex justify-between max-w-4xl mx-auto mt-8">
+            <div className="flex justify-between max-w-6xl mx-auto mt-8">
               <div className="flex space-x-2">
                 <Button type="button" variant="danger" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isLoading}>
                   <X className="mr-2 h-4 w-4" />
