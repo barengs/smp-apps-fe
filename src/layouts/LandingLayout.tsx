@@ -54,18 +54,18 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
           <span className="text-2xl font-bold text-primary">SMP</span>
         </div>
         <nav className="flex items-center gap-6">
-          <Link to="/" className="text-gray-700 hover:text-primary font-medium">{t('home')}</Link>
+          <Link to="/" className="text-gray-700 hover:text-primary font-medium text-sm">{t('home')}</Link>
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard/administrasi" className="text-gray-700 hover:text-primary font-medium">{t('dashboard')}</Link>
-              <Button variant="ghost" onClick={handleLogout} className="text-gray-700 hover:text-primary font-medium p-0 h-auto">
+              <Link to="/dashboard/administrasi" className="text-gray-700 hover:text-primary font-medium text-sm">{t('dashboard')}</Link>
+              <Button variant="ghost" onClick={handleLogout} className="text-gray-700 hover:text-primary font-medium p-0 h-auto text-sm">
                 {t('logout')}
               </Button>
             </>
           ) : (
             <>
-              <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium">{t('register')}</Link>
-              <Link to="/login" className="text-gray-700 hover:text-primary font-medium">{t('login')}</Link>
+              <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium text-sm">{t('register')}</Link>
+              <Link to="/login" className="text-gray-700 hover:text-primary font-medium text-sm">{t('login')}</Link>
             </>
           )}
           <DropdownMenu>
