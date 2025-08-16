@@ -65,6 +65,7 @@ const SantriFormPage: React.FC = () => {
       sekolahAsal: '',
       jenjangSebelumnya: '',
       alamatSekolah: '',
+      programId: '',
       fotoSantri: undefined,
       ijazahFile: undefined,
       optionalDocuments: [],
@@ -141,6 +142,7 @@ const SantriFormPage: React.FC = () => {
     appendIfExists('pendidikan_sekolah_asal', data.sekolahAsal);
     appendIfExists('pendidikan_jenjang_sebelumnya', data.jenjangSebelumnya);
     appendIfExists('pendidikan_alamat_sekolah', data.alamatSekolah);
+    appendIfExists('program_id', data.programId);
 
     appendIfExists('dokumen_foto_santri', data.fotoSantri);
     appendIfExists('dokumen_ijazah', data.ijazahFile);

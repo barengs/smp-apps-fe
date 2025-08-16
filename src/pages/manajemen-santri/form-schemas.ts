@@ -41,6 +41,7 @@ export const santriFormSchema = z.object({
   jenjangSebelumnya: z.string({ required_error: "Jenjang pendidikan wajib diisi." }).min(1, "Jenjang pendidikan wajib diisi."),
   alamatSekolah: z.string({ required_error: "Alamat sekolah wajib diisi." }).min(1, "Alamat sekolah wajib diisi."),
   certificateNumber: z.string().optional(), // New field for certificate number
+  programId: z.string({ required_error: "Program wajib dipilih." }).min(1, "Program wajib dipilih."),
   fotoSantri: fileSchema,
 
   // Step 4: Documents
@@ -53,5 +54,5 @@ export type SantriFormValues = z.infer<typeof santriFormSchema>;
 // Define fields for each step to trigger validation correctly
 export const step1Fields: (keyof SantriFormValues)[] = ['nik', 'kk', 'firstName', 'gender', 'parentAs', 'phone', 'pekerjaanValue', 'educationValue', 'alamatKtp']; // Added educationValue
 export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri', 'villageCode']; // Re-added villageCode
-export const step3Fields: (keyof SantriFormValues)[] = ['nisn', 'certificateNumber', 'sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah', 'fotoSantri']; // Add nisn and certificateNumber here
+export const step3Fields: (keyof SantriFormValues)[] = ['nisn', 'certificateNumber', 'sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah', 'programId', 'fotoSantri']; // Add nisn and certificateNumber here
 export const step4Fields: (keyof SantriFormValues)[] = ['ijazahFile', 'optionalDocuments']; // Add optionalDocuments here

@@ -19,12 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
+import { useGetProgramsQuery } from '@/store/slices/programApi';
 
-interface EducationStepProps {
-  // form: any; // Dihapus karena menggunakan useFormContext
-}
+interface EducationStepProps {}
 
-const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form }
+const EducationStep: React.FC<EducationStepProps> = () => {
   const { control, watch, setValue } = useFormContext<SantriFormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -35,6 +34,10 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
   // Fetch education levels
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevels = educationLevelsResponse?.data || [];
+
+  // Fetch programs
+  const { data: programsResponse, isLoading: isLoadingPrograms, isError: isErrorPrograms } = useGetProgramsQuery();
+  const programs = programsResponse || [];
 
   useEffect(() => {
     if (fotoSantriFile && fotoSantriFile instanceof File) {
@@ -48,7 +51,6 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
     }
   }, [fotoSantriFile]);
 
-  // Helper function to convert base64 data URL to a File object
   const dataURLtoFile = (dataurl: string, filename: string): File | null => {
     const arr = dataurl.split(',');
     if (arr.length < 2) { return null; }
@@ -73,21 +75,15 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
         img.onload = () => {
           const imgWidth = img.width;
           const imgHeight = img.height;
-
-          // Target aspect ratio for 3x4 photo (width:height)
           const targetAspectRatio = 3 / 4;
-
           let croppedWidth, croppedHeight, sx, sy;
 
-          // Determine the largest 3:4 rectangle that fits within the image
           if (imgWidth / imgHeight > targetAspectRatio) {
-            // Image is wider than 3:4, limit by height
             croppedHeight = imgHeight;
             croppedWidth = croppedHeight * targetAspectRatio;
             sx = (imgWidth - croppedWidth) / 2;
             sy = 0;
           } else {
-            // Image is taller or equal to 3:4, limit by width
             croppedWidth = imgWidth;
             croppedHeight = croppedWidth / targetAspectRatio;
             sx = 0;
@@ -100,13 +96,12 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
           const ctx = canvas.getContext('2d');
 
           if (ctx) {
-            // Draw the cropped portion of the image onto the canvas
             ctx.drawImage(img, sx, sy, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
             const croppedImageSrc = canvas.toDataURL('image/jpeg');
             const file = dataURLtoFile(croppedImageSrc, `capture-${Date.now()}.jpg`);
             if (file) {
               setValue('fotoSantri', file, { shouldValidate: true });
-              setIsCameraOpen(false); // Close dialog on capture
+              setIsCameraOpen(false);
             } else {
               showError("Gagal mengonversi gambar yang dipotong. Coba lagi.");
             }
@@ -128,7 +123,7 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
       <Card>
         <CardHeader>
           <CardTitle>Langkah 3: Informasi Pendidikan & Foto</CardTitle>
-          <CardDescription>Isi informasi pendidikan terakhir dan unggah pas foto santri.</CardDescription>
+          <CardDescription>Isi informasi pendidikan terakhir, pilih program, dan unggah pas foto santri.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
@@ -196,10 +191,9 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
                           <SelectItem value="no-data" disabled>Tidak ada data jenjang pendidikan.</SelectItem>
                         )}
                         {educationLevels.map((level) => {
-                          // Validasi untuk memastikan id adalah angka dan name tidak kosong
                           if (typeof level.id !== 'number' || isNaN(level.id) || !level.name || level.name.trim() === '') {
                             console.warn('Melewatkan jenjang pendidikan yang tidak valid (ID tidak valid atau nama kosong):', level);
-                            return null; // Lewati rendering item ini
+                            return null;
                           }
                           return (
                             <SelectItem key={level.id} value={level.id.toString()}>
@@ -228,89 +222,122 @@ const EducationStep: React.FC<EducationStepProps> = () => { // Menghapus { form 
               />
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-medium mb-2">Unggah Foto Santri</h3>
-            <div className="flex items-start gap-4">
-              <div className="flex-grow space-y-2">
-                <FormField
-                  control={control}
-                  name="fotoSantri"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel
-                        htmlFor="dropzone-file"
-                        className="flex flex-col items-center justify-center w-full h-[151px] border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
-                      >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
-                          <p className="mb-2 text-sm text-muted-foreground">
-                            <span className="font-semibold">Klik untuk mengunggah</span> atau seret
-                          </p>
-                          <p className="text-xs text-muted-foreground">Pas Foto 3x4 (MAX. 2MB)</p>
-                        </div>
-                        <FormControl>
-                          <Input
-                            id="dropzone-file"
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
-                          />
-                        </FormControl>
-                      </FormLabel>
-                      <FormMessage className="mt-2" />
-                    </FormItem>
-                  )}
-                />
-                <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
-                  <DialogTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full" onClick={() => setIsCameraOpen(true)}>
-                      <Camera className="mr-2 h-4 w-4" />
-                      Ambil Foto dari Kamera
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[625px]">
-                    <DialogHeader>
-                      <DialogTitle>Ambil Foto</DialogTitle>
-                      <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription>
-                    </DialogHeader>
-                    <div className="relative w-full bg-muted flex items-center justify-center rounded-md overflow-hidden">
-                      <Webcam
-                        audio={false}
-                        ref={webcamRef}
-                        screenshotFormat="image/jpeg"
-                        className="w-full h-auto"
-                        videoConstraints={{
-                          width: 1280,
-                          height: 720,
-                          facingMode: "user"
-                        }}
-                      />
-                      {/* Center point indicators */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        {/* Plus sign */}
-                        <div className="absolute w-6 h-px bg-white opacity-70" />
-                        <div className="absolute h-6 w-px bg-white opacity-70" />
-                        {/* Corner brackets */}
-                        <div className="absolute top-0 left-0 w-1/4 h-1/4 border-l-2 border-t-2 border-white opacity-70" />
-                        <div className="absolute top-0 right-0 w-1/4 h-1/4 border-r-2 border-t-2 border-white opacity-70" />
-                        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 border-l-2 border-b-2 border-white opacity-70" />
-                        <div className="absolute bottom-0 right-0 w-1/4 h-1/4 border-r-2 border-b-2 border-white opacity-70" />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsCameraOpen(false)}>Batal</Button>
-                      <Button onClick={handleCapturePhoto}>Ambil Gambar</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <div className="flex-shrink-0 w-[113px] h-[151px] border rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                {preview ? (
-                  <img src={preview} alt="Foto Santri Preview" className="object-cover w-full h-full" />
-                ) : (
-                  <span className="text-muted-foreground text-xs text-center p-2">Pratinjau Foto</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t">
+            {/* Left Column: Program Selection */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Program Pesantren</h3>
+              <FormField
+                control={control}
+                name="programId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Program</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value === '' ? undefined : field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih program pesantren" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isLoadingPrograms && <SelectItem value="loading" disabled>Memuat program...</SelectItem>}
+                        {isErrorPrograms && <SelectItem value="error" disabled>Gagal memuat program.</SelectItem>}
+                        {!isLoadingPrograms && !isErrorPrograms && programs.length === 0 && <SelectItem value="no-data" disabled>Tidak ada program tersedia.</SelectItem>}
+                        {programs.map((program) => (
+                          <SelectItem key={program.id} value={program.id.toString()}>
+                            {program.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+            </div>
+
+            {/* Right Column: Photo Upload */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">Unggah Foto Santri</h3>
+              <div className="flex items-start gap-4">
+                <div className="flex-grow space-y-2">
+                  <FormField
+                    control={control}
+                    name="fotoSantri"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel
+                          htmlFor="dropzone-file"
+                          className="flex flex-col items-center justify-center w-full h-[151px] border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
+                        >
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
+                            <p className="mb-2 text-sm text-muted-foreground">
+                              <span className="font-semibold">Klik untuk mengunggah</span> atau seret
+                            </p>
+                            <p className="text-xs text-muted-foreground">Pas Foto 3x4 (MAX. 2MB)</p>
+                          </div>
+                          <FormControl>
+                            <Input
+                              id="dropzone-file"
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
+                            />
+                          </FormControl>
+                        </FormLabel>
+                        <FormMessage className="mt-2" />
+                      </FormItem>
+                    )}
+                  />
+                  <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" className="w-full" onClick={() => setIsCameraOpen(true)}>
+                        <Camera className="mr-2 h-4 w-4" />
+                        Ambil Foto dari Kamera
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px]">
+                      <DialogHeader>
+                        <DialogTitle>Ambil Foto</DialogTitle>
+                        <DialogDescription>Posisikan wajah Anda di tengah dan klik 'Ambil Gambar'.</DialogDescription>
+                      </DialogHeader>
+                      <div className="relative w-full bg-muted flex items-center justify-center rounded-md overflow-hidden">
+                        <Webcam
+                          audio={false}
+                          ref={webcamRef}
+                          screenshotFormat="image/jpeg"
+                          className="w-full h-auto"
+                          videoConstraints={{
+                            width: 1280,
+                            height: 720,
+                            facingMode: "user"
+                          }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="absolute w-6 h-px bg-white opacity-70" />
+                          <div className="absolute h-6 w-px bg-white opacity-70" />
+                          <div className="absolute top-0 left-0 w-1/4 h-1/4 border-l-2 border-t-2 border-white opacity-70" />
+                          <div className="absolute top-0 right-0 w-1/4 h-1/4 border-r-2 border-t-2 border-white opacity-70" />
+                          <div className="absolute bottom-0 left-0 w-1/4 h-1/4 border-l-2 border-b-2 border-white opacity-70" />
+                          <div className="absolute bottom-0 right-0 w-1/4 h-1/4 border-r-2 border-b-2 border-white opacity-70" />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsCameraOpen(false)}>Batal</Button>
+                        <Button onClick={handleCapturePhoto}>Ambil Gambar</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div className="flex-shrink-0 w-[113px] h-[151px] border rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                  {preview ? (
+                    <img src={preview} alt="Foto Santri Preview" className="object-cover w-full h-full" />
+                  ) : (
+                    <span className="text-muted-foreground text-xs text-center p-2">Pratinjau Foto</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
