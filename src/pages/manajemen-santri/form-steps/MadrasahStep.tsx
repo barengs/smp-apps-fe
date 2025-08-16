@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 
-const EducationStep: React.FC = () => {
+const MadrasahStep: React.FC = () => {
   const { control } = useFormContext();
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevels = educationLevelsResponse?.data || [];
@@ -23,19 +23,19 @@ const EducationStep: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Langkah 3: Informasi Pendidikan Formal</CardTitle>
-          <CardDescription>Isi informasi pendidikan formal terakhir dan identitas pendidikan santri.</CardDescription>
+          <CardTitle>Langkah 4: Informasi Pendidikan Madrasah (Opsional)</CardTitle>
+          <CardDescription>Isi informasi pendidikan madrasah terakhir santri jika ada.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control}
-              name="nisn"
+              name="sekolahAsalMadrasah"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>NISN</FormLabel>
+                  <FormLabel>Nama Madrasah Asal</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: 0012345678" />
+                    <Input {...field} placeholder="Contoh: MI Al-Hidayah" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -43,36 +43,10 @@ const EducationStep: React.FC = () => {
             />
             <FormField
               control={control}
-              name="certificateNumber"
+              name="jenjangSebelumnyaMadrasah"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nomor Ijazah (Opsional)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Contoh: 001/IJZ/SMP/2023" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="sekolahAsal"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Sekolah Asal</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Contoh: SMP Negeri 1 Jakarta" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="jenjangSebelumnya"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Jenjang Pendidikan</FormLabel>
+                  <FormLabel>Jenjang Pendidikan Madrasah</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value === '' ? undefined : field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -95,12 +69,25 @@ const EducationStep: React.FC = () => {
             />
             <FormField
               control={control}
-              name="alamatSekolah"
+              name="alamatSekolahMadrasah"
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
-                  <FormLabel>Alamat Sekolah Asal</FormLabel>
+                  <FormLabel>Alamat Madrasah Asal</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Contoh: Jl. Budi Utomo No. 1, Jakarta Pusat" />
+                    <Input {...field} placeholder="Contoh: Jl. Pendidikan No. 10" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={control}
+              name="certificateNumberMadrasah"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor Ijazah Madrasah (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Contoh: 001/IJZ/MI/2023" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,4 +100,4 @@ const EducationStep: React.FC = () => {
   );
 };
 
-export default EducationStep;
+export default MadrasahStep;

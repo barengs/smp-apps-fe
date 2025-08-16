@@ -2,6 +2,8 @@
   "home": "Beranda",
   "register": "Daftar",
   "login": "Masuk",
+  "dashboard": "Dashboard",
+  "logout": "Keluar",
   "chooseLanguage": "Pilih Bahasa",
   "indonesian": "Bahasa Indonesia",
   "english": "Inggris",
