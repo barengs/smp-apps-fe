@@ -2,6 +2,8 @@
   "home": "Home",
   "register": "Register",
   "login": "Login",
+  "dashboard": "Dashboard",
+  "logout": "Logout",
   "chooseLanguage": "Choose Language",
   "indonesian": "Indonesian",
   "english": "English",
