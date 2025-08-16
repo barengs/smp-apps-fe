@@ -4,7 +4,6 @@ const fileSchema = z.any()
   .refine(file => file instanceof File && file.size > 0, { message: "File wajib diunggah." })
   .refine(file => file instanceof File && file.size <= 2 * 1024 * 1024, { message: "Ukuran file maksimal 2MB." });
 
-// New schema for an individual optional document
 const optionalDocumentItemSchema = z.object({
   name: z.string().min(1, "Nama dokumen wajib diisi."),
   file: fileSchema,
@@ -21,7 +20,7 @@ export const santriFormSchema = z.object({
   phone: z.string({ required_error: "Nomor telepon wajib diisi." }).min(10, "Nomor telepon tidak valid."),
   email: z.string().email("Format email tidak valid.").optional().or(z.literal('')),
   pekerjaanValue: z.string({ required_error: "Pekerjaan wajib dipilih." }).min(1, "Pekerjaan wajib dipilih."),
-  educationValue: z.string({ required_error: "Pendidikan terakhir wajib dipilih." }).min(1, "Pendidikan terakhir wajib dipilih."), // New field
+  educationValue: z.string({ required_error: "Pendidikan terakhir wajib dipilih." }).min(1, "Pendidikan terakhir wajib dipilih."),
   alamatKtp: z.string({ required_error: "Alamat KTP wajib diisi." }).min(1, "Alamat KTP wajib diisi."),
   alamatDomisili: z.string().optional(),
 
@@ -34,25 +33,32 @@ export const santriFormSchema = z.object({
   tanggalLahir: z.date({ required_error: "Tanggal lahir wajib diisi." }),
   jenisKelamin: z.enum(['L', 'P'], { required_error: "Jenis kelamin santri wajib dipilih." }),
   alamatSantri: z.string({ required_error: "Alamat lengkap santri wajib diisi." }).min(1, "Alamat lengkap santri wajib diisi."),
-  villageCode: z.string({ required_error: "Desa/Kelurahan wajib dipilih." }).min(1, "Desa/Kelurahan wajib dipilih."), // Re-added
+  villageCode: z.string({ required_error: "Desa/Kelurahan wajib dipilih." }).min(1, "Desa/Kelurahan wajib dipilih."),
 
-  // Step 3: Education & Photo
+  // Step 3: Pendidikan Formal
   sekolahAsal: z.string({ required_error: "Nama sekolah wajib diisi." }).min(1, "Nama sekolah wajib diisi."),
   jenjangSebelumnya: z.string({ required_error: "Jenjang pendidikan wajib diisi." }).min(1, "Jenjang pendidikan wajib diisi."),
   alamatSekolah: z.string({ required_error: "Alamat sekolah wajib diisi." }).min(1, "Alamat sekolah wajib diisi."),
-  certificateNumber: z.string().optional(), // New field for certificate number
+  certificateNumber: z.string().optional(),
+
+  // Step 4: Pendidikan Madrasah (Baru)
+  sekolahAsalMadrasah: z.string().optional(),
+  jenjangSebelumnyaMadrasah: z.string().optional(),
+  alamatSekolahMadrasah: z.string().optional(),
+  certificateNumberMadrasah: z.string().optional(),
+
+  // Step 5: Dokumen & Program
   programId: z.string({ required_error: "Program wajib dipilih." }).min(1, "Program wajib dipilih."),
   fotoSantri: fileSchema,
-
-  // Step 4: Documents
   ijazahFile: fileSchema,
-  optionalDocuments: z.array(optionalDocumentItemSchema).optional(), // Add this for optional documents
+  optionalDocuments: z.array(optionalDocumentItemSchema).optional(),
 });
 
 export type SantriFormValues = z.infer<typeof santriFormSchema>;
 
 // Define fields for each step to trigger validation correctly
-export const step1Fields: (keyof SantriFormValues)[] = ['nik', 'kk', 'firstName', 'gender', 'parentAs', 'phone', 'pekerjaanValue', 'educationValue', 'alamatKtp']; // Added educationValue
-export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri', 'villageCode']; // Re-added villageCode
-export const step3Fields: (keyof SantriFormValues)[] = ['nisn', 'certificateNumber', 'sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah', 'programId', 'fotoSantri']; // Add nisn and certificateNumber here
-export const step4Fields: (keyof SantriFormValues)[] = ['ijazahFile', 'optionalDocuments']; // Add optionalDocuments here
+export const step1Fields: (keyof SantriFormValues)[] = ['nik', 'kk', 'firstName', 'gender', 'parentAs', 'phone', 'pekerjaanValue', 'educationValue', 'alamatKtp'];
+export const step2Fields: (keyof SantriFormValues)[] = ['firstNameSantri', 'lastNameSantri', 'nikSantri', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'alamatSantri', 'villageCode'];
+export const step3Fields: (keyof SantriFormValues)[] = ['nisn', 'certificateNumber', 'sekolahAsal', 'jenjangSebelumnya', 'alamatSekolah'];
+export const step4Fields: (keyof SantriFormValues)[] = ['sekolahAsalMadrasah', 'jenjangSebelumnyaMadrasah', 'alamatSekolahMadrasah', 'certificateNumberMadrasah'];
+export const step5Fields: (keyof SantriFormValues)[] = ['ijazahFile', 'optionalDocuments', 'programId', 'fotoSantri'];

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { santriFormSchema, SantriFormValues, step1Fields, step2Fields, step3Fields, step4Fields } from './form-schemas';
+import { santriFormSchema, SantriFormValues, step1Fields, step2Fields, step3Fields, step4Fields, step5Fields } from './form-schemas';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll, Loader2 } from 'lucide-react';
+import { UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, SaveAll, Loader2, BookOpenText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import WaliSantriStep from './form-steps/WaliSantriStep';
 import SantriProfileStep from './form-steps/SantriProfileStep';
 import EducationStep from './form-steps/EducationStep';
+import MadrasahStep from './form-steps/MadrasahStep';
 import DocumentStep from './form-steps/DocumentStep';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -29,11 +30,10 @@ import {
 
 const SantriFormPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
   const navigate = useNavigate();
   const [registerSantri, { isLoading }] = useRegisterSantriMutation();
 
-  // State untuk modal konfirmasi
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [actionType, setActionType] = useState<'save' | 'saveAndReset' | null>(null);
 
@@ -50,7 +50,7 @@ const SantriFormPage: React.FC = () => {
       phone: '',
       email: '',
       pekerjaanValue: '',
-      educationValue: '', // Added default value for new field
+      educationValue: '',
       alamatKtp: '',
       alamatDomisili: '',
       firstNameSantri: '',
@@ -65,6 +65,11 @@ const SantriFormPage: React.FC = () => {
       sekolahAsal: '',
       jenjangSebelumnya: '',
       alamatSekolah: '',
+      certificateNumber: '',
+      sekolahAsalMadrasah: '',
+      jenjangSebelumnyaMadrasah: '',
+      alamatSekolahMadrasah: '',
+      certificateNumberMadrasah: '',
       programId: '',
       fotoSantri: undefined,
       ijazahFile: undefined,
@@ -82,6 +87,7 @@ const SantriFormPage: React.FC = () => {
     if (currentStep === 1) fieldsToValidate = step1Fields;
     if (currentStep === 2) fieldsToValidate = step2Fields;
     if (currentStep === 3) fieldsToValidate = step3Fields;
+    if (currentStep === 4) fieldsToValidate = step4Fields;
 
     const isValid = await form.trigger(fieldsToValidate);
     if (isValid) {
@@ -100,7 +106,7 @@ const SantriFormPage: React.FC = () => {
   };
 
   const handleFormSubmit = async (data: SantriFormValues, reset: boolean = false) => {
-    const isValid = await form.trigger(step4Fields);
+    const isValid = await form.trigger(step5Fields);
     if (!isValid) {
       showError('Harap perbaiki semua kesalahan sebelum menyimpan.');
       return;
@@ -114,6 +120,7 @@ const SantriFormPage: React.FC = () => {
       }
     };
 
+    // Step 1
     appendIfExists('wali_nik', data.nik);
     appendIfExists('wali_kk', data.kk);
     appendIfExists('wali_nama_depan', data.firstName);
@@ -123,10 +130,11 @@ const SantriFormPage: React.FC = () => {
     appendIfExists('wali_telepon', data.phone);
     appendIfExists('wali_email', data.email);
     appendIfExists('wali_pekerjaan_id', data.pekerjaanValue);
-    appendIfExists('wali_pendidikan_id', data.educationValue); // Added new field
+    appendIfExists('wali_pendidikan_id', data.educationValue);
     appendIfExists('wali_alamat_ktp', data.alamatKtp);
     appendIfExists('wali_alamat_domisili', data.alamatDomisili);
 
+    // Step 2
     appendIfExists('santri_nama_depan', data.firstNameSantri);
     appendIfExists('santri_nama_belakang', data.lastNameSantri);
     appendIfExists('santri_nisn', data.nisn);
@@ -139,11 +147,20 @@ const SantriFormPage: React.FC = () => {
     appendIfExists('santri_alamat', data.alamatSantri);
     appendIfExists('santri_desa_code', data.villageCode);
 
+    // Step 3
     appendIfExists('pendidikan_sekolah_asal', data.sekolahAsal);
     appendIfExists('pendidikan_jenjang_sebelumnya', data.jenjangSebelumnya);
     appendIfExists('pendidikan_alamat_sekolah', data.alamatSekolah);
-    appendIfExists('program_id', data.programId);
+    appendIfExists('pendidikan_nomor_ijazah', data.certificateNumber);
 
+    // Step 4
+    appendIfExists('madrasah_sekolah_asal', data.sekolahAsalMadrasah);
+    appendIfExists('madrasah_jenjang_sebelumnya', data.jenjangSebelumnyaMadrasah);
+    appendIfExists('madrasah_alamat_sekolah', data.alamatSekolahMadrasah);
+    appendIfExists('madrasah_nomor_ijazah', data.certificateNumberMadrasah);
+
+    // Step 5
+    appendIfExists('program_id', data.programId);
     appendIfExists('dokumen_foto_santri', data.fotoSantri);
     appendIfExists('dokumen_ijazah', data.ijazahFile);
 
@@ -154,11 +171,6 @@ const SantriFormPage: React.FC = () => {
           formData.append(`dokumen_opsional[${index}][file]`, doc.file);
         }
       });
-    }
-
-    console.log('Data FormData yang akan dikirim:');
-    for (const pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
     }
 
     try {
@@ -173,9 +185,8 @@ const SantriFormPage: React.FC = () => {
     } catch (error: any) {
       const errorMessage = error?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
       showError(errorMessage);
-      console.error('Form Data Submission Error:', error);
     } finally {
-      setShowConfirmModal(false); // Tutup modal setelah proses selesai
+      setShowConfirmModal(false);
     }
   };
 
@@ -183,7 +194,7 @@ const SantriFormPage: React.FC = () => {
   const onSubmitAndReset = () => handleFormSubmit(form.getValues(), true);
 
   const handleSaveClick = async () => {
-    const isValid = await form.trigger(step4Fields);
+    const isValid = await form.trigger(step5Fields);
     if (isValid) {
       setActionType('save');
       setShowConfirmModal(true);
@@ -193,7 +204,7 @@ const SantriFormPage: React.FC = () => {
   };
 
   const handleSaveAndResetClick = async () => {
-    const isValid = await form.trigger(step4Fields);
+    const isValid = await form.trigger(step5Fields);
     if (isValid) {
       setActionType('saveAndReset');
       setShowConfirmModal(true);
@@ -213,8 +224,9 @@ const SantriFormPage: React.FC = () => {
   const steps = [
     { number: 1, title: 'Data Wali', icon: <UserCheck className="h-5 w-5" /> },
     { number: 2, title: 'Profil Santri', icon: <UserPlus className="h-5 w-5" /> },
-    { number: 3, title: 'Pendidikan & Foto', icon: <School className="h-5 w-5" /> },
-    { number: 4, title: 'Kelengkapan Dokumen', icon: <FileText className="h-5 w-5" /> },
+    { number: 3, title: 'Pendidikan Formal', icon: <School className="h-5 w-5" /> },
+    { number: 4, title: 'Pendidikan Madrasah', icon: <BookOpenText className="h-5 w-5" /> },
+    { number: 5, title: 'Dokumen & Program', icon: <FileText className="h-5 w-5" /> },
   ];
 
   return (
@@ -223,7 +235,7 @@ const SantriFormPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
 
         <div className="mb-8">
-          <div className="w-full max-w-3xl mx-auto">
+          <div className="w-full max-w-4xl mx-auto">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <React.Fragment key={step.number}>
@@ -254,7 +266,8 @@ const SantriFormPage: React.FC = () => {
               {currentStep === 1 && <WaliSantriStep />}
               {currentStep === 2 && <SantriProfileStep />}
               {currentStep === 3 && <EducationStep />}
-              {currentStep === 4 && <DocumentStep />}
+              {currentStep === 4 && <MadrasahStep />}
+              {currentStep === 5 && <DocumentStep />}
             </div>
 
             <div className="flex justify-between max-w-4xl mx-auto mt-8">
