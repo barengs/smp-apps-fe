@@ -318,6 +318,10 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   const [logoutApi] = useLogoutMutation();
   const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
 
+  const displayName = currentUser?.first_name && currentUser?.last_name
+    ? `${currentUser.first_name} ${currentUser.last_name}`
+    : currentUser?.name || t('header.usernamePlaceholder');
+
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -447,7 +451,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
             <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <span className="font-medium hidden sm:block">{currentUser?.name || t('header.usernamePlaceholder')}</span>
+        <span className="font-medium hidden sm:block">{displayName}</span>
       </div>
     </header>
   );

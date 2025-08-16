@@ -7,6 +7,8 @@ interface User {
   email: string;
   username: string;
   roles: { name: string }[];
+  first_name?: string; // Tambahkan properti ini
+  last_name?: string;  // Tambahkan properti ini
 }
 
 // Struktur AuthResponse disesuaikan dengan respons API yang diberikan
