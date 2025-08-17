@@ -331,7 +331,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
               control={control}
               name="alamatKtp"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
+                <FormItem>
                   <FormLabel>Alamat Lengkap (Sesuai KTP)</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Jl. Merdeka No. 45, RT 001/RW 002" />
@@ -344,7 +344,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
               control={control}
               name="alamatDomisili"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
+                <FormItem>
                   <FormLabel>Alamat Domisili (Jika Berbeda dengan KTP)</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Jl. Damai No. 10, RT 003/RW 004" />
