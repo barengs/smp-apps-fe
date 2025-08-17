@@ -127,7 +127,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow pt-20">
+      <main className="flex-grow pt-14">
         {children}
       </main>
 
