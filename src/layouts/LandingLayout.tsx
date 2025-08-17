@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Globe, BookOpenText } from 'lucide-react';
@@ -10,6 +10,13 @@ import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { useLogoutMutation } from '@/store/slices/authApi';
 import { logOut } from '@/store/authActions';
 import * as toast from '@/utils/toast';
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
 
 interface LandingLayoutProps {
   children: React.ReactNode;
@@ -21,6 +28,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [logoutApi] = useLogoutMutation();
 
   useEffect(() => {
@@ -45,29 +53,57 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
     }
   };
 
+  const navItems = [
+    { href: '/', labelKey: 'home' },
+    ...(isAuthenticated
+      ? [{ href: '/dashboard/administrasi', labelKey: 'dashboard' }]
+      : [
+          { href: '/daftar', labelKey: 'register' },
+          { href: '/login', labelKey: 'login' },
+        ]),
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm py-2 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center">
           <BookOpenText className="h-10 w-10 mr-4 text-primary" />
           <span className="text-2xl font-bold text-primary">SMP</span>
         </div>
-        <nav className="flex items-center gap-6">
-          <Link to="/" className="text-gray-700 hover:text-primary font-medium text-sm">{t('home')}</Link>
-          {isAuthenticated ? (
-            <>
-              <Link to="/dashboard/administrasi" className="text-gray-700 hover:text-primary font-medium text-sm">{t('dashboard')}</Link>
-              <Button variant="ghost" onClick={handleLogout} className="text-gray-700 hover:text-primary font-medium p-0 h-auto text-sm">
-                {t('logout')}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link key={`register-link-${i18n.language}`} to="/daftar" className="text-gray-700 hover:text-primary font-medium text-sm">{t('register')}</Link>
-              <Link to="/login" className="text-gray-700 hover:text-primary font-medium text-sm">{t('login')}</Link>
-            </>
-          )}
+        <div className="flex items-center gap-2">
+          <NavigationMenu>
+            <NavigationMenuList>
+              {navItems.map((item) => (
+                <NavigationMenuItem key={item.href}>
+                  <Link
+                    to={item.href}
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent',
+                      location.pathname === item.href
+                        ? 'bg-accent text-accent-foreground'
+                        : 'hover:bg-accent/50'
+                    )}
+                  >
+                    {t(item.labelKey)}
+                  </Link>
+                </NavigationMenuItem>
+              ))}
+              {isAuthenticated && (
+                <NavigationMenuItem>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className={cn(navigationMenuTriggerStyle(), 'bg-transparent hover:bg-accent/50')}
+                  >
+                    {t('logout')}
+                  </Button>
+                </NavigationMenuItem>
+              )}
+            </NavigationMenuList>
+          </NavigationMenu>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -87,7 +123,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </nav>
+        </div>
       </header>
 
       {/* Main Content */}
