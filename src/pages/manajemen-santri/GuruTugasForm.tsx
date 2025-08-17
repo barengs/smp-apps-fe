@@ -120,7 +120,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
                   <SelectContent>
                     {tahunAjaranResponse?.map((th) => (
                       <SelectItem key={th.id} value={String(th.id)}>
-                        {th.name}
+                        {th.nama}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -185,7 +185,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
                   <SelectContent>
                     {employeeResponse?.data.map((employee) => (
                       <SelectItem key={employee.id} value={String(employee.id)}>
-                        {employee.nama}
+                        {employee.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
