@@ -36,6 +36,8 @@ import './slices/produkBankApi';
 import './slices/coaApi';
 import './slices/accountApi';
 import './slices/roomApi'; // Register the new room API slice
+import './slices/internshipApi'; // Register the new internship API slice
+import './slices/partnerApi'; // Register the new partner API slice
 
 export const store = configureStore({
   reducer: {

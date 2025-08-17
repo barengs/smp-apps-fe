@@ -3,11 +3,10 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, MapPin, UserCheck, Users } from 'lucide-react';
+import { User, MapPin, UserCheck, Users, Building } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
-import { GuruTugas } from '@/types/guruTugas';
-import * as toast from '@/utils/toast';
+import { InternshipListItem } from '@/types/guruTugas';
 import {
   Dialog,
   DialogContent,
@@ -15,81 +14,96 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import GuruTugasForm from './GuruTugasForm'; // Import the new form
+import GuruTugasForm from './GuruTugasForm';
+import { useGetInternshipsQuery } from '@/store/slices/internshipApi';
+import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
 const GuruTugasPage: React.FC = () => {
   const { t } = useTranslation();
-  const [isFormOpen, setIsFormOpen] = useState(false); // State to control dialog visibility
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const { data: internshipResponse, isLoading, isError, error } = useGetInternshipsQuery();
 
   const breadcrumbItems = [
     { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> },
     { label: t('sidebar.teacherAssignment'), icon: <User className="h-4 w-4" /> },
   ];
 
-  // Define columns for the Guru Tugas table
-  const columns: ColumnDef<GuruTugas>[] = [
+  const columns: ColumnDef<InternshipListItem>[] = [
     {
       accessorKey: "no",
       header: "No",
-      cell: ({ row }) => row.index + 1, // Auto-incrementing number
+      cell: ({ row }) => row.index + 1,
     },
     {
-      accessorKey: "nis",
+      accessorKey: "student.nis",
       header: "NIS",
     },
     {
-      accessorKey: "nama",
+      accessorKey: "student.nama",
       header: "Nama",
     },
     {
-      accessorKey: "periode",
+      accessorKey: "academic_year.name",
       header: "Periode",
     },
     {
-      accessorKey: "wilayahTugas",
+      accessorKey: "city.name",
       header: "Wilayah Tugas",
     },
     {
-      accessorKey: "penanggungJawab",
+      accessorKey: "partner.name",
+      header: "Institusi",
+    },
+    {
+      accessorKey: "supervisor.name",
       header: "Penanggung Jawab",
+    },
+    {
+        accessorKey: "status",
+        header: "Status",
     },
   ];
 
-  // Dummy data for the table
-  const data: GuruTugas[] = [
-    { id: "1", nis: "GT001", nama: "Ustadz Budi", periode: "2023/2024", wilayahTugas: "Jakarta", penanggungJawab: "Kepala Sekolah" },
-    { id: "2", nis: "GT002", nama: "Ustadzah Fatimah", periode: "2023/2024", wilayahTugas: "Bandung", penanggungJawab: "Kepala Sekolah" },
-    { id: "3", nis: "GT003", nama: "Ustadz Ahmad", periode: "2023/2024", wilayahTugas: "Surabaya", penanggungJawab: "Kepala Sekolah" },
-    { id: "4", nis: "GT004", nama: "Ustadzah Siti", periode: "2023/2024", wilayahTugas: "Yogyakarta", penanggungJawab: "Kepala Sekolah" },
-    { id: "5", nis: "GT005", nama: "Ustadz Hasan", periode: "2023/2024", wilayahTugas: "Semarang", penanggungJawab: "Kepala Sekolah" },
-    { id: "6", nis: "GT006", nama: "Ustadzah Aisyah", periode: "2023/2024", wilayahTugas: "Malang", penanggungJawab: "Kepala Sekolah" },
-    { id: "7", nis: "GT007", nama: "Ustadz Ali", periode: "2023/2024", wilayahTugas: "Bogor", penanggungJawab: "Kepala Sekolah" },
-    { id: "8", nis: "GT008", nama: "Ustadzah Khadijah", periode: "2023/2024", wilayahTugas: "Depok", penanggungJawab: "Kepala Sekolah" },
-    { id: "9", nis: "GT009", nama: "Ustadz Umar", periode: "2023/2024", wilayahTugas: "Bekasi", penanggungJawab: "Kepala Sekolah" },
-    { id: "10", nis: "GT010", nama: "Ustadzah Zainab", periode: "2023/2024", wilayahTugas: "Tangerang", penanggungJawab: "Kepala Sekolah" },
-  ];
+  const data = internshipResponse?.data ?? [];
 
-  // Calculate totals for the info cards
   const totalGuruTugas = data.length;
-  const totalWilayah = new Set(data.map(item => item.wilayahTugas)).size;
-  const totalPenanggungJawab = new Set(data.map(item => item.penanggungJawab)).size;
+  const totalWilayah = new Set(data.map(item => item.city.name)).size;
+  const totalInstitusi = new Set(data.map(item => item.partner.name)).size;
 
   const handleAssignment = () => {
-    setIsFormOpen(true); // Open the form dialog
+    setIsFormOpen(true);
   };
 
   const handleFormSuccess = () => {
     setIsFormOpen(false);
-    // Optionally, refetch data or update table if needed
   };
 
   const handleFormCancel = () => {
     setIsFormOpen(false);
   };
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <TableLoadingSkeleton />;
+    }
+    if (isError) {
+      return <div className="text-center py-10 text-red-500">Error: Gagal memuat data.</div>;
+    }
+    return (
+      <DataTable
+        columns={columns}
+        data={data}
+        exportFileName="DataGuruTugas"
+        exportTitle="Data Guru Tugas"
+        onAssignment={handleAssignment}
+      />
+    );
+  };
+
   return (
     <DashboardLayout title={t('sidebar.teacherAssignment')} role="administrasi">
-      <div className="container mx-auto px-4 pb-4"> {/* Added this wrapper div */}
+      <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
@@ -98,26 +112,20 @@ const GuruTugasPage: React.FC = () => {
           <CardContent>
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-grow">
-                <DataTable
-                  columns={columns}
-                  data={data}
-                  exportFileName="DataGuruTugas"
-                  exportTitle="Data Guru Tugas"
-                  onAssignment={handleAssignment}
-                />
+                {renderContent()}
               </div>
               <div className="flex flex-col gap-4 lg:w-1/4">
                 <Card className="bg-success/10">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-success">
-                      Total Guru Tugas
+                      Total Santri Bertugas
                     </CardTitle>
                     <User className="h-6 w-6 text-success" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-success">{totalGuruTugas}</div>
                     <p className="text-xs text-foreground">
-                      Jumlah keseluruhan guru yang ditugaskan
+                      Jumlah keseluruhan santri yang ditugaskan
                     </p>
                   </CardContent>
                 </Card>
@@ -131,21 +139,21 @@ const GuruTugasPage: React.FC = () => {
                   <CardContent>
                     <div className="text-2xl font-bold text-info">{totalWilayah}</div>
                     <p className="text-xs text-foreground">
-                      Jumlah wilayah tugas
+                      Jumlah wilayah tugas yang berbeda
                     </p>
                   </CardContent>
                 </Card>
                 <Card className="bg-warning/10">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-warning">
-                      Total Penanggung Jawab
+                      Total Institusi
                     </CardTitle>
-                    <UserCheck className="h-6 w-6 text-warning" />
+                    <Building className="h-6 w-6 text-warning" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-warning">{totalPenanggungJawab}</div>
+                    <div className="text-2xl font-bold text-warning">{totalInstitusi}</div>
                     <p className="text-xs text-warning-foreground">
-                      Jumlah penanggung jawab
+                      Jumlah institusi magang yang berbeda
                     </p>
                   </CardContent>
                 </Card>
@@ -155,9 +163,8 @@ const GuruTugasPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Assignment Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Formulir Penugasan</DialogTitle>
             <DialogDescription>

@@ -120,6 +120,8 @@ export const smpApi = createApi({
     'TransactionType',
     'Account',
     'Room', // Add Room tag type
+    'Internship',
+    'Partner',
   ],
   endpoints: () => ({}),
 });
