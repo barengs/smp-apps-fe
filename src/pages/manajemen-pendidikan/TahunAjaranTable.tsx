@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 interface TahunAjaran {
   id: number;
   year: string;
-  semester: 'Ganjil' | 'Genap';
+  semester: string;
   active: boolean;
   description: string | null;
 }
@@ -131,7 +131,7 @@ const TahunAjaranTable: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <TahunAjaranForm
-            initialData={editingTahunAjaran}
+            initialData={editingTahunAjaran as any}
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}
           />

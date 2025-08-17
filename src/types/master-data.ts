@@ -1,3 +1,11 @@
+export interface Supervisor {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+}
+
 export interface Partner {
   id: number;
   name: string;

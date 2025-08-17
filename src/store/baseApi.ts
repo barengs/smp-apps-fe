@@ -122,6 +122,7 @@ export const smpApi = createApi({
     'Room', // Add Room tag type
     'Internship',
     'Partner',
+    'Supervisor',
   ],
   endpoints: () => ({}),
 });

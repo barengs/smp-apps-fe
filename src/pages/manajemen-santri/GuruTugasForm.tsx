@@ -24,7 +24,7 @@ import CityCombobox from '@/components/CityCombobox';
 import { useGetSantriQuery } from '@/store/slices/santriApi';
 import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useGetPartnersQuery } from '@/store/slices/partnerApi';
-import { useGetEmployeesQuery } from '@/store/slices/employeeApi';
+import { useGetSupervisorsQuery } from '@/store/slices/supervisorApi';
 import { useCreateInternshipMutation } from '@/store/slices/internshipApi';
 import { DatePicker } from '@/components/ui/datepicker';
 import { format } from 'date-fns';
@@ -56,7 +56,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
   const { data: santriResponse, isLoading: isLoadingSantri } = useGetSantriQuery();
   const { data: tahunAjaranResponse, isLoading: isLoadingTahunAjaran } = useGetTahunAjaranQuery();
   const { data: partnerResponse, isLoading: isLoadingPartner } = useGetPartnersQuery();
-  const { data: employeeResponse, isLoading: isLoadingEmployee } = useGetEmployeesQuery();
+  const { data: supervisorResponse, isLoading: isLoadingSupervisor } = useGetSupervisorsQuery();
   const [createInternship, { isLoading: isSubmitting }] = useCreateInternshipMutation();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -120,7 +120,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
                   <SelectContent>
                     {tahunAjaranResponse?.map((th) => (
                       <SelectItem key={th.id} value={String(th.id)}>
-                        {th.nama}
+                        {`${th.year} - ${th.semester}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -176,16 +176,16 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Penanggung Jawab (Supervisor)</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingEmployee}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingSupervisor}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={isLoadingEmployee ? "Memuat..." : "Pilih penanggung jawab..."} />
+                      <SelectValue placeholder={isLoadingSupervisor ? "Memuat..." : "Pilih penanggung jawab..."} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {employeeResponse?.data.map((employee) => (
-                      <SelectItem key={employee.id} value={String(employee.id)}>
-                        {employee.name}
+                    {supervisorResponse?.data.map((supervisor) => (
+                      <SelectItem key={supervisor.id} value={String(supervisor.id)}>
+                        {supervisor.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
