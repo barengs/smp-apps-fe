@@ -148,6 +148,13 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     return permissionsData?.data.map(p => ({ value: p.name, label: p.name })) || [];
   }, [permissionsData]);
 
+  const topLevelMenus = useMemo(() => {
+    if (!menuData?.data) {
+      return [];
+    }
+    return menuData.data.filter(menu => menu.parent_id === null);
+  }, [menuData]);
+
   const isSubmitting = isCreating || isUpdating;
 
   return (
@@ -221,7 +228,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
                     </div>
                   ) : (
                     <MenuTreeView
-                      menus={menuData?.data || []}
+                      menus={topLevelMenus}
                       selectedPermissions={field.value || []}
                       onSelectionChange={field.onChange}
                     />
