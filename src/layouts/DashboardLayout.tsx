@@ -21,6 +21,7 @@ import { RootState } from '@/store';
 import { selectCurrentUser } from '@/store/slices/authSlice';
 import { LockScreenProvider, useLockScreen } from '@/contexts/LockScreenContext';
 import LockScreen from '@/components/LockScreen';
+import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const location = useLocation();
   const { t } = useTranslation();
+  const { data: settings } = useGetControlPanelSettingsQuery();
 
   const adminSidebarNavItems: SidebarNavItem[] = [
     { titleKey: "sidebar.dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -188,9 +190,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         isCollapsed ? "justify-center" : "justify-start"
       )}>
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
-          <BookOpenText className="h-8 w-8 text-primary shrink-0" />
+          {settings?.app_logo ? (
+            <img src={settings.app_logo} alt="App Logo" className="h-8 w-8 object-contain" />
+          ) : (
+            <BookOpenText className="h-8 w-8 text-primary shrink-0" />
+          )}
           {!isCollapsed && (
-            <span className="text-xl font-bold text-primary whitespace-nowrap">SMP</span>
+            <span className="text-xl font-bold text-primary whitespace-nowrap">{settings?.app_name || 'SMP'}</span>
           )}
         </Link>
       </div>
@@ -474,10 +480,11 @@ const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({ childre
   const { isLocked } = useLockScreen();
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { data: settings } = useGetControlPanelSettingsQuery();
 
   useEffect(() => {
-    document.title = `SMP | ${title}`;
-  }, [title]);
+    document.title = `${settings?.app_name || 'SMP'} | ${title}`;
+  }, [title, settings]);
 
   return (
     <>

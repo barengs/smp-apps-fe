@@ -17,6 +17,7 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
+import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
 
 interface LandingLayoutProps {
   children: React.ReactNode;
@@ -30,12 +31,13 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [logoutApi] = useLogoutMutation();
+  const { data: settings } = useGetControlPanelSettingsQuery();
 
   useEffect(() => {
-    document.title = `SMP | ${title}`;
+    document.title = `${settings?.app_name || 'SMP'} | ${title}`;
     document.documentElement.lang = i18n.language;
     document.documentElement.dir = i18n.dir(i18n.language);
-  }, [title, i18n, i18n.language]);
+  }, [title, i18n, i18n.language, settings]);
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -68,8 +70,12 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm py-2 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center">
-          <BookOpenText className="h-10 w-10 mr-4 text-primary" />
-          <span className="text-2xl font-bold text-primary">SMP</span>
+          {settings?.app_logo ? (
+            <img src={settings.app_logo} alt="App Logo" className="h-10 w-10 mr-4 object-contain" />
+          ) : (
+            <BookOpenText className="h-10 w-10 mr-4 text-primary" />
+          )}
+          <span className="text-2xl font-bold text-primary">{settings?.app_name || 'SMP'}</span>
         </div>
         <div className="flex items-center gap-2">
           <NavigationMenu>

@@ -23,8 +23,15 @@ export const controlPanelApi = smpApi.injectEndpoints({
       query: () => 'control-panel',
       providesTags: ['ControlPanelSettings'],
     }),
-    // Add mutations for update if needed later
+    updateControlPanelSettings: builder.mutation<ControlPanelSettings, Partial<ControlPanelSettings>>({
+      query: (settings) => ({
+        url: 'control-panel',
+        method: 'POST', // Backend uses POST for updates
+        body: settings,
+      }),
+      invalidatesTags: ['ControlPanelSettings'],
+    }),
   }),
 });
 
-export const { useGetControlPanelSettingsQuery } = controlPanelApi;
+export const { useGetControlPanelSettingsQuery, useUpdateControlPanelSettingsMutation } = controlPanelApi;

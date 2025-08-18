@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -17,32 +17,51 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTranslation } from 'react-i18next';
-import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
+import { useGetControlPanelSettingsQuery, useUpdateControlPanelSettingsMutation, type ControlPanelSettings } from '@/store/slices/controlPanelApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 
 const SystemSettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { i18n } = useTranslation();
-
   const { data: settings, isLoading, error } = useGetControlPanelSettingsQuery();
-  const initialSettingsApplied = useRef(false); // Tambahkan useRef ini
+  const [updateSettings, { isLoading: isUpdating }] = useUpdateControlPanelSettingsMutation();
 
-  // Set initial theme and language from API data if available
+  const [formState, setFormState] = useState<Partial<ControlPanelSettings>>({});
+
   useEffect(() => {
-    if (settings && !initialSettingsApplied.current) { // Periksa apakah pengaturan awal sudah diterapkan
-      setTheme(settings.app_theme);
-      i18n.changeLanguage(settings.app_language);
-      initialSettingsApplied.current = true; // Tandai bahwa pengaturan awal sudah diterapkan
+    if (settings) {
+      setFormState(settings);
     }
-  }, [settings, setTheme, i18n]);
+  }, [settings]);
 
-  const handleSaveChanges = () => {
-    showSuccess("Perubahan berhasil disimpan! (Simulasi)");
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormState(prev => ({ ...prev, [id]: value }));
   };
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const handleSwitchChange = (checked: boolean, id: keyof ControlPanelSettings) => {
+    setFormState(prev => ({ ...prev, [id]: checked }));
+  };
+
+  const handleSelectChange = (value: string, id: keyof ControlPanelSettings) => {
+    setFormState(prev => ({ ...prev, [id]: value }));
+    if (id === 'app_theme') {
+      setTheme(value as 'light' | 'dark' | 'system');
+    }
+    if (id === 'app_language') {
+      i18n.changeLanguage(value);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      await updateSettings(formState).unwrap();
+      showSuccess("Perubahan berhasil disimpan!");
+    } catch (err) {
+      showError("Gagal menyimpan perubahan.");
+      console.error(err);
+    }
   };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -56,45 +75,7 @@ const SystemSettingsPage: React.FC = () => {
         <div className="container mx-auto py-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
           <div className="space-y-8 max-w-3xl mx-auto">
-            <Card>
-              <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
-              <CardContent className="space-y-6">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
-              <CardContent className="space-y-6">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-10 w-32 self-end" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
-              <CardContent className="space-y-6">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-32 self-end" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
-              <CardContent className="space-y-4">
-                <Skeleton className="h-10 w-48" />
-              </CardContent>
-            </Card>
+            {/* Skeleton loaders */}
           </div>
         </div>
       </DashboardLayout>
@@ -120,21 +101,14 @@ const SystemSettingsPage: React.FC = () => {
           {/* Pengaturan Tampilan */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette className="h-5 w-5" />
-                Tampilan
-              </CardTitle>
-              <CardDescription>
-                Sesuaikan tampilan aplikasi sesuai preferensi Anda.
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2"><Palette /> Tampilan</CardTitle>
+              <CardDescription>Sesuaikan tampilan dan bahasa aplikasi.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
-                <Label htmlFor="theme-select" className="text-base">Tema Aplikasi</Label>
-                <Select value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
-                  <SelectTrigger id="theme-select" className="w-[180px]">
-                    <SelectValue placeholder="Pilih tema" />
-                  </SelectTrigger>
+                <Label htmlFor="app_theme" className="text-base">Tema Aplikasi</Label>
+                <Select value={formState.app_theme} onValueChange={(value) => handleSelectChange(value, 'app_theme')}>
+                  <SelectTrigger id="app_theme" className="w-[180px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="light">Terang</SelectItem>
                     <SelectItem value="dark">Gelap</SelectItem>
@@ -143,11 +117,9 @@ const SystemSettingsPage: React.FC = () => {
                 </Select>
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="language-select" className="text-base">Bahasa</Label>
-                <Select value={i18n.language} onValueChange={changeLanguage}>
-                  <SelectTrigger id="language-select" className="w-[180px]">
-                    <SelectValue placeholder="Pilih bahasa" />
-                  </SelectTrigger>
+                <Label htmlFor="app_language" className="text-base">Bahasa</Label>
+                <Select value={formState.app_language} onValueChange={(value) => handleSelectChange(value, 'app_language')}>
+                  <SelectTrigger id="app_language" className="w-[180px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="id">Bahasa Indonesia</SelectItem>
                     <SelectItem value="en">English</SelectItem>
@@ -161,59 +133,51 @@ const SystemSettingsPage: React.FC = () => {
           {/* Pengaturan Profil Aplikasi */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpenText className="h-5 w-5" />
-                Profil Aplikasi
-              </CardTitle>
-              <CardDescription>
-                Kelola informasi dasar mengenai aplikasi Anda.
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2"><BookOpenText /> Profil Aplikasi</CardTitle>
+              <CardDescription>Kelola informasi dasar mengenai aplikasi Anda.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center shrink-0">
-                  {settings?.app_logo ? (
-                    <img src={settings.app_logo} alt="App Logo" className="w-full h-full object-cover rounded-lg" />
+                  {formState.app_logo ? (
+                    <img src={formState.app_logo} alt="App Logo" className="w-full h-full object-cover rounded-lg" />
                   ) : (
                     <BookOpenText className="w-12 h-12 text-muted-foreground" />
                   )}
                 </div>
                 <div className="space-y-2 w-full">
-                  <Label htmlFor="logo-upload">Logo Aplikasi</Label>
-                  <Input id="logo-upload" type="file" className="max-w-xs" />
-                  <p className="text-xs text-muted-foreground">Unggah file PNG atau JPG. Ukuran maks 1MB.</p>
+                  <Label htmlFor="app_logo">URL Logo Aplikasi</Label>
+                  <Input id="app_logo" value={formState.app_logo || ''} onChange={handleInputChange} />
+                  <p className="text-xs text-muted-foreground">Masukkan URL gambar yang valid.</p>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-name">Nama Aplikasi</Label>
-                <Input id="app-name" defaultValue={settings?.app_name || "Sistem Manajemen Pesantren"} />
+                <Label htmlFor="app_name">Nama Aplikasi</Label>
+                <Input id="app_name" value={formState.app_name || ''} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-description">Deskripsi Aplikasi</Label>
-                <Textarea id="app-description" defaultValue={settings?.app_description || "Aplikasi komprehensif untuk mengelola semua aspek operasional pesantren secara digital."} />
+                <Label htmlFor="app_description">Deskripsi Aplikasi</Label>
+                <Textarea id="app_description" value={formState.app_description || ''} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-version">Versi Aplikasi</Label>
-                <Input id="app-version" defaultValue={settings?.app_version || "1.0.0"} readOnly />
+                <Label htmlFor="app_version">Versi Aplikasi</Label>
+                <Input id="app_version" value={formState.app_version || ''} readOnly />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-url">URL Aplikasi</Label>
-                <Input id="app-url" defaultValue={settings?.app_url || ""} />
+                <Label htmlFor="app_url">URL Aplikasi</Label>
+                <Input id="app_url" value={formState.app_url || ''} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-email">Email Kontak</Label>
-                <Input id="app-email" type="email" defaultValue={settings?.app_email || ""} />
+                <Label htmlFor="app_email">Email Kontak</Label>
+                <Input id="app_email" type="email" value={formState.app_email || ''} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-phone">Nomor Telepon</Label>
-                <Input id="app-phone" defaultValue={settings?.app_phone || ""} />
+                <Label htmlFor="app_phone">Nomor Telepon</Label>
+                <Input id="app_phone" value={formState.app_phone || ''} onChange={handleInputChange} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="app-address">Alamat</Label>
-                <Textarea id="app-address" defaultValue={settings?.app_address || ""} />
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleSaveChanges} variant="success">Simpan Perubahan</Button>
+                <Label htmlFor="app_address">Alamat</Label>
+                <Textarea id="app_address" value={formState.app_address || ''} onChange={handleInputChange} />
               </div>
             </CardContent>
           </Card>
@@ -221,28 +185,28 @@ const SystemSettingsPage: React.FC = () => {
           {/* Pengaturan Keamanan */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Keamanan
-              </CardTitle>
-              <CardDescription>
-                Ubah kata sandi dan kelola pengaturan keamanan lainnya.
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2"><Shield /> Keamanan</CardTitle>
+              <CardDescription>Kelola mode pemeliharaan.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
-                <Label htmlFor="maintenance-mode" className="text-base">Mode Pemeliharaan</Label>
-                <Switch id="maintenance-mode" checked={settings?.is_maintenance_mode || false} />
+                <Label htmlFor="is_maintenance_mode" className="text-base">Mode Pemeliharaan</Label>
+                <Switch id="is_maintenance_mode" checked={formState.is_maintenance_mode || false} onCheckedChange={(checked) => handleSwitchChange(checked, 'is_maintenance_mode')} />
               </div>
-              {settings?.is_maintenance_mode && (
+              {formState.is_maintenance_mode && (
                 <div className="space-y-2">
-                  <Label htmlFor="maintenance-message">Pesan Pemeliharaan</Label>
-                  <Textarea id="maintenance-message" defaultValue={settings?.maintenance_message || "Sistem sedang dalam pemeliharaan. Mohon maaf atas ketidaknyamanannya."} />
+                  <Label htmlFor="maintenance_message">Pesan Pemeliharaan</Label>
+                  <Textarea id="maintenance_message" value={formState.maintenance_message || ''} onChange={handleInputChange} />
                 </div>
               )}
-              <Button variant="warning">Ubah Kata Sandi</Button>
             </CardContent>
           </Card>
+
+          <div className="flex justify-end">
+            <Button onClick={handleSaveChanges} variant="success" disabled={isUpdating}>
+              {isUpdating ? 'Menyimpan...' : 'Simpan Semua Perubahan'}
+            </Button>
+          </div>
         </div>
       </div>
     </DashboardLayout>

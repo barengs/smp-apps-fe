@@ -55,25 +55,26 @@ import RekeningPage from '@/pages/keuangan/RekeningPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage'; // Re-import to ensure it's picked up
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage'; // Import the new OrganisasiPage
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Redux imports
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { ThemeProvider } from '@/components/theme-provider';
-import AuthManager from '@/components/AuthManager'; // Import AuthManager
+import { ThemeProvider } from './components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+import AuthManager from './components/AuthManager';
+import DynamicAppConfig from './components/DynamicAppConfig';
 
-import { ToastContainer } from 'react-toastify';
-import ProtectedRoute from "./components/ProtectedRoute";
-
-const App = () => (
-  <Provider store={store}>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-        <BrowserRouter future={{ v7_startTransition: true }}>
+function App() {
+  return (
+    <Provider store={store}>
+      <BrowserRouter>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <AuthManager>
+            <DynamicAppConfig />
+            <Toaster />
             <Routes>
-              {/* Rute Publik */}
+              {/* Landing Page Routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/daftar" element={<Daftar />} />
@@ -143,10 +144,10 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthManager>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </Provider>
-);
+        </ThemeProvider>
+      </BrowserRouter>
+    </Provider>
+  );
+}
 
 export default App;
