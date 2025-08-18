@@ -3,6 +3,12 @@ import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi'
 import { useTheme } from './theme-provider';
 import { useTranslation } from 'react-i18next';
 
+const languageMapping: { [key: string]: string } = {
+  indonesia: 'id',
+  english: 'en',
+  arabic: 'ar',
+};
+
 const DynamicAppConfig = () => {
   const { data: settings } = useGetControlPanelSettingsQuery();
   const { setTheme } = useTheme();
@@ -18,7 +24,10 @@ const DynamicAppConfig = () => {
 
       // Set Theme and Language
       setTheme(settings.app_theme);
-      i18n.changeLanguage(settings.app_language);
+      const i18nCode = languageMapping[settings.app_language];
+      if (i18nCode) {
+        i18n.changeLanguage(i18nCode);
+      }
     }
   }, [settings, setTheme, i18n]);
 

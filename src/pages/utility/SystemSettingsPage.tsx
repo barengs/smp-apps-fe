@@ -21,6 +21,12 @@ import { useGetControlPanelSettingsQuery, useUpdateControlPanelSettingsMutation,
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 
+const languageMapping: { [key: string]: string } = {
+  indonesia: 'id',
+  english: 'en',
+  arabic: 'ar',
+};
+
 const SystemSettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { i18n } = useTranslation();
@@ -50,7 +56,10 @@ const SystemSettingsPage: React.FC = () => {
       setTheme(value as 'light' | 'dark' | 'system');
     }
     if (id === 'app_language') {
-      i18n.changeLanguage(value);
+      const i18nCode = languageMapping[value];
+      if (i18nCode) {
+        i18n.changeLanguage(i18nCode);
+      }
     }
   };
 
@@ -121,9 +130,9 @@ const SystemSettingsPage: React.FC = () => {
                 <Select value={formState.app_language} onValueChange={(value) => handleSelectChange(value, 'app_language')}>
                   <SelectTrigger id="app_language" className="w-[180px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="id">Bahasa Indonesia</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="ar">العربية</SelectItem>
+                    <SelectItem value="indonesia">Bahasa Indonesia</SelectItem>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="arabic">العربية</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
