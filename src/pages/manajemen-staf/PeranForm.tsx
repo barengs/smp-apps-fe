@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,8 +15,10 @@ import {
 } from '@/components/ui/form';
 import * as toast from '@/utils/toast';
 import { useCreateRoleMutation, useUpdateRoleMutation } from '../../store/slices/roleApi';
-import { useGetMenuQuery } from '@/store/slices/menuApi';
+import { useGetMenuQuery, type MenuItem } from '@/store/slices/menuApi';
+import { useGetPermissionsQuery } from '@/store/slices/permissionApi';
 import MenuTreeView from '@/components/MenuTreeView';
+import MultiSelect, { type Option } from '@/components/MultiSelect';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,7 +28,8 @@ const formSchema = z.object({
     message: 'Nama Peran harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
-  accessRights: z.array(z.string()).optional(),
+  menuAccess: z.array(z.string()).optional(),
+  explicitPermissions: z.array(z.string()).optional(),
 });
 
 interface PeranFormProps {
@@ -45,24 +48,61 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
+  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData ? {
-      name: initialData.roleName,
-      description: initialData.description,
-      accessRights: initialData.accessRights || [],
-    } : {
-      name: '',
-      description: '',
-      accessRights: [],
+    defaultValues: {
+      name: initialData?.roleName || '',
+      description: initialData?.description || '',
+      menuAccess: [],
+      explicitPermissions: [],
     },
   });
 
+  // Effect to split initialData.accessRights into menu access and explicit permissions once data is loaded
+  useEffect(() => {
+    if (initialData && menuData?.data && permissionsData?.data) {
+      const allMenuTitles = new Set<string>();
+      const collectTitles = (menus: MenuItem[]) => {
+        menus.forEach(menu => {
+          allMenuTitles.add(menu.title);
+          if (menu.child) collectTitles(menu.child);
+        });
+      };
+      collectTitles(menuData.data);
+
+      const allPermissionNames = new Set(permissionsData.data.map(p => p.name));
+
+      const initialMenus: string[] = [];
+      const initialPerms: string[] = [];
+
+      initialData.accessRights.forEach(right => {
+        if (allMenuTitles.has(right)) {
+          initialMenus.push(right);
+        } else if (allPermissionNames.has(right)) {
+          initialPerms.push(right);
+        } else {
+          // Fallback for rights that are neither a menu nor a known permission
+          initialPerms.push(right);
+        }
+      });
+
+      form.setValue('menuAccess', initialMenus);
+      form.setValue('explicitPermissions', initialPerms);
+    }
+  }, [initialData, menuData, permissionsData, form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const combinedPermissions = [
+      ...(values.menuAccess || []),
+      ...(values.explicitPermissions || []),
+    ];
+    const uniquePermissions = [...new Set(combinedPermissions)];
+
     const payload = {
       name: values.name,
-      permission: values.accessRights,
+      permission: uniquePermissions,
     };
 
     try {
@@ -104,13 +144,17 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     }
   };
 
+  const permissionOptions: Option[] = useMemo(() => {
+    return permissionsData?.data.map(p => ({ value: p.name, label: p.name })) || [];
+  }, [permissionsData]);
+
   const isSubmitting = isCreating || isUpdating;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Kolom Kiri: Detail Peran */}
+          {/* Kolom Kiri: Detail Peran & Hak Akses */}
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -138,13 +182,33 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="explicitPermissions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hak Akses (Permissions)</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={permissionOptions}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Pilih hak akses..."
+                      disabled={isLoadingPermissions}
+                      className="h-auto min-h-24"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           {/* Kolom Kanan: Hak Akses Menu */}
           <div className="space-y-2">
             <FormField
               control={form.control}
-              name="accessRights"
+              name="menuAccess"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hak Akses Menu</FormLabel>

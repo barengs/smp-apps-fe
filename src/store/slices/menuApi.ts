@@ -2,7 +2,7 @@ import { smpApi } from '../baseApi';
 
 // --- API Response and Request Types ---
 
-interface MenuItem {
+export interface MenuItem {
   id: number;
   title: string;
   description: string | null;
