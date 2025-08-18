@@ -215,7 +215,7 @@ const PeranTable: React.FC = () => {
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>{editingPeran ? 'Edit Peran' : 'Tambah Peran Baru'}</DialogTitle>
             <DialogDescription>
