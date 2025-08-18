@@ -25,6 +25,7 @@ interface GetRolesResponse {
 interface CreateUpdateRoleRequest {
   name: string;
   permission?: string[];
+  menu_id?: number[];
 }
 
 export const roleApi = smpApi.injectEndpoints({

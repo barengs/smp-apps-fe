@@ -94,6 +94,29 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   }, [initialData, menuData, permissionsData, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const getMenuIdsFromTitles = (titles: string[], menuItems: MenuItem[]): number[] => {
+      const ids: number[] = [];
+      const titleSet = new Set(titles);
+
+      const traverse = (items: MenuItem[]) => {
+        for (const item of items) {
+          if (titleSet.has(item.title)) {
+            ids.push(item.id);
+          }
+          if (item.child && item.child.length > 0) {
+            traverse(item.child);
+          }
+        }
+      };
+
+      if (menuItems) {
+        traverse(menuItems);
+      }
+      return ids;
+    };
+
+    const selectedMenuIds = getMenuIdsFromTitles(values.menuAccess || [], menuData?.data || []);
+
     const combinedPermissions = [
       ...(values.menuAccess || []),
       ...(values.explicitPermissions || []),
@@ -103,6 +126,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     const payload = {
       name: values.name,
       permission: uniquePermissions,
+      menu_id: selectedMenuIds,
     };
 
     try {
