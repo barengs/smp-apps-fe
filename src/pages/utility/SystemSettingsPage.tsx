@@ -99,6 +99,9 @@ const SystemSettingsPage: React.FC = () => {
       formData.append('app_logo', logoFile);
     }
 
+    // Add method spoofing for Laravel-like backends
+    formData.append('_method', 'PUT');
+
     try {
       await updateSettings(formData).unwrap();
       showSuccess("Perubahan berhasil disimpan!");
