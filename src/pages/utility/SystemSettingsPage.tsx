@@ -76,21 +76,25 @@ const SystemSettingsPage: React.FC = () => {
   const handleSaveChanges = async () => {
     const formData = new FormData();
 
-    Object.keys(formState).forEach(key => {
-      const k = key as keyof ControlPanelSettings;
-      const value = formState[k];
+    // Append all text, boolean, and numeric fields explicitly
+    formData.append('app_name', formState.app_name || '');
+    formData.append('app_version', formState.app_version || '');
+    formData.append('app_description', formState.app_description || '');
+    formData.append('app_url', formState.app_url || '');
+    formData.append('app_email', formState.app_email || '');
+    formData.append('app_phone', formState.app_phone || '');
+    formData.append('app_address', formState.app_address || '');
+    formData.append('is_maintenance_mode', formState.is_maintenance_mode ? '1' : '0');
+    formData.append('maintenance_message', formState.maintenance_message || '');
+    formData.append('app_theme', formState.app_theme || 'system');
+    formData.append('app_language', formState.app_language || 'indonesia');
+    
+    // Append favicon URL if it exists
+    if (formState.app_favicon) {
+        formData.append('app_favicon', formState.app_favicon);
+    }
 
-      if (k === 'app_logo' || value === null || value === undefined) {
-        return;
-      }
-
-      if (typeof value === 'boolean') {
-        formData.append(k, value ? '1' : '0');
-      } else {
-        formData.append(k, String(value));
-      }
-    });
-
+    // Append the new logo file if it has been selected
     if (logoFile) {
       formData.append('app_logo', logoFile);
     }
