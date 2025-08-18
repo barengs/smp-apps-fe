@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Palette, Shield, BookOpenText, Globe } from 'lucide-react';
+import { Settings, Palette, Shield, BookOpenText } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
@@ -28,12 +28,13 @@ const languageMapping: { [key: string]: string } = {
 };
 
 const SystemSettingsPage: React.FC = () => {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const { i18n } = useTranslation();
   const { data: settings, isLoading, error } = useGetControlPanelSettingsQuery();
   const [updateSettings, { isLoading: isUpdating }] = useUpdateControlPanelSettingsMutation();
 
   const [formState, setFormState] = useState<Partial<ControlPanelSettings>>({});
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (settings) {
@@ -44,6 +45,15 @@ const SystemSettingsPage: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormState(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setFormState(prev => ({ ...prev, app_logo: previewUrl }));
+    }
   };
 
   const handleSwitchChange = (checked: boolean, id: keyof ControlPanelSettings) => {
@@ -64,8 +74,27 @@ const SystemSettingsPage: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
+    const formData = new FormData();
+
+    Object.entries(formState).forEach(([key, value]) => {
+      if (key === 'app_logo' || key === 'app_favicon' || value === null || value === undefined) {
+        return;
+      }
+      formData.append(key, String(value));
+    });
+
+    if (logoFile) {
+      formData.append('app_logo', logoFile);
+    }
+    
+    // Send favicon if it exists in formState but wasn't changed
+    if (formState.app_favicon && !formData.has('app_favicon')) {
+        formData.append('app_favicon', formState.app_favicon);
+    }
+
+
     try {
-      await updateSettings(formState).unwrap();
+      await updateSettings(formData).unwrap();
       showSuccess("Perubahan berhasil disimpan!");
     } catch (err) {
       showError("Gagal menyimpan perubahan.");
@@ -155,9 +184,9 @@ const SystemSettingsPage: React.FC = () => {
                   )}
                 </div>
                 <div className="space-y-2 w-full">
-                  <Label htmlFor="app_logo">URL Logo Aplikasi</Label>
-                  <Input id="app_logo" value={formState.app_logo || ''} onChange={handleInputChange} />
-                  <p className="text-xs text-muted-foreground">Masukkan URL gambar yang valid.</p>
+                  <Label htmlFor="app_logo_upload">Unggah Logo Baru</Label>
+                  <Input id="app_logo_upload" type="file" accept="image/*" onChange={handleLogoChange} />
+                  <p className="text-xs text-muted-foreground">Ganti logo aplikasi. Biarkan kosong jika tidak ingin mengubah.</p>
                 </div>
               </div>
               <div className="space-y-2">
