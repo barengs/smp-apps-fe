@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,8 @@ import { Id } from 'react-toastify';
 interface WaliSantriStepProps {}
 
 const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
-  const { control, getValues, setValue, watch } = useFormContext<SantriFormValues>();
+  const { control, setValue, watch } = useFormContext<SantriFormValues>();
+  const loadingToastId = useRef<Id | null>(null);
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
@@ -31,7 +32,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevelsList = educationLevelsResponse?.data || [];
 
-  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
+  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError, isUninitialized }] = useLazyGetParentByNikQuery();
 
   const nikValue = watch('nik');
 
@@ -42,61 +43,64 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   }, [nikValue, triggerGetParentByNik]);
 
   useEffect(() => {
-    let toastId: Id | undefined;
-
     if (isLoadingNik) {
-      toastId = toast.showLoading('Mengecek NIK...');
-    }
-
-    if (nikData && nikData.data) {
-      if (toastId) toast.dismissToast(toastId);
-      toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
-      const parentData = nikData.data;
-
-      const kkValue = String(parentData.kk || '').trim();
-      if (kkValue.match(/^\d{16}$/)) {
-        setValue('kk', kkValue);
-      } else {
-        setValue('kk', '');
-        toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
+      if (!loadingToastId.current) {
+        loadingToastId.current = toast.showLoading('Mengecek NIK...');
       }
-      
-      setValue('firstName', parentData.first_name);
-      setValue('lastName', parentData.last_name || '');
-      setValue('gender', parentData.gender);
-      setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
-      setValue('phone', parentData.phone || '');
-      setValue('email', parentData.email || '');
-      setValue('alamatKtp', parentData.card_address || '');
-      setValue('alamatDomisili', parentData.domicile_address || '');
+    } else {
+      if (loadingToastId.current) {
+        toast.dismissToast(loadingToastId.current);
+        loadingToastId.current = null;
+      }
 
-      if (parentData.occupation && pekerjaanList.length > 0) {
-        const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
-        if (foundPekerjaan) {
-          setValue('pekerjaanValue', foundPekerjaan.id.toString());
+      if (isUninitialized) return;
+
+      if (nikData && nikData.data) {
+        toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
+        const parentData = nikData.data;
+
+        const kkValue = String(parentData.kk || '').trim();
+        if (kkValue.match(/^\d{16}$/)) {
+          setValue('kk', kkValue);
+        } else {
+          setValue('kk', '');
+          toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
         }
-      }
+        
+        setValue('firstName', parentData.first_name);
+        setValue('lastName', parentData.last_name || '');
+        setValue('gender', parentData.gender);
+        setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
+        setValue('phone', parentData.phone || '');
+        setValue('email', parentData.email || '');
+        setValue('alamatKtp', parentData.card_address || '');
+        setValue('alamatDomisili', parentData.domicile_address || '');
 
-      if (parentData.education && educationLevelsList.length > 0) {
-        const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
-        if (foundEducation) {
-          setValue('educationValue', foundEducation.id.toString());
+        if (parentData.occupation && pekerjaanList.length > 0) {
+          const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
+          if (foundPekerjaan) {
+            setValue('pekerjaanValue', foundPekerjaan.id.toString());
+          }
         }
-      }
-    }
 
-    if (isErrorNik) {
-      if (toastId) toast.dismissToast(toastId);
-      // @ts-ignore
-      if (nikError?.status === 404) {
-        toast.showInfo('NIK tidak ditemukan. Silakan isi data wali secara manual.');
-      } else {
+        if (parentData.education && educationLevelsList.length > 0) {
+          const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
+          if (foundEducation) {
+            setValue('educationValue', foundEducation.id.toString());
+          }
+        }
+      } else if (isErrorNik) {
         // @ts-ignore
-        const errorMessage = nikError?.data?.message || 'Terjadi kesalahan pada server.';
-        toast.showError(`Gagal mengecek NIK: ${errorMessage}`);
+        if (nikError?.status === 404) {
+          toast.showInfo('NIK belum terdaftar, silahkan isi data secara manual');
+        } else {
+          // @ts-ignore
+          const errorMessage = nikError?.data?.message || 'Terjadi kesalahan pada server.';
+          toast.showError(`Gagal mengecek NIK: ${errorMessage}`);
+        }
       }
     }
-  }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList, educationLevelsList]);
+  }, [isLoadingNik, isErrorNik, nikData, nikError, setValue, pekerjaanList, educationLevelsList, isUninitialized]);
 
   return (
     <div className="space-y-6">
