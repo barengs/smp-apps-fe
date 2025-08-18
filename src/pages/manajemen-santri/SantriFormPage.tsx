@@ -234,7 +234,7 @@ const SantriFormPage: React.FC = () => {
       <div className="container mx-auto pb-8 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
 
-        <div className="mb-8">
+        <div className="mb-4"> {/* Changed mb-8 to mb-4 */}
           <div className="w-full max-w-6xl mx-auto">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (

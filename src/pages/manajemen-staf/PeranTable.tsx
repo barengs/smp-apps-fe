@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, PlusCircle } from 'lucide-react';
+import { Edit, Trash2, ChevronDown } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
@@ -25,37 +25,22 @@ import PeranForm from './PeranForm';
 import { Badge } from '@/components/ui/badge';
 import {
   useGetRolesQuery,
-  useCreateRoleMutation,
-  useUpdateRoleMutation,
   useDeleteRoleMutation,
-} from '../../store/slices/roleApi'; // Corrected import path
+} from '../../store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { SerializedError } from '@reduxjs/toolkit';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Peran {
-  id: number; // Changed to number to match API
-  roleName: string; // Corresponds to 'name' in API
-  description: string; // Not directly from API, will be empty/default
-  usersCount: number; // Not directly from API, will be 0
-  accessRights: string[]; // Not directly from API, will be empty
+  id: number;
+  roleName: string;
+  description: string;
+  usersCount: number;
+  accessRights: string[];
 }
 
-// dummyPeranData dikembalikan dan diekspor untuk digunakan oleh HakAksesForm
-export const dummyPeranData: Peran[] = [
-  { id: 1, roleName: 'Administrasi', description: 'Mengelola seluruh sistem pesantren.', usersCount: 3, accessRights: ['Full Access', 'Manage Users', 'Manage Settings'] },
-  { id: 2, roleName: 'Guru', description: 'Mengajar dan mengelola nilai serta absensi santri.', usersCount: 25, accessRights: ['View Pelajaran', 'Edit Nilai', 'Manage Absensi'] },
-  { id: 3, roleName: 'Wali Santri', description: 'Memantau perkembangan santri dan berkomunikasi dengan pesantren.', usersCount: 500, accessRights: ['View Santri Info', 'View Absensi', 'View Nilai'] },
-  { id: 4, roleName: 'Bendahara', description: 'Mengelola keuangan pesantren.', usersCount: 2, accessRights: ['Manage Keuangan', 'View Laporan'] },
-  { id: 5, roleName: 'Pustakawan', description: 'Mengelola perpustakaan pesantren.', usersCount: 1, accessRights: ['Manage Buku', 'Manage Peminjaman'] },
-  { id: 6, roleName: 'Keamanan', description: 'Menjaga keamanan lingkungan pesantren.', usersCount: 5, accessRights: ['View Log Keamanan', 'Manage Akses Area'] },
-];
-
-
 const PeranTable: React.FC = () => {
-  const { data: rolesData, error, isLoading } = useGetRolesQuery(); // Fetch data
-  const [createRole] = useCreateRoleMutation();
-  const [updateRole] = useUpdateRoleMutation();
+  const { data: rolesData, error, isLoading } = useGetRolesQuery();
   const [deleteRole] = useDeleteRoleMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,7 +48,6 @@ const PeranTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [peranToDelete, setPeranToDelete] = useState<Peran | undefined>(undefined);
 
-  // Map API data to frontend Peran interface
   const roles: Peran[] = useMemo(() => {
     if (rolesData?.data) {
       return rolesData.data.map(apiRole => ({
@@ -71,7 +55,7 @@ const PeranTable: React.FC = () => {
         roleName: apiRole.name,
         description: '', // API does not provide description, so set to empty
         usersCount: 0, // API does not provide usersCount, so set to 0
-        accessRights: [], // API does not provide accessRights, so set to empty array
+        accessRights: apiRole.permissions?.map(p => p.name) || [], // Map permissions to accessRights
       }));
     }
     return [];
@@ -99,7 +83,6 @@ const PeranTable: React.FC = () => {
         toast.showSuccess(`Peran "${peranToDelete.roleName}" berhasil dihapus.`);
         setPeranToDelete(undefined);
         setIsDeleteDialogOpen(false);
-        // RTK Query's invalidatesTags will automatically refetch getRoles
       } catch (err: any) {
         let errorMessage = 'Terjadi kesalahan tidak dikenal.';
         if (typeof err === 'object' && err !== null) {
@@ -119,7 +102,6 @@ const PeranTable: React.FC = () => {
   const handleFormSuccess = () => {
     setIsModalOpen(false);
     setEditingPeran(undefined);
-    // RTK Query's invalidatesTags will automatically refetch getRoles
   };
 
   const handleFormCancel = () => {
@@ -137,21 +119,41 @@ const PeranTable: React.FC = () => {
       {
         accessorKey: 'description',
         header: 'Deskripsi',
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() || '-',
       },
-      // Kolom 'Jumlah Pengguna' dihapus
       {
         accessorKey: 'accessRights',
         header: 'Hak Akses',
-        cell: ({ row }) => (
-          <div className="flex flex-wrap gap-1">
-            {row.original.accessRights.map((right) => (
-              <Badge key={right} variant="outline" className="text-xs">
-                {right}
-              </Badge>
-            ))}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const rights = row.original.accessRights;
+          if (!rights || rights.length === 0) {
+            return <span className="text-muted-foreground">-</span>;
+          }
+
+          if (rights.length === 1) {
+            return <Badge variant="outline">{rights[0]}</Badge>;
+          }
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8">
+                  {rights.length} Hak Akses
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <div className="space-y-1">
+                  {rights.map((right, index) => (
+                    <Badge key={index} variant="secondary" className="block w-full text-left font-normal whitespace-normal">
+                      {right}
+                    </Badge>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          );
+        },
       },
       {
         id: 'actions',
@@ -165,7 +167,7 @@ const PeranTable: React.FC = () => {
                 variant="outline"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleEditData(peran)}
-                disabled={isProtectedRole} // Menonaktifkan tombol jika peran dilindungi
+                disabled={isProtectedRole}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
@@ -173,7 +175,7 @@ const PeranTable: React.FC = () => {
                 variant="danger"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleDeleteClick(peran)}
-                disabled={isProtectedRole} // Menonaktifkan tombol jika peran dilindungi
+                disabled={isProtectedRole}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
@@ -190,15 +192,13 @@ const PeranTable: React.FC = () => {
     let errorMessage = 'Terjadi kesalahan saat memuat data.';
     if (typeof error === 'object' && error !== null) {
       if ('status' in error) {
-        // It's a FetchBaseQueryError
-        if (typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
-          errorMessage = (error.data as { message: string }).message;
+        if (typeof (error as FetchBaseQueryError).data === 'object' && (error as FetchBaseQueryError).data !== null && 'message' in ((error as FetchBaseQueryError).data as object)) {
+          errorMessage = ((error as FetchBaseQueryError).data as { message: string }).message;
         } else {
-          errorMessage = `Error ${error.status}: ${JSON.stringify(error.data)}`;
+          errorMessage = `Error ${(error as FetchBaseQueryError).status}: ${JSON.stringify((error as FetchBaseQueryError).data)}`;
         }
       } else if ('message' in error) {
-        // It's a SerializedError
-        errorMessage = error.message;
+        errorMessage = (error as { message: string }).message;
       }
     }
     return <div>Error: {errorMessage}</div>;
@@ -208,7 +208,7 @@ const PeranTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={roles} // Use fetched data
+        data={roles}
         exportFileName="data_peran"
         exportTitle="Data Peran Pengguna"
         onAddData={handleAddData}

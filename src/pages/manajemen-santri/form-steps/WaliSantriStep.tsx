@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,23 +16,24 @@ import {
 } from "@/components/ui/select";
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
-import { useGetEducationLevelsQuery } from '@/store/slices/educationApi'; // Import useGetEducationLevelsQuery
-import { toast } from 'sonner'; // Menggunakan sonner untuk toast
+import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
+import * as toast from '@/utils/toast';
+import { Id } from 'react-toastify';
 
 interface WaliSantriStepProps {}
 
 const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
-  const { control, getValues, setValue, watch } = useFormContext<SantriFormValues>();
+  const { control, setValue, watch } = useFormContext<SantriFormValues>();
+  const loadingToastId = useRef<Id | null>(null);
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
 
-  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery(); // Fetch education levels
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevelsList = educationLevelsResponse?.data || [];
 
-  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
+  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError, isUninitialized }] = useLazyGetParentByNikQuery();
 
-  // Watch for changes in the 'nik' field
   const nikValue = watch('nik');
 
   useEffect(() => {
@@ -42,71 +43,67 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   }, [nikValue, triggerGetParentByNik]);
 
   useEffect(() => {
-    let toastId: string | number | undefined;
-
     if (isLoadingNik) {
-      toastId = toast.loading('Mengecek NIK...');
-    }
-
-    if (nikData && nikData.data) {
-      if (toastId) toast.dismiss(toastId);
-      toast.success('Data wali ditemukan.', {
-        description: 'Formulir telah diisi secara otomatis.',
-      });
-      const parentData = nikData.data;
-
-      // Validate and set KK
-      const kkValue = String(parentData.kk || '').trim();
-      if (kkValue.match(/^\d{16}$/)) {
-        setValue('kk', kkValue);
-      } else {
-        setValue('kk', ''); // Clear if invalid
-        toast.warning('Nomor Kartu Keluarga (KK) dari data NIK tidak valid.', {
-          description: 'Harap masukkan Nomor KK secara manual (harus 16 digit angka).',
-        });
+      if (!loadingToastId.current) {
+        loadingToastId.current = toast.showLoading('Mengecek NIK...');
       }
-      
-      setValue('firstName', parentData.first_name);
-      setValue('lastName', parentData.last_name || '');
-      setValue('gender', parentData.gender);
-      setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
-      setValue('phone', parentData.phone || '');
-      setValue('email', parentData.email || '');
-      setValue('alamatKtp', parentData.card_address || '');
-      setValue('alamatDomisili', parentData.domicile_address || '');
+    } else {
+      if (isUninitialized) return;
 
-      if (parentData.occupation && pekerjaanList.length > 0) {
-        const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
-        if (foundPekerjaan) {
-          setValue('pekerjaanValue', foundPekerjaan.id.toString());
+      if (loadingToastId.current) {
+        toast.dismissToast(loadingToastId.current);
+        loadingToastId.current = null;
+      }
+
+      if (nikData && nikData.data) {
+        toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
+        const parentData = nikData.data;
+
+        const kkValue = String(parentData.kk || '').trim();
+        if (kkValue.match(/^\d{16}$/)) {
+          setValue('kk', kkValue);
+        } else {
+          setValue('kk', '');
+          toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
         }
-      }
+        
+        setValue('firstName', parentData.first_name);
+        setValue('lastName', parentData.last_name || '');
+        setValue('gender', parentData.gender);
+        setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
+        setValue('phone', parentData.phone || '');
+        setValue('email', parentData.email || '');
+        setValue('alamatKtp', parentData.card_address || '');
+        setValue('alamatDomisili', parentData.domicile_address || '');
 
-      // Set education level if found
-      if (parentData.education && educationLevelsList.length > 0) {
-        const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
-        if (foundEducation) {
-          setValue('educationValue', foundEducation.id.toString());
+        if (parentData.occupation && pekerjaanList.length > 0) {
+          const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
+          if (foundPekerjaan) {
+            setValue('pekerjaanValue', foundPekerjaan.id.toString());
+          }
         }
-      }
 
-    }
-
-    if (isErrorNik) {
-      if (toastId) toast.dismiss(toastId);
-      // @ts-ignore
-      if (nikError?.status === 404) {
-        toast.info('NIK tidak ditemukan.', {
-          description: 'Silakan isi data wali secara manual.',
-        });
-      } else {
-        toast.error('Gagal mengecek NIK.', {
+        if (parentData.education && educationLevelsList.length > 0) {
+          const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
+          if (foundEducation) {
+            setValue('educationValue', foundEducation.id.toString());
+          }
+        }
+      } else if (isErrorNik) {
+        // @ts-ignore
+        if (nikError?.status === 404) {
+          toast.showInfo('NIK belum terdaftar, silahkan isi data secara manual');
+        } else {
           // @ts-ignore
-          description: nikError?.data?.message || 'Terjadi kesalahan pada server.',
-        });
+          const errorMessage = nikError?.data?.message || 'Terjadi kesalahan pada server.';
+          toast.showError(`Gagal mengecek NIK: ${errorMessage}`);
+        }
+      } else {
+        // This handles the case where the API call was successful but returned no data.
+        toast.showInfo('NIK belum terdaftar, silahkan isi data secara manual');
       }
     }
-  }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList, educationLevelsList]);
+  }, [isLoadingNik, isErrorNik, nikData, nikError, setValue, pekerjaanList, educationLevelsList, isUninitialized]);
 
   return (
     <div className="space-y-6">
@@ -331,7 +328,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
               control={control}
               name="alamatKtp"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
+                <FormItem>
                   <FormLabel>Alamat Lengkap (Sesuai KTP)</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Jl. Merdeka No. 45, RT 001/RW 002" />
@@ -344,7 +341,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
               control={control}
               name="alamatDomisili"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
+                <FormItem>
                   <FormLabel>Alamat Domisili (Jika Berbeda dengan KTP)</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Jl. Damai No. 10, RT 003/RW 004" />

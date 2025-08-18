@@ -1,72 +1,40 @@
 import { smpApi } from '../baseApi';
+import { AcademicYear } from '@/types/pendidikan';
 
-// --- API Response and Request Types ---
-
-// Structure for a single academic year object from the API
-export interface TahunAjaranApiData {
-  id: number;
-  year: string;
-  semester: 'Ganjil' | 'Genap';
-  active: boolean;
-  description: string | null;
-}
-
-// The GET response is an object with a 'data' property containing the array
-interface GetTahunAjaranResponse {
-    data: TahunAjaranApiData[];
-}
-
-// The single item response is also wrapped in a 'data' property
-interface SingleTahunAjaranResponse {
-    data: TahunAjaranApiData;
-}
-
-// Structure for the POST/PUT request body
 export interface CreateUpdateTahunAjaranRequest {
   year: string;
   semester: 'Ganjil' | 'Genap';
-  active?: boolean;
+  active: boolean;
   description?: string;
 }
 
 export const tahunAjaranApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTahunAjaran: builder.query<TahunAjaranApiData[], void>({
+    getTahunAjaran: builder.query<AcademicYear[], void>({
       query: () => 'master/academic-year',
       providesTags: ['TahunAjaran'],
-      transformResponse: (response: GetTahunAjaranResponse) => response.data,
     }),
-    createTahunAjaran: builder.mutation<TahunAjaranApiData, CreateUpdateTahunAjaranRequest>({
-      query: (newTahunAjaran) => ({
+    createTahunAjaran: builder.mutation<AcademicYear, CreateUpdateTahunAjaranRequest>({
+      query: (body) => ({
         url: 'master/academic-year',
         method: 'POST',
-        body: newTahunAjaran,
+        body,
       }),
       invalidatesTags: ['TahunAjaran'],
-      transformResponse: (response: SingleTahunAjaranResponse) => response.data,
     }),
-    updateTahunAjaran: builder.mutation<TahunAjaranApiData, { id: number; data: CreateUpdateTahunAjaranRequest }>({
+    updateTahunAjaran: builder.mutation<AcademicYear, { id: number; data: CreateUpdateTahunAjaranRequest }>({
       query: ({ id, data }) => ({
         url: `master/academic-year/${id}`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['TahunAjaran'],
-      transformResponse: (response: SingleTahunAjaranResponse) => response.data,
-    }),
-    deleteTahunAjaran: builder.mutation<void, number>({
-      query: (id) => ({
-        url: `master/academic-year/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['TahunAjaran'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'TahunAjaran', id }, 'TahunAjaran'],
     }),
   }),
 });
 
-export const {
+export const { 
   useGetTahunAjaranQuery,
   useCreateTahunAjaranMutation,
   useUpdateTahunAjaranMutation,
-  useDeleteTahunAjaranMutation,
 } = tahunAjaranApi;

@@ -1,5 +1,10 @@
 import { smpApi } from '../baseApi';
 
+// Define the nested permission structure
+interface PermissionNestedData {
+  name: string;
+}
+
 // Define the API response structure for a single role
 interface RoleApiResponse {
   id: number;
@@ -7,6 +12,7 @@ interface RoleApiResponse {
   guard_name: string;
   created_at: string;
   updated_at: string;
+  permissions: PermissionNestedData[]; // Added permissions
 }
 
 // Define the API response structure for multiple roles
@@ -18,6 +24,7 @@ interface GetRolesResponse {
 // Define the request body for creating/updating a role
 interface CreateUpdateRoleRequest {
   name: string;
+  permission?: string[];
 }
 
 export const roleApi = smpApi.injectEndpoints({
