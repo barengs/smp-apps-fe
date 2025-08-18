@@ -48,12 +48,12 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         loadingToastId.current = toast.showLoading('Mengecek NIK...');
       }
     } else {
+      if (isUninitialized) return;
+
       if (loadingToastId.current) {
         toast.dismissToast(loadingToastId.current);
         loadingToastId.current = null;
       }
-
-      if (isUninitialized) return;
 
       if (nikData && nikData.data) {
         toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
@@ -98,6 +98,9 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
           const errorMessage = nikError?.data?.message || 'Terjadi kesalahan pada server.';
           toast.showError(`Gagal mengecek NIK: ${errorMessage}`);
         }
+      } else {
+        // This handles the case where the API call was successful but returned no data.
+        toast.showInfo('NIK belum terdaftar, silahkan isi data secara manual');
       }
     }
   }, [isLoadingNik, isErrorNik, nikData, nikError, setValue, pekerjaanList, educationLevelsList, isUninitialized]);
