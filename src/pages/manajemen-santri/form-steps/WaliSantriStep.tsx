@@ -25,6 +25,7 @@ interface WaliSantriStepProps {}
 const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const { control, setValue, watch } = useFormContext<SantriFormValues>();
   const loadingToastId = useRef<Id | null>(null);
+  const checkedNik = useRef<string | null>(null);
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
@@ -32,15 +33,23 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevelsList = educationLevelsResponse?.data || [];
 
-  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError, isUninitialized }] = useLazyGetParentByNikQuery();
+  const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError, isUninitialized, reset }] = useLazyGetParentByNikQuery();
 
   const nikValue = watch('nik');
 
   useEffect(() => {
     if (nikValue && nikValue.length === 16) {
-      triggerGetParentByNik(nikValue);
+      // Hanya picu jika NIK berbeda dari yang sudah dicek
+      if (nikValue !== checkedNik.current) {
+        triggerGetParentByNik(nikValue);
+        checkedNik.current = nikValue; // Tandai NIK ini sudah dicek
+      }
+    } else {
+      // Jika NIK tidak lagi 16 digit, reset status pengecekan
+      checkedNik.current = null;
+      reset();
     }
-  }, [nikValue, triggerGetParentByNik]);
+  }, [nikValue, triggerGetParentByNik, reset]);
 
   useEffect(() => {
     if (isLoadingNik) {
@@ -103,7 +112,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         toast.showInfo('NIK belum terdaftar, silahkan isi data secara manual');
       }
     }
-  }, [isLoadingNik, isErrorNik, nikData, nikError, setValue, pekerjaanList, educationLevelsList, isUninitialized]);
+  }, [isLoadingNik, isErrorNik, nikData, nikError, setValue, pekerjaanList, educationLevelsList, isUninitialized, reset]);
 
   return (
     <div className="space-y-6">
