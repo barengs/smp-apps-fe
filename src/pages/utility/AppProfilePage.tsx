@@ -102,6 +102,11 @@ const AppProfilePage: React.FC = () => {
 
     formData.append('_method', 'PUT');
 
+    console.log("Data yang dikirim:");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
     try {
       await updateSettings({ id: settings.id, formData }).unwrap();
       showSuccess('Profil aplikasi berhasil diperbarui!');
