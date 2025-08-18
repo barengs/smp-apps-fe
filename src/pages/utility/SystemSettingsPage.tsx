@@ -76,26 +76,29 @@ const SystemSettingsPage: React.FC = () => {
   const handleSaveChanges = async () => {
     const formData = new FormData();
 
-    Object.entries(formState).forEach(([key, value]) => {
-      if (key === 'app_logo' || key === 'app_favicon' || value === null || value === undefined) {
+    Object.keys(formState).forEach(key => {
+      const k = key as keyof ControlPanelSettings;
+      const value = formState[k];
+
+      if (k === 'app_logo' || value === null || value === undefined) {
         return;
       }
-      formData.append(key, String(value));
+
+      if (typeof value === 'boolean') {
+        formData.append(k, value ? '1' : '0');
+      } else {
+        formData.append(k, String(value));
+      }
     });
 
     if (logoFile) {
       formData.append('app_logo', logoFile);
     }
-    
-    // Send favicon if it exists in formState but wasn't changed
-    if (formState.app_favicon && !formData.has('app_favicon')) {
-        formData.append('app_favicon', formState.app_favicon);
-    }
-
 
     try {
       await updateSettings(formData).unwrap();
       showSuccess("Perubahan berhasil disimpan!");
+      setLogoFile(null);
     } catch (err) {
       showError("Gagal menyimpan perubahan.");
       console.error(err);
