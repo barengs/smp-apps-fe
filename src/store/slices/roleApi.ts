@@ -5,6 +5,12 @@ interface PermissionNestedData {
   name: string;
 }
 
+// Define menu structure within role
+interface MenuNestedData {
+  id: number;
+  title: string;
+}
+
 // Define the API response structure for a single role
 interface RoleApiResponse {
   id: number;
@@ -12,7 +18,8 @@ interface RoleApiResponse {
   guard_name: string;
   created_at: string;
   updated_at: string;
-  permissions: PermissionNestedData[]; // Added permissions
+  permissions: PermissionNestedData[];
+  menus: MenuNestedData[];
 }
 
 // Define the API response structure for multiple roles

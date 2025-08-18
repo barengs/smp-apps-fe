@@ -37,6 +37,7 @@ interface Peran {
   description: string;
   usersCount: number;
   accessRights: string[];
+  menus: { id: number; title: string }[];
 }
 
 const PeranTable: React.FC = () => {
@@ -44,7 +45,7 @@ const PeranTable: React.FC = () => {
   const [deleteRole] = useDeleteRoleMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPeran, setEditingPeran] = useState<Peran | undefined>(undefined);
+  const [editingPeran, setEditingPeran] = useState<Omit<Peran, 'menus'> | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [peranToDelete, setPeranToDelete] = useState<Peran | undefined>(undefined);
 
@@ -53,9 +54,10 @@ const PeranTable: React.FC = () => {
       return rolesData.data.map(apiRole => ({
         id: apiRole.id,
         roleName: apiRole.name,
-        description: '', // API does not provide description, so set to empty
-        usersCount: 0, // API does not provide usersCount, so set to 0
-        accessRights: apiRole.permissions?.map(p => p.name) || [], // Map permissions to accessRights
+        description: '', // Kept for form data structure, though not displayed
+        usersCount: 0, // Kept for form data structure
+        accessRights: apiRole.permissions?.map(p => p.name) || [],
+        menus: apiRole.menus || [],
       }));
     }
     return [];
@@ -67,7 +69,14 @@ const PeranTable: React.FC = () => {
   };
 
   const handleEditData = (peran: Peran) => {
-    setEditingPeran(peran);
+    const menuTitles = peran.menus.map(m => m.title);
+    const formInitialData = {
+      ...peran,
+      accessRights: [...menuTitles, ...peran.accessRights],
+    };
+    // The form doesn't need the 'menus' property, so we can omit it.
+    const { menus, ...rest } = formInitialData;
+    setEditingPeran(rest);
     setIsModalOpen(true);
   };
 
@@ -117,9 +126,40 @@ const PeranTable: React.FC = () => {
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: 'description',
-        header: 'Deskripsi',
-        cell: (info) => info.getValue() || '-',
+        accessorKey: 'menus',
+        header: 'Menu',
+        cell: ({ row }) => {
+          const menus = row.original.menus;
+          if (!menus || menus.length === 0) {
+            return <span className="text-muted-foreground">-</span>;
+          }
+
+          const menuTitles = menus.map(m => m.title);
+
+          if (menuTitles.length === 1) {
+            return <Badge variant="outline">{menuTitles[0]}</Badge>;
+          }
+
+          return (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8">
+                  {menuTitles.length} Menu
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <div className="space-y-1">
+                  {menuTitles.map((title, index) => (
+                    <Badge key={index} variant="secondary" className="block w-full text-left font-normal whitespace-normal">
+                      {title}
+                    </Badge>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          );
+        },
       },
       {
         accessorKey: 'accessRights',
