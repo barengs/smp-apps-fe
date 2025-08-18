@@ -73,13 +73,18 @@ const AppProfilePage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (!settings?.id) {
+      showError("ID profil aplikasi tidak ditemukan untuk melakukan pembaruan.");
+      return;
+    }
+
     const formData = new FormData();
     
     Object.keys(formState).forEach(key => {
         const typedKey = key as keyof ControlPanelSettings;
         const value = formState[typedKey];
         
-        if (typedKey === 'app_logo' || typedKey === 'app_favicon') return;
+        if (typedKey === 'app_logo' || typedKey === 'app_favicon' || typedKey === 'id') return;
 
         if (typedKey === 'is_maintenance_mode') {
             formData.append(typedKey, value ? '1' : '0');
@@ -98,7 +103,7 @@ const AppProfilePage: React.FC = () => {
     formData.append('_method', 'PUT');
 
     try {
-      await updateSettings(formData).unwrap();
+      await updateSettings({ id: settings.id, formData }).unwrap();
       showSuccess('Profil aplikasi berhasil diperbarui!');
       setIsEditMode(false);
       setLogoFile(null);

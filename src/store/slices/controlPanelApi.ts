@@ -2,6 +2,7 @@ import { smpApi } from '../baseApi';
 
 // --- API Response Type ---
 export interface ControlPanelSettings {
+  id: string | number; // Menambahkan ID, diasumsikan ada di response
   app_name: string;
   app_version: string;
   app_description: string;
@@ -23,9 +24,9 @@ export const controlPanelApi = smpApi.injectEndpoints({
       query: () => 'control-panel',
       providesTags: ['ControlPanelSettings'],
     }),
-    updateControlPanelSettings: builder.mutation<ControlPanelSettings, FormData>({
-      query: (formData) => ({
-        url: 'control-panel',
+    updateControlPanelSettings: builder.mutation<ControlPanelSettings, { id: string | number; formData: FormData }>({
+      query: ({ id, formData }) => ({
+        url: `control-panel/${id}`,
         method: 'POST',
         body: formData,
       }),
