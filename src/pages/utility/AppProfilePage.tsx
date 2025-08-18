@@ -13,6 +13,7 @@ import { useGetControlPanelSettingsQuery, useUpdateControlPanelSettingsMutation,
 import { Skeleton } from '@/components/ui/skeleton';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTranslation } from 'react-i18next';
+import { Separator } from '@/components/ui/separator';
 
 const AppProfilePage: React.FC = () => {
   const { t } = useTranslation();
@@ -74,12 +75,10 @@ const AppProfilePage: React.FC = () => {
   const handleSubmit = async () => {
     const formData = new FormData();
     
-    // Append all form fields from state
     Object.keys(formState).forEach(key => {
         const typedKey = key as keyof ControlPanelSettings;
         const value = formState[typedKey];
         
-        // Skip files, they are handled separately
         if (typedKey === 'app_logo' || typedKey === 'app_favicon') return;
 
         if (typedKey === 'is_maintenance_mode') {
@@ -96,7 +95,6 @@ const AppProfilePage: React.FC = () => {
       formData.append('app_favicon', faviconFile);
     }
 
-    // Method spoofing for Laravel/Rails
     formData.append('_method', 'PUT');
 
     try {
@@ -117,8 +115,8 @@ const AppProfilePage: React.FC = () => {
     { label: t('sidebar.appProfile'), href: '/dashboard/settings/app-profile', icon: <Info className="h-4 w-4" /> },
   ];
 
-  const renderDetailItem = (icon: React.ReactNode, label: string, value: string | React.ReactNode | null | undefined) => (
-    <div className="flex items-start space-x-4">
+  const renderDetailItem = (icon: React.ReactNode, label: string, value: string | React.ReactNode | null | undefined, className = "") => (
+    <div className={`flex items-start space-x-4 ${className}`}>
       <div className="flex-shrink-0 text-muted-foreground pt-1">{icon}</div>
       <div>
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -127,8 +125,8 @@ const AppProfilePage: React.FC = () => {
     </div>
   );
 
-  const renderFormItem = (label: string, children: React.ReactNode) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-2 md:gap-4">
+  const renderFormItem = (label: string, children: React.ReactNode, className = "") => (
+    <div className={`grid grid-cols-1 md:grid-cols-3 items-center gap-2 md:gap-4 ${className}`}>
       <Label className="md:text-right">{label}</Label>
       <div className="md:col-span-2">{children}</div>
     </div>
@@ -182,61 +180,71 @@ const AppProfilePage: React.FC = () => {
           </CardHeader>
           <CardContent>
             {isEditMode ? (
-              <div className="space-y-6 max-w-3xl mx-auto">
-                {renderFormItem("Nama Aplikasi", <Input id="app_name" value={formState.app_name || ''} onChange={handleInputChange} />)}
-                {renderFormItem("Deskripsi", <Textarea id="app_description" value={formState.app_description || ''} onChange={handleInputChange} />)}
-                {renderFormItem("Versi", <Input id="app_version" value={formState.app_version || ''} onChange={handleInputChange} />)}
-                {renderFormItem("URL", <Input id="app_url" value={formState.app_url || ''} onChange={handleInputChange} />)}
-                {renderFormItem("Email", <Input id="app_email" type="email" value={formState.app_email || ''} onChange={handleInputChange} />)}
-                {renderFormItem("Telepon", <Input id="app_phone" value={formState.app_phone || ''} onChange={handleInputChange} />)}
-                {renderFormItem("Alamat", <Textarea id="app_address" value={formState.app_address || ''} onChange={handleInputChange} />)}
-                {renderFormItem("Logo", 
-                  <div className="flex items-center gap-4">
-                    {logoPreview && <img src={logoPreview} alt="Logo Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
-                    <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
-                  </div>
-                )}
-                {renderFormItem("Favicon", 
-                  <div className="flex items-center gap-4">
-                    {faviconPreview && <img src={faviconPreview} alt="Favicon Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
-                    <Input type="file" accept="image/x-icon, image/png, image/svg+xml" onChange={(e) => handleFileChange(e, 'favicon')} />
-                  </div>
-                )}
-                {renderFormItem("Tema", 
-                  <Select value={formState.app_theme} onValueChange={(value) => handleSelectChange(value, 'app_theme')}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="light">Terang</SelectItem><SelectItem value="dark">Gelap</SelectItem><SelectItem value="system">Sistem</SelectItem></SelectContent>
-                  </Select>
-                )}
-                {renderFormItem("Bahasa", 
-                  <Select value={formState.app_language} onValueChange={(value) => handleSelectChange(value, 'app_language')}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="indonesia">Indonesia</SelectItem><SelectItem value="english">English</SelectItem><SelectItem value="arabic">Arabic</SelectItem></SelectContent>
-                  </Select>
-                )}
-                {renderFormItem("Mode Pemeliharaan", 
-                  <div className="flex items-center gap-4">
-                    <Switch id="is_maintenance_mode" checked={formState.is_maintenance_mode} onCheckedChange={(checked) => handleSwitchChange(checked, 'is_maintenance_mode')} />
-                    <Label htmlFor="is_maintenance_mode">Aktifkan mode pemeliharaan</Label>
-                  </div>
-                )}
-                {formState.is_maintenance_mode && renderFormItem("Pesan Pemeliharaan", <Textarea id="maintenance_message" value={formState.maintenance_message || ''} onChange={handleInputChange} />)}
+              <div className="space-y-8 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {renderFormItem("Logo", 
+                    <div className="flex items-center gap-4">
+                      {logoPreview && <img src={logoPreview} alt="Logo Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
+                      <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
+                    </div>
+                  )}
+                  {renderFormItem("Favicon", 
+                    <div className="flex items-center gap-4">
+                      {faviconPreview && <img src={faviconPreview} alt="Favicon Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
+                      <Input type="file" accept="image/x-icon, image/png, image/svg+xml" onChange={(e) => handleFileChange(e, 'favicon')} />
+                    </div>
+                  )}
+                </div>
+                <Separator />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  {renderFormItem("Nama Aplikasi", <Input id="app_name" value={formState.app_name || ''} onChange={handleInputChange} />)}
+                  {renderFormItem("Versi", <Input id="app_version" value={formState.app_version || ''} onChange={handleInputChange} />)}
+                  {renderFormItem("URL", <Input id="app_url" value={formState.app_url || ''} onChange={handleInputChange} />)}
+                  {renderFormItem("Email", <Input id="app_email" type="email" value={formState.app_email || ''} onChange={handleInputChange} />)}
+                  {renderFormItem("Telepon", <Input id="app_phone" value={formState.app_phone || ''} onChange={handleInputChange} />)}
+                  {renderFormItem("Tema", 
+                    <Select value={formState.app_theme} onValueChange={(value) => handleSelectChange(value, 'app_theme')}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent><SelectItem value="light">Terang</SelectItem><SelectItem value="dark">Gelap</SelectItem><SelectItem value="system">Sistem</SelectItem></SelectContent>
+                    </Select>
+                  )}
+                  {renderFormItem("Bahasa", 
+                    <Select value={formState.app_language} onValueChange={(value) => handleSelectChange(value, 'app_language')}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent><SelectItem value="indonesia">Indonesia</SelectItem><SelectItem value="english">English</SelectItem><SelectItem value="arabic">Arabic</SelectItem></SelectContent>
+                    </Select>
+                  )}
+                  {renderFormItem("Mode Pemeliharaan", 
+                    <div className="flex items-center gap-4">
+                      <Switch id="is_maintenance_mode" checked={formState.is_maintenance_mode} onCheckedChange={(checked) => handleSwitchChange(checked, 'is_maintenance_mode')} />
+                      <Label htmlFor="is_maintenance_mode">Aktifkan</Label>
+                    </div>
+                  )}
+                  {renderFormItem("Alamat", <Textarea id="app_address" value={formState.app_address || ''} onChange={handleInputChange} />, "md:col-span-2")}
+                  {renderFormItem("Deskripsi", <Textarea id="app_description" value={formState.app_description || ''} onChange={handleInputChange} />, "md:col-span-2")}
+                  {formState.is_maintenance_mode && renderFormItem("Pesan Pemeliharaan", <Textarea id="maintenance_message" value={formState.maintenance_message || ''} onChange={handleInputChange} />, "md:col-span-2")}
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {renderDetailItem(<Info className="h-5 w-5" />, "Nama Aplikasi", formState.app_name)}
-                {renderDetailItem(<Server className="h-5 w-5" />, "Versi", formState.app_version)}
-                {renderDetailItem(<GlobeIcon className="h-5 w-5" />, "URL", <a href={formState.app_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{formState.app_url}</a>)}
-                {renderDetailItem(<Mail className="h-5 w-5" />, "Email", formState.app_email)}
-                {renderDetailItem(<Phone className="h-5 w-5" />, "Telepon", formState.app_phone)}
-                {renderDetailItem(<MapPin className="h-5 w-5" />, "Alamat", formState.app_address)}
-                <div className="lg:col-span-3">{renderDetailItem(<Info className="h-5 w-5" />, "Deskripsi", <p className="whitespace-pre-wrap">{formState.app_description}</p>)}</div>
-                {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", logoPreview ? <img src={logoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada logo')}
-                {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada favicon')}
-                {renderDetailItem(<Palette className="h-5 w-5" />, "Tema", formState.app_theme)}
-                {renderDetailItem(<Languages className="h-5 w-5" />, "Bahasa", formState.app_language)}
-                {renderDetailItem(<ToggleLeft className="h-5 w-5" />, "Mode Pemeliharaan", formState.is_maintenance_mode ? 'Aktif' : 'Tidak Aktif')}
-                {formState.is_maintenance_mode && renderDetailItem(<MessageSquare className="h-5 w-5" />, "Pesan Pemeliharaan", formState.maintenance_message)}
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", logoPreview ? <img src={logoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada logo')}
+                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada favicon')}
+                </div>
+                <Separator />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {renderDetailItem(<Info className="h-5 w-5" />, "Nama Aplikasi", formState.app_name)}
+                  {renderDetailItem(<Server className="h-5 w-5" />, "Versi", formState.app_version)}
+                  {renderDetailItem(<GlobeIcon className="h-5 w-5" />, "URL", <a href={formState.app_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{formState.app_url}</a>)}
+                  {renderDetailItem(<Mail className="h-5 w-5" />, "Email", formState.app_email)}
+                  {renderDetailItem(<Phone className="h-5 w-5" />, "Telepon", formState.app_phone)}
+                  {renderDetailItem(<Palette className="h-5 w-5" />, "Tema", formState.app_theme)}
+                  {renderDetailItem(<Languages className="h-5 w-5" />, "Bahasa", formState.app_language)}
+                  {renderDetailItem(<ToggleLeft className="h-5 w-5" />, "Mode Pemeliharaan", formState.is_maintenance_mode ? 'Aktif' : 'Tidak Aktif')}
+                  {renderDetailItem(<MapPin className="h-5 w-5" />, "Alamat", formState.app_address, "md:col-span-2")}
+                  {renderDetailItem(<Info className="h-5 w-5" />, "Deskripsi", <p className="whitespace-pre-wrap">{formState.app_description}</p>, "md:col-span-2")}
+                  {formState.is_maintenance_mode && renderDetailItem(<MessageSquare className="h-5 w-5" />, "Pesan Pemeliharaan", formState.maintenance_message, "md:col-span-2")}
+                </div>
               </div>
             )}
           </CardContent>
