@@ -117,15 +117,9 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
 
     const selectedMenuIds = getMenuIdsFromTitles(values.menuAccess || [], menuData?.data || []);
 
-    const combinedPermissions = [
-      ...(values.menuAccess || []),
-      ...(values.explicitPermissions || []),
-    ];
-    const uniquePermissions = [...new Set(combinedPermissions)];
-
     const payload = {
       name: values.name,
-      permission: uniquePermissions,
+      permission: values.explicitPermissions || [],
       menu_id: selectedMenuIds,
     };
 
