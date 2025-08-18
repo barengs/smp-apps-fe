@@ -29,7 +29,6 @@ import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
-import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
@@ -135,7 +134,6 @@ function App() {
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
-                <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
                 <Route path="/dashboard/profile" element={<UserProfilePage />} />
               </Route>
