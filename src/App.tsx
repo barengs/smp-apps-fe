@@ -52,9 +52,10 @@ import CoaPage from '@/pages/keuangan/CoaPage';
 import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
-import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage'; // Re-import to ensure it's picked up
-import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage'; // Import the new OrganisasiPage
+import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
+import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AppProfilePage from '@/pages/utility/AppProfilePage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -88,7 +89,7 @@ function App() {
                 <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
                 <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
                 <Route path="/dashboard/peran" element={<PeranPage />} />
-                <Route path="/dashboard/organisasi" element={<OrganisasiPage />} /> {/* New route for OrganisasiPage */}
+                <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
                 
                 {/* Rute Manajemen Santri */}
                 <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
@@ -135,6 +136,7 @@ function App() {
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
+                <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
                 <Route path="/dashboard/profile" element={<UserProfilePage />} />
               </Route>
 

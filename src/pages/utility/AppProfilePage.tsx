@@ -1,0 +1,249 @@
+import React, { useState, useEffect } from 'react';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
+import { Settings, Edit, X, Save, Image as ImageIcon, Info, Phone, Mail, MapPin, Globe as GlobeIcon, Server, ToggleLeft, MessageSquare, Palette, Languages } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGetControlPanelSettingsQuery, useUpdateControlPanelSettingsMutation, type ControlPanelSettings } from '@/store/slices/controlPanelApi';
+import { Skeleton } from '@/components/ui/skeleton';
+import { showSuccess, showError } from '@/utils/toast';
+import { useTranslation } from 'react-i18next';
+
+const AppProfilePage: React.FC = () => {
+  const { t } = useTranslation();
+  const { data: settings, isLoading, isError, refetch } = useGetControlPanelSettingsQuery();
+  const [updateSettings, { isLoading: isUpdating }] = useUpdateControlPanelSettingsMutation();
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [formState, setFormState] = useState<Partial<ControlPanelSettings>>({});
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [faviconFile, setFaviconFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (settings) {
+      setFormState(settings);
+      setLogoPreview(settings.app_logo);
+      setFaviconPreview(settings.app_favicon);
+    }
+  }, [settings]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormState(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSwitchChange = (checked: boolean, id: keyof ControlPanelSettings) => {
+    setFormState(prev => ({ ...prev, [id]: checked }));
+  };
+
+  const handleSelectChange = (value: string, id: keyof ControlPanelSettings) => {
+    setFormState(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'favicon') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (type === 'logo') {
+        setLogoFile(file);
+        setLogoPreview(URL.createObjectURL(file));
+      } else {
+        setFaviconFile(file);
+        setFaviconPreview(URL.createObjectURL(file));
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    if (settings) {
+      setFormState(settings);
+      setLogoPreview(settings.app_logo);
+      setFaviconPreview(settings.app_favicon);
+    }
+    setLogoFile(null);
+    setFaviconFile(null);
+    setIsEditMode(false);
+  };
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    
+    // Append all form fields from state
+    Object.keys(formState).forEach(key => {
+        const typedKey = key as keyof ControlPanelSettings;
+        const value = formState[typedKey];
+        
+        // Skip files, they are handled separately
+        if (typedKey === 'app_logo' || typedKey === 'app_favicon') return;
+
+        if (typedKey === 'is_maintenance_mode') {
+            formData.append(typedKey, value ? '1' : '0');
+        } else if (value !== null && value !== undefined) {
+            formData.append(typedKey, String(value));
+        }
+    });
+
+    if (logoFile) {
+      formData.append('app_logo', logoFile);
+    }
+    if (faviconFile) {
+      formData.append('app_favicon', faviconFile);
+    }
+
+    // Method spoofing for Laravel/Rails
+    formData.append('_method', 'PUT');
+
+    try {
+      await updateSettings(formData).unwrap();
+      showSuccess('Profil aplikasi berhasil diperbarui!');
+      setIsEditMode(false);
+      setLogoFile(null);
+      setFaviconFile(null);
+      refetch();
+    } catch (err) {
+      console.error('Gagal memperbarui profil aplikasi:', err);
+      showError('Gagal memperbarui profil aplikasi. Periksa konsol untuk detail.');
+    }
+  };
+
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: t('sidebar.settings'), icon: <Settings className="h-4 w-4" /> },
+    { label: t('sidebar.appProfile'), href: '/dashboard/settings/app-profile', icon: <Info className="h-4 w-4" /> },
+  ];
+
+  const renderDetailItem = (icon: React.ReactNode, label: string, value: string | React.ReactNode | null | undefined) => (
+    <div className="flex items-start space-x-4">
+      <div className="flex-shrink-0 text-muted-foreground pt-1">{icon}</div>
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <div className="text-base font-semibold">{value || '-'}</div>
+      </div>
+    </div>
+  );
+
+  const renderFormItem = (label: string, children: React.ReactNode) => (
+    <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-2 md:gap-4">
+      <Label className="md:text-right">{label}</Label>
+      <div className="md:col-span-2">{children}</div>
+    </div>
+  );
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title={t('sidebar.appProfile')} role="administrasi">
+        <div className="p-4">
+          <Skeleton className="h-8 w-1/2 mb-6" />
+          <Card>
+            <CardHeader><Skeleton className="h-6 w-1/4 mb-2" /><Skeleton className="h-4 w-1/2" /></CardHeader>
+            <CardContent className="space-y-6"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-24 w-full" /></CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout title={t('sidebar.appProfile')} role="administrasi">
+        <div className="p-4 text-center text-red-500">
+          <p>Gagal memuat data profil aplikasi.</p>
+          <Button onClick={() => refetch()} className="mt-4">Coba Lagi</Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout title={t('sidebar.appProfile')} role="administrasi">
+      <div className="p-4">
+        <CustomBreadcrumb items={breadcrumbItems} />
+        <Card className="mt-6">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Profil Aplikasi</CardTitle>
+              <CardDescription>Lihat dan kelola informasi dasar aplikasi.</CardDescription>
+            </div>
+            {!isEditMode ? (
+              <Button onClick={() => setIsEditMode(true)}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleCancel}><X className="mr-2 h-4 w-4" /> Batal</Button>
+                <Button onClick={handleSubmit} disabled={isUpdating} variant="success">
+                  <Save className="mr-2 h-4 w-4" /> {isUpdating ? 'Menyimpan...' : 'Simpan'}
+                </Button>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
+            {isEditMode ? (
+              <div className="space-y-6 max-w-3xl mx-auto">
+                {renderFormItem("Nama Aplikasi", <Input id="app_name" value={formState.app_name || ''} onChange={handleInputChange} />)}
+                {renderFormItem("Deskripsi", <Textarea id="app_description" value={formState.app_description || ''} onChange={handleInputChange} />)}
+                {renderFormItem("Versi", <Input id="app_version" value={formState.app_version || ''} onChange={handleInputChange} />)}
+                {renderFormItem("URL", <Input id="app_url" value={formState.app_url || ''} onChange={handleInputChange} />)}
+                {renderFormItem("Email", <Input id="app_email" type="email" value={formState.app_email || ''} onChange={handleInputChange} />)}
+                {renderFormItem("Telepon", <Input id="app_phone" value={formState.app_phone || ''} onChange={handleInputChange} />)}
+                {renderFormItem("Alamat", <Textarea id="app_address" value={formState.app_address || ''} onChange={handleInputChange} />)}
+                {renderFormItem("Logo", 
+                  <div className="flex items-center gap-4">
+                    {logoPreview && <img src={logoPreview} alt="Logo Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
+                    <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
+                  </div>
+                )}
+                {renderFormItem("Favicon", 
+                  <div className="flex items-center gap-4">
+                    {faviconPreview && <img src={faviconPreview} alt="Favicon Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
+                    <Input type="file" accept="image/x-icon, image/png, image/svg+xml" onChange={(e) => handleFileChange(e, 'favicon')} />
+                  </div>
+                )}
+                {renderFormItem("Tema", 
+                  <Select value={formState.app_theme} onValueChange={(value) => handleSelectChange(value, 'app_theme')}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectItem value="light">Terang</SelectItem><SelectItem value="dark">Gelap</SelectItem><SelectItem value="system">Sistem</SelectItem></SelectContent>
+                  </Select>
+                )}
+                {renderFormItem("Bahasa", 
+                  <Select value={formState.app_language} onValueChange={(value) => handleSelectChange(value, 'app_language')}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectItem value="indonesia">Indonesia</SelectItem><SelectItem value="english">English</SelectItem><SelectItem value="arabic">Arabic</SelectItem></SelectContent>
+                  </Select>
+                )}
+                {renderFormItem("Mode Pemeliharaan", 
+                  <div className="flex items-center gap-4">
+                    <Switch id="is_maintenance_mode" checked={formState.is_maintenance_mode} onCheckedChange={(checked) => handleSwitchChange(checked, 'is_maintenance_mode')} />
+                    <Label htmlFor="is_maintenance_mode">Aktifkan mode pemeliharaan</Label>
+                  </div>
+                )}
+                {formState.is_maintenance_mode && renderFormItem("Pesan Pemeliharaan", <Textarea id="maintenance_message" value={formState.maintenance_message || ''} onChange={handleInputChange} />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {renderDetailItem(<Info className="h-5 w-5" />, "Nama Aplikasi", formState.app_name)}
+                {renderDetailItem(<Server className="h-5 w-5" />, "Versi", formState.app_version)}
+                {renderDetailItem(<GlobeIcon className="h-5 w-5" />, "URL", <a href={formState.app_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{formState.app_url}</a>)}
+                {renderDetailItem(<Mail className="h-5 w-5" />, "Email", formState.app_email)}
+                {renderDetailItem(<Phone className="h-5 w-5" />, "Telepon", formState.app_phone)}
+                {renderDetailItem(<MapPin className="h-5 w-5" />, "Alamat", formState.app_address)}
+                <div className="lg:col-span-3">{renderDetailItem(<Info className="h-5 w-5" />, "Deskripsi", <p className="whitespace-pre-wrap">{formState.app_description}</p>)}</div>
+                {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", logoPreview ? <img src={logoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada logo')}
+                {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada favicon')}
+                {renderDetailItem(<Palette className="h-5 w-5" />, "Tema", formState.app_theme)}
+                {renderDetailItem(<Languages className="h-5 w-5" />, "Bahasa", formState.app_language)}
+                {renderDetailItem(<ToggleLeft className="h-5 w-5" />, "Mode Pemeliharaan", formState.is_maintenance_mode ? 'Aktif' : 'Tidak Aktif')}
+                {formState.is_maintenance_mode && renderDetailItem(<MessageSquare className="h-5 w-5" />, "Pesan Pemeliharaan", formState.maintenance_message)}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default AppProfilePage;
