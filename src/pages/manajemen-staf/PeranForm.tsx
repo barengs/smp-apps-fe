@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,23 +14,22 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import * as toast from '@/utils/toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
 import { useCreateRoleMutation, useUpdateRoleMutation } from '../../store/slices/roleApi';
-import { useGetPermissionsQuery } from '@/store/slices/permissionApi'; // Import hook to get permissions
+import { useGetMenuQuery, type MenuItem } from '@/store/slices/menuApi';
+import { useGetPermissionsQuery } from '@/store/slices/permissionApi';
+import MenuTreeView from '@/components/MenuTreeView';
+import MultiSelect, { type Option } from '@/components/MultiSelect';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Nama Peran harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
-  accessRights: z.array(z.string()).optional(),
+  menuAccess: z.array(z.string()).optional(),
+  explicitPermissions: z.array(z.string()).optional(),
 });
 
 interface PeranFormProps {
@@ -48,33 +47,80 @@ interface PeranFormProps {
 const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
+  const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
   const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData ? {
-      name: initialData.roleName,
-      description: initialData.description,
-      accessRights: initialData.accessRights || [],
-    } : {
-      name: '',
-      description: '',
-      accessRights: [],
+    defaultValues: {
+      name: initialData?.roleName || '',
+      description: initialData?.description || '',
+      menuAccess: [],
+      explicitPermissions: [],
     },
   });
 
-  const availableAccessRights = useMemo(() => {
-    if (!permissionsData?.data) return [];
-    return permissionsData.data.map(p => ({
-      value: p.name,
-      label: p.name,
-    }));
-  }, [permissionsData]);
+  // Effect to split initialData.accessRights into menu access and explicit permissions once data is loaded
+  useEffect(() => {
+    if (initialData && menuData?.data && permissionsData?.data) {
+      const allMenuTitles = new Set<string>();
+      const collectTitles = (menus: MenuItem[]) => {
+        menus.forEach(menu => {
+          allMenuTitles.add(menu.title);
+          if (menu.child) collectTitles(menu.child);
+        });
+      };
+      collectTitles(menuData.data);
+
+      const allPermissionNames = new Set(permissionsData.data.map(p => p.name));
+
+      const initialMenus: string[] = [];
+      const initialPerms: string[] = [];
+
+      initialData.accessRights.forEach(right => {
+        if (allMenuTitles.has(right)) {
+          initialMenus.push(right);
+        } else if (allPermissionNames.has(right)) {
+          initialPerms.push(right);
+        } else {
+          // Fallback for rights that are neither a menu nor a known permission
+          initialPerms.push(right);
+        }
+      });
+
+      form.setValue('menuAccess', initialMenus);
+      form.setValue('explicitPermissions', initialPerms);
+    }
+  }, [initialData, menuData, permissionsData, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const getMenuIdsFromTitles = (titles: string[], menuItems: MenuItem[]): number[] => {
+      const ids: number[] = [];
+      const titleSet = new Set(titles);
+
+      const traverse = (items: MenuItem[]) => {
+        for (const item of items) {
+          if (titleSet.has(item.title)) {
+            ids.push(item.id);
+          }
+          if (item.child && item.child.length > 0) {
+            traverse(item.child);
+          }
+        }
+      };
+
+      if (menuItems) {
+        traverse(menuItems);
+      }
+      return ids;
+    };
+
+    const selectedMenuIds = getMenuIdsFromTitles(values.menuAccess || [], menuData?.data || []);
+
     const payload = {
       name: values.name,
-      permission: values.accessRights,
+      permission: values.explicitPermissions || [],
+      menu_id: selectedMenuIds,
     };
 
     try {
@@ -116,114 +162,102 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     }
   };
 
+  const permissionOptions: Option[] = useMemo(() => {
+    return permissionsData?.data.map(p => ({ value: p.name, label: p.name })) || [];
+  }, [permissionsData]);
+
+  const topLevelMenus = useMemo(() => {
+    if (!menuData?.data) {
+      return [];
+    }
+    return menuData.data.filter(menu => menu.parent_id === null);
+  }, [menuData]);
+
   const isSubmitting = isCreating || isUpdating;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Peran</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: Guru" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Deskripsi</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Deskripsi singkat peran ini..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="accessRights"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Hak Akses</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Kolom Kiri: Detail Peran & Hak Akses */}
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Peran</FormLabel>
                   <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-full justify-between",
-                        !field.value?.length && "text-muted-foreground"
-                      )}
-                      disabled={isLoadingPermissions}
-                    >
-                      {isLoadingPermissions ? "Memuat hak akses..." : (
-                        field.value && field.value.length > 0
-                          ? (
-                              <div className="flex flex-wrap gap-1">
-                                {field.value.map((item) => (
-                                  <Badge key={item} variant="secondary">
-                                    {item}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )
-                          : "Pilih hak akses..."
-                      )}
-                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
+                    <Input placeholder="Contoh: Guru" {...field} />
                   </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput placeholder="Cari hak akses..." />
-                    <CommandEmpty>Tidak ada hak akses ditemukan.</CommandEmpty>
-                    <CommandGroup>
-                      {availableAccessRights.map((option) => (
-                        <CommandItem
-                          key={option.value}
-                          onSelect={() => {
-                            const currentValues = new Set(field.value);
-                            if (currentValues.has(option.value)) {
-                              currentValues.delete(option.value);
-                            } else {
-                              currentValues.add(option.value);
-                            }
-                            field.onChange(Array.from(currentValues));
-                          }}
-                        >
-                          <Checkbox
-                            checked={field.value?.includes(option.value)}
-                            onCheckedChange={(checked) => {
-                              const currentValues = new Set(field.value);
-                              if (checked) {
-                                currentValues.add(option.value);
-                              } else {
-                                currentValues.delete(option.value);
-                              }
-                              field.onChange(Array.from(currentValues));
-                            }}
-                            className="mr-2"
-                          />
-                          {option.label}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deskripsi</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Deskripsi singkat peran ini..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="explicitPermissions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hak Akses (Permissions)</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={permissionOptions}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Pilih hak akses..."
+                      disabled={isLoadingPermissions}
+                      className="h-auto min-h-24"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Kolom Kanan: Hak Akses Menu */}
+          <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="menuAccess"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hak Akses Menu</FormLabel>
+                  {isLoadingMenu ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                      <Skeleton className="h-8 w-full" />
+                    </div>
+                  ) : (
+                    <MenuTreeView
+                      menus={topLevelMenus}
+                      selectedPermissions={field.value || []}
+                      onSelectionChange={field.onChange}
+                    />
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Batal
