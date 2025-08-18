@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/select";
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
-import { useGetEducationLevelsQuery } from '@/store/slices/educationApi'; // Import useGetEducationLevelsQuery
-import { toast } from 'sonner'; // Menggunakan sonner untuk toast
+import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
+import * as toast from '@/utils/toast';
+import { Id } from 'react-toastify';
 
 interface WaliSantriStepProps {}
 
@@ -27,12 +28,11 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
 
-  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery(); // Fetch education levels
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevelsList = educationLevelsResponse?.data || [];
 
   const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError }] = useLazyGetParentByNikQuery();
 
-  // Watch for changes in the 'nik' field
   const nikValue = watch('nik');
 
   useEffect(() => {
@@ -42,28 +42,23 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   }, [nikValue, triggerGetParentByNik]);
 
   useEffect(() => {
-    let toastId: string | number | undefined;
+    let toastId: Id | undefined;
 
     if (isLoadingNik) {
-      toastId = toast.loading('Mengecek NIK...');
+      toastId = toast.showLoading('Mengecek NIK...');
     }
 
     if (nikData && nikData.data) {
-      if (toastId) toast.dismiss(toastId);
-      toast.success('Data wali ditemukan.', {
-        description: 'Formulir telah diisi secara otomatis.',
-      });
+      if (toastId) toast.dismissToast(toastId);
+      toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
       const parentData = nikData.data;
 
-      // Validate and set KK
       const kkValue = String(parentData.kk || '').trim();
       if (kkValue.match(/^\d{16}$/)) {
         setValue('kk', kkValue);
       } else {
-        setValue('kk', ''); // Clear if invalid
-        toast.warning('Nomor Kartu Keluarga (KK) dari data NIK tidak valid.', {
-          description: 'Harap masukkan Nomor KK secara manual (harus 16 digit angka).',
-        });
+        setValue('kk', '');
+        toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
       }
       
       setValue('firstName', parentData.first_name);
@@ -82,28 +77,23 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         }
       }
 
-      // Set education level if found
       if (parentData.education && educationLevelsList.length > 0) {
         const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
         if (foundEducation) {
           setValue('educationValue', foundEducation.id.toString());
         }
       }
-
     }
 
     if (isErrorNik) {
-      if (toastId) toast.dismiss(toastId);
+      if (toastId) toast.dismissToast(toastId);
       // @ts-ignore
       if (nikError?.status === 404) {
-        toast.info('NIK tidak ditemukan.', {
-          description: 'Silakan isi data wali secara manual.',
-        });
+        toast.showInfo('NIK tidak ditemukan. Silakan isi data wali secara manual.');
       } else {
-        toast.error('Gagal mengecek NIK.', {
-          // @ts-ignore
-          description: nikError?.data?.message || 'Terjadi kesalahan pada server.',
-        });
+        // @ts-ignore
+        const errorMessage = nikError?.data?.message || 'Terjadi kesalahan pada server.';
+        toast.showError(`Gagal mengecek NIK: ${errorMessage}`);
       }
     }
   }, [nikData, isLoadingNik, isErrorNik, nikError, setValue, pekerjaanList, educationLevelsList]);
