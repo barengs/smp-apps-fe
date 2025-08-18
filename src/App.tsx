@@ -70,9 +70,9 @@ function App() {
     <Provider store={store}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <Toaster />
           <AuthManager>
             <DynamicAppConfig />
-            <Toaster />
             <Routes>
               {/* Landing Page Routes */}
               <Route path="/" element={<Index />} />
