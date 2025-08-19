@@ -38,7 +38,11 @@ const AppProfilePage: React.FC = () => {
         setLogoPreview(null);
         setLargeLogoPreview(null);
       }
-      setFaviconPreview(settings.app_favicon);
+      if (settings.app_favicon) {
+        setFaviconPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/${settings.app_favicon}`);
+      } else {
+        setFaviconPreview(null);
+      }
     }
   }, [settings]);
 
@@ -78,7 +82,11 @@ const AppProfilePage: React.FC = () => {
         setLogoPreview(null);
         setLargeLogoPreview(null);
       }
-      setFaviconPreview(settings.app_favicon);
+      if (settings.app_favicon) {
+        setFaviconPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/${settings.app_favicon}`);
+      } else {
+        setFaviconPreview(null);
+      }
     }
     setLogoFile(null);
     setFaviconFile(null);
