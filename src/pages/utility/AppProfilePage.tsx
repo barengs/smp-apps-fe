@@ -25,12 +25,19 @@ const AppProfilePage: React.FC = () => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [largeLogoPreview, setLargeLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (settings) {
       setFormState(settings);
-      setLogoPreview(settings.app_logo);
+      if (settings.app_logo) {
+        setLogoPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`);
+        setLargeLogoPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`);
+      } else {
+        setLogoPreview(null);
+        setLargeLogoPreview(null);
+      }
       setFaviconPreview(settings.app_favicon);
     }
   }, [settings]);
@@ -64,7 +71,13 @@ const AppProfilePage: React.FC = () => {
   const handleCancel = () => {
     if (settings) {
       setFormState(settings);
-      setLogoPreview(settings.app_logo);
+      if (settings.app_logo) {
+        setLogoPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`);
+        setLargeLogoPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`);
+      } else {
+        setLogoPreview(null);
+        setLargeLogoPreview(null);
+      }
       setFaviconPreview(settings.app_favicon);
     }
     setLogoFile(null);
@@ -238,7 +251,7 @@ const AppProfilePage: React.FC = () => {
             ) : (
               <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", logoPreview ? <img src={logoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada logo')}
+                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", largeLogoPreview ? <img src={largeLogoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada logo')}
                   {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada favicon')}
                 </div>
                 <Separator />
