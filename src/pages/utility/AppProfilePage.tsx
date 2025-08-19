@@ -66,6 +66,11 @@ const AppProfilePage: React.FC = () => {
         setLogoFile(file);
         setLogoPreview(URL.createObjectURL(file));
       } else {
+        if (!file.name.toLowerCase().endsWith('.ico')) {
+          showError('Format favicon tidak valid. Harap unggah berkas dengan ekstensi .ico');
+          e.target.value = ''; // Reset input file
+          return;
+        }
         setFaviconFile(file);
         setFaviconPreview(URL.createObjectURL(file));
       }
@@ -234,7 +239,7 @@ const AppProfilePage: React.FC = () => {
                           <Camera className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
-                      <Input type="file" accept="image/x-icon, image/png, image/svg+xml" onChange={(e) => handleFileChange(e, 'favicon')} />
+                      <Input type="file" accept=".ico" onChange={(e) => handleFileChange(e, 'favicon')} />
                     </div>
                   )}
                 </div>
