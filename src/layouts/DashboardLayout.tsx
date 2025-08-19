@@ -191,7 +191,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       )}>
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
           {settings?.app_logo ? (
-            <img src={settings.app_logo} alt="App Logo" className="h-8 w-8 object-contain" />
+            <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-8 w-8 object-contain" />
           ) : (
             <BookOpenText className="h-8 w-8 text-primary shrink-0" />
           )}
