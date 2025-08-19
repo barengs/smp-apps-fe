@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Edit, X, Save, Image as ImageIcon, Info, Phone, Mail, MapPin, Globe as GlobeIcon, Server, ToggleLeft, MessageSquare, Palette, Languages } from 'lucide-react';
+import { Settings, Edit, X, Save, Camera, Info, Phone, Mail, MapPin, Globe as GlobeIcon, Server, ToggleLeft, MessageSquare, Palette, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -211,7 +211,7 @@ const AppProfilePage: React.FC = () => {
                         <img src={logoPreview} alt="Logo Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />
                       ) : (
                         <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          <Camera className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
                       <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
@@ -223,7 +223,7 @@ const AppProfilePage: React.FC = () => {
                         <img src={faviconPreview} alt="Favicon Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />
                       ) : (
                         <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          <Camera className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
                       <Input type="file" accept="image/x-icon, image/png, image/svg+xml" onChange={(e) => handleFileChange(e, 'favicon')} />
@@ -263,18 +263,18 @@ const AppProfilePage: React.FC = () => {
             ) : (
               <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", largeLogoPreview ? (
+                  {renderDetailItem(<Camera className="h-5 w-5" />, "Logo", largeLogoPreview ? (
                     <img src={largeLogoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" />
                   ) : (
                     <div className="h-20 w-20 bg-muted rounded flex items-center justify-center">
-                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                      <Camera className="h-10 w-10 text-muted-foreground" />
                     </div>
                   ))}
-                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? (
+                  {renderDetailItem(<Camera className="h-5 w-5" />, "Favicon", faviconPreview ? (
                     <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" />
                   ) : (
                     <div className="h-20 w-20 bg-muted rounded flex items-center justify-center">
-                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                      <Camera className="h-10 w-10 text-muted-foreground" />
                     </div>
                   ))}
                 </div>
