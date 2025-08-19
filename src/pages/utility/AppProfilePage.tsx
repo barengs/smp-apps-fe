@@ -207,13 +207,25 @@ const AppProfilePage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {renderFormItem("Logo", 
                     <div className="flex items-center gap-4">
-                      {logoPreview && <img src={logoPreview} alt="Logo Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
+                      {logoPreview ? (
+                        <img src={logoPreview} alt="Logo Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />
+                      ) : (
+                        <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
+                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
                       <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
                     </div>
                   )}
                   {renderFormItem("Favicon", 
                     <div className="flex items-center gap-4">
-                      {faviconPreview && <img src={faviconPreview} alt="Favicon Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />}
+                      {faviconPreview ? (
+                        <img src={faviconPreview} alt="Favicon Preview" className="h-16 w-16 object-contain rounded bg-muted p-1" />
+                      ) : (
+                        <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
+                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
                       <Input type="file" accept="image/x-icon, image/png, image/svg+xml" onChange={(e) => handleFileChange(e, 'favicon')} />
                     </div>
                   )}
@@ -251,8 +263,20 @@ const AppProfilePage: React.FC = () => {
             ) : (
               <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", largeLogoPreview ? <img src={largeLogoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada logo')}
-                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" /> : 'Tidak ada favicon')}
+                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Logo", largeLogoPreview ? (
+                    <img src={largeLogoPreview} alt="Logo" className="h-20 object-contain bg-muted p-1 rounded" />
+                  ) : (
+                    <div className="h-20 w-20 bg-muted rounded flex items-center justify-center">
+                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                  ))}
+                  {renderDetailItem(<ImageIcon className="h-5 w-5" />, "Favicon", faviconPreview ? (
+                    <img src={faviconPreview} alt="Favicon" className="h-20 object-contain bg-muted p-1 rounded" />
+                  ) : (
+                    <div className="h-20 w-20 bg-muted rounded flex items-center justify-center">
+                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                  ))}
                 </div>
                 <Separator />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
