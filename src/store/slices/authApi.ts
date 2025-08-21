@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { CreateUpdateEmployeeRequest } from './employeeApi'; // Import CreateUpdateEmployeeRequest
 
 // --- Interfaces ---
 export interface User { // Menambahkan 'export' di sini
@@ -137,11 +138,11 @@ export const authApi = smpApi.injectEndpoints({
       query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
-    updateProfile: builder.mutation<UpdateProfileResponse, { id: number; formData: FormData }>({
-      query: ({ id, formData }) => ({
-        url: `employee/${id}`, // Changed endpoint to /employee/:id
-        method: 'PUT', // Mengubah dari 'POST' menjadi 'PUT'
-        body: formData,
+    updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: CreateUpdateEmployeeRequest }>({ // Changed type from FormData to CreateUpdateEmployeeRequest
+      query: ({ id, data }) => ({ // Changed formData to data
+        url: `employee/${id}`,
+        method: 'PUT',
+        body: data, // Now sends a JSON object
       }),
       invalidatesTags: ['User', 'Profile'],
     }),
