@@ -12,10 +12,9 @@ import SantriProfileStep from './form-steps/SantriProfileStep';
 import EducationStep from './form-steps/EducationStep';
 import MadrasahStep from './form-steps/MadrasahStep';
 import DocumentStep from './form-steps/DocumentStep';
-import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useRegisterSantriMutation } from '@/store/slices/calonSantriApi';
-import { showError, showSuccess } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast'; // Menggunakan utilitas toast
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -95,7 +94,7 @@ const SantriFormPage: React.FC = () => {
         setCurrentStep(currentStep + 1);
       }
     } else {
-      toast.error('Harap perbaiki semua kesalahan sebelum melanjutkan.');
+      showError('Harap perbaiki semua kesalahan sebelum melanjutkan.'); // Menggunakan showError
     }
   };
 

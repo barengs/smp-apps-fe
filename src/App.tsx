@@ -62,7 +62,7 @@ import AppProfilePage from './pages/utility/AppProfilePage';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ThemeProvider } from './components/theme-provider';
-import { Toaster } from '@/components/ui/sonner';
+import { ToastContainer } from 'react-toastify'; // Menggunakan ToastContainer dari react-toastify
 import AuthManager from './components/AuthManager';
 import DynamicAppConfig from './components/DynamicAppConfig';
 
@@ -71,7 +71,7 @@ function App() {
     <Provider store={store}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <Toaster />
+          <ToastContainer /> {/* Menggunakan ToastContainer */}
           <AuthManager>
             <DynamicAppConfig />
             <Routes>
