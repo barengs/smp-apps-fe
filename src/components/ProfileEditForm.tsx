@@ -97,6 +97,9 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
     if (values.photo) {
       formData.append('photo', values.photo);
     }
+
+    // Add method spoofing for Laravel
+    formData.append('_method', 'PUT');
     
     try {
       await updateProfile({ id: userFullData.id, data: formData }).unwrap();
