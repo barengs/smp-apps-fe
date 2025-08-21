@@ -122,20 +122,20 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left Column: Photo */}
                 <div className="md:col-span-1 space-y-4">
-                  <FormLabel>Foto Profil</FormLabel>
-                  <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                    {photoPreview ? (
-                      <img src={photoPreview} alt="Pratinjau Profil" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-24 h-24 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <FormField
-                      control={form.control}
-                      name="photo"
-                      render={({ field: { onChange, ...rest } }) => (
-                        <FormItem>
+                  <FormField
+                    control={form.control}
+                    name="photo"
+                    render={({ field: { onChange, ref, value, ...rest } }) => ( // Destructure value to exclude it
+                      <FormItem>
+                        <FormLabel>Foto Profil</FormLabel>
+                        <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
+                          {photoPreview ? (
+                            <img src={photoPreview} alt="Pratinjau Profil" className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="w-24 h-24 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="space-y-2">
                           <FormControl>
                             <Input
                               type="file"
@@ -148,17 +148,18 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                                   setCapturedImage(null);
                                 }
                               }}
-                              {...rest}
+                              ref={ref} // Pass ref
+                              {...rest} // 'rest' no longer contains 'value'
                             />
                           </FormControl>
                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="button" variant="outline" className="w-full" onClick={() => setIsWebcamOpen(true)}>
-                      <Camera className="mr-2 h-4 w-4" /> Ambil dari Kamera
-                    </Button>
-                  </div>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="button" variant="outline" className="w-full" onClick={() => setIsWebcamOpen(true)}>
+                    <Camera className="mr-2 h-4 w-4" /> Ambil dari Kamera
+                  </Button>
                 </div>
 
                 {/* Right Column: Other fields */}
