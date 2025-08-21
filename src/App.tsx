@@ -43,6 +43,7 @@ import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
 import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
 import UserProfilePage from '@/pages/profile/UserProfilePage';
+import ProfileEditPage from '@/pages/profile/ProfileEditPage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
@@ -62,7 +63,7 @@ import AppProfilePage from './pages/utility/AppProfilePage';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ThemeProvider } from './components/theme-provider';
-import { ToastContainer } from 'react-toastify'; // Menggunakan ToastContainer dari react-toastify
+import { ToastContainer } from 'react-toastify';
 import AuthManager from './components/AuthManager';
 import DynamicAppConfig from './components/DynamicAppConfig';
 
@@ -71,7 +72,7 @@ function App() {
     <Provider store={store}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <ToastContainer /> {/* Menggunakan ToastContainer */}
+          <ToastContainer />
           <AuthManager>
             <DynamicAppConfig />
             <Routes>
@@ -139,6 +140,7 @@ function App() {
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
                 <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
                 <Route path="/dashboard/profile" element={<UserProfilePage />} />
+                <Route path="/dashboard/profile/edit" element={<ProfileEditPage />} />
               </Route>
 
               {/* Rute Catch-all untuk halaman yang tidak ditemukan */}

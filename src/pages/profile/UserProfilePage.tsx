@@ -8,8 +8,9 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import { Button } from '@/components/ui/button';
-import { Pencil, Key } from 'lucide-react'; // Import ikon Pencil dan Key
-import ChangePasswordFormModal from '@/components/ChangePasswordFormModal'; // Import komponen modal baru
+import { Pencil, Key } from 'lucide-react';
+import ChangePasswordFormModal from '@/components/ChangePasswordFormModal';
+import { useNavigate } from 'react-router-dom';
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -23,7 +24,8 @@ function isSerializedError(error: unknown): error is SerializedError {
 const UserProfilePage: React.FC = () => {
   const { t } = useTranslation();
   const { data: profileData, isLoading, isError, error } = useGetProfileDetailsQuery();
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false); // State untuk modal ganti password
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleEditPhoto = () => {
     // Logika untuk mengedit foto (misalnya, membuka modal upload)
@@ -32,12 +34,11 @@ const UserProfilePage: React.FC = () => {
   };
 
   const handleEditProfile = () => {
-    console.log("Tombol Edit Profil diklik!");
-    // Logika untuk mengedit detail profil
+    navigate('/dashboard/profile/edit');
   };
 
   const handleChangePassword = () => {
-    setIsChangePasswordModalOpen(true); // Buka modal ganti password
+    setIsChangePasswordModalOpen(true);
   };
 
   if (isLoading) {
