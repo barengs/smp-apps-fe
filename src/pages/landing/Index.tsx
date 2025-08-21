@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import LandingLayout from '../../layouts/LandingLayout';
-import { BookOpenText, Info } from 'lucide-react'; // Import Info icon
+import { BookOpenText, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import type { CarouselApi } from '@/components/ui/carousel';
 import { useTranslation } from 'react-i18next';
 import { useGetBeritaQuery } from '@/store/slices/beritaApi';
 import RunningText from '@/components/RunningText';
+import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
 
 const Index = () => {
   const { t } = useTranslation();
+  const { data: settings } = useGetControlPanelSettingsQuery();
   const infoSlides = [
     t('infoSlide1'),
     t('infoSlide2'),
@@ -58,7 +60,11 @@ const Index = () => {
 
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
         <div className="text-center mb-12">
-          <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
+          {settings?.app_logo ? (
+            <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`} alt="App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
+          ) : (
+            <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
+          )}
           {/* Teks Assalamu'alaikum dalam bahasa Arab */}
           <p className="text-5xl font-bold text-gray-800 mb-8" dir="rtl">
             السلام عليكم

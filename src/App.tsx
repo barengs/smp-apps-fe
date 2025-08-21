@@ -29,7 +29,6 @@ import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
-import SystemSettingsPage from "@/pages/utility/SystemSettingsPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
@@ -53,27 +52,29 @@ import CoaPage from '@/pages/keuangan/CoaPage';
 import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
-import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage'; // Re-import to ensure it's picked up
-import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage'; // Import the new OrganisasiPage
+import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
+import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AppProfilePage from '@/pages/utility/AppProfilePage';
 
 // Redux imports
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { ThemeProvider } from '@/components/theme-provider';
-import AuthManager from '@/components/AuthManager'; // Import AuthManager
+import { ThemeProvider } from './components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+import AuthManager from './components/AuthManager';
+import DynamicAppConfig from './components/DynamicAppConfig';
 
-import { ToastContainer } from 'react-toastify';
-import ProtectedRoute from "./components/ProtectedRoute";
-
-const App = () => (
-  <Provider store={store}>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-        <BrowserRouter future={{ v7_startTransition: true }}>
+function App() {
+  return (
+    <Provider store={store}>
+      <BrowserRouter>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <Toaster />
           <AuthManager>
+            <DynamicAppConfig />
             <Routes>
-              {/* Rute Publik */}
+              {/* Landing Page Routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/daftar" element={<Daftar />} />
@@ -88,7 +89,7 @@ const App = () => (
                 <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
                 <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
                 <Route path="/dashboard/peran" element={<PeranPage />} />
-                <Route path="/dashboard/organisasi" element={<OrganisasiPage />} /> {/* New route for OrganisasiPage */}
+                <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
                 
                 {/* Rute Manajemen Santri */}
                 <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
@@ -134,8 +135,8 @@ const App = () => (
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
-                <Route path="/dashboard/settings/system" element={<SystemSettingsPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
+                <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
                 <Route path="/dashboard/profile" element={<UserProfilePage />} />
               </Route>
 
@@ -143,10 +144,10 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthManager>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </Provider>
-);
+        </ThemeProvider>
+      </BrowserRouter>
+    </Provider>
+  );
+}
 
 export default App;

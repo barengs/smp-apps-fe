@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight, Bed, Building } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight, Bed, Building, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -21,6 +21,7 @@ import { RootState } from '@/store';
 import { selectCurrentUser } from '@/store/slices/authSlice';
 import { LockScreenProvider, useLockScreen } from '@/contexts/LockScreenContext';
 import LockScreen from '@/components/LockScreen';
+import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const location = useLocation();
   const { t } = useTranslation();
+  const { data: settings } = useGetControlPanelSettingsQuery();
 
   const adminSidebarNavItems: SidebarNavItem[] = [
     { titleKey: "sidebar.dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -154,8 +156,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       titleKey: "sidebar.settings",
       icon: <Settings className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.system", href: "/dashboard/settings/system", icon: <Settings className="h-4 w-4" /> },
         { titleKey: "sidebar.navigation", href: "/dashboard/settings/navigation", icon: <Compass className="h-4 w-4" /> },
+        { titleKey: "sidebar.appProfile", href: "/dashboard/settings/app-profile", icon: <Info className="h-4 w-4" /> },
       ],
     },
   ];
@@ -188,9 +190,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         isCollapsed ? "justify-center" : "justify-start"
       )}>
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
-          <BookOpenText className="h-8 w-8 text-primary shrink-0" />
+          {settings?.app_logo ? (
+            <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-8 w-8 object-contain" />
+          ) : (
+            <BookOpenText className="h-8 w-8 text-primary shrink-0" />
+          )}
           {!isCollapsed && (
-            <span className="text-xl font-bold text-primary whitespace-nowrap">SMP</span>
+            <span className="text-xl font-bold text-primary whitespace-nowrap">{settings?.app_name || 'SMP'}</span>
           )}
         </Link>
       </div>
@@ -474,10 +480,11 @@ const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({ childre
   const { isLocked } = useLockScreen();
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { data: settings } = useGetControlPanelSettingsQuery();
 
   useEffect(() => {
-    document.title = `SMP | ${title}`;
-  }, [title]);
+    document.title = `${settings?.app_name || 'SMP'} | ${title}`;
+  }, [title, settings]);
 
   return (
     <>
