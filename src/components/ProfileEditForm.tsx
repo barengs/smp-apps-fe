@@ -14,7 +14,6 @@ import { Loader2, Camera, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { User as UserType } from '@/store/slices/authApi'; // Import User type from authApi
-import type { CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
 
 interface ProfileEditFormProps {
   userFullData: UserType; // Now receives the full User object
@@ -27,10 +26,25 @@ const formSchema = z.object({
   phone: z.string().min(1, 'Telepon harus diisi.'),
   address: z.string().min(1, 'Alamat harus diisi.'),
   zip_code: z.string().optional(),
-  photo: z.string().optional(), // Diubah untuk menerima string Base64
+  photo: z.instanceof(File).optional(), // Kembali ke tipe File
 });
 
 type ProfileFormValues = z.infer<typeof formSchema>;
+
+// Helper to convert base64 to File (still needed for webcam capture)
+const dataURLtoFile = (dataurl: string, filename: string): File => {
+  const arr = dataurl.split(',');
+  const mimeMatch = arr[0].match(/:(.*?);/);
+  if (!mimeMatch) throw new Error('Invalid data URL');
+  const mime = mimeMatch[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
 
 const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   const navigate = useNavigate();
@@ -55,42 +69,37 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   const capturePhoto = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
+      const photoFile = dataURLtoFile(imageSrc, 'webcam-photo.jpg');
       setPhotoPreview(imageSrc);
-      form.setValue('photo', imageSrc, { shouldValidate: true });
+      form.setValue('photo', photoFile, { shouldValidate: true });
       setIsWebcamOpen(false);
     }
   }, [webcamRef, form]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setPhotoPreview(base64String);
-        form.setValue('photo', base64String, { shouldValidate: true });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const onSubmit = async (values: ProfileFormValues) => {
-    const updateData: CreateUpdateEmployeeRequest = {
-      first_name: values.first_name,
-      last_name: values.last_name || '',
-      email: userFullData.email,
-      nik: values.nik,
-      phone: values.phone,
-      address: values.address,
-      zip_code: values.zip_code || '',
-      code: userFullData.profile?.code || '',
-      username: userFullData.username,
-      roles: userFullData.roles.map(role => role.name),
-      photo: values.photo, // Kirim string base64 jika ada
-    };
+    const formData = new FormData();
+
+    // Append form fields to formData
+    formData.append('first_name', values.first_name);
+    formData.append('last_name', values.last_name || '');
+    formData.append('email', userFullData.email);
+    formData.append('nik', values.nik);
+    formData.append('phone', values.phone);
+    formData.append('address', values.address);
+    formData.append('zip_code', values.zip_code || '');
+    formData.append('code', userFullData.profile?.code || '');
+    formData.append('username', userFullData.username);
+    userFullData.roles.forEach((role, index) => {
+        formData.append(`roles[${index}]`, role.name);
+    });
+
+    // Handle photo upload
+    if (values.photo) {
+      formData.append('photo', values.photo);
+    }
     
     try {
-      await updateProfile({ id: userFullData.id, data: updateData }).unwrap();
+      await updateProfile({ id: userFullData.id, data: formData }).unwrap();
       showSuccess('Profil berhasil diperbarui.');
       navigate('/dashboard/profile');
     } catch (err) {
@@ -115,7 +124,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
                   <FormField
                     control={form.control}
                     name="photo"
-                    render={({ field }) => (
+                    render={({ field: { onChange: formOnChange, ref, value, ...rest } }) => ( // Destructure 'value'
                       <FormItem>
                         <FormLabel>Foto Profil</FormLabel>
                         <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
@@ -130,8 +139,19 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
                             <Input
                               type="file"
                               accept="image/*"
-                              onChange={handleFileChange}
-                              ref={field.ref}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setPhotoPreview(URL.createObjectURL(file));
+                                } else {
+                                  // If no file selected (e.g., user cancels file dialog), revert to original photo or null
+                                  setPhotoPreview(userFullData.profile?.photo || null);
+                                }
+                                formOnChange(file || undefined); // Update react-hook-form state
+                              }}
+                              ref={ref}
+                              // Do not pass 'value' here. The 'rest' object now correctly excludes 'value'.
+                              {...rest}
                             />
                           </FormControl>
                           <FormMessage />

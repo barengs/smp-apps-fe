@@ -149,10 +149,10 @@ export const authApi = smpApi.injectEndpoints({
       query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
-    updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: CreateUpdateEmployeeRequest }>({
+    updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: FormData }>({
       query: ({ id, data }) => ({
-        url: `employee/${id}`,
-        method: 'PUT',
+        url: `employee/${id}/update-profile`, // Menggunakan endpoint baru
+        method: 'POST', // Menggunakan metode POST
         body: data,
       }),
       invalidatesTags: ['User', 'Profile'],
