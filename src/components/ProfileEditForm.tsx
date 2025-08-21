@@ -14,7 +14,6 @@ import { Loader2, Camera, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { User as UserType } from '@/store/slices/authApi'; // Import User type from authApi
-import { CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi'; // Import CreateUpdateEmployeeRequest
 
 interface ProfileEditFormProps {
   userFullData: UserType; // Now receives the full User object
@@ -32,7 +31,7 @@ const formSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof formSchema>;
 
-// Helper to convert base64 to File (still needed if we re-introduce photo upload later)
+// Helper to convert base64 to File
 const dataURLtoFile = (dataurl: string, filename: string): File => {
   const arr = dataurl.split(',');
   const mimeMatch = arr[0].match(/:(.*?);/);
@@ -79,31 +78,36 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   }, [webcamRef, form]);
 
   const onSubmit = async (values: ProfileFormValues) => {
-    // Construct the payload as a JSON object matching CreateUpdateEmployeeRequest
-    const payload: CreateUpdateEmployeeRequest = {
-      first_name: values.first_name,
-      last_name: values.last_name || '',
-      email: userFullData.email, // Use top-level email from userFullData
-      nik: values.nik, // Use NIK from form values
-      phone: values.phone, // Use Phone from form values
-      address: values.address, // Use Address from form values
-      zip_code: values.zip_code || '',
-      code: userFullData.profile?.code || '', // Use code from userFullData.profile
-      username: userFullData.username, // Use username from userFullData
-      roles: userFullData.roles.map(role => role.name), // Map roles to string array
-      // password is not included for update operations unless explicitly changed
-    };
+    const formData = new FormData();
 
-    // Temporarily remove photo handling from here to isolate the issue
-    // if (capturedImage) {
-    //   const photoFile = dataURLtoFile(capturedImage, 'webcam-photo.jpg');
-    //   payload.photo = photoFile; // This would require photo field in CreateUpdateEmployeeRequest
-    // } else if (values.photo) {
-    //   payload.photo = values.photo; // This would require photo field in CreateUpdateEmployeeRequest
-    // }
+    // Append form fields to formData
+    formData.append('first_name', values.first_name);
+    formData.append('last_name', values.last_name || '');
+    formData.append('email', userFullData.email);
+    formData.append('nik', values.nik);
+    formData.append('phone', values.phone);
+    formData.append('address', values.address);
+    formData.append('zip_code', values.zip_code || '');
+    formData.append('code', userFullData.profile?.code || '');
+    formData.append('username', userFullData.username);
+    userFullData.roles.forEach((role, index) => {
+        formData.append(`roles[${index}]`, role.name);
+    });
+
+    // Handle photo upload
+    if (capturedImage) {
+      const photoFile = dataURLtoFile(capturedImage, 'webcam-photo.jpg');
+      formData.append('photo', photoFile);
+    } else if (values.photo) {
+      formData.append('photo', values.photo);
+    }
+
+    // Add method spoofing for PUT request with FormData
+    formData.append('_method', 'PUT');
     
     try {
-      await updateProfile({ id: userFullData.id, data: payload }).unwrap(); // Pass the JSON payload as 'data'
+      // Pass the FormData object as 'data'
+      await updateProfile({ id: userFullData.id, data: formData }).unwrap();
       showSuccess('Profil berhasil diperbarui.');
       navigate('/dashboard/profile');
     } catch (err) {
