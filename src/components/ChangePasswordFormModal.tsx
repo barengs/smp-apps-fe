@@ -23,6 +23,7 @@ import {
 import { useChangePasswordMutation, ChangePasswordRequest } from '@/store/slices/authApi';
 import { showSuccess, showError } from '@/utils/toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { cn } from '@/lib/utils'; // Import cn utility
 
 interface ChangePasswordFormModalProps {
   isOpen: boolean;
@@ -48,27 +49,27 @@ const getPasswordStrength = (password: string) => {
 
   let strengthText = 'Sangat Lemah';
   let progressValue = 0;
-  let progressColor = 'bg-red-500';
+  let progressColorClass = 'bg-red-500'; // Use class name directly
 
   if (strength === 1) {
     strengthText = 'Lemah';
     progressValue = 25;
-    progressColor = 'bg-red-500';
+    progressColorClass = 'bg-red-500';
   } else if (strength === 2) {
     strengthText = 'Sedang';
     progressValue = 50;
-    progressColor = 'bg-orange-500';
+    progressColorClass = 'bg-orange-500';
   } else if (strength === 3) {
     strengthText = 'Cukup Kuat';
     progressValue = 75;
-    progressColor = 'bg-yellow-500';
+    progressColorClass = 'bg-yellow-500';
   } else if (strength === 4) {
     strengthText = 'Sangat Kuat';
     progressValue = 100;
-    progressColor = 'bg-green-500';
+    progressColorClass = 'bg-green-500';
   }
 
-  return { strengthText, progressValue, progressColor };
+  return { strengthText, progressValue, progressColorClass };
 };
 
 const formSchema = z.object({
@@ -79,9 +80,14 @@ const formSchema = z.object({
     .regex(/[A-Z]/, { message: 'Password baru harus mengandung setidaknya satu huruf besar.' })
     .regex(/\d/, { message: 'Password baru harus mengandung setidaknya satu angka.' }),
   new_password_confirmation: z.string(),
-}).refine((data) => data.new_password === data.new_password_confirmation, {
+})
+.refine((data) => data.new_password === data.new_password_confirmation, {
   message: "Konfirmasi password tidak cocok.",
   path: ["new_password_confirmation"], // Set error on the confirmation field
+})
+.refine((data) => data.new_password !== data.current_password, {
+  message: "Password baru tidak boleh sama dengan password saat ini.",
+  path: ["new_password"], // Set error on the new_password field
 });
 
 type ChangePasswordFormValues = z.infer<typeof formSchema>;
@@ -95,7 +101,7 @@ const ChangePasswordFormModal: React.FC<ChangePasswordFormModalProps> = ({ isOpe
   const [passwordStrength, setPasswordStrength] = useState({
     strengthText: '',
     progressValue: 0,
-    progressColor: '',
+    progressColorClass: '', // Use class name
   });
 
   const form = useForm<ChangePasswordFormValues>({
@@ -115,7 +121,7 @@ const ChangePasswordFormModal: React.FC<ChangePasswordFormModalProps> = ({ isOpe
       setPasswordStrength({
         strengthText: '',
         progressValue: 0,
-        progressColor: '',
+        progressColorClass: '',
       });
     }
   }, [isOpen, form]);
@@ -214,11 +220,14 @@ const ChangePasswordFormModal: React.FC<ChangePasswordFormModalProps> = ({ isOpe
                     <div className="mt-2">
                       <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
                         <div
-                          className="h-full rounded-full transition-all duration-500 ease-in-out"
-                          style={{ width: `${passwordStrength.progressValue}%`, backgroundColor: passwordStrength.progressColor }}
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500 ease-in-out",
+                            passwordStrength.progressColorClass // Apply the class here
+                          )}
+                          style={{ width: `${passwordStrength.progressValue}%` }}
                         />
                       </div>
-                      <p className="text-sm mt-1" style={{ color: passwordStrength.progressColor }}>
+                      <p className="text-sm mt-1" style={{ color: passwordStrength.progressColorClass.replace('bg-', '') }}>
                         Kekuatan Password: {passwordStrength.strengthText}
                       </p>
                     </div>
