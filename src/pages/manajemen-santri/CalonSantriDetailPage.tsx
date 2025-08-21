@@ -159,7 +159,7 @@ const CalonSantriDetailPage: React.FC = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/edit/${santriId}`)} size="icon">
+                    <Button onClick={() => navigate(`/dashboard/pendaftaran-santri/${santriId}/edit`)} size="icon">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
