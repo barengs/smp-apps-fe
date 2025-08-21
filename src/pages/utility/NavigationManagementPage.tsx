@@ -130,13 +130,13 @@ const SortableItem: React.FC<{
         </Button>
       </div>
       <div className="flex-grow grid grid-cols-12 gap-4 items-center p-2 text-sm">
-        <div className="col-span-4 font-medium">{item.title}</div>
+        <div className="col-span-3 font-medium">{item.title}</div>
         <div className="col-span-2">{item.route}</div>
         <div className="col-span-1">{IconComponent ? <IconComponent className="h-4 w-4" /> : <span>-</span>}</div>
         <div className="col-span-1">{item.type}</div>
         <div className="col-span-1">{item.position}</div>
         <div className="col-span-1"><Badge variant={item.status === 'active' ? 'default' : 'secondary'}>{item.status}</Badge></div>
-        <div className="col-span-2 flex space-x-1 justify-end">
+        <div className="col-span-3 flex space-x-1 justify-end">
            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onIndent(item.id)} disabled={!canIndent}>
              <ArrowRight className="h-4 w-4" />
            </Button>
@@ -334,13 +334,13 @@ const NavigationManagementPage: React.FC = () => {
               <div className="flex items-center bg-muted/50 border-b font-medium text-sm">
                 <div style={{ width: '48px' }} className="flex-shrink-0"></div>
                 <div className="flex-grow grid grid-cols-12 gap-4 items-center p-2">
-                  <div className="col-span-4">Judul</div>
+                  <div className="col-span-3">Judul</div>
                   <div className="col-span-2">Rute</div>
                   <div className="col-span-1">Ikon</div>
                   <div className="col-span-1">Tipe</div>
                   <div className="col-span-1">Posisi</div>
                   <div className="col-span-1">Status</div>
-                  <div className="col-span-2 text-right">Aksi</div>
+                  <div className="col-span-3 text-right">Aksi</div>
                 </div>
               </div>
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
