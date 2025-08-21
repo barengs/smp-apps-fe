@@ -1,45 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from './authApi';
+import { authApi, AuthResponse, User } from './authApi'; // Import AuthResponse and User
 import { RootState } from '../index';
 import { logOut, updateToken } from '../authActions';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  username: string;
-  roles: { name: string }[];
-  profile?: { // Menambahkan properti profile
-    id: number;
-    user_id: number;
-    code: string;
-    first_name: string;
-    last_name: string;
-    nik: string | null;
-    email: string;
-    phone: string | null;
-    address: string | null;
-    zip_code: string | null;
-    photo: string | null;
-    created_at: string;
-    updated_at: string;
-  };
-  employee?: { // Menambahkan properti employee sesuai struktur JSON yang diberikan
-    id: number;
-    user_id: number;
-    code: string;
-    first_name: string;
-    last_name: string;
-    nik: string | null;
-    email: string;
-    phone: string | null;
-    address: string | null;
-    zip_code: string | null;
-    photo: string | null;
-    created_at: string;
-    updated_at: string;
-  };
-}
 
 interface AuthState {
   user: User | null;
@@ -101,8 +63,8 @@ const authSlice = createSlice({
           localStorage.removeItem('expirationTime');
         }
       })
-      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        const { access_token, user, expires_in } = payload;
+      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, action: PayloadAction<AuthResponse>) => {
+        const { access_token, user, expires_in } = action.payload;
         const expirationTime = Date.now() + expires_in * 1000;
         state.token = access_token;
         state.user = user;
@@ -112,8 +74,8 @@ const authSlice = createSlice({
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('expirationTime', expirationTime.toString());
       })
-      .addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
-        const { access_token, user, expires_in } = payload;
+      .addMatcher(authApi.endpoints.register.matchFulfilled, (state, action: PayloadAction<AuthResponse>) => {
+        const { access_token, user, expires_in } = action.payload;
         const expirationTime = Date.now() + expires_in * 1000;
         state.token = access_token;
         state.user = user;
@@ -132,8 +94,8 @@ const authSlice = createSlice({
         localStorage.removeItem('user');
         localStorage.removeItem('expirationTime');
       })
-      .addMatcher(authApi.endpoints.refreshToken.matchFulfilled, (state, { payload }) => {
-        const { access_token, expires_in } = payload;
+      .addMatcher(authApi.endpoints.refreshToken.matchFulfilled, (state, action: PayloadAction<{ access_token: string; expires_in: number }>) => {
+        const { access_token, expires_in } = action.payload;
         const expirationTime = Date.now() + expires_in * 1000;
         state.token = access_token;
         state.expirationTime = expirationTime;

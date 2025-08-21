@@ -1,7 +1,7 @@
 import { smpApi } from '../baseApi';
 
 // --- Interfaces ---
-interface User {
+export interface User { // Menambahkan 'export' di sini
   id: number;
   name: string;
   email: string;
@@ -40,7 +40,7 @@ interface User {
 }
 
 // Struktur AuthResponse disesuaikan dengan respons API yang diberikan
-interface AuthResponse {
+export interface AuthResponse { // Export AuthResponse for use in authSlice
   user: User;
   access_token: string;
   token_type: string;
@@ -80,7 +80,7 @@ interface ProfileData {
   photo: string; // Assuming URL to photo
 }
 
-interface GetProfileDetailsResponse {
+export interface GetProfileDetailsResponse { // Export this interface
   data: User; // Changed to User to get the user ID directly
 }
 
@@ -93,7 +93,7 @@ interface ForgotPasswordResponse {
   message: string;
 }
 
-interface UpdateProfileResponse {
+export interface UpdateProfileResponse { // Export this interface
     message: string;
     data: User;
 }
@@ -140,7 +140,7 @@ export const authApi = smpApi.injectEndpoints({
     updateProfile: builder.mutation<UpdateProfileResponse, { id: number; formData: FormData }>({
       query: ({ id, formData }) => ({
         url: `employee/${id}`, // Changed endpoint to /employee/:id
-        method: 'POST', // Still POST for multipart/form-data compatibility
+        method: 'PUT', // Mengubah dari 'POST' menjadi 'PUT'
         body: formData,
       }),
       invalidatesTags: ['User', 'Profile'],
