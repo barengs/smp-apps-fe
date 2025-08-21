@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { UserPlus, MoreHorizontal, Check, X } from 'lucide-react';
+import { UserPlus, MoreHorizontal, Check, X, Edit } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { DataTable } from '@/components/DataTable'; // Perbaikan: Mengubah '=>' menjadi 'from'
+import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
@@ -34,6 +34,10 @@ const CalonSantriPage: React.FC = () => {
 
   const handleRowClick = (santri: CalonSantri) => {
     navigate(`/dashboard/calon-santri/${santri.id}`);
+  };
+
+  const handleEdit = (santri: CalonSantri) => {
+    navigate(`/dashboard/pendaftaran-santri/${santri.id}/edit`);
   };
 
   const handleAccept = (santri: CalonSantri) => {
@@ -82,10 +86,9 @@ const CalonSantriPage: React.FC = () => {
       header: 'Status Pembayaran',
       cell: ({ row }) => {
         const paymentStatus = row.original.payment_status;
-        // Perbaikan: Memetakan status pembayaran ke varian Badge yang valid
         let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'secondary';
         if (paymentStatus === 'paid') variant = 'default';
-        if (paymentStatus === 'pending') variant = 'secondary'; // Menggunakan 'secondary' untuk 'pending'
+        if (paymentStatus === 'pending') variant = 'secondary';
         if (paymentStatus === 'failed') variant = 'destructive';
         return <Badge variant={variant} className="capitalize">{paymentStatus}</Badge>;
       },
@@ -101,7 +104,7 @@ const CalonSantriPage: React.FC = () => {
               <Button
                 variant="ghost"
                 className="h-8 w-8 p-0"
-                onClick={(e) => e.stopPropagation()} // Mencegah klik baris
+                onClick={(e) => e.stopPropagation()}
               >
                 <span className="sr-only">Buka menu</span>
                 <MoreHorizontal className="h-4 w-4" />
@@ -109,6 +112,14 @@ const CalonSantriPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(santri);
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" /> Edit
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();

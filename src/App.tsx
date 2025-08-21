@@ -46,6 +46,7 @@ import UserProfilePage from '@/pages/profile/UserProfilePage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
+import CalonSantriEditPage from './pages/manajemen-santri/CalonSantriEditPage';
 import TransaksiPage from '@/pages/keuangan/TransaksiPage';
 import ProdukPage from '@/pages/keuangan/ProdukPage';
 import CoaPage from '@/pages/keuangan/CoaPage';
@@ -55,7 +56,7 @@ import LaporanPage from '@/pages/keuangan/LaporanPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AppProfilePage from '@/pages/utility/AppProfilePage';
+import AppProfilePage from './pages/utility/AppProfilePage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -98,7 +99,7 @@ function App() {
                 {/* Rute Pendaftaran Santri */}
                 <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
                 <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
-                <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} />
+                <Route path="/dashboard/pendaftaran-santri/:id/edit" element={<CalonSantriEditPage />} />
                 <Route path="/dashboard/calon-santri/:id" element={<CalonSantriDetailPage />} />
 
                 <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
