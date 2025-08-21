@@ -86,6 +86,15 @@ interface GetProfileDetailsResponse {
   };
 }
 
+// New interfaces for forgot password
+interface ForgotPasswordRequest {
+  email: string;
+}
+
+interface ForgotPasswordResponse {
+  message: string;
+}
+
 export const authApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -125,6 +134,13 @@ export const authApi = smpApi.injectEndpoints({
       query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
+    forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (data) => ({
+        url: 'forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -135,4 +151,5 @@ export const {
   useLogoutMutation,
   useRefreshTokenMutation,
   useGetProfileDetailsQuery, // Export the new hook
+  useForgotPasswordMutation, // Export the new hook
 } = authApi;

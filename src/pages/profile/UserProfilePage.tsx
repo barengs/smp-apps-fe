@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,6 +9,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import { Button } from '@/components/ui/button';
 import { Pencil, Key } from 'lucide-react'; // Import ikon Pencil dan Key
+import ChangePasswordFormModal from '@/components/ChangePasswordFormModal'; // Import komponen modal baru
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -22,6 +23,7 @@ function isSerializedError(error: unknown): error is SerializedError {
 const UserProfilePage: React.FC = () => {
   const { t } = useTranslation();
   const { data: profileData, isLoading, isError, error } = useGetProfileDetailsQuery();
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false); // State untuk modal ganti password
 
   const handleEditPhoto = () => {
     // Logika untuk mengedit foto (misalnya, membuka modal upload)
@@ -35,8 +37,7 @@ const UserProfilePage: React.FC = () => {
   };
 
   const handleChangePassword = () => {
-    console.log("Tombol Ganti Password diklik!");
-    // Logika untuk mengganti password
+    setIsChangePasswordModalOpen(true); // Buka modal ganti password
   };
 
   if (isLoading) {
@@ -162,6 +163,11 @@ const UserProfilePage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ChangePasswordFormModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+      />
     </DashboardLayout>
   );
 };
