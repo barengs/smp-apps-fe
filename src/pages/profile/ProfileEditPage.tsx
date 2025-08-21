@@ -33,7 +33,8 @@ const ProfileEditPage: React.FC = () => {
       return <div className="text-red-500 p-4 border border-red-500 rounded-md">Gagal memuat data profil atau ID pengguna tidak ditemukan. Silakan coba lagi.</div>;
     }
 
-    return <ProfileEditForm initialData={profileData.data.profile} userId={profileData.data.id} />;
+    // Pass the entire User object (profileData.data) to ProfileEditForm
+    return <ProfileEditForm userFullData={profileData.data} />;
   };
 
   return (

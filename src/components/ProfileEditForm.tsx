@@ -13,25 +13,18 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, Camera, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { User as UserType } from '@/store/slices/authApi'; // Import User type from authApi
 
 interface ProfileEditFormProps {
-  initialData: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string | null;
-    address: string | null;
-    zip_code: string | null;
-    photo?: string | null;
-  };
-  userId: number; // Add userId prop
+  userFullData: UserType; // Now receives the full User object
 }
 
 const formSchema = z.object({
   first_name: z.string().min(1, 'Nama depan harus diisi.'),
   last_name: z.string().optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
+  nik: z.string().min(1, 'NIK harus diisi.'), // Made NIK required
+  phone: z.string().min(1, 'Telepon harus diisi.'), // Made Phone required
+  address: z.string().min(1, 'Alamat harus diisi.'), // Made Address required
   zip_code: z.string().optional(),
   photo: z.instanceof(File).optional(),
 });
@@ -53,10 +46,10 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
   return new File([u8arr], filename, { type: mime });
 };
 
-const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }) => {
+const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   const navigate = useNavigate();
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
-  const [photoPreview, setPhotoPreview] = useState<string | null>(initialData.photo || null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(userFullData.profile?.photo || null);
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const webcamRef = useRef<Webcam>(null);
@@ -64,11 +57,12 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      first_name: initialData.first_name || '',
-      last_name: initialData.last_name || '',
-      phone: initialData.phone || '',
-      address: initialData.address || '',
-      zip_code: initialData.zip_code || '',
+      first_name: userFullData.profile?.first_name || '',
+      last_name: userFullData.profile?.last_name || '',
+      nik: userFullData.profile?.nik || '', // Set default for NIK
+      phone: userFullData.profile?.phone || '', // Set default for Phone
+      address: userFullData.profile?.address || '', // Set default for Address
+      zip_code: userFullData.profile?.zip_code || '',
       photo: undefined,
     },
   });
@@ -87,10 +81,19 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }
     const formData = new FormData();
     formData.append('first_name', values.first_name);
     formData.append('last_name', values.last_name || '');
-    formData.append('phone', values.phone || '');
-    formData.append('address', values.address || '');
+    formData.append('email', userFullData.email); // Use top-level email from userFullData
+    formData.append('nik', values.nik); // Use NIK from form values
+    formData.append('phone', values.phone); // Use Phone from form values
+    formData.append('address', values.address); // Use Address from form values
     formData.append('zip_code', values.zip_code || '');
+    formData.append('code', userFullData.profile?.code || ''); // Use code from userFullData.profile
+    formData.append('username', userFullData.username); // Use username from userFullData
     
+    // Append roles
+    userFullData.roles.forEach((role, index) => {
+      formData.append(`roles[${index}]`, role.name);
+    });
+
     if (capturedImage) {
       const photoFile = dataURLtoFile(capturedImage, 'webcam-photo.jpg');
       formData.append('photo', photoFile);
@@ -101,7 +104,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }
     formData.append('_method', 'PUT');
 
     try {
-      await updateProfile({ id: userId, formData }).unwrap(); // Pass userId to mutation
+      await updateProfile({ id: userFullData.id, formData }).unwrap(); // Use userFullData.id
       showSuccess('Profil berhasil diperbarui.');
       navigate('/dashboard/profile');
     } catch (err) {
@@ -191,8 +194,19 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }
                   </div>
                   <FormItem>
                     <FormLabel>Email</FormLabel>
-                    <FormControl><Input value={initialData.email} disabled /></FormControl>
+                    <FormControl><Input value={userFullData.email} disabled /></FormControl>
                   </FormItem>
+                  <FormField
+                    control={form.control}
+                    name="nik"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>NIK</FormLabel>
+                        <FormControl><Input placeholder="1234567890123456" {...field} value={field.value ?? ''} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="phone"
@@ -220,7 +234,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }
                     name="zip_code"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kode Pos</FormLabel> {/* Corrected closing tag */}
+                        <FormLabel>Kode Pos</FormLabel>
                         <FormControl><Input placeholder="12345" {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                       </FormItem>
