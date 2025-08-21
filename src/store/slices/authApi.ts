@@ -94,6 +94,17 @@ interface ForgotPasswordResponse {
   message: string;
 }
 
+// New interfaces for change password
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+}
+
+interface ChangePasswordResponse {
+  message: string;
+}
+
 export interface UpdateProfileResponse { // Export this interface
     message: string;
     data: User;
@@ -153,6 +164,13 @@ export const authApi = smpApi.injectEndpoints({
         body: data,
       }),
     }),
+    changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordRequest>({
+      query: (data) => ({
+        url: 'change-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -165,4 +183,5 @@ export const {
   useGetProfileDetailsQuery,
   useUpdateProfileMutation,
   useForgotPasswordMutation,
+  useChangePasswordMutation, // Export the new hook
 } = authApi;

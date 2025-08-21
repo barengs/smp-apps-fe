@@ -20,7 +20,7 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form';
-import { useForgotPasswordMutation, ForgotPasswordRequest } from '@/store/slices/authApi';
+import { useChangePasswordMutation, ChangePasswordRequest } from '@/store/slices/authApi';
 import { showSuccess, showError } from '@/utils/toast';
 import { Loader2 } from 'lucide-react';
 
@@ -30,29 +30,36 @@ interface ChangePasswordFormModalProps {
 }
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Email tidak valid.' }).min(1, { message: 'Email harus diisi.' }),
+  current_password: z.string().min(1, { message: 'Password saat ini harus diisi.' }),
+  new_password: z.string().min(8, { message: 'Password baru minimal 8 karakter.' }),
+  new_password_confirmation: z.string(),
+}).refine((data) => data.new_password === data.new_password_confirmation, {
+  message: "Konfirmasi password tidak cocok.",
+  path: ["new_password_confirmation"], // Set error on the confirmation field
 });
 
-type ForgotPasswordFormValues = z.infer<typeof formSchema>;
+type ChangePasswordFormValues = z.infer<typeof formSchema>;
 
 const ChangePasswordFormModal: React.FC<ChangePasswordFormModalProps> = ({ isOpen, onClose }) => {
-  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+  const [changePassword, { isLoading }] = useChangePasswordMutation();
 
-  const form = useForm<ForgotPasswordFormValues>({
+  const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      current_password: '',
+      new_password: '',
+      new_password_confirmation: '',
     },
   });
 
-  const onSubmit = async (values: ForgotPasswordFormValues) => {
+  const onSubmit = async (values: ChangePasswordFormValues) => {
     try {
-      const response = await forgotPassword(values as ForgotPasswordRequest).unwrap();
-      showSuccess(response.message || 'Link reset password telah dikirim ke email Anda.');
+      const response = await changePassword(values as ChangePasswordRequest).unwrap();
+      showSuccess(response.message || 'Password berhasil diubah.');
       onClose();
       form.reset();
     } catch (error: any) {
-      const errorMessage = error?.data?.message || 'Gagal mengirim link reset password. Silakan coba lagi.';
+      const errorMessage = error?.data?.message || 'Gagal mengubah password. Silakan coba lagi.';
       showError(errorMessage);
     }
   };
@@ -63,19 +70,45 @@ const ChangePasswordFormModal: React.FC<ChangePasswordFormModalProps> = ({ isOpe
         <DialogHeader>
           <DialogTitle>Ganti Password</DialogTitle>
           <DialogDescription>
-            Masukkan email Anda untuk menerima link reset password.
+            Masukkan password Anda saat ini dan password baru.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="current_password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Password Saat Ini</FormLabel>
                   <FormControl>
-                    <Input placeholder="email@example.com" {...field} />
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="new_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password Baru</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="new_password_confirmation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Konfirmasi Password Baru</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -87,7 +120,7 @@ const ChangePasswordFormModal: React.FC<ChangePasswordFormModalProps> = ({ isOpe
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Kirim Link Reset
+                Simpan Password
               </Button>
             </DialogFooter>
           </form>
