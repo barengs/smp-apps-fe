@@ -102,8 +102,8 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
       formData.append('photo', values.photo);
     }
 
-    // Add method spoofing for PUT request with FormData
-    formData.append('_method', 'PUT');
+    // Remove method spoofing for PUT request with FormData
+    // formData.append('_method', 'PUT'); // Dihapus
     
     try {
       // Pass the FormData object as 'data'
