@@ -24,6 +24,7 @@ interface ProfileEditFormProps {
     zip_code: string | null;
     photo?: string | null;
   };
+  userId: number; // Add userId prop
 }
 
 const formSchema = z.object({
@@ -52,7 +53,7 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
   return new File([u8arr], filename, { type: mime });
 };
 
-const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
+const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData, userId }) => {
   const navigate = useNavigate();
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   const [photoPreview, setPhotoPreview] = useState<string | null>(initialData.photo || null);
@@ -100,7 +101,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
     formData.append('_method', 'PUT');
 
     try {
-      await updateProfile(formData).unwrap();
+      await updateProfile({ id: userId, formData }).unwrap(); // Pass userId to mutation
       showSuccess('Profil berhasil diperbarui.');
       navigate('/dashboard/profile');
     } catch (err) {
@@ -219,7 +220,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                     name="zip_code"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kode Pos</FormLabel>
+                        <FormLabel>Kode Pos</FormLabel> {/* Corrected closing tag */}
                         <FormControl><Input placeholder="12345" {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                       </FormItem>

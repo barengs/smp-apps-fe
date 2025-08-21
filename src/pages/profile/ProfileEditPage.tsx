@@ -29,11 +29,11 @@ const ProfileEditPage: React.FC = () => {
       );
     }
 
-    if (isError || !profileData?.data?.profile) {
-      return <div className="text-red-500 p-4 border border-red-500 rounded-md">Gagal memuat data profil. Silakan coba lagi.</div>;
+    if (isError || !profileData?.data?.profile || !profileData?.data?.id) { // Check for profile and id
+      return <div className="text-red-500 p-4 border border-red-500 rounded-md">Gagal memuat data profil atau ID pengguna tidak ditemukan. Silakan coba lagi.</div>;
     }
 
-    return <ProfileEditForm initialData={profileData.data.profile} />;
+    return <ProfileEditForm initialData={profileData.data.profile} userId={profileData.data.id} />;
   };
 
   return (

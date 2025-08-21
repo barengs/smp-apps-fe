@@ -81,9 +81,7 @@ interface ProfileData {
 }
 
 interface GetProfileDetailsResponse {
-  data: {
-    profile: ProfileData;
-  };
+  data: User; // Changed to User to get the user ID directly
 }
 
 // New interfaces for forgot password
@@ -139,11 +137,11 @@ export const authApi = smpApi.injectEndpoints({
       query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
-    updateProfile: builder.mutation<UpdateProfileResponse, FormData>({
-      query: (data) => ({
-        url: 'profile',
-        method: 'POST', // Using POST for multipart/form-data compatibility
-        body: data,
+    updateProfile: builder.mutation<UpdateProfileResponse, { id: number; formData: FormData }>({
+      query: ({ id, formData }) => ({
+        url: `employee/${id}`, // Changed endpoint to /employee/:id
+        method: 'POST', // Still POST for multipart/form-data compatibility
+        body: formData,
       }),
       invalidatesTags: ['User', 'Profile'],
     }),
