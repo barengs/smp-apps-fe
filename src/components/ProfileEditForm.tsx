@@ -14,7 +14,6 @@ import { Loader2, Camera, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { User as UserType } from '@/store/slices/authApi'; // Import User type from authApi
-import type { CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
 
 interface ProfileEditFormProps {
   userFullData: UserType; // Now receives the full User object
@@ -79,29 +78,40 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   }, [webcamRef, form]);
 
   const onSubmit = async (values: ProfileFormValues) => {
-    // NOTE: Photo upload is temporarily disabled due to a backend limitation.
-    // The backend cannot currently process file uploads on this endpoint.
-    // The code below sends only the text data as JSON.
-    const updateData: CreateUpdateEmployeeRequest = {
-      first_name: values.first_name,
-      last_name: values.last_name || '',
-      email: userFullData.email,
-      nik: values.nik,
-      phone: values.phone,
-      address: values.address,
-      zip_code: values.zip_code || '',
-      code: userFullData.profile?.code || '',
-      username: userFullData.username,
-      roles: userFullData.roles.map(role => role.name),
-      // Password is not being changed here, so it's omitted.
-    };
+    const formData = new FormData();
+
+    // Append form fields to formData
+    formData.append('first_name', values.first_name);
+    formData.append('last_name', values.last_name || '');
+    formData.append('email', userFullData.email);
+    formData.append('nik', values.nik);
+    formData.append('phone', values.phone);
+    formData.append('address', values.address);
+    formData.append('zip_code', values.zip_code || '');
+    formData.append('code', userFullData.profile?.code || '');
+    formData.append('username', userFullData.username);
+    userFullData.roles.forEach((role, index) => {
+        formData.append(`roles[${index}]`, role.name);
+    });
+
+    // Handle photo upload
+    if (capturedImage) {
+      const photoFile = dataURLtoFile(capturedImage, 'webcam-photo.jpg');
+      formData.append('photo', photoFile);
+    } else if (values.photo) {
+      formData.append('photo', values.photo);
+    }
+
+    // Add method spoofing for PUT request with FormData
+    formData.append('_method', 'PUT');
     
     try {
-      await updateProfile({ id: userFullData.id, data: updateData }).unwrap();
+      // Pass the FormData object as 'data'
+      await updateProfile({ id: userFullData.id, data: formData }).unwrap();
       showSuccess('Profil berhasil diperbarui.');
       navigate('/dashboard/profile');
     } catch (err) {
-      showError('Gagal memperbarui profil.');
+      showError('Gagal memperbarui profil. Pastikan semua data terisi dengan benar.');
       console.error(err);
     }
   };
