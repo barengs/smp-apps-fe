@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useCreateCoaMutation, useUpdateCoaMutation, useGetCoaQuery, Coa, CreateUpdateCoaRequest } from '@/store/slices/coaApi';
-import * as toast from '@/utils/toast';
+import *as toast from '@/utils/toast';
 
 interface CoaFormProps {
   isOpen: boolean;
@@ -158,13 +158,16 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Akun Induk (Parent)</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value || null)} defaultValue={field.value?.toString()}>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === "__NULL__" ? null : value)}
+                    defaultValue={field.value === null ? "__NULL__" : field.value}
+                  >
                     <FormControl>
                       <SelectTrigger><SelectValue placeholder="Pilih akun induk (opsional)" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Tidak ada</SelectItem>
-                      {coaList?.data.map((item) => (
+                      <SelectItem value="__NULL__">Tidak ada</SelectItem> {/* Changed value from "" */}
+                      {(coaList?.data || []).map((item) => (
                         <SelectItem key={item.coa_code} value={item.coa_code}>
                           {item.coa_code} - {item.account_name}
                         </SelectItem>
