@@ -52,26 +52,57 @@ export interface CreateUpdateTransactionTypeRequest {
 
 export interface AccountCustomer {
   id: number;
-  name: string;
+  parent_id: string;
   nis: string;
+  period: string;
+  nik: string;
+  kk: string;
+  first_name: string;
+  last_name: string | null;
+  gender: string;
+  address: string;
+  born_in: string;
+  born_at: string;
+  last_education: string;
+  village_id: number | null;
+  village: string;
+  district: string;
+  postal_code: string;
+  phone: string;
+  hostel_id: string;
+  program_id: string;
+  status: string;
+  photo: string | null;
+  user_id: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AccountProduct {
   id: number;
-  name: string;
-  type: string;
+  product_code: string;
+  product_name: string;
+  product_type: string;
+  interest_rate: string;
+  admin_fee: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Account {
   account_number: string;
-  customer_id: number;
-  product_id: number;
+  customer_id: string;
+  product_id: string;
   balance: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'FROZEN' | 'CLOSED';
+  status: string; // e.g., "TIDAK AKTIF"
   open_date: string;
   close_date: string | null;
   customer: AccountCustomer;
   product: AccountProduct;
+  created_at: string;
+  updated_at: string;
 }
 
 // Mengubah AccountApiResponse menjadi langsung array Account[]

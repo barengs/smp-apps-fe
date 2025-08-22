@@ -18,16 +18,21 @@ interface RekeningTableProps {
   data: Account[];
   onEdit: (account: Account) => void;
   onDelete: (account: Account) => void;
+  onViewDetails: (account: Account) => void;
 }
 
 const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status.toUpperCase()) {
+    case 'AKTIF':
     case 'ACTIVE':
       return 'default';
+    case 'TIDAK AKTIF':
     case 'INACTIVE':
       return 'secondary';
+    case 'DIBEKUKAN':
     case 'FROZEN':
       return 'destructive';
+    case 'DITUTUP':
     case 'CLOSED':
       return 'outline';
     default:
@@ -35,7 +40,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
   }
 };
 
-export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete }) => {
+export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails }) => {
   const columns: ColumnDef<Account>[] = [
     {
       id: 'select',
@@ -69,11 +74,11 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       ),
     },
     {
-      accessorFn: (row) => row.customer.name,
+      accessorFn: (row) => `${row.customer.first_name} ${row.customer.last_name || ''}`.trim(),
       header: 'Pemilik Rekening',
     },
     {
-      accessorFn: (row) => row.product.name,
+      accessorFn: (row) => row.product.product_name,
       header: 'Produk',
     },
     {
@@ -110,6 +115,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => onViewDetails(account)}>Lihat Detail</DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit(account)}>Edit</DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(account)} className="text-destructive">
                 Hapus

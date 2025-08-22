@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const RekeningPage: React.FC = () => {
   const [createAccount, { isLoading: isCreating }] = useCreateAccountMutation();
   const [updateAccount, { isLoading: isUpdating }] = useUpdateAccountMutation();
   const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation();
+  const navigate = useNavigate();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
@@ -34,7 +36,7 @@ const RekeningPage: React.FC = () => {
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Keuangan', href: '/dashboard/keuangan', icon: <Briefcase className="h-4 w-4" /> },
+    { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
     { label: 'Rekening', icon: <Banknote className="h-4 w-4" /> },
   ];
 
@@ -51,6 +53,10 @@ const RekeningPage: React.FC = () => {
   const handleDeleteClick = (account: Account) => {
     setAccountToDelete(account);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleViewDetails = (account: Account) => {
+    navigate(`/dashboard/bank-santri/rekening/${account.account_number}`);
   };
 
   const handleConfirmDelete = async () => {
@@ -132,7 +138,7 @@ const RekeningPage: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <RekeningTable data={accounts || []} onEdit={handleEdit} onDelete={handleDeleteClick} />
+            <RekeningTable data={accounts || []} onEdit={handleEdit} onDelete={handleDeleteClick} onViewDetails={handleViewDetails} />
           </CardContent>
         </Card>
 

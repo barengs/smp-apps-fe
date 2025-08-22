@@ -53,6 +53,7 @@ import ProdukPage from '@/pages/keuangan/ProdukPage';
 import CoaPage from '@/pages/keuangan/CoaPage';
 import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
+import RekeningDetailPage from './pages/keuangan/RekeningDetailPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
@@ -113,6 +114,7 @@ function App() {
                 <Route path="/dashboard/bank-santri/coa" element={<CoaPage />} />
                 <Route path="/dashboard/bank-santri/jenis-transaksi" element={<JenisTransaksiPage />} />
                 <Route path="/dashboard/bank-santri/rekening" element={<RekeningPage />} />
+                <Route path="/dashboard/bank-santri/rekening/:accountNumber" element={<RekeningDetailPage />} />
                 <Route path="/dashboard/bank-santri/laporan" element={<LaporanPage />} />
                 <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
                 <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
