@@ -30,6 +30,17 @@ export const calonSantriApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['CalonSantri'],
     }),
+    updateCalonSantri: builder.mutation<any, { id: number; formData: FormData }>({
+      query: ({ id, formData }) => {
+        formData.append('_method', 'PUT');
+        return {
+          url: `registration/${id}`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: 'CalonSantri', id }, 'CalonSantri'],
+    }),
     // New mutation for processing registration payment
     processRegistrationPayment: builder.mutation<any, ProcessRegistrationPaymentRequest>({
       query: (paymentData) => ({
@@ -43,4 +54,4 @@ export const calonSantriApi = smpApi.injectEndpoints({
   overrideExisting: true,
 });
 
-export const { useGetCalonSantriQuery, useRegisterSantriMutation, useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation } = calonSantriApi;
+export const { useGetCalonSantriQuery, useRegisterSantriMutation, useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation, useUpdateCalonSantriMutation } = calonSantriApi;

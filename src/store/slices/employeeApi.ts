@@ -88,6 +88,7 @@ export interface CreateUpdateEmployeeRequest {
   zip_code?: string; // Added zip_code
   username: string; // Added username
   password?: string; // Added password (optional for updates, required for create)
+  photo?: string; // Ditambahkan: untuk data gambar base64
 }
 
 export const employeeApi = smpApi.injectEndpoints({

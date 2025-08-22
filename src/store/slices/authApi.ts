@@ -1,7 +1,8 @@
 import { smpApi } from '../baseApi';
+import { CreateUpdateEmployeeRequest } from './employeeApi'; // Import CreateUpdateEmployeeRequest
 
 // --- Interfaces ---
-interface User {
+export interface User { // Menambahkan 'export' di sini
   id: number;
   name: string;
   email: string;
@@ -40,7 +41,7 @@ interface User {
 }
 
 // Struktur AuthResponse disesuaikan dengan respons API yang diberikan
-interface AuthResponse {
+export interface AuthResponse { // Export AuthResponse for use in authSlice
   user: User;
   access_token: string;
   token_type: string;
@@ -80,10 +81,33 @@ interface ProfileData {
   photo: string; // Assuming URL to photo
 }
 
-interface GetProfileDetailsResponse {
-  data: {
-    profile: ProfileData;
-  };
+export interface GetProfileDetailsResponse { // Export this interface
+  data: User; // Changed to User to get the user ID directly
+}
+
+// New interfaces for forgot password
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+interface ForgotPasswordResponse {
+  message: string;
+}
+
+// New interfaces for change password
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+}
+
+interface ChangePasswordResponse {
+  message: string;
+}
+
+export interface UpdateProfileResponse { // Export this interface
+    message: string;
+    data: User;
 }
 
 export const authApi = smpApi.injectEndpoints({
@@ -125,6 +149,28 @@ export const authApi = smpApi.injectEndpoints({
       query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
+    updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `employee/${id}/update-profile`, // Menggunakan endpoint baru
+        method: 'POST', // Menggunakan metode POST
+        body: data,
+      }),
+      invalidatesTags: ['User', 'Profile'],
+    }),
+    forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (data) => ({
+        url: 'forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordRequest>({
+      query: (data) => ({
+        url: 'change-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -134,5 +180,8 @@ export const {
   useGetProfileQuery,
   useLogoutMutation,
   useRefreshTokenMutation,
-  useGetProfileDetailsQuery, // Export the new hook
+  useGetProfileDetailsQuery,
+  useUpdateProfileMutation,
+  useForgotPasswordMutation,
+  useChangePasswordMutation, // Export the new hook
 } = authApi;

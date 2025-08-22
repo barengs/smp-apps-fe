@@ -43,9 +43,11 @@ import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
 import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
 import CalonSantriPage from '@/pages/manajemen-santri/CalonSantriPage';
 import UserProfilePage from '@/pages/profile/UserProfilePage';
+import ProfileEditPage from '@/pages/profile/ProfileEditPage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
+import CalonSantriEditPage from './pages/manajemen-santri/CalonSantriEditPage';
 import TransaksiPage from '@/pages/keuangan/TransaksiPage';
 import ProdukPage from '@/pages/keuangan/ProdukPage';
 import CoaPage from '@/pages/keuangan/CoaPage';
@@ -55,13 +57,13 @@ import LaporanPage from '@/pages/keuangan/LaporanPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AppProfilePage from '@/pages/utility/AppProfilePage';
+import AppProfilePage from './pages/utility/AppProfilePage';
 
 // Redux imports
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ThemeProvider } from './components/theme-provider';
-import { Toaster } from '@/components/ui/sonner';
+import { ToastContainer } from 'react-toastify';
 import AuthManager from './components/AuthManager';
 import DynamicAppConfig from './components/DynamicAppConfig';
 
@@ -70,7 +72,7 @@ function App() {
     <Provider store={store}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <Toaster />
+          <ToastContainer />
           <AuthManager>
             <DynamicAppConfig />
             <Routes>
@@ -98,7 +100,7 @@ function App() {
                 {/* Rute Pendaftaran Santri */}
                 <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
                 <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
-                <Route path="/dashboard/pendaftaran-santri/:id" element={<SantriFormPage />} />
+                <Route path="/dashboard/pendaftaran-santri/:id/edit" element={<CalonSantriEditPage />} />
                 <Route path="/dashboard/calon-santri/:id" element={<CalonSantriDetailPage />} />
 
                 <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
@@ -138,6 +140,7 @@ function App() {
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
                 <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
                 <Route path="/dashboard/profile" element={<UserProfilePage />} />
+                <Route path="/dashboard/profile/edit" element={<ProfileEditPage />} />
               </Route>
 
               {/* Rute Catch-all untuk halaman yang tidak ditemukan */}
