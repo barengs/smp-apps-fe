@@ -272,15 +272,18 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
             <DialogTitle>Ambil Foto dari Kamera</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4">
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              width={450}
-              height={300}
-              className="rounded-md"
-              videoConstraints={{ facingMode: 'user', width: 1280, height: 720 }}
-            />
+            {/* FIX: Conditionally render Webcam to prevent unmounting issues */}
+            {isWebcamOpen && (
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                width={450}
+                height={300}
+                className="rounded-md"
+                videoConstraints={{ facingMode: 'user', width: 1280, height: 720 }}
+              />
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsWebcamOpen(false)} disabled={isUploadingPhoto}>Batal</Button>
