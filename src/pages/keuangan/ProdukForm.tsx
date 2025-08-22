@@ -94,7 +94,8 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
     try {
       if (produk) {
         const { product_code, ...dataWithoutCode } = values;
-        await updateProduk({ id: produk.product_code, data: dataWithoutCode as CreateUpdateProdukBankRequest }).unwrap();
+        // Menggunakan produk.id.toString() sebagai ID untuk update
+        await updateProduk({ id: produk.id.toString(), data: dataWithoutCode as CreateUpdateProdukBankRequest }).unwrap();
         toast.showSuccess('Produk berhasil diperbarui');
       } else {
         await createProduk(values as CreateUpdateProdukBankRequest).unwrap();
