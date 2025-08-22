@@ -161,10 +161,10 @@ export const authApi = smpApi.injectEndpoints({
       query: ({ id, photo }) => {
         const formData = new FormData();
         formData.append('photo', photo);
-        // Removed: formData.append('_method', 'PUT');
+        formData.append('_method', 'PUT'); // Re-adding method spoofing
         return {
           url: `employee/photo/${id}/update`,
-          method: 'PUT', // Changed to PUT
+          method: 'POST', // Using POST for the request
           body: formData,
         };
       },
