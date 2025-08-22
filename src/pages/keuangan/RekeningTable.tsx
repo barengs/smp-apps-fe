@@ -133,6 +133,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       data={data}
       exportFileName="data_rekening"
       exportTitle="Data Rekening Santri"
+      onRowClick={onViewDetails}
     />
   );
 };
