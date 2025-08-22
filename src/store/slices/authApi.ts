@@ -151,8 +151,8 @@ export const authApi = smpApi.injectEndpoints({
     }),
     updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: FormData }>({
       query: ({ id, data }) => ({
-        url: `employee/${id}/update-profile`, // Endpoint ini akan menerima semua data termasuk foto
-        method: 'PUT', // <-- Diubah dari 'POST' menjadi 'PUT'
+        url: `staff/${id}/update-profile`, // Changed from 'employee' to 'staff'
+        method: 'PUT',
         body: data,
       }),
       invalidatesTags: ['User', 'Profile'],

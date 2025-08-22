@@ -94,16 +94,16 @@ export interface CreateUpdateEmployeeRequest {
 export const employeeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployees: builder.query<GetEmployeesResponse, void>({
-      query: () => 'employee',
+      query: () => 'staff', // Changed from 'employee' to 'staff'
       providesTags: ['Employee'],
     }),
     getEmployeeById: builder.query<GetEmployeeByIdResponse, number>({
-      query: (id) => `employee/${id}`,
+      query: (id) => `staff/${id}`, // Changed from 'employee' to 'staff'
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
     createEmployee: builder.mutation<EmployeeApiData, CreateUpdateEmployeeRequest>({
       query: (newEmployee) => ({
-        url: 'employee',
+        url: 'staff', // Changed from 'employee' to 'staff'
         method: 'POST',
         body: newEmployee,
       }),
@@ -111,7 +111,7 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     updateEmployee: builder.mutation<EmployeeApiData, { id: number; data: CreateUpdateEmployeeRequest }>({
       query: ({ id, data }) => ({
-        url: `employee/${id}`,
+        url: `staff/${id}`, // Changed from 'employee' to 'staff'
         method: 'PUT',
         body: data,
       }),
@@ -119,14 +119,14 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
-        url: `employee/${id}`,
+        url: `staff/${id}`, // Changed from 'employee' to 'staff'
         method: 'DELETE',
       }),
       invalidatesTags: ['Employee'],
     }),
     importEmployee: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
-        url: 'employee/import',
+        url: 'staff/import', // Changed from 'employee/import' to 'staff/import'
         method: 'POST',
         body: formData,
       }),
