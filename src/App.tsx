@@ -86,9 +86,9 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
                 <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
-                <Route path="/staff" element={<StafPage />} />
-                <Route path="/staff/:id" element={<StaffDetailPage />} />
-                <Route path="/staff/:id/edit" element={<StaffEditPage />} />
+                <Route path="/dashboard/staf" element={<StafPage />} />
+                <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
+                <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
                 <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
                 <Route path="/dashboard/peran" element={<PeranPage />} />
                 <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
