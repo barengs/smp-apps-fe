@@ -151,25 +151,13 @@ export const authApi = smpApi.injectEndpoints({
     }),
     updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: FormData }>({
       query: ({ id, data }) => ({
-        url: `employee/${id}/update-profile`, // Menggunakan endpoint baru
-        method: 'POST', // Menggunakan metode POST
+        url: `employee/${id}/update-profile`, // Endpoint ini akan menerima semua data termasuk foto
+        method: 'POST',
         body: data,
       }),
       invalidatesTags: ['User', 'Profile'],
     }),
-    updateProfilePhoto: builder.mutation<UpdateProfileResponse, { id: number; photo: File }>({
-      query: ({ id, photo }) => {
-        const formData = new FormData();
-        formData.append('photo', photo);
-        formData.append('_method', 'PUT'); // Re-adding method spoofing
-        return {
-          url: `employee/photo/${id}/update`,
-          method: 'POST', // Using POST for the request
-          body: formData,
-        };
-      },
-      invalidatesTags: ['User', 'Profile'],
-    }),
+    // Menghapus updateProfilePhoto karena sudah digabungkan ke updateProfile
     forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
       query: (data) => ({
         url: 'forgot-password',
@@ -195,7 +183,7 @@ export const {
   useRefreshTokenMutation,
   useGetProfileDetailsQuery,
   useUpdateProfileMutation,
-  useUpdateProfilePhotoMutation, // New export
+  // Menghapus useUpdateProfilePhotoMutation
   useForgotPasswordMutation,
   useChangePasswordMutation, // Export the new hook
 } = authApi;
