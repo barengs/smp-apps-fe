@@ -58,7 +58,7 @@ const steps = [
 interface StaffFormProps {
   initialData?: {
     id: number;
-    employee: {
+    staff: { // Changed from 'employee' to 'staff'
       first_name: string;
       last_name: string;
       code: string;
@@ -91,14 +91,14 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
     defaultValues: initialData ? {
-      first_name: initialData.employee.first_name,
-      last_name: initialData.employee.last_name,
+      first_name: initialData.staff.first_name, // Changed from 'employee' to 'staff'
+      last_name: initialData.staff.last_name, // Changed from 'employee' to 'staff'
       email: initialData.email,
-      code: initialData.employee.code,
-      nik: initialData.employee.nik || '',
-      phone: initialData.employee.phone || '',
-      address: initialData.employee.address || '',
-      zip_code: initialData.employee.zip_code || '',
+      code: initialData.staff.code, // Changed from 'employee' to 'staff'
+      nik: initialData.staff.nik || '', // Changed from 'employee' to 'staff'
+      phone: initialData.staff.phone || '', // Changed from 'employee' to 'staff'
+      address: initialData.staff.address || '', // Changed from 'employee' to 'staff'
+      zip_code: initialData.staff.zip_code || '', // Changed from 'employee' to 'staff'
       role_ids: initialData.roles.map(initialRole => availableRoles.find(ar => ar.name === initialRole.name)?.id).filter(Boolean) as number[] || [],
       username: initialData.username || '',
       password: '',

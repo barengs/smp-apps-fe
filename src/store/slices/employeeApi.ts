@@ -13,7 +13,8 @@ interface DataApi {
   data: any[];
 }
 
-interface EmployeeNestedData {
+// Changed from EmployeeNestedData to StaffNestedData
+interface StaffNestedData {
   first_name: string;
   last_name: string;
   code: string; // Added code field
@@ -25,9 +26,10 @@ interface EmployeeNestedData {
   photo: string;
 }
 
-interface EmployeeApiData {
+// Changed from EmployeeApiData to StaffApiData and updated 'employee' to 'staff'
+interface StaffApiData {
   id: number;
-  employee: EmployeeNestedData;
+  staff: StaffNestedData; // Changed from 'employee' to 'staff'
   email: string;
   roles: RoleApiData[];
   created_at: string;
@@ -35,14 +37,16 @@ interface EmployeeApiData {
   username: string; // Ditambahkan: properti username
 }
 
+// Updated GetEmployeesResponse to use StaffApiData
 interface GetEmployeesResponse {
   message: string;
-  data: EmployeeApiData[];
+  data: StaffApiData[];
 }
 
 // --- Types for Single Employee Detail ---
 
-interface EmployeeDetailNestedDataForDetail {
+// Changed from EmployeeDetailNestedDataForDetail to StaffDetailNestedDataForDetail
+interface StaffDetailNestedDataForDetail {
   first_name: string;
   last_name: string;
   code: string;
@@ -59,21 +63,23 @@ interface RoleNameOnly {
 }
 
 // This is the object inside the "data" property of the response
-interface EmployeeDetailData {
+// Changed from EmployeeDetailData to StaffDetailData and updated 'employee' to 'staff'
+interface StaffDetailData {
   id: number;
   user_id: number;
   code: string;
   created_at: string;
   updated_at: string;
-  employee: EmployeeDetailNestedDataForDetail;
+  staff: StaffDetailNestedDataForDetail; // Changed from 'employee' to 'staff'
   roles: RoleNameOnly[];
   username: string; // Added username to detail data
 }
 
 // This is the full response from the API
+// Updated GetEmployeeByIdResponse to use StaffDetailData
 interface GetEmployeeByIdResponse {
   message: string;
-  data: EmployeeDetailData;
+  data: StaffDetailData;
 }
 
 export interface CreateUpdateEmployeeRequest {
@@ -94,24 +100,24 @@ export interface CreateUpdateEmployeeRequest {
 export const employeeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployees: builder.query<GetEmployeesResponse, void>({
-      query: () => 'employee',
+      query: () => 'staff', // Changed from 'employee' to 'staff'
       providesTags: ['Employee'],
     }),
     getEmployeeById: builder.query<GetEmployeeByIdResponse, number>({
-      query: (id) => `employee/${id}`,
+      query: (id) => `staff/${id}`, // Changed from 'employee' to 'staff'
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
-    createEmployee: builder.mutation<EmployeeApiData, CreateUpdateEmployeeRequest>({
+    createEmployee: builder.mutation<StaffApiData, CreateUpdateEmployeeRequest>({ // Updated return type
       query: (newEmployee) => ({
-        url: 'employee',
+        url: 'staff', // Changed from 'employee' to 'staff'
         method: 'POST',
         body: newEmployee,
       }),
       invalidatesTags: ['Employee'],
     }),
-    updateEmployee: builder.mutation<EmployeeApiData, { id: number; data: CreateUpdateEmployeeRequest }>({
+    updateEmployee: builder.mutation<StaffApiData, { id: number; data: CreateUpdateEmployeeRequest }>({ // Updated return type
       query: ({ id, data }) => ({
-        url: `employee/${id}`,
+        url: `staff/${id}`, // Changed from 'employee' to 'staff'
         method: 'PUT',
         body: data,
       }),
@@ -119,14 +125,14 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
-        url: `employee/${id}`,
+        url: `staff/${id}`, // Changed from 'employee' to 'staff'
         method: 'DELETE',
       }),
       invalidatesTags: ['Employee'],
     }),
     importEmployee: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
-        url: 'employee/import',
+        url: 'staff/import', // Changed from 'employee/import' to 'staff/import'
         method: 'POST',
         body: formData,
       }),

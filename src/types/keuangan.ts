@@ -52,40 +52,67 @@ export interface CreateUpdateTransactionTypeRequest {
 
 export interface AccountCustomer {
   id: number;
-  name: string;
+  parent_id: string;
   nis: string;
+  period: string;
+  nik: string;
+  kk: string;
+  first_name: string;
+  last_name: string | null;
+  gender: string;
+  address: string;
+  born_in: string;
+  born_at: string;
+  last_education: string;
+  village_id: number | null;
+  village: string;
+  district: string;
+  postal_code: string;
+  phone: string;
+  hostel_id: string;
+  program_id: string;
+  status: string;
+  photo: string | null;
+  user_id: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AccountProduct {
   id: number;
-  name: string;
-  type: string;
+  product_code: string;
+  product_name: string;
+  product_type: string;
+  interest_rate: string;
+  admin_fee: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Account {
   account_number: string;
-  customer_id: number;
-  product_id: number;
+  customer_id: string; // Changed to string based on JSON
+  product_id: string; // Changed to string based on JSON
   balance: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'FROZEN' | 'CLOSED';
+  status: string; // e.g., "TIDAK AKTIF"
   open_date: string;
   close_date: string | null;
   customer: AccountCustomer;
   product: AccountProduct;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface AccountApiResponse {
-  message: string;
-  data: Account[];
-}
+// Mengubah AccountApiResponse menjadi langsung array Account[]
+export type AccountApiResponse = Account[];
 
-export interface SingleAccountApiResponse {
-  message: string;
-  data: Account;
-}
+// Mengubah SingleAccountApiResponse menjadi langsung Account
+export type SingleAccountApiResponse = Account;
 
 export interface CreateUpdateAccountRequest {
-  customer_id: number;
+  student_id: number; // Changed from customer_id to student_id
   product_id: number;
   status: 'ACTIVE' | 'INACTIVE' | 'FROZEN' | 'CLOSED';
   open_date: string; // Format YYYY-MM-DD

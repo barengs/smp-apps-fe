@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGetProdukBankQuery, useDeleteProdukBankMutation, ProdukBank } from '@/store/slices/produkBankApi';
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, MoreHorizontal } from 'lucide-react'; // Ditambahkan
 import { ColumnDef } from '@tanstack/react-table'; // Ditambahkan
 import {
   DropdownMenu,
@@ -79,12 +79,12 @@ const ProdukTable: React.FC = () => {
     {
       accessorKey: 'interest_rate',
       header: 'Bunga (%)',
-      cell: ({ row }) => `${row.original.interest_rate}%`,
+      cell: ({ row }) => `${parseFloat(row.original.interest_rate)}%`, // Ensure it's a number
     },
     {
       accessorKey: 'admin_fee',
       header: 'Biaya Admin',
-      cell: ({ row }) => `Rp ${row.original.admin_fee.toLocaleString('id-ID')}`,
+      cell: ({ row }) => `Rp ${parseFloat(row.original.admin_fee).toLocaleString('id-ID')}`, // Ensure it's a number
     },
     {
       accessorKey: 'is_active',

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useUpdateProfileMutation } from '@/store/slices/authApi';
+import { useUpdateProfileMutation } from '@/store/slices/authApi'; // Hanya import useUpdateProfileMutation
 import { showSuccess, showError } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Camera, User } from 'lucide-react';
@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { User as UserType } from '@/store/slices/authApi'; // Import User type from authApi
 
 interface ProfileEditFormProps {
-  userFullData: UserType; // Now receives the full User object
+  userFullData: UserType;
 }
 
 const formSchema = z.object({
@@ -26,12 +26,10 @@ const formSchema = z.object({
   phone: z.string().min(1, 'Telepon harus diisi.'),
   address: z.string().min(1, 'Alamat harus diisi.'),
   zip_code: z.string().optional(),
-  photo: z.instanceof(File).optional(), // Kembali ke tipe File
 });
 
 type ProfileFormValues = z.infer<typeof formSchema>;
 
-// Helper to convert base64 to File (still needed for webcam capture)
 const dataURLtoFile = (dataurl: string, filename: string): File => {
   const arr = dataurl.split(',');
   const mimeMatch = arr[0].match(/:(.*?);/);
@@ -48,9 +46,11 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
 
 const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   const navigate = useNavigate();
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
   const [photoPreview, setPhotoPreview] = useState<string | null>(userFullData.profile?.photo || null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null); // State untuk menampung file foto
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
+  const [webcamKey, setWebcamKey] = useState(0);
   const webcamRef = useRef<Webcam>(null);
 
   const form = useForm<ProfileFormValues>({
@@ -62,24 +62,34 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
       phone: userFullData.profile?.phone || '',
       address: userFullData.profile?.address || '',
       zip_code: userFullData.profile?.zip_code || '',
-      photo: undefined,
     },
   });
 
   const capturePhoto = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
-      const photoFile = dataURLtoFile(imageSrc, 'webcam-photo.jpg');
+      const file = dataURLtoFile(imageSrc, 'webcam-photo.jpg');
       setPhotoPreview(imageSrc);
-      form.setValue('photo', photoFile, { shouldValidate: true });
-      setIsWebcamOpen(false);
+      setPhotoFile(file); // Simpan file di state
+      // Delay closing the webcam dialog slightly to allow for potential cleanup
+      setTimeout(() => {
+        setIsWebcamOpen(false);
+      }, 100); // 100ms delay
     }
-  }, [webcamRef, form]);
+  }, [webcamRef]);
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoPreview(URL.createObjectURL(file));
+      setPhotoFile(file); // Simpan file di state
+    }
+  };
 
   const onSubmit = async (values: ProfileFormValues) => {
     const formData = new FormData();
 
-    // Append form fields to formData
+    // Tambahkan semua data teks ke FormData
     formData.append('first_name', values.first_name);
     formData.append('last_name', values.last_name || '');
     formData.append('email', userFullData.email);
@@ -93,15 +103,16 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
         formData.append(`roles[${index}]`, role.name);
     });
 
-    // Handle photo upload
-    if (values.photo) {
-      formData.append('photo', values.photo);
+    // Jika ada file foto baru, tambahkan ke FormData
+    if (photoFile) {
+      formData.append('photo', photoFile);
     }
 
-    // Add method spoofing for Laravel
+    // Tambahkan method spoofing untuk Laravel
     formData.append('_method', 'PUT');
     
     try {
+      // Kirim semua data dalam satu panggilan
       await updateProfile({ id: userFullData.id, data: formData }).unwrap();
       showSuccess('Profil berhasil diperbarui.');
       navigate('/dashboard/profile');
@@ -110,6 +121,20 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
       console.error(err);
     }
   };
+
+  // Handle dialog open/close with delay for closing
+  const handleDialogChange = useCallback((open: boolean) => {
+    if (!open) {
+      // When dialog is requested to close (e.g., by clicking overlay or escape key)
+      setTimeout(() => {
+        setIsWebcamOpen(false);
+      }, 100); // Delay actual state update
+    } else {
+      // When dialog is requested to open
+      setIsWebcamOpen(true);
+      setWebcamKey(Date.now()); // Set key only on open
+    }
+  }, []);
 
   return (
     <>
@@ -124,51 +149,40 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left Column: Photo */}
                 <div className="md:col-span-1 space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="photo"
-                    render={({ field: { onChange: formOnChange, ref, value, ...rest } }) => ( // Destructure 'value'
-                      <FormItem>
-                        <FormLabel>Foto Profil</FormLabel>
-                        <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                          {photoPreview ? (
-                            <img src={photoPreview} alt="Pratinjau Profil" className="w-full h-full object-cover" />
-                          ) : (
-                            <User className="w-24 h-24 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <FormControl>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setPhotoPreview(URL.createObjectURL(file));
-                                } else {
-                                  // If no file selected (e.g., user cancels file dialog), revert to original photo or null
-                                  setPhotoPreview(userFullData.profile?.photo || null);
-                                }
-                                formOnChange(file || undefined); // Update react-hook-form state
-                              }}
-                              ref={ref}
-                              // Do not pass 'value' here. The 'rest' object now correctly excludes 'value'.
-                              {...rest}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="button" variant="outline" className="w-full" onClick={() => setIsWebcamOpen(true)}>
+                  <FormItem>
+                    <FormLabel>Foto Profil</FormLabel>
+                    <div className="w-full aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
+                      {photoPreview ? (
+                        <img src={photoPreview} alt="Pratinjau Profil" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-24 h-24 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileInputChange}
+                          disabled={isUpdatingProfile}
+                        />
+                      </FormControl>
+                    </div>
+                  </FormItem>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => handleDialogChange(true)} // Use the new handler
+                    disabled={isUpdatingProfile}
+                  >
                     <Camera className="mr-2 h-4 w-4" /> Ambil dari Kamera
                   </Button>
                 </div>
 
                 {/* Right Column: Other fields */}
                 <div className="md:col-span-2 space-y-6">
+                  {/* ... field lainnya tetap sama ... */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
@@ -244,11 +258,11 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
                 </div>
               </div>
               <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/profile')} disabled={isLoading}>
+                <Button type="button" variant="outline" onClick={() => navigate('/dashboard/profile')} disabled={isUpdatingProfile}>
                   Batal
                 </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                <Button type="submit" disabled={isUpdatingProfile}>
+                  {isUpdatingProfile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   Simpan Perubahan
                 </Button>
               </div>
@@ -257,25 +271,30 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
         </CardContent>
       </Card>
 
-      <Dialog open={isWebcamOpen} onOpenChange={setIsWebcamOpen}>
+      <Dialog open={isWebcamOpen} onOpenChange={handleDialogChange}> {/* Use the new handler */}
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Ambil Foto dari Kamera</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4">
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              width={450}
-              height={300}
-              className="rounded-md"
-              videoConstraints={{ facingMode: 'user', width: 1280, height: 720 }}
-            />
+            {isWebcamOpen && (
+              <Webcam
+                key={webcamKey}
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                width={450}
+                height={300}
+                className="rounded-md"
+                videoConstraints={{ facingMode: 'user', width: 1280, height: 720 }}
+              />
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsWebcamOpen(false)}>Batal</Button>
-            <Button onClick={capturePhoto}>Ambil Gambar</Button>
+            <Button variant="outline" onClick={() => handleDialogChange(false)}>Batal</Button> {/* Use the new handler */}
+            <Button onClick={capturePhoto}>
+              Ambil Gambar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
