@@ -52,6 +52,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
   const [updateProfilePhoto, { isLoading: isUploadingPhoto }] = useUpdateProfilePhotoMutation(); // New mutation hook
   const [photoPreview, setPhotoPreview] = useState<string | null>(userFullData.profile?.photo || null);
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
+  const [webcamKey, setWebcamKey] = useState(0); // New state for forcing webcam remount
   const webcamRef = useRef<Webcam>(null);
 
   const form = useForm<ProfileFormValues>({
@@ -171,7 +172,16 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
                       {/* No FormMessage for photo if not part of form schema */}
                     </div>
                   </FormItem>
-                  <Button type="button" variant="outline" className="w-full" onClick={() => setIsWebcamOpen(true)} disabled={isUploadingPhoto}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setIsWebcamOpen(true);
+                      setWebcamKey(prev => prev + 1); // Increment key to force remount
+                    }}
+                    disabled={isUploadingPhoto}
+                  >
                     {isUploadingPhoto ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />} Ambil dari Kamera
                   </Button>
                 </div>
@@ -272,9 +282,9 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
             <DialogTitle>Ambil Foto dari Kamera</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4">
-            {/* FIX: Conditionally render Webcam to prevent unmounting issues */}
             {isWebcamOpen && (
               <Webcam
+                key={webcamKey} // Added key to force remount
                 audio={false}
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
