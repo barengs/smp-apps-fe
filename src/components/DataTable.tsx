@@ -38,7 +38,7 @@ import { ChevronDown, FileDown, Search, PlusCircle, Upload, FileText } from 'luc
 import * as toast from '@/utils/toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import *as XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 import {
   Select,
   SelectContent,
@@ -131,6 +131,7 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    getSubRows: (row) => (row as any).subRows, // Menambahkan ini secara eksplisit
   });
 
   const exportToPdf = (allData: boolean) => {
