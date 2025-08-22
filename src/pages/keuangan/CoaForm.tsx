@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useCreateCoaMutation, useUpdateCoaMutation, useGetCoaQuery, Coa, CreateUpdateCoaRequest } from '@/store/slices/coaApi';
-import * as toast from '@/utils/toast';
+import *as toast from '@/utils/toast';
 
 interface CoaFormProps {
   isOpen: boolean;
@@ -48,7 +48,7 @@ const formSchema = z.object({
 const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
   const [createCoa, { isLoading: isCreating }] = useCreateCoaMutation();
   const [updateCoa, { isLoading: isUpdating }] = useUpdateCoaMutation();
-  const { data: coaList } = useGetCoaQuery();
+  const { data: coaList } = useGetCoaQuery(); // coaList can be undefined initially
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -164,7 +164,7 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="">Tidak ada</SelectItem>
-                      {coaList?.data.map((item) => (
+                      {(coaList?.data || []).map((item) => ( // Added || [] here
                         <SelectItem key={item.coa_code} value={item.coa_code}>
                           {item.coa_code} - {item.account_name}
                         </SelectItem>
