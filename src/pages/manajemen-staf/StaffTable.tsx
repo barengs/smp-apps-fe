@@ -52,6 +52,17 @@ interface Staff {
   username: string;
 }
 
+// Define a default object for the employee details part of the Staff interface
+const emptyStaffEmployeeDetails: Staff['employee'] = {
+  first_name: '',
+  last_name: '',
+  code: '',
+  nik: '',
+  phone: '',
+  address: '',
+  zip_code: '',
+};
+
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
   const [deleteEmployee] = useDeleteEmployeeMutation();
@@ -65,22 +76,26 @@ const StaffTable: React.FC = () => {
 
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
-      return employeesData.data.map(apiEmployee => ({
-        id: apiEmployee.id,
-        employee: {
-          first_name: apiEmployee.employee.first_name,
-          last_name: apiEmployee.employee.last_name,
-          code: apiEmployee.employee.code,
-          nik: apiEmployee.employee.nik,
-          phone: apiEmployee.employee.phone,
-          address: apiEmployee.employee.address,
-          zip_code: apiEmployee.employee.zip_code,
-        },
-        email: apiEmployee.email,
-        roles: apiEmployee.roles,
-        fullName: `${apiEmployee.employee.first_name} ${apiEmployee.employee.last_name}`,
-        username: apiEmployee.username,
-      }));
+      return employeesData.data.map(apiEmployee => {
+        // Use the default object if apiEmployee.employee is null or undefined
+        const employeeSource = apiEmployee.employee || emptyStaffEmployeeDetails;
+        return {
+          id: apiEmployee.id,
+          employee: {
+            first_name: employeeSource.first_name || '',
+            last_name: employeeSource.last_name || '',
+            code: employeeSource.code || '',
+            nik: employeeSource.nik || '',
+            phone: employeeSource.phone || '',
+            address: employeeSource.address || '',
+            zip_code: employeeSource.zip_code || '',
+          },
+          email: apiEmployee.email || '',
+          roles: apiEmployee.roles || [],
+          fullName: `${employeeSource.first_name || ''} ${employeeSource.last_name || ''}`,
+          username: apiEmployee.username || '',
+        };
+      });
     }
     return [];
   }, [employeesData]);
