@@ -4,6 +4,7 @@ export interface Coa {
   coa_code: string;
   account_name: string;
   account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  level: 'HEADER' | 'SUBHEADER' | 'DETAIL'; // New field
   parent_coa_code: string | null;
   is_postable: boolean;
   is_active: string; // Ditambahkan berdasarkan contoh data
@@ -18,6 +19,7 @@ export interface CreateUpdateCoaRequest {
   coa_code: string;
   account_name: string;
   account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  level: 'HEADER' | 'SUBHEADER' | 'DETAIL'; // New field
   parent_coa_code?: string | null;
   is_postable: boolean;
 }
