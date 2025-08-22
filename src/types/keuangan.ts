@@ -74,10 +74,8 @@ export interface Account {
   product: AccountProduct;
 }
 
-export interface AccountApiResponse {
-  message: string;
-  data: Account[];
-}
+// Mengubah AccountApiResponse menjadi langsung array Account[]
+export type AccountApiResponse = Account[];
 
 export interface SingleAccountApiResponse {
   message: string;

@@ -3,7 +3,7 @@ import { AccountApiResponse, SingleAccountApiResponse, CreateUpdateAccountReques
 
 export const accountApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAccounts: builder.query<AccountApiResponse, void>({
+    getAccounts: builder.query<AccountApiResponse, void>({ // Mengubah tipe kembalian menjadi AccountApiResponse (yang sekarang adalah Account[])
       query: () => 'account',
       providesTags: ['Account'],
     }),
