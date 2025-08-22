@@ -157,6 +157,19 @@ export const authApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['User', 'Profile'],
     }),
+    updateProfilePhoto: builder.mutation<UpdateProfileResponse, { id: number; photo: File }>({
+      query: ({ id, photo }) => {
+        const formData = new FormData();
+        formData.append('photo', photo);
+        formData.append('_method', 'PUT'); // Assuming method spoofing is still needed for this endpoint
+        return {
+          url: `employee/photo/${id}/update`,
+          method: 'POST', // Send as POST to carry FormData
+          body: formData,
+        };
+      },
+      invalidatesTags: ['User', 'Profile'],
+    }),
     forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
       query: (data) => ({
         url: 'forgot-password',
@@ -182,6 +195,7 @@ export const {
   useRefreshTokenMutation,
   useGetProfileDetailsQuery,
   useUpdateProfileMutation,
+  useUpdateProfilePhotoMutation, // New export
   useForgotPasswordMutation,
   useChangePasswordMutation, // Export the new hook
 } = authApi;
