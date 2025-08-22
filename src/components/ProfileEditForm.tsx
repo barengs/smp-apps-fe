@@ -178,7 +178,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
                     className="w-full"
                     onClick={() => {
                       setIsWebcamOpen(true);
-                      setWebcamKey(prev => prev + 1); // Increment key to force remount
+                      setWebcamKey(Date.now()); // Menggunakan Date.now() untuk key yang unik
                     }}
                     disabled={isUploadingPhoto}
                   >
