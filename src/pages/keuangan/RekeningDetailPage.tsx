@@ -38,11 +38,24 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
 
 const RekeningDetailPage: React.FC = () => {
   const { accountNumber } = useParams<{ accountNumber: string }>();
-  const { data: response, isLoading, isError } = useGetAccountByIdQuery(accountNumber!, {
+  
+  // Log the accountNumber to verify it's being captured correctly
+  console.log("Account Number from URL params:", accountNumber);
+
+  const { data: response, isLoading, isError, error } = useGetAccountByIdQuery(accountNumber!, {
     skip: !accountNumber,
   });
 
+  // Log the API response and error state
+  console.log("API Response:", response);
+  console.log("Is Loading:", isLoading);
+  console.log("Is Error:", isError);
+  console.log("Error details:", error);
+
   const account = response?.data;
+
+  // Log the extracted account data
+  console.log("Extracted Account Data:", account);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
