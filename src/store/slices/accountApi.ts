@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { AccountApiResponse, SingleAccountApiResponse, CreateUpdateAccountRequest } from '@/types/keuangan';
+import { AccountApiResponse, SingleAccountApiResponse, CreateUpdateAccountRequest, Account } from '@/types/keuangan';
 
 export const accountApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,7 +7,7 @@ export const accountApi = smpApi.injectEndpoints({
       query: () => 'account',
       providesTags: ['Account'],
     }),
-    getAccountById: builder.query<SingleAccountApiResponse, string>({
+    getAccountById: builder.query<Account, string>({ // Mengubah tipe kembalian menjadi Account
       query: (accountNumber) => `account/${accountNumber}`,
       providesTags: (result, error, accountNumber) => [{ type: 'Account', id: accountNumber }],
     }),

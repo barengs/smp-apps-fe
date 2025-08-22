@@ -93,8 +93,8 @@ export interface AccountProduct {
 
 export interface Account {
   account_number: string;
-  customer_id: string;
-  product_id: string;
+  customer_id: string; // Changed to string based on JSON
+  product_id: string; // Changed to string based on JSON
   balance: string;
   status: string; // e.g., "TIDAK AKTIF"
   open_date: string;
@@ -108,10 +108,8 @@ export interface Account {
 // Mengubah AccountApiResponse menjadi langsung array Account[]
 export type AccountApiResponse = Account[];
 
-export interface SingleAccountApiResponse {
-  message: string;
-  data: Account;
-}
+// Mengubah SingleAccountApiResponse menjadi langsung Account
+export type SingleAccountApiResponse = Account;
 
 export interface CreateUpdateAccountRequest {
   student_id: number; // Changed from customer_id to student_id
