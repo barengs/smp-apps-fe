@@ -38,13 +38,14 @@ interface ProdukFormProps {
 }
 
 const formSchema = z.object({
-  product_code: z.string().min(1, 'Kode produk harus diisi').optional(), // Ditambahkan, opsional di schema
+  product_code: z.string().min(1, 'Kode produk harus diisi').optional(),
   product_name: z.string().min(3, 'Nama produk minimal 3 karakter'),
   product_type: z.enum(['Tabungan', 'Deposito', 'Pinjaman'], {
     required_error: 'Jenis produk harus dipilih',
   }),
   interest_rate: z.coerce.number().min(0, 'Suku bunga tidak boleh negatif'),
   admin_fee: z.coerce.number().min(0, 'Biaya administrasi tidak boleh negatif'),
+  opening_fee: z.coerce.number().min(0, 'Biaya pembukaan tidak boleh negatif'), // New field
   is_active: z.boolean().default(true),
 });
 
@@ -55,11 +56,12 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      product_code: '', // Default value for new product
+      product_code: '',
       product_name: '',
       product_type: undefined,
       interest_rate: 0,
       admin_fee: 0,
+      opening_fee: 0, // Default value for new product
       is_active: true,
     },
   });
@@ -67,20 +69,22 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   useEffect(() => {
     if (produk) {
       form.reset({
-        product_code: produk.product_code, // Set product_code for existing product
+        product_code: produk.product_code,
         product_name: produk.product_name,
-        product_type: produk.product_type as ProdukType, // Type assertion for enum
-        interest_rate: parseFloat(produk.interest_rate), // Convert string to number
-        admin_fee: parseFloat(produk.admin_fee), // Convert string to number
+        product_type: produk.product_type as ProdukType,
+        interest_rate: parseFloat(produk.interest_rate),
+        admin_fee: parseFloat(produk.admin_fee),
+        opening_fee: parseFloat(produk.opening_fee), // Set opening_fee for existing product
         is_active: produk.is_active,
       });
     } else {
       form.reset({
-        product_code: '', // Clear for new product
+        product_code: '',
         product_name: '',
         product_type: undefined,
         interest_rate: 0,
         admin_fee: 0,
+        opening_fee: 0, // Clear for new product
         is_active: true,
       });
     }
@@ -89,12 +93,11 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (produk) {
-        // For update, product_code is in the URL (id), not in the body
-        const { product_code, ...dataWithoutCode } = values; // Destructure to remove product_code from body
-        await updateProduk({ id: produk.product_code, data: dataWithoutCode as CreateUpdateProdukBankRequest }).unwrap();
+        const { product_code, ...dataWithoutCode } = values;
+        // Menggunakan produk.id.toString() sebagai ID untuk update
+        await updateProduk({ id: produk.id.toString(), data: dataWithoutCode as CreateUpdateProdukBankRequest }).unwrap();
         toast.showSuccess('Produk berhasil diperbarui');
       } else {
-        // For create, product_code is in the body
         await createProduk(values as CreateUpdateProdukBankRequest).unwrap();
         toast.showSuccess('Produk berhasil ditambahkan');
       }
@@ -125,8 +128,8 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
                     <Input
                       placeholder="Contoh: PROD-001"
                       {...field}
-                      readOnly={!!produk} // Read-only if editing
-                      required={!produk} // Required if adding new
+                      readOnly={!!produk}
+                      required={!produk}
                     />
                   </FormControl>
                   <FormMessage />
@@ -187,6 +190,19 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Biaya Administrasi</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="opening_fee" // New field
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Biaya Pembukaan</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="0" {...field} />
                   </FormControl>

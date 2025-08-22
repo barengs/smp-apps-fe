@@ -9,6 +9,7 @@ export interface ProdukBank {
   product_type: ProdukType; // Updated to enum type
   interest_rate: string; // API returns string, will be coerced in form
   admin_fee: string; // API returns string, will be coerced in form
+  opening_fee: string; // New: Biaya Pembukaan
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -20,6 +21,7 @@ export interface CreateUpdateProdukBankRequest {
   product_type: ProdukType;
   interest_rate: number; // Expected as number in request body
   admin_fee: number; // Expected as number in request body
+  opening_fee: number; // New: Biaya Pembukaan
   is_active: boolean;
 }
 

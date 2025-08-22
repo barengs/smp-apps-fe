@@ -1,6 +1,12 @@
 import { smpApi } from '../baseApi';
 import { AcademicYear } from '@/types/pendidikan';
 
+// Define the API response structure if it's wrapped
+interface GetAcademicYearsApiResponse {
+  message: string;
+  data: AcademicYear[];
+}
+
 export interface CreateUpdateTahunAjaranRequest {
   year: string;
   semester: 'Ganjil' | 'Genap';
@@ -12,6 +18,7 @@ export const tahunAjaranApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTahunAjaran: builder.query<AcademicYear[], void>({
       query: () => 'master/academic-year',
+      transformResponse: (response: GetAcademicYearsApiResponse) => response.data, // Extract the data array
       providesTags: ['TahunAjaran'],
     }),
     createTahunAjaran: builder.mutation<AcademicYear, CreateUpdateTahunAjaranRequest>({
