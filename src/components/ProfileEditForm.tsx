@@ -71,7 +71,10 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
       const file = dataURLtoFile(imageSrc, 'webcam-photo.jpg');
       setPhotoPreview(imageSrc);
       setPhotoFile(file); // Simpan file di state
-      setIsWebcamOpen(false);
+      // Delay closing the webcam dialog slightly to allow for potential cleanup
+      setTimeout(() => {
+        setIsWebcamOpen(false);
+      }, 100); // 100ms delay
     }
   }, [webcamRef]);
 
@@ -119,6 +122,20 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
     }
   };
 
+  // Handle dialog open/close with delay for closing
+  const handleDialogChange = useCallback((open: boolean) => {
+    if (!open) {
+      // When dialog is requested to close (e.g., by clicking overlay or escape key)
+      setTimeout(() => {
+        setIsWebcamOpen(false);
+      }, 100); // Delay actual state update
+    } else {
+      // When dialog is requested to open
+      setIsWebcamOpen(true);
+      setWebcamKey(Date.now()); // Set key only on open
+    }
+  }, []);
+
   return (
     <>
       <Card>
@@ -156,10 +173,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
                     type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={() => {
-                      setIsWebcamOpen(true);
-                      setWebcamKey(Date.now());
-                    }}
+                    onClick={() => handleDialogChange(true)} // Use the new handler
                     disabled={isUpdatingProfile}
                   >
                     <Camera className="mr-2 h-4 w-4" /> Ambil dari Kamera
@@ -257,7 +271,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
         </CardContent>
       </Card>
 
-      <Dialog open={isWebcamOpen} onOpenChange={setIsWebcamOpen}>
+      <Dialog open={isWebcamOpen} onOpenChange={handleDialogChange}> {/* Use the new handler */}
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Ambil Foto dari Kamera</DialogTitle>
@@ -277,7 +291,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userFullData }) => {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsWebcamOpen(false)}>Batal</Button>
+            <Button variant="outline" onClick={() => handleDialogChange(false)}>Batal</Button> {/* Use the new handler */}
             <Button onClick={capturePhoto}>
               Ambil Gambar
             </Button>
