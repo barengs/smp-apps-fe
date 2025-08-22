@@ -37,7 +37,8 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface Staff {
   id: number;
-  employee: {
+  // Changed from 'employee' to 'staff'
+  staff: {
     first_name: string;
     last_name: string;
     code: string;
@@ -52,8 +53,9 @@ interface Staff {
   username: string;
 }
 
-// Define a default object for the employee details part of the Staff interface
-const emptyStaffEmployeeDetails: Staff['employee'] = {
+// Define a default object for the staff details part of the Staff interface
+// Changed from emptyStaffEmployeeDetails to emptyStaffDetails and updated type
+const emptyStaffDetails: Staff['staff'] = {
   first_name: '',
   last_name: '',
   code: '',
@@ -77,22 +79,22 @@ const StaffTable: React.FC = () => {
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => {
-        // Use the default object if apiEmployee.employee is null or undefined
-        const employeeSource = apiEmployee.employee || emptyStaffEmployeeDetails;
+        // Use the default object if apiEmployee.staff is null or undefined
+        const staffSource = apiEmployee.staff || emptyStaffDetails; // Changed from employeeSource to staffSource
         return {
           id: apiEmployee.id,
-          employee: {
-            first_name: employeeSource.first_name || '',
-            last_name: employeeSource.last_name || '',
-            code: employeeSource.code || '',
-            nik: employeeSource.nik || '',
-            phone: employeeSource.phone || '',
-            address: employeeSource.address || '',
-            zip_code: employeeSource.zip_code || '',
+          staff: { // Changed from 'employee' to 'staff'
+            first_name: staffSource.first_name || '',
+            last_name: staffSource.last_name || '',
+            code: staffSource.code || '',
+            nik: staffSource.nik || '',
+            phone: staffSource.phone || '',
+            address: staffSource.address || '',
+            zip_code: staffSource.zip_code || '',
           },
           email: apiEmployee.email || '',
           roles: apiEmployee.roles || [],
-          fullName: `${employeeSource.first_name || ''} ${employeeSource.last_name || ''}`,
+          fullName: `${staffSource.first_name || ''} ${staffSource.last_name || ''}`,
           username: apiEmployee.username || '',
         };
       });
@@ -156,7 +158,7 @@ const StaffTable: React.FC = () => {
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
-        accessorFn: row => row.employee.code,
+        accessorFn: row => row.staff.code, // Changed from row.employee.code to row.staff.code
         id: 'code',
         header: 'Kode Staf',
       },

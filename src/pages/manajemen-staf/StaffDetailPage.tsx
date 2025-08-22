@@ -31,8 +31,8 @@ const StaffDetailPage: React.FC = () => {
   const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   const staffData = responseData?.data;
-  const employee = staffData?.employee;
-  const fullName = employee ? `${employee.first_name || ''} ${employee.last_name || ''}`.trim() : 'Detail Staf';
+  const staff = staffData?.staff; // Changed from 'employee' to 'staff'
+  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Detail Staf'; // Changed from 'employee' to 'staff'
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
@@ -75,7 +75,7 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !staffData || !employee) {
+  if (error || !staffData || !staff) { // Changed from 'employee' to 'staff'
     toast.showError('Gagal memuat detail staf atau staf tidak ditemukan.');
     navigate('/dashboard/staf');
     return null;
@@ -107,24 +107,24 @@ const StaffDetailPage: React.FC = () => {
           <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                {employee.photo ? (
-                  <img src={employee.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+                {staff.photo ? ( // Changed from 'employee' to 'staff'
+                  <img src={staff.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" /> // Changed from 'employee' to 'staff'
                 ) : (
                   <User className="h-24 w-24 text-muted-foreground" />
                 )}
               </div>
               <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
-              <p className="text-sm text-muted-foreground">{employee.email || '-'}</p>
+              <p className="text-sm text-muted-foreground">{staff.email || '-'}</p> {/* Changed from 'employee' to 'staff' */}
             </div>
             <div className="lg:col-span-3">
-              <DetailRow label="Nama Depan" value={employee.first_name} />
-              <DetailRow label="Nama Belakang" value={employee.last_name} />
-              <DetailRow label="Email" value={employee.email} />
-              <DetailRow label="Kode Staf" value={employee.code} />
-              <DetailRow label="NIK" value={employee.nik} />
-              <DetailRow label="Telepon" value={employee.phone} />
-              <DetailRow label="Alamat" value={employee.address} />
-              <DetailRow label="Kode Pos" value={employee.zip_code} />
+              <DetailRow label="Nama Depan" value={staff.first_name} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Nama Belakang" value={staff.last_name} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Email" value={staff.email} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Kode Staf" value={staff.code} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="NIK" value={staff.nik} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Telepon" value={staff.phone} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Alamat" value={staff.address} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Kode Pos" value={staff.zip_code} /> {/* Changed from 'employee' to 'staff' */}
               <DetailRow label="Peran" value={
                 roles && roles.length > 0 ? (
                   <div className="flex flex-wrap gap-1">

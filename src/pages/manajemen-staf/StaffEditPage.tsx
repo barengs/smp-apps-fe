@@ -23,8 +23,8 @@ const StaffEditPage: React.FC = () => {
   const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   const staffData = responseData?.data;
-  const employee = staffData?.employee;
-  const fullName = employee ? `${employee.first_name || ''} ${employee.last_name || ''}`.trim() : 'Edit Staf';
+  const staff = staffData?.staff; // Changed from 'employee' to 'staff'
+  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Edit Staf'; // Changed from 'employee' to 'staff'
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
@@ -72,7 +72,7 @@ const StaffEditPage: React.FC = () => {
     );
   }
 
-  if (error || !staffData || !employee) {
+  if (error || !staffData || !staff) { // Changed from 'employee' to 'staff'
     toast.showError('Gagal memuat data staf untuk diedit atau staf tidak ditemukan.');
     navigate('/dashboard/staf');
     return null;
@@ -81,16 +81,16 @@ const StaffEditPage: React.FC = () => {
   // Prepare initialData for StaffForm
   const initialFormData = {
     id: staffData.id,
-    employee: {
-      first_name: employee.first_name,
-      last_name: employee.last_name,
-      code: employee.code,
-      nik: employee.nik,
-      phone: employee.phone,
-      address: employee.address,
-      zip_code: employee.zip_code,
+    staff: { // Changed from 'employee' to 'staff'
+      first_name: staff.first_name, // Changed from 'employee' to 'staff'
+      last_name: staff.last_name, // Changed from 'employee' to 'staff'
+      code: staff.code, // Changed from 'employee' to 'staff'
+      nik: staff.nik, // Changed from 'employee' to 'staff'
+      phone: staff.phone, // Changed from 'employee' to 'staff'
+      address: staff.address, // Changed from 'employee' to 'staff'
+      zip_code: staff.zip_code, // Changed from 'employee' to 'staff'
     },
-    email: employee.email, // Corrected: Access email from employee object
+    email: staff.email, // Corrected: Access email from staff object
     roles: staffData.roles,
     username: staffData.username, // Tambahkan username dari staffData
   };
