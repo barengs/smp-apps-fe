@@ -3,7 +3,7 @@ import { useGetCoaQuery, useDeleteCoaMutation, Coa } from '@/store/slices/coaApi
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal } from 'lucide-react';
-import { ColumnDef } from '@tanstack/react-table'; // Ditambahkan
+import { ColumnDef } from '@tanstack/react-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +26,7 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import CoaForm from './CoaForm';
 
 const CoaTable: React.FC = () => {
-  const { data, isLoading, isError, error } = useGetCoaQuery();
+  const { data, isLoading, isError, error } = useGetCoaQuery(); // 'data' sekarang langsung berupa array Coa[]
   const [deleteCoa, { isLoading: isDeleting }] = useDeleteCoaMutation();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -131,10 +131,10 @@ const CoaTable: React.FC = () => {
     <div>
       <DataTable 
         columns={columns} 
-        data={data?.data || []} 
+        data={data || []} // Akses data langsung dari 'data'
         exportFileName="chart_of_accounts"
         exportTitle="Bagan Akun Standar"
-        onAddData={handleAdd} // Tombol "Tambah Akun" dipindahkan ke sini
+        onAddData={handleAdd}
       />
       <CoaForm
         isOpen={isFormOpen}

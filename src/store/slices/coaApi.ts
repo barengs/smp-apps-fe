@@ -6,12 +6,13 @@ export interface Coa {
   account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
   parent_coa_code: string | null;
   is_postable: boolean;
+  is_active: string; // Ditambahkan berdasarkan contoh data
+  created_at: string; // Ditambahkan berdasarkan contoh data
+  updated_at: string; // Ditambahkan berdasarkan contoh data
+  children: any[]; // Ditambahkan berdasarkan contoh data
 }
 
-interface GetCoaResponse {
-  message: string;
-  data: Coa[];
-}
+// Interface GetCoaResponse dihapus karena API mengembalikan array Coa[] secara langsung
 
 export interface CreateUpdateCoaRequest {
   coa_code: string;
@@ -23,7 +24,7 @@ export interface CreateUpdateCoaRequest {
 
 export const coaApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCoa: builder.query<GetCoaResponse, void>({
+    getCoa: builder.query<Coa[], void>({ // Tipe kembalian diubah menjadi Coa[]
       query: () => 'chart-of-account',
       providesTags: ['Coa'],
     }),

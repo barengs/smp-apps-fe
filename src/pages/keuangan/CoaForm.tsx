@@ -167,7 +167,7 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="__NULL__">Tidak ada</SelectItem> {/* Changed value from "" */}
-                      {(coaList?.data || []).map((item) => (
+                      {(coaList || []).map((item) => (
                         <SelectItem key={item.coa_code} value={item.coa_code}>
                           {item.coa_code} - {item.account_name}
                         </SelectItem>
