@@ -85,7 +85,7 @@ export interface SingleAccountApiResponse {
 }
 
 export interface CreateUpdateAccountRequest {
-  customer_id: number;
+  student_id: number; // Changed from customer_id to student_id
   product_id: number;
   status: 'ACTIVE' | 'INACTIVE' | 'FROZEN' | 'CLOSED';
   open_date: string; // Format YYYY-MM-DD

@@ -14,7 +14,7 @@ import { CreateUpdateAccountRequest } from '@/types/keuangan';
 import { format } from 'date-fns';
 
 const formSchema = z.object({
-  customer_id: z.number({ required_error: 'Santri harus dipilih.' }),
+  student_id: z.number({ required_error: 'Santri harus dipilih.' }), // Changed from customer_id to student_id
   product_id: z.number({ required_error: 'Produk bank harus dipilih.' }),
   status: z.enum(['ACTIVE', 'INACTIVE', 'FROZEN', 'CLOSED'], {
     required_error: 'Status harus dipilih.',
@@ -34,7 +34,7 @@ export const RekeningForm: React.FC<RekeningFormProps> = ({ isOpen, onClose, onS
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      customer_id: initialData?.customer_id,
+      student_id: initialData?.student_id, // Changed from customer_id to student_id
       product_id: initialData?.product_id,
       status: initialData?.status || 'ACTIVE',
       open_date: initialData?.open_date ? new Date(initialData.open_date) : new Date(),
@@ -61,14 +61,14 @@ export const RekeningForm: React.FC<RekeningFormProps> = ({ isOpen, onClose, onS
   React.useEffect(() => {
     if (initialData) {
       form.reset({
-        customer_id: initialData.customer_id,
+        student_id: initialData.student_id, // Changed from customer_id to student_id
         product_id: initialData.product_id,
         status: initialData.status,
         open_date: new Date(initialData.open_date),
       });
     } else {
       form.reset({
-        customer_id: undefined,
+        student_id: undefined, // Changed from customer_id to student_id
         product_id: undefined,
         status: 'ACTIVE',
         open_date: new Date(),
@@ -93,7 +93,7 @@ export const RekeningForm: React.FC<RekeningFormProps> = ({ isOpen, onClose, onS
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="customer_id"
+              name="student_id" // Changed from customer_id to student_id
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Santri</FormLabel>
