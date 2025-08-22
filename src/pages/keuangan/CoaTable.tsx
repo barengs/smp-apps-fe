@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGetCoaQuery, useDeleteCoaMutation, Coa } from '@/store/slices/coaApi';
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { PlusCircle, MoreHorizontal, ChevronDown, ChevronRight } from 'lucide-react';
+import { ColumnDef, ExpandedState } from '@tanstack/react-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,14 +25,32 @@ import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import CoaForm from './CoaForm';
 
+// Menambahkan subRows ke interface Coa untuk keperluan tabel
+interface CoaWithSubRows extends Coa {
+  subRows?: CoaWithSubRows[];
+}
+
 const CoaTable: React.FC = () => {
-  const { data, isLoading, isError, error } = useGetCoaQuery(); // 'data' sekarang langsung berupa array Coa[]
+  const { data, isLoading, isError, error } = useGetCoaQuery();
   const [deleteCoa, { isLoading: isDeleting }] = useDeleteCoaMutation();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCoa, setSelectedCoa] = useState<Coa | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [coaToDelete, setCoaToDelete] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+
+  const tableData = useMemo(() => {
+    if (!data) return [];
+    // Fungsi rekursif untuk mengubah 'children' menjadi 'subRows'
+    const transformData = (items: Coa[]): CoaWithSubRows[] => {
+      return items.map(item => ({
+        ...item,
+        subRows: item.children && item.children.length > 0 ? transformData(item.children) : undefined,
+      }));
+    };
+    return transformData(data);
+  }, [data]);
 
   const handleAdd = () => {
     setSelectedCoa(null);
@@ -62,23 +80,38 @@ const CoaTable: React.FC = () => {
     }
   };
 
-  const columns: ColumnDef<Coa>[] = [
-    {
-      accessorKey: 'coa_code',
-      header: 'Kode COA',
-    },
+  const columns: ColumnDef<CoaWithSubRows>[] = [
     {
       accessorKey: 'account_name',
       header: 'Nama Akun',
+      cell: ({ row }) => (
+        <div
+          style={{ paddingLeft: `${row.depth * 1.5}rem` }}
+          className="flex items-center"
+        >
+          {row.getCanExpand() ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={row.getToggleExpandedHandler()}
+              className="mr-2 p-1 h-auto"
+            >
+              {row.getIsExpanded() ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </Button>
+          ) : (
+            <span className="mr-2 p-1 h-auto w-6 inline-block"></span> // Placeholder for alignment
+          )}
+          <div className="flex flex-col">
+            <span className="font-medium">{row.original.account_name}</span>
+            <span className="text-xs text-muted-foreground">{row.original.coa_code}</span>
+          </div>
+        </div>
+      ),
     },
     {
       accessorKey: 'account_type',
       header: 'Tipe Akun',
       cell: ({ row }) => <span className="capitalize">{row.original.account_type.toLowerCase()}</span>,
-    },
-    {
-      accessorKey: 'parent_coa_code',
-      header: 'Induk Akun',
     },
     {
       accessorKey: 'is_postable',
@@ -131,10 +164,13 @@ const CoaTable: React.FC = () => {
     <div>
       <DataTable 
         columns={columns} 
-        data={data || []} // Akses data langsung dari 'data'
+        data={tableData}
         exportFileName="chart_of_accounts"
         exportTitle="Bagan Akun Standar"
         onAddData={handleAdd}
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+        getRowId={(row) => row.coa_code}
       />
       <CoaForm
         isOpen={isFormOpen}
