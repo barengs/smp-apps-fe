@@ -1,15 +1,25 @@
 import { smpApi } from '../baseApi';
 
-// --- API Response and Request Types ---
+export type ProdukType = "Tabungan" | "Deposito" | "Pinjaman";
 
-// Interface disesuaikan dengan struktur data dari endpoint /product
 export interface ProdukBank {
+  id: number;
   product_code: string;
   product_name: string;
-  // Asumsi tipe produk selain SAVINGS adalah FINANCING
-  product_type: 'Tabungan' | 'Deposito' | 'Pinjaman'; // Diperbarui
-  interest_rate: number;
-  admin_fee: number;
+  product_type: ProdukType; // Updated to enum type
+  interest_rate: string; // API returns string, will be coerced in form
+  admin_fee: string; // API returns string, will be coerced in form
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateUpdateProdukBankRequest {
+  product_code?: string; // Optional for update, required for create
+  product_name: string;
+  product_type: ProdukType;
+  interest_rate: number; // Expected as number in request body
+  admin_fee: number; // Expected as number in request body
   is_active: boolean;
 }
 
@@ -18,51 +28,36 @@ interface GetProdukBankResponse {
   data: ProdukBank[];
 }
 
-// Request interface disesuaikan untuk create/update
-export interface CreateUpdateProdukBankRequest {
-  product_code?: string; // Ditambahkan, opsional karena tidak selalu ada (misal saat update)
-  product_name: string;
-  product_type: 'Tabungan' | 'Deposito' | 'Pinjaman'; // Diperbarui
-  interest_rate: number;
-  admin_fee: number;
-  is_active: boolean;
-}
-
 export const produkBankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProdukBank: builder.query<GetProdukBankResponse, void>({
-      query: () => 'product', // Endpoint diubah ke /product
+      query: () => 'product',
       providesTags: ['ProdukBank'],
     }),
     createProdukBank: builder.mutation<ProdukBank, CreateUpdateProdukBankRequest>({
       query: (newProduk) => ({
-        url: 'product', // Endpoint diubah ke /product
+        url: 'product',
         method: 'POST',
         body: newProduk,
       }),
       invalidatesTags: ['ProdukBank'],
     }),
     updateProdukBank: builder.mutation<ProdukBank, { id: string; data: CreateUpdateProdukBankRequest }>({
-        query: ({ id, data }) => ({
-            url: `product/${id}`, // Endpoint diubah dan id sekarang adalah product_code (string)
-            method: 'PUT',
-            body: data,
-        }),
-        invalidatesTags: ['ProdukBank'],
+      query: ({ id, data }) => ({
+        url: `product/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['ProdukBank'],
     }),
-    deleteProdukBank: builder.mutation<{ message: string }, string>({
-        query: (id) => ({
-            url: `product/${id}`, // Endpoint diubah dan id sekarang adalah product_code (string)
-            method: 'DELETE',
-        }),
-        invalidatesTags: ['ProdukBank'],
+    deleteProdukBank: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `product/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['ProdukBank'],
     }),
   }),
 });
 
-export const { 
-    useGetProdukBankQuery, 
-    useCreateProdukBankMutation,
-    useUpdateProdukBankMutation,
-    useDeleteProdukBankMutation,
-} = produkBankApi;
+export const { useGetProdukBankQuery, useCreateProdukBankMutation, useUpdateProdukBankMutation, useDeleteProdukBankMutation } = produkBankApi;

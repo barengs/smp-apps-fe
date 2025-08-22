@@ -61,3 +61,10 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {smpApi: SmpApiState, ...}
 export type AppDispatch = typeof store.dispatch;
+
+// Define the types for the API slices
+export type StudentStatistics = any;
+export type ProdukBank = any;
+export type Coa = any;
+export type TransactionType = any;
+export type Account = any;

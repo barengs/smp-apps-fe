@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useCreateProdukBankMutation, useUpdateProdukBankMutation, ProdukBank, CreateUpdateProdukBankRequest } from '@/store/slices/produkBankApi';
+import { useCreateProdukBankMutation, useUpdateProdukBankMutation, ProdukBank, CreateUpdateProdukBankRequest, ProdukType } from '@/store/slices/produkBankApi';
 import * as toast from '@/utils/toast';
 
 interface ProdukFormProps {
@@ -69,9 +69,9 @@ const ProdukForm: React.FC<ProdukFormProps> = ({ isOpen, onClose, produk }) => {
       form.reset({
         product_code: produk.product_code, // Set product_code for existing product
         product_name: produk.product_name,
-        product_type: produk.product_type,
-        interest_rate: produk.interest_rate,
-        admin_fee: produk.admin_fee,
+        product_type: produk.product_type as ProdukType, // Type assertion for enum
+        interest_rate: parseFloat(produk.interest_rate), // Convert string to number
+        admin_fee: parseFloat(produk.admin_fee), // Convert string to number
         is_active: produk.is_active,
       });
     } else {
