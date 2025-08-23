@@ -32,12 +32,14 @@ interface CoaWithSubRows extends Coa {
 
 const CoaTable: React.FC = () => {
   const { data, isLoading, isError, error } = useGetCoaQuery();
-  const [deleteCoa, { isLoading: isDeleting }] = useDeleteCoaMutation();
+  // useDeleteCoaMutation tidak lagi digunakan karena fitur hapus dihilangkan
+  // const [deleteCoa, { isLoading: isDeleting }] = useDeleteCoaMutation();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCoa, setSelectedCoa] = useState<Coa | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [coaToDelete, setCoaToDelete] = useState<string | null>(null);
+  // State dan fungsi terkait dialog hapus tidak lagi diperlukan
+  // const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  // const [coaToDelete, setCoaToDelete] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const tableData = useMemo(() => {
@@ -62,23 +64,24 @@ const CoaTable: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const openDeleteDialog = (code: string) => {
-    setCoaToDelete(code);
-    setIsDeleteDialogOpen(true);
-  };
+  // Fungsi terkait dialog hapus tidak lagi diperlukan
+  // const openDeleteDialog = (code: string) => {
+  //   setCoaToDelete(code);
+  //   setIsDeleteDialogOpen(true);
+  // };
 
-  const handleDelete = async () => {
-    if (coaToDelete) {
-      try {
-        await deleteCoa(coaToDelete).unwrap();
-        toast.showSuccess('Akun berhasil dihapus');
-        setIsDeleteDialogOpen(false);
-        setCoaToDelete(null);
-      } catch (err) {
-        toast.showError('Gagal menghapus akun');
-      }
-    }
-  };
+  // const handleDelete = async () => {
+  //   if (coaToDelete) {
+  //     try {
+  //       await deleteCoa(coaToDelete).unwrap();
+  //       toast.showSuccess('Akun berhasil dihapus');
+  //       setIsDeleteDialogOpen(false);
+  //       setCoaToDelete(null);
+  //     } catch (err) {
+  //       toast.showError('Gagal menghapus akun');
+  //     }
+  //   }
+  // };
 
   const columns: ColumnDef<CoaWithSubRows>[] = [
     {
@@ -143,7 +146,8 @@ const CoaTable: React.FC = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleEdit(coa)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openDeleteDialog(coa.coa_code)}>Hapus</DropdownMenuItem>
+              {/* Tombol hapus dihilangkan */}
+              {/* <DropdownMenuItem onClick={() => openDeleteDialog(coa.coa_code)}>Hapus</DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -177,7 +181,8 @@ const CoaTable: React.FC = () => {
         onClose={() => setIsFormOpen(false)}
         coa={selectedCoa}
       />
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      {/* AlertDialog untuk hapus dihilangkan */}
+      {/* <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
@@ -192,7 +197,7 @@ const CoaTable: React.FC = () => {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </div>
   );
 };
