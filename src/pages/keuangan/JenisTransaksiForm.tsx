@@ -47,8 +47,8 @@ const formSchema = z.object({
   }),
   is_debit: z.boolean().default(false),
   is_credit: z.boolean().default(false),
-  coa_debit_code: z.string().nullable().optional(), // New field
-  coa_credit_code: z.string().nullable().optional(), // New field
+  default_debit_coa: z.string().nullable().optional(), // Renamed field
+  default_credit_coa: z.string().nullable().optional(), // Renamed field
 });
 
 const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose, transactionType }) => {
@@ -64,8 +64,8 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
       category: undefined, // Set to undefined for Select to show placeholder
       is_debit: false,
       is_credit: false,
-      coa_debit_code: null, // Default to null
-      coa_credit_code: null, // Default to null
+      default_debit_coa: null, // Default to null
+      default_credit_coa: null, // Default to null
     },
   });
 
@@ -73,8 +73,8 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
     if (transactionType) {
       form.reset({
         ...transactionType,
-        coa_debit_code: transactionType.coa_debit_code || null,
-        coa_credit_code: transactionType.coa_credit_code || null,
+        default_debit_coa: transactionType.default_debit_coa || null,
+        default_credit_coa: transactionType.default_credit_coa || null,
       });
     } else {
       form.reset({
@@ -83,8 +83,8 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
         category: undefined,
         is_debit: false,
         is_credit: false,
-        coa_debit_code: null,
-        coa_credit_code: null,
+        default_debit_coa: null,
+        default_credit_coa: null,
       });
     }
   }, [transactionType, form]);
@@ -97,8 +97,8 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
         category: values.category,
         is_debit: values.is_debit,
         is_credit: values.is_credit,
-        coa_debit_code: values.coa_debit_code === "" ? null : values.coa_debit_code,
-        coa_credit_code: values.coa_credit_code === "" ? null : values.coa_credit_code,
+        default_debit_coa: values.default_debit_coa === "" ? null : values.default_debit_coa,
+        default_credit_coa: values.default_credit_coa === "" ? null : values.default_credit_coa,
       };
 
       if (transactionType) {
@@ -215,10 +215,10 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* New row for COA fields */}
               <FormField
                 control={form.control}
-                name="coa_debit_code"
+                name="default_debit_coa" // Renamed field
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>COA Debit (Opsional)</FormLabel>
+                    <FormLabel>COA Debit Default (Opsional)</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value === "__NULL__" ? null : value)}
                       value={field.value === null ? "__NULL__" : field.value || ""}
@@ -250,10 +250,10 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
               />
               <FormField
                 control={form.control}
-                name="coa_credit_code"
+                name="default_credit_coa" // Renamed field
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>COA Credit (Opsional)</FormLabel>
+                    <FormLabel>COA Credit Default (Opsional)</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value === "__NULL__" ? null : value)}
                       value={field.value === null ? "__NULL__" : field.value || ""}
