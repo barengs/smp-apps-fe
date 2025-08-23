@@ -32,6 +32,8 @@ export interface TransactionType {
   category: 'transfer' | 'payment' | 'cash_operation' | 'fee'; // Diperbarui menjadi huruf kecil
   is_debit: boolean;
   is_credit: boolean;
+  coa_debit_code: string | null; // New field
+  coa_credit_code: string | null; // New field
 }
 
 export interface TransactionTypeApiResponse {
@@ -46,6 +48,8 @@ export interface CreateUpdateTransactionTypeRequest {
   category: 'transfer' | 'payment' | 'cash_operation' | 'fee'; // Diperbarui menjadi huruf kecil
   is_debit: boolean;
   is_credit: boolean;
+  coa_debit_code?: string | null; // New field, optional for request
+  coa_credit_code?: string | null; // New field, optional for request
 }
 
 // --- Tipe untuk Rekening (Account) ---

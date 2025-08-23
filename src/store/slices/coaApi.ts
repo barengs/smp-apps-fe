@@ -34,6 +34,10 @@ export const coaApi = smpApi.injectEndpoints({
       query: () => 'chart-of-account/header-accounts',
       providesTags: ['Coa'], // Still provides 'Coa' tag for invalidation
     }),
+    getDetailAccounts: builder.query<Coa[], void>({ // New endpoint for detail accounts
+      query: () => 'chart-of-account/detail-accounts',
+      providesTags: ['Coa'],
+    }),
     createCoa: builder.mutation<Coa, CreateUpdateCoaRequest>({
       query: (newCoa) => ({
         url: 'chart-of-account',
@@ -63,6 +67,7 @@ export const coaApi = smpApi.injectEndpoints({
 export const { 
     useGetCoaQuery, 
     useGetHeaderAccountsQuery, // Export the new hook
+    useGetDetailAccountsQuery, // Export the new hook
     useCreateCoaMutation,
     useUpdateCoaMutation,
     useDeleteCoaMutation,
