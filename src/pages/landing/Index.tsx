@@ -49,6 +49,8 @@ const Index = () => {
     return [];
   }, [newsData]);
 
+  const defaultLogoPath = "/images/default-logo.png"; // Path to your default logo
+
   return (
     <LandingLayout title={t('welcomeTitle')}>
       {/* Running Text Section */}
@@ -63,7 +65,7 @@ const Index = () => {
           {settings?.app_logo ? (
             <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`} alt="App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
           ) : (
-            <BookOpenText className="h-48 w-48 mx-auto mb-8 text-primary" />
+            <img src={defaultLogoPath} alt="Default App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
           )}
           {/* Teks Assalamu'alaikum dalam bahasa Arab */}
           <p className="text-5xl font-bold text-gray-800 mb-8" dir="rtl">

@@ -65,6 +65,8 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
         ]),
   ];
 
+  const defaultLogoPath = "/images/default-logo.png"; // Path to your default logo
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -73,7 +75,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
           {settings?.app_logo ? (
             <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-10 w-10 mr-4 object-contain" />
           ) : (
-            <BookOpenText className="h-10 w-10 mr-4 text-primary" />
+            <img src={defaultLogoPath} alt="Default App Logo" className="h-10 w-10 mr-4 object-contain" />
           )}
           <span className="text-2xl font-bold text-primary">{settings?.app_name || 'SMP'}</span>
         </div>
