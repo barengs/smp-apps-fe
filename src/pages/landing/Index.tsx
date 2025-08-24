@@ -71,7 +71,7 @@ const Index = () => {
           <img
             src="/images/Assalamu-aleykum.svg.png"
             alt="Assalamu'alaikum"
-            className="h-24 sm:h-32 md:h-40 mx-auto mb-8 object-contain"
+            className="h-12 sm:h-16 md:h-20 mx-auto mb-8 object-contain"
           />
           <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
             {t('welcomeTitle')}
