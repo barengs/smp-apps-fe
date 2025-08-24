@@ -67,10 +67,12 @@ const Index = () => {
           ) : (
             <img src={defaultLogoPath} alt="Default App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
           )}
-          {/* Teks Assalamu'alaikum dalam bahasa Arab */}
-          <p className="text-5xl font-bold text-gray-800 mb-8" dir="rtl">
-            السلام عليكم
-          </p>
+          {/* Mengganti teks Assalamu'alaikum dengan gambar */}
+          <img
+            src="/images/Assalamu-aleykum.svg.png"
+            alt="Assalamu'alaikum"
+            className="h-24 sm:h-32 md:h-40 mx-auto mb-8 object-contain"
+          />
           <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
             {t('welcomeTitle')}
           </h1>
