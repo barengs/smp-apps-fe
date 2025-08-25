@@ -67,8 +67,24 @@ import { ThemeProvider } from './components/theme-provider';
 import { ToastContainer } from 'react-toastify';
 import AuthManager from './components/AuthManager';
 import DynamicAppConfig from './components/DynamicAppConfig';
+import { useEffect } from 'react';
+import { useGetControlPanelSettingsQuery } from './store/slices/controlPanelApi';
 
 function App() {
+  const { data: settings } = useGetControlPanelSettingsQuery();
+
+  useEffect(() => {
+    if (settings?.app_description) {
+      let metaDescriptionTag = document.querySelector('meta[name="description"]');
+      if (!metaDescriptionTag) {
+        metaDescriptionTag = document.createElement('meta');
+        metaDescriptionTag.setAttribute('name', 'description');
+        document.head.appendChild(metaDescriptionTag);
+      }
+      metaDescriptionTag.setAttribute('content', settings.app_description);
+    }
+  }, [settings]);
+
   return (
     <Provider store={store}>
       <BrowserRouter>

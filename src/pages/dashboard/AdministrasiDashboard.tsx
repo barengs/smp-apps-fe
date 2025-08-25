@@ -145,7 +145,13 @@ const AdministrasiDashboard: React.FC = () => {
       </div>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Quick Actions and Activity Schedule */}
+        {/* Left Column: Santri Statistics Chart */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
+          <SantriGrowthChart />
+        </div>
+
+        {/* Right Column: Quick Actions and Activity Schedule */}
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold mb-4">Tindakan Cepat</h2>
@@ -184,12 +190,6 @@ const AdministrasiDashboard: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Right Column: Santri Statistics Chart */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
-          <SantriGrowthChart />
         </div>
       </div>
 
