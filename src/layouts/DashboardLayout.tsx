@@ -183,6 +183,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
     return undefined;
   }, [location.pathname, sidebarNavItems, isCollapsed]);
 
+  const defaultLogoPath = "/images/default-logo.png"; // Path to your default logo
+
   return (
     <nav className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border")}>
       <div className={cn(
@@ -193,7 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
           {settings?.app_logo ? (
             <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-8 w-8 object-contain" />
           ) : (
-            <BookOpenText className="h-8 w-8 text-primary shrink-0" />
+            <img src={defaultLogoPath} alt="Default App Logo" className="h-8 w-8 object-contain" />
           )}
           {!isCollapsed && (
             <span className="text-xl font-bold text-primary whitespace-nowrap">{settings?.app_name || 'SMP'}</span>

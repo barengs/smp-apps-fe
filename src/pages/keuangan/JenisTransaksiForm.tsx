@@ -31,6 +31,7 @@ import {
 import { useCreateTransactionTypeMutation, useUpdateTransactionTypeMutation } from '@/store/slices/transactionTypeApi';
 import { TransactionType, CreateUpdateTransactionTypeRequest } from '@/types/keuangan';
 import * as toast from '@/utils/toast';
+import { useGetDetailAccountsQuery } from '@/store/slices/coaApi'; // Import the new hook
 
 interface JenisTransaksiFormProps {
   isOpen: boolean;
@@ -46,11 +47,14 @@ const formSchema = z.object({
   }),
   is_debit: z.boolean().default(false),
   is_credit: z.boolean().default(false),
+  default_debit_coa: z.string().nullable().optional(), // Renamed field
+  default_credit_coa: z.string().nullable().optional(), // Renamed field
 });
 
 const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose, transactionType }) => {
   const [createTransactionType, { isLoading: isCreating }] = useCreateTransactionTypeMutation();
   const [updateTransactionType, { isLoading: isUpdating }] = useUpdateTransactionTypeMutation();
+  const { data: detailAccounts, isLoading: isLoadingDetailAccounts, isError: isErrorDetailAccounts } = useGetDetailAccountsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,12 +64,18 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
       category: undefined, // Set to undefined for Select to show placeholder
       is_debit: false,
       is_credit: false,
+      default_debit_coa: null, // Default to null
+      default_credit_coa: null, // Default to null
     },
   });
 
   useEffect(() => {
     if (transactionType) {
-      form.reset(transactionType);
+      form.reset({
+        ...transactionType,
+        default_debit_coa: transactionType.default_debit_coa || null,
+        default_credit_coa: transactionType.default_credit_coa || null,
+      });
     } else {
       form.reset({
         code: '',
@@ -73,17 +83,29 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
         category: undefined,
         is_debit: false,
         is_credit: false,
+        default_debit_coa: null,
+        default_credit_coa: null,
       });
     }
   }, [transactionType, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const payload: CreateUpdateTransactionTypeRequest = {
+        code: values.code,
+        name: values.name,
+        category: values.category,
+        is_debit: values.is_debit,
+        is_credit: values.is_credit,
+        default_debit_coa: values.default_debit_coa === "" ? null : values.default_debit_coa,
+        default_credit_coa: values.default_credit_coa === "" ? null : values.default_credit_coa,
+      };
+
       if (transactionType) {
-        await updateTransactionType({ id: transactionType.id, data: values as CreateUpdateTransactionTypeRequest }).unwrap();
+        await updateTransactionType({ id: transactionType.id, data: payload }).unwrap();
         toast.showSuccess('Jenis transaksi berhasil diperbarui');
       } else {
-        await createTransactionType(values as CreateUpdateTransactionTypeRequest).unwrap();
+        await createTransactionType(payload).unwrap();
         toast.showSuccess('Jenis transaksi berhasil ditambahkan');
       }
       onClose();
@@ -94,7 +116,7 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[700px]"> {/* Increased max-width */}
         <DialogHeader>
           <DialogTitle>{transactionType ? 'Edit Jenis Transaksi' : 'Tambah Jenis Transaksi'}</DialogTitle>
           <DialogDescription>
@@ -103,32 +125,34 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kode</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contoh: TRF-01" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Jenis Transaksi</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contoh: Transfer Antar Bank" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kode</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Contoh: TRF-01" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Jenis Transaksi</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Contoh: Transfer Antar Bank" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="category"
@@ -184,6 +208,78 @@ const JenisTransaksiForm: React.FC<JenisTransaksiFormProps> = ({ isOpen, onClose
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* New row for COA fields */}
+              <FormField
+                control={form.control}
+                name="default_debit_coa" // Renamed field
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>COA Debit Default (Opsional)</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "__NULL__" ? null : value)}
+                      value={field.value === null ? "__NULL__" : field.value || ""}
+                      disabled={isLoadingDetailAccounts || isErrorDetailAccounts}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih akun COA Debit" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="__NULL__">Tidak ada</SelectItem>
+                        {isLoadingDetailAccounts ? (
+                          <SelectItem value="loading" disabled>Memuat akun detail...</SelectItem>
+                        ) : isErrorDetailAccounts ? (
+                          <SelectItem value="error" disabled>Gagal memuat akun detail.</SelectItem>
+                        ) : (
+                          (detailAccounts || []).map((item) => (
+                            <SelectItem key={item.coa_code} value={item.coa_code}>
+                              {item.coa_code} - {item.account_name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="default_credit_coa" // Renamed field
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>COA Credit Default (Opsional)</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "__NULL__" ? null : value)}
+                      value={field.value === null ? "__NULL__" : field.value || ""}
+                      disabled={isLoadingDetailAccounts || isErrorDetailAccounts}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih akun COA Credit" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="__NULL__">Tidak ada</SelectItem>
+                        {isLoadingDetailAccounts ? (
+                          <SelectItem value="loading" disabled>Memuat akun detail...</SelectItem>
+                        ) : isErrorDetailAccounts ? (
+                          <SelectItem value="error" disabled>Gagal memuat akun detail.</SelectItem>
+                        ) : (
+                          (detailAccounts || []).map((item) => (
+                            <SelectItem key={item.coa_code} value={item.coa_code}>
+                              {item.coa_code} - {item.account_name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

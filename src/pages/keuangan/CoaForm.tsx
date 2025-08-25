@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useCreateCoaMutation, useUpdateCoaMutation, useGetCoaQuery, Coa, CreateUpdateCoaRequest } from '@/store/slices/coaApi';
+import { useCreateCoaMutation, useUpdateCoaMutation, useGetHeaderAccountsQuery, Coa, CreateUpdateCoaRequest } from '@/store/slices/coaApi'; // Changed useGetCoaQuery to useGetHeaderAccountsQuery
 import * as toast from '@/utils/toast';
 
 interface CoaFormProps {
@@ -49,7 +49,7 @@ const formSchema = z.object({
 const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
   const [createCoa, { isLoading: isCreating }] = useCreateCoaMutation();
   const [updateCoa, { isLoading: isUpdating }] = useUpdateCoaMutation();
-  const { data: coaList } = useGetCoaQuery();
+  const { data: headerAccounts, isLoading: isLoadingHeaderAccounts, isError: isErrorHeaderAccounts } = useGetHeaderAccountsQuery(); // Use new hook
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -184,17 +184,24 @@ const CoaForm: React.FC<CoaFormProps> = ({ isOpen, onClose, coa }) => {
                   <Select
                     onValueChange={(value) => field.onChange(value === "__NULL__" ? null : value)}
                     defaultValue={field.value === null ? "__NULL__" : field.value}
+                    disabled={isLoadingHeaderAccounts || isErrorHeaderAccounts}
                   >
                     <FormControl>
                       <SelectTrigger><SelectValue placeholder="Pilih akun induk (opsional)" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="__NULL__">Tidak ada</SelectItem>
-                      {(coaList || []).map((item) => (
-                        <SelectItem key={item.coa_code} value={item.coa_code}>
-                          {item.coa_code} - {item.account_name}
-                        </SelectItem>
-                      ))}
+                      {isLoadingHeaderAccounts ? (
+                        <SelectItem value="loading" disabled>Memuat akun header...</SelectItem>
+                      ) : isErrorHeaderAccounts ? (
+                        <SelectItem value="error" disabled>Gagal memuat akun header.</SelectItem>
+                      ) : (
+                        (headerAccounts || []).map((item) => (
+                          <SelectItem key={item.coa_code} value={item.coa_code}>
+                            {item.coa_code} - {item.account_name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

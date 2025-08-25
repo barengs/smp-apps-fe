@@ -87,6 +87,11 @@ const ProdukTable: React.FC = () => {
       cell: ({ row }) => `Rp ${parseFloat(row.original.admin_fee).toLocaleString('id-ID')}`, // Ensure it's a number
     },
     {
+      accessorKey: 'opening_fee', // New column for opening_fee
+      header: 'Biaya Pembukaan',
+      cell: ({ row }) => `Rp ${parseFloat(row.original.opening_fee).toLocaleString('id-ID')}`, // Format as currency
+    },
+    {
       accessorKey: 'is_active',
       header: 'Status',
       cell: ({ row }) => (
