@@ -196,7 +196,11 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={handleProcessPayment} size="icon" disabled={isProcessingPayment || calonSantri.payment_status === 'paid'}> {/* Disable if already paid */}
+                    <Button 
+                      onClick={handleProcessPayment} 
+                      size="icon" 
+                      disabled={isProcessingPayment || calonSantri.payment_status === 'paid' || calonSantri.payment_amount > 0} // Disable if already paid or amount > 0
+                    >
                       <DollarSign className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
