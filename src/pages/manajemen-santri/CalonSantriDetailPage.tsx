@@ -27,6 +27,15 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 import { AlertCircle } from 'lucide-react'; // Import AlertCircle
 import * as toast from '@/utils/toast'; // Import toast utilities
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useGetProdukBankQuery } from '@/store/slices/produkBankApi';
+import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -42,6 +51,11 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const [isPaymentProcessDialogOpen, setIsPaymentProcessDialogOpen] = useState(false); // State baru untuk dialog pembayaran
+  const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined);
+  const [selectedTransactionTypeId, setSelectedTransactionTypeId] = useState<string | undefined>(undefined);
+
+  const { data: produkBankData, isLoading: isLoadingProdukBank } = useGetProdukBankQuery();
+  const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -106,7 +120,10 @@ const CalonSantriDetailPage: React.FC = () => {
   };
 
   const handleContinuePaymentProcess = async () => {
-    if (!calonSantri) return;
+    if (!calonSantri || !selectedProductId || !selectedTransactionTypeId) {
+      toast.showError('Harap pilih Produk Tabungan dan Jenis Transaksi.');
+      return;
+    }
 
     // Get current Hijri year
     const today = new Date();
@@ -123,10 +140,10 @@ const CalonSantriDetailPage: React.FC = () => {
     try {
       await processPayment({
         registration_id: calonSantri.id,
-        product_id: 1,
+        product_id: Number(selectedProductId),
         hijri_year: hijriYear,
         amount: 0, // As per requirement
-        transaction_type_id: 1, // As per requirement
+        transaction_type_id: Number(selectedTransactionTypeId),
         channel: 'TELLER', // As per requirement
         registration_number: calonSantri.registration_number,
       }).unwrap();
@@ -179,7 +196,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={handleProcessPayment} size="icon" disabled={isProcessingPayment}> {/* Disable button while processing */}
+                    <Button onClick={handleProcessPayment} size="icon" disabled={isProcessingPayment || calonSantri.payment_status === 'paid'}> {/* Disable if already paid */}
                       <DollarSign className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -298,16 +315,60 @@ const CalonSantriDetailPage: React.FC = () => {
               Proses Pembayaran
             </DialogTitle>
             <DialogDescription>
-              Buat nomor santri sebagai akun dan proses pembayaran.
+              Pilih produk tabungan dan jenis transaksi untuk membuat akun santri dan memproses pembayaran.
             </DialogDescription>
           </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="produk-tabungan" className="text-right">
+                Produk Tabungan
+              </label>
+              <Select
+                value={selectedProductId}
+                onValueChange={setSelectedProductId}
+                disabled={isLoadingProdukBank || isProcessingPayment}
+              >
+                <SelectTrigger id="produk-tabungan" className="col-span-3">
+                  <SelectValue placeholder={isLoadingProdukBank ? "Memuat produk..." : "Pilih produk tabungan"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {produkBankData?.data.map((produk) => (
+                    <SelectItem key={produk.id} value={String(produk.id)}>
+                      {produk.product_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="jenis-transaksi" className="text-right">
+                Jenis Transaksi
+              </label>
+              <Select
+                value={selectedTransactionTypeId}
+                onValueChange={setSelectedTransactionTypeId}
+                disabled={isLoadingTransactionTypes || isProcessingPayment}
+              >
+                <SelectTrigger id="jenis-transaksi" className="col-span-3">
+                  <SelectValue placeholder={isLoadingTransactionTypes ? "Memuat jenis transaksi..." : "Pilih jenis transaksi"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {transactionTypesData?.data.map((type) => (
+                    <SelectItem key={type.id} value={String(type.id)}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isProcessingPayment}>
                 Batal
               </Button>
             </DialogClose>
-            <Button type="button" onClick={handleContinuePaymentProcess} disabled={isProcessingPayment}>
+            <Button type="button" onClick={handleContinuePaymentProcess} disabled={isProcessingPayment || !selectedProductId || !selectedTransactionTypeId}>
               {isProcessingPayment ? 'Memproses...' : 'Lanjutkan'}
             </Button>
           </DialogFooter>
