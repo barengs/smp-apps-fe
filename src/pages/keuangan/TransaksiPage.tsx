@@ -62,12 +62,12 @@ const TransaksiPage: React.FC = () => {
       header: 'Deskripsi',
     },
     {
-      accessorKey: 'transaction_type',
-      header: 'Tipe',
+      accessorKey: 'channel', // Mengubah accessorKey menjadi 'channel'
+      header: 'Channel', // Mengubah header menjadi 'Channel'
       cell: ({ row }) => {
-        const type = row.original.transaction_type;
-        const variant = type === 'deposit' ? 'default' : 'secondary';
-        return <Badge variant={variant} className="capitalize">{type}</Badge>;
+        const channel = row.original.channel; // Mengambil data dari properti 'channel'
+        // Anda bisa menyesuaikan badge variant berdasarkan channel jika diperlukan
+        return <Badge variant="secondary" className="capitalize">{channel}</Badge>;
       },
     },
     {
