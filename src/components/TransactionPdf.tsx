@@ -128,11 +128,23 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Rekening Sumber</Text>
-            <Text style={styles.detailValue}>: {transaction.source_account || '-'}</Text>
+            <Text style={styles.detailValue}>: {
+              transaction.source_account
+                ? (typeof transaction.source_account === 'object'
+                  ? transaction.source_account.account_number
+                  : transaction.source_account)
+                : '-'
+            }</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Rekening Tujuan</Text>
-            <Text style={styles.detailValue}>: {transaction.destination_account || '-'}</Text>
+            <Text style={styles.detailValue}>: {
+              transaction.destination_account
+                ? (typeof transaction.destination_account === 'object'
+                  ? transaction.destination_account.account_number
+                  : transaction.destination_account)
+                : '-'
+            }</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Tanggal Dibuat</Text>

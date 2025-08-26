@@ -146,8 +146,20 @@ const TransaksiDetailPage: React.FC = () => {
             <DetailRow label="Jumlah" value={formatCurrency(transaction.amount)} />
             <DetailRow label="Status" value={<Badge variant={getStatusVariant(transaction.status)} className="capitalize">{transaction.status}</Badge>} />
             <DetailRow label="Channel" value={transaction.channel} />
-            <DetailRow label="Rekening Sumber" value={transaction.source_account} />
-            <DetailRow label="Rekening Tujuan" value={transaction.destination_account} />
+            <DetailRow label="Rekening Sumber" value={
+              transaction.source_account
+                ? (typeof transaction.source_account === 'object'
+                  ? transaction.source_account.account_number
+                  : transaction.source_account)
+                : '-'
+            } />
+            <DetailRow label="Rekening Tujuan" value={
+              transaction.destination_account
+                ? (typeof transaction.destination_account === 'object'
+                  ? transaction.destination_account.account_number
+                  : transaction.destination_account)
+                : '-'
+            } />
             <DetailRow label="Tanggal Dibuat" value={format(new Date(transaction.created_at), 'dd MMMM yyyy HH:mm', { locale: id })} />
             <DetailRow label="Terakhir Diperbarui" value={format(new Date(transaction.updated_at), 'dd MMMM yyyy HH:mm', { locale: id })} />
           </CardContent>
