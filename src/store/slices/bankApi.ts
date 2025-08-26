@@ -17,6 +17,10 @@ export const bankApi = createApi({
             ]
           : [{ type: 'Transaksi', id: 'LIST' }],
     }),
+    getTransactionById: builder.query<SingleTransaksiApiResponse, string>({ // New endpoint
+      query: (id) => `/transaction/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Transaksi', id }],
+    }),
     addTransaction: builder.mutation<SingleTransaksiApiResponse, Partial<Transaksi>>({
       query: (body) => ({
         url: '/transaction',
@@ -28,4 +32,4 @@ export const bankApi = createApi({
   }),
 });
 
-export const { useGetTransactionsQuery, useAddTransactionMutation } = bankApi;
+export const { useGetTransactionsQuery, useAddTransactionMutation, useGetTransactionByIdQuery } = bankApi;
