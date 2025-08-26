@@ -93,7 +93,7 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <Image style={styles.kopImage} src={absoluteKopUrl} />
-          <Text style={styles.title}>DETAIL TRANSAKSI</Text>
+          <Text style={styles.title}>BUKTI TRANSAKSI</Text>
         </View>
 
         <View style={styles.section}>
