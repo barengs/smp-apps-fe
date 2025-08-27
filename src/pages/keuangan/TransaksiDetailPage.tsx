@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useGetTransactionByIdQuery } from '@/store/slices/bankApi';
-import { Briefcase, Banknote, Receipt, ArrowLeft, Printer, Download } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useGetTransactionByIdQuery, useValidateTransactionMutation } from '@/store/slices/bankApi';
+import { Briefcase, Banknote, Receipt, ArrowLeft, Printer, Download, CheckCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"; // Import Dialog components
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -46,10 +48,13 @@ const TransaksiDetailPage: React.FC = () => {
   const { id: transactionId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('');
 
-  const { data: apiResponse, isLoading, isError, error } = useGetTransactionByIdQuery(transactionId!, {
+  const { data: apiResponse, isLoading, isError, error, refetch } = useGetTransactionByIdQuery(transactionId!, {
     skip: !transactionId,
   });
+  const [validateTransaction, { isLoading: isValidationLoading }] = useValidateTransactionMutation();
 
   const transaction = apiResponse?.data;
 
@@ -59,14 +64,35 @@ const TransaksiDetailPage: React.FC = () => {
     { label: 'Detail Transaksi', icon: <Banknote className="h-4 w-4" /> },
   ];
 
-  const formatCurrency = (amount: string) => {
-    const numericAmount = parseFloat(amount);
+  const formatCurrency = (amount: string | number) => {
+    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
     if (isNaN(numericAmount)) return 'N/A';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
     }).format(numericAmount);
+  };
+
+  const handleValidate = async () => {
+    if (!transactionId || !paymentAmount || !transaction) return;
+
+    const paidAmountNumber = parseFloat(paymentAmount);
+    if (isNaN(paidAmountNumber) || paidAmountNumber < parseFloat(transaction.amount)) {
+      toast.showError("Jumlah pembayaran tidak valid atau kurang dari tagihan.");
+      return;
+    }
+
+    try {
+      await validateTransaction({ id: transactionId, paidAmount: paidAmountNumber }).unwrap();
+      toast.showSuccess("Transaksi berhasil divalidasi.");
+      setIsValidationModalOpen(false);
+      setPaymentAmount('');
+      refetch();
+    } catch (err) {
+      console.error("Failed to validate transaction:", err);
+      toast.showError("Gagal memvalidasi transaksi. Silakan coba lagi.");
+    }
   };
 
   if (isLoading) {
@@ -118,6 +144,7 @@ const TransaksiDetailPage: React.FC = () => {
 
   const PdfDocument = <TransactionPdf transaction={transaction} />;
   const pdfFileName = `Transaksi-${transaction.reference_number || transaction.id}.pdf`;
+  const changeAmount = parseFloat(paymentAmount) - parseFloat(transaction.amount);
 
   return (
     <DashboardLayout title={`Detail Transaksi ${transaction.reference_number || transaction.id}`} role="administrasi">
@@ -133,6 +160,11 @@ const TransaksiDetailPage: React.FC = () => {
               <Button variant="outline" onClick={() => navigate('/dashboard/bank-santri/transaksi')}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
               </Button>
+              {transaction.status.toLowerCase() === 'pending' && (
+                <Button variant="success" onClick={() => setIsValidationModalOpen(true)}>
+                  <CheckCircle className="mr-2 h-4 w-4" /> Validasi
+                </Button>
+              )}
               <Button variant="info" onClick={() => setIsPrintPreviewOpen(true)}>
                 <Printer className="mr-2 h-4 w-4" /> Cetak
               </Button>
@@ -147,18 +179,14 @@ const TransaksiDetailPage: React.FC = () => {
             <DetailRow label="Status" value={<Badge variant={getStatusVariant(transaction.status)} className="capitalize">{transaction.status}</Badge>} />
             <DetailRow label="Channel" value={transaction.channel} />
             <DetailRow label="Rekening Sumber" value={
-              transaction.source_account
-                ? (typeof transaction.source_account === 'object'
-                  ? transaction.source_account.account_number
-                  : transaction.source_account)
-                : '-'
+              typeof transaction.source_account === 'object' && transaction.source_account !== null
+                ? transaction.source_account.account_number
+                : String(transaction.source_account || '-')
             } />
             <DetailRow label="Rekening Tujuan" value={
-              transaction.destination_account
-                ? (typeof transaction.destination_account === 'object'
-                  ? transaction.destination_account.account_number
-                  : transaction.destination_account)
-                : '-'
+              typeof transaction.destination_account === 'object' && transaction.destination_account !== null
+                ? transaction.destination_account.account_number
+                : String(transaction.destination_account || '-')
             } />
             <DetailRow label="Tanggal Dibuat" value={format(new Date(transaction.created_at), 'dd MMMM yyyy HH:mm', { locale: id })} />
             <DetailRow label="Terakhir Diperbarui" value={format(new Date(transaction.updated_at), 'dd MMMM yyyy HH:mm', { locale: id })} />
@@ -166,6 +194,7 @@ const TransaksiDetailPage: React.FC = () => {
         </Card>
       </div>
 
+      {/* Print Preview Dialog */}
       <Dialog open={isPrintPreviewOpen} onOpenChange={setIsPrintPreviewOpen}>
         <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-2">
@@ -193,6 +222,61 @@ const TransaksiDetailPage: React.FC = () => {
                 </Button>
               )}
             </PDFDownloadLink>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Validation Dialog */}
+      <Dialog open={isValidationModalOpen} onOpenChange={setIsValidationModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Validasi Pembayaran</DialogTitle>
+            <DialogDescription>
+              Konfirmasi pembayaran untuk No. Referensi: {transaction.reference_number}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="rounded-md border">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-3 font-medium">Total Tagihan</td>
+                    <td className="p-3 text-right font-semibold">{formatCurrency(transaction.amount)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="paymentAmount">Jumlah Dibayar</Label>
+              <Input
+                id="paymentAmount"
+                type="number"
+                placeholder="Masukkan nominal pembayaran"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                className="text-right"
+              />
+            </div>
+            {changeAmount >= 0 && (
+              <div className="rounded-md border">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr className="border-b bg-green-50">
+                      <td className="p-3 font-medium">Sisa (Kembalian)</td>
+                      <td className="p-3 text-right font-semibold text-green-700">
+                        {formatCurrency(changeAmount)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsValidationModalOpen(false)}>Batal</Button>
+            <Button onClick={handleValidate} disabled={!paymentAmount || changeAmount < 0 || isValidationLoading}>
+              {isValidationLoading ? 'Memproses...' : 'Konfirmasi Pembayaran'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

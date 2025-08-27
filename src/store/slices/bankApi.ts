@@ -29,7 +29,15 @@ export const bankApi = createApi({
       }),
       invalidatesTags: [{ type: 'Transaksi', id: 'LIST' }],
     }),
+    validateTransaction: builder.mutation<SingleTransaksiApiResponse, { id: string; paidAmount: number }>({
+      query: ({ id, paidAmount }) => ({
+        url: `/transaction/${id}/validate`,
+        method: 'POST',
+        body: { paid_amount: paidAmount },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, { type: 'Transaksi', id: 'LIST' }],
+    }),
   }),
 });
 
-export const { useGetTransactionsQuery, useAddTransactionMutation, useGetTransactionByIdQuery } = bankApi;
+export const { useGetTransactionsQuery, useAddTransactionMutation, useGetTransactionByIdQuery, useValidateTransactionMutation } = bankApi;
