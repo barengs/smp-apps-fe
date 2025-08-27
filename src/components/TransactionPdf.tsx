@@ -44,18 +44,57 @@ const styles = StyleSheet.create({
     borderBottomColor: '#cccccc',
     paddingBottom: 3,
   },
-  detailRow: {
-    flexDirection: 'row',
-    marginBottom: 4,
+  
+  // New styles for table
+  table: {
+    display: 'flex', // Fixed: Changed from 'table' to 'flex'
+    flexDirection: 'column', // Added to stack rows vertically
+    width: 'auto',
+    borderStyle: 'solid',
+    borderColor: '#bfbfbf',
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    marginBottom: 10,
   },
-  detailLabel: {
-    width: 120,
+  tableRow: {
+    margin: 'auto',
+    flexDirection: 'row',
+  },
+  tableRowEven: {
+    backgroundColor: '#f9f9f9', // Light gray for zebra effect
+  },
+  tableCell: {
+    padding: 5,
+    borderStyle: 'solid',
+    borderColor: '#bfbfbf',
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    fontSize: 9,
+  },
+  tableCellLabel: {
+    width: '35%', // Adjust width as needed
     fontFamily: 'Helvetica-Bold',
   },
-  detailValue: {
-    flex: 1,
-    fontFamily: 'Helvetica',
+  tableCellValue: {
+    width: '65%', // Adjust width as needed
   },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#e0e0e0',
+  },
+  tableHeaderCell: {
+    padding: 5,
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    borderStyle: 'solid',
+    borderColor: '#bfbfbf',
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+  },
+
   signatureContainer: {
     marginTop: 20,
     flexDirection: 'row',
@@ -88,6 +127,34 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
     }).format(numericAmount);
   };
 
+  const transactionDetails = [
+    { label: 'ID Transaksi', value: transaction.id },
+    { label: 'No. Referensi', value: transaction.reference_number || '-' },
+    { label: 'Tipe Transaksi', value: transaction.transaction_type },
+    { label: 'Deskripsi', value: transaction.description },
+    { label: 'Jumlah', value: formatCurrency(transaction.amount) },
+    { label: 'Status', value: transaction.status },
+    { label: 'Channel', value: transaction.channel },
+    {
+      label: 'Rekening Sumber',
+      value: transaction.source_account
+        ? (typeof transaction.source_account === 'object'
+          ? transaction.source_account.account_number
+          : transaction.source_account)
+        : '-'
+    },
+    {
+      label: 'Rekening Tujuan',
+      value: transaction.destination_account
+        ? (typeof transaction.destination_account === 'object'
+          ? transaction.destination_account.account_number
+          : transaction.destination_account)
+        : '-'
+    },
+    { label: 'Tanggal Dibuat', value: format(new Date(transaction.created_at), 'dd MMMM yyyy HH:mm', { locale: id }) },
+    { label: 'Terakhir Diperbarui', value: format(new Date(transaction.updated_at), 'dd MMMM yyyy HH:mm', { locale: id }) },
+  ];
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -98,61 +165,17 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>INFORMASI TRANSAKSI</Text>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>ID Transaksi</Text>
-            <Text style={styles.detailValue}>: {transaction.id}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>No. Referensi</Text>
-            <Text style={styles.detailValue}>: {transaction.reference_number || '-'}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Tipe Transaksi</Text>
-            <Text style={styles.detailValue}>: {transaction.transaction_type}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Deskripsi</Text>
-            <Text style={styles.detailValue}>: {transaction.description}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Jumlah</Text>
-            <Text style={styles.detailValue}>: {formatCurrency(transaction.amount)}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Status</Text>
-            <Text style={styles.detailValue}>: {transaction.status}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Channel</Text>
-            <Text style={styles.detailValue}>: {transaction.channel}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Rekening Sumber</Text>
-            <Text style={styles.detailValue}>: {
-              transaction.source_account
-                ? (typeof transaction.source_account === 'object'
-                  ? transaction.source_account.account_number
-                  : transaction.source_account)
-                : '-'
-            }</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Rekening Tujuan</Text>
-            <Text style={styles.detailValue}>: {
-              transaction.destination_account
-                ? (typeof transaction.destination_account === 'object'
-                  ? transaction.destination_account.account_number
-                  : transaction.destination_account)
-                : '-'
-            }</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Tanggal Dibuat</Text>
-            <Text style={styles.detailValue}>: {format(new Date(transaction.created_at), 'dd MMMM yyyy HH:mm', { locale: id })}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Terakhir Diperbarui</Text>
-            <Text style={styles.detailValue}>: {format(new Date(transaction.updated_at), 'dd MMMM yyyy HH:mm', { locale: id })}</Text>
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderCell, styles.tableCellLabel]}>Label</Text>
+              <Text style={[styles.tableHeaderCell, styles.tableCellValue]}>Nilai</Text>
+            </View>
+            {transactionDetails.map((item, index) => (
+              <View key={item.label} style={[styles.tableRow, index % 2 === 1 && styles.tableRowEven]}>
+                <Text style={[styles.tableCell, styles.tableCellLabel]}>{item.label}</Text>
+                <Text style={[styles.tableCell, styles.tableCellValue]}>{item.value}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
