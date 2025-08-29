@@ -120,39 +120,48 @@ const SantriDetailPage: React.FC = () => {
   }
   
   const getParentLinks = (parentsData: StudentDetailData['parents']): React.ReactNode => {
-    console.log('Raw parentsData:', parentsData); // Debug log: Check initial data
+    console.log('getParentLinks: Raw parentsData:', parentsData);
 
     if (!parentsData || (Array.isArray(parentsData) && parentsData.length === 0) || (typeof parentsData === 'object' && Object.keys(parentsData).length === 0)) {
-      console.log('No parent data or empty parent data.'); // Debug log
+      console.log('getParentLinks: No parent data or empty parent data detected.');
       return 'Tidak ada data orang tua';
     }
 
     let parentsArray: ParentDetailData[] = [];
 
     if (Array.isArray(parentsData)) {
-      // Case 1: parentsData is an array of ParentDetailData
+      console.log('getParentLinks: parentsData is an array.');
       parentsArray = parentsData;
     } else if (typeof parentsData === 'object') {
-      // Case 2: parentsData is an object.
-      // Check if it's a direct ParentDetailData object (based on presence of user_id and first_name)
-      if ('user_id' in parentsData && typeof parentsData.user_id === 'number' && 'first_name' in parentsData) {
-        // It's a single ParentDetailData object directly
-        parentsArray = [parentsData as ParentDetailData]; // Cast and wrap in an array
+      console.log('getParentLinks: parentsData is an object.');
+      // Check if it's a direct ParentDetailData object
+      // Changed typeof parentsData.user_id === 'number' to typeof parentsData.user_id === 'string'
+      if ('user_id' in parentsData && typeof parentsData.user_id === 'string' && 'first_name' in parentsData && typeof parentsData.first_name === 'string') {
+        console.log('getParentLinks: Detected single ParentDetailData object.');
+        parentsArray = [parentsData as ParentDetailData];
       } else {
         // Assume it's an object where keys map to ParentDetailData (e.g., { 'ayah': {...}, 'ibu': {...} })
-        // Filter for valid ParentDetailData objects
-        parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData =>
-          typeof val === 'object' && val !== null && 'user_id' in val && typeof val.user_id === 'number' && 'first_name' in val && typeof val.first_name === 'string'
-        );
+        console.log('getParentLinks: Attempting to extract ParentDetailData from object values.');
+        parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData => {
+          // Changed typeof val.user_id === 'number' to typeof val.user_id === 'string'
+          const isValid = typeof val === 'object' && val !== null && 'user_id' in val && typeof val.user_id === 'string' && 'first_name' in val && typeof val.first_name === 'string';
+          if (!isValid) {
+            console.log('getParentLinks: Filtered out invalid parent object:', val);
+          }
+          return isValid;
+        });
       }
+    } else {
+      console.log('getParentLinks: parentsData is neither array nor object, or unexpected type:', typeof parentsData);
+      return 'Format data orang tua tidak dikenali'; // Should not happen with StudentDetailData['parents'] type
     }
 
-    console.log('Processed parentsArray:', parentsArray); // Debug log: Check array after processing
+    console.log('getParentLinks: Processed parentsArray:', parentsArray);
 
     const links = parentsArray
       .map((p, index) => {
-        // Use p.user_id for the key and the link
-        if (p.user_id && typeof p.user_id === 'number') {
+        // Removed typeof p.user_id === 'number' check as user_id is now string
+        if (p.user_id) {
           return (
             <React.Fragment key={p.user_id}>
               <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
@@ -162,14 +171,16 @@ const SantriDetailPage: React.FC = () => {
             </React.Fragment>
           );
         }
-        return null; // Skip invalid parent entries
+        console.log('getParentLinks: Skipping parent due to invalid user_id or missing first_name:', p);
+        return null;
       })
-      .filter(Boolean); // Remove nulls
+      .filter(Boolean);
 
     if (links.length > 0) {
+      console.log('getParentLinks: Links generated successfully.');
       return links;
     } else {
-      console.log('No valid links generated from parentsArray.'); // Debug log
+      console.log('getParentLinks: No valid links generated from parentsArray.');
       return 'Format data orang tua tidak dikenali';
     }
   };
@@ -179,8 +190,8 @@ const SantriDetailPage: React.FC = () => {
       <DashboardLayout title="Detail Santri" role="administrasi">
         <div className="container mx-auto pb-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-2/3">
               <Card className="w-full">
                 <CardHeader>
                   <div className="flex justify-between items-start">
@@ -219,14 +230,14 @@ const SantriDetailPage: React.FC = () => {
                     <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
                     <DetailRow label="Telepon" value={santri.phone} />
                     <DetailRow label="Alamat" value={santri.address} />
-                    <DetailRow label="Nama Orang Tua" value={getParentLinks(santri.parents)} /> {/* Updated here */}
+                    <DetailRow label="Nama Orang Tua" value={getParentLinks(santri.parents)} />
                     <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
                     <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
                   </div>
                 </CardContent>
               </Card>
             </div>
-            <div className="xl:col-span-1">
+            <div className="lg:w-1/3">
               <Card>
                 <CardHeader>
                   <CardTitle>Informasi Tambahan</CardTitle>

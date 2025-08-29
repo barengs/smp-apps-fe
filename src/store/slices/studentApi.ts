@@ -18,6 +18,8 @@ interface StudentApiData {
   gender: string;
   status: string;
   program: ProgramApiData;
+  created_at: string; // Ditambahkan
+  updated_at: string; // Ditambahkan
   // other properties
 }
 
@@ -31,7 +33,7 @@ interface GetStudentsResponse {
 
 // Structure for a parent object within the student detail response
 export interface ParentDetailData { // Added export
-  user_id: number; // Changed from 'id' to 'user_id' based on provided JSON
+  user_id: string; // Changed from 'id' to 'user_id' based on provided JSON, and type changed to string
   first_name: string;
   last_name: string | null;
   parent_as?: string;

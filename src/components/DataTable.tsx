@@ -14,6 +14,8 @@ import {
   getExpandedRowModel,
   type ExpandedState,
   type Row,
+  SortingState, // Import SortingState
+  getSortedRowModel, // Import getSortedRowModel
 } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -70,6 +72,8 @@ export interface DataTableProps<TData, TValue> {
   getRowId?: (originalRow: TData) => string;
   expanded?: ExpandedState;
   onExpandedChange?: (updater: React.SetStateAction<ExpandedState>) => void;
+  sorting?: SortingState; // Tambahkan prop sorting
+  onSortingChange?: (updater: React.SetStateAction<SortingState>) => void; // Tambahkan prop onSortingChange
 }
 
 function hasAccessorKey<TData>(
@@ -97,10 +101,13 @@ export function DataTable<TData, TValue>({
   getRowId,
   expanded,
   onExpandedChange,
+  sorting, // Destructure prop sorting
+  onSortingChange, // Destructure prop onSortingChange
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]); // State internal untuk sorting
 
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -110,6 +117,7 @@ export function DataTable<TData, TValue>({
   const currentPaginationState = manualPagination ? controlledPagination : internalPagination;
   const currentSetPaginationState = manualPagination ? setControlledPagination : setInternalPagination;
   const effectivePaginationState = currentPaginationState || { pageIndex: 0, pageSize: 10 };
+  const effectiveSortingState = sorting || internalSorting; // Gunakan sorting dari prop atau internal
 
   const table = useReactTable({
     data,
@@ -121,16 +129,19 @@ export function DataTable<TData, TValue>({
       columnFilters,
       pagination: effectivePaginationState,
       expanded: expanded || {},
+      sorting: effectiveSortingState, // Tambahkan sorting ke state
     },
     manualPagination,
     onPaginationChange: currentSetPaginationState,
     onExpandedChange: onExpandedChange,
+    onSortingChange: onSortingChange || setInternalSorting, // Gunakan onSortingChange dari prop atau internal
     getExpandedRowModel: getExpandedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    getSortedRowModel: getSortedRowModel(), // Tambahkan getSortedRowModel
     getSubRows: (row) => (row as any).subRows, // Menambahkan ini secara eksplisit
   });
 
@@ -342,13 +353,28 @@ export function DataTable<TData, TValue>({
                     <TableHead 
                       key={header.id} 
                       className={header.column.id === 'expander' ? "w-10" : ""} // Menambahkan lebar tetap
+                      {...{
+                        onClick: header.column.getCanSort()
+                          ? header.column.getToggleSortingHandler()
+                          : undefined,
+                      }}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                      <div className="flex items-center">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                        {header.column.getCanSort() && (
+                          <span className="ml-2">
+                            {{
+                              asc: ' 🔼',
+                              desc: ' 🔽',
+                            }[header.column.getIsSorted() as string] ?? ''}
+                          </span>
+                        )}
+                      </div>
                     </TableHead>
                   );
                 })}
