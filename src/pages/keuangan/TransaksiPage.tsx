@@ -19,10 +19,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import TransaksiForm from './TransaksiForm';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const TransaksiPage: React.FC = () => {
   const { data: apiResponse, isLoading, isError, error } = useGetTransactionsQuery();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const mockData: Transaksi[] = [
     { id: 'trx_1', transaction_type: 'deposit', description: 'Setoran bulanan', amount: '500000', status: 'completed', reference_number: 'REF123', channel: 'web', source_account: 'SRC1', destination_account: 'DST1', created_at: '2023-10-27T14:15:22Z', updated_at: '2023-10-27T14:15:22Z' },
@@ -47,6 +49,10 @@ const TransaksiPage: React.FC = () => {
     }).format(numericAmount);
   };
 
+  const handleRowClick = (transaction: Transaksi) => {
+    navigate(`/dashboard/bank-santri/transaksi/${transaction.id}`);
+  };
+
   const columns: ColumnDef<Transaksi>[] = [
     {
       accessorKey: 'created_at',
@@ -55,18 +61,17 @@ const TransaksiPage: React.FC = () => {
     },
     {
       accessorKey: 'destination_account',
-      header: 'Rekening Tujuan', // Perubahan di sini
+      header: 'Rekening Tujuan',
     },
     {
       accessorKey: 'description',
       header: 'Deskripsi',
     },
     {
-      accessorKey: 'channel', // Mengubah accessorKey menjadi 'channel'
-      header: 'Channel', // Mengubah header menjadi 'Channel'
+      accessorKey: 'channel',
+      header: 'Channel',
       cell: ({ row }) => {
-        const channel = row.original.channel; // Mengambil data dari properti 'channel'
-        // Anda bisa menyesuaikan badge variant berdasarkan channel jika diperlukan
+        const channel = row.original.channel;
         return <Badge variant="secondary" className="capitalize">{channel}</Badge>;
       },
     },
@@ -87,18 +92,19 @@ const TransaksiPage: React.FC = () => {
     {
       id: 'actions',
       header: 'Aksi',
-      cell: () => {
+      cell: ({ row }) => {
+        const transaction = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                 <span className="sr-only">Buka menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleRowClick(transaction)}>Lihat Detail</DropdownMenuItem>
               <DropdownMenuItem>Edit</DropdownMenuItem>
               <DropdownMenuItem className="text-red-600">Hapus</DropdownMenuItem>
             </DropdownMenuContent>
@@ -140,6 +146,7 @@ const TransaksiPage: React.FC = () => {
                   transaction_type: { placeholder: 'Filter by Tipe' },
                   status: { placeholder: 'Filter by Status' },
                 }}
+                onRowClick={handleRowClick} // Make rows clickable
               />
             )}
           </CardContent>

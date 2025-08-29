@@ -1,15 +1,17 @@
 export interface Transaksi {
   id: string;
   transaction_type: string;
+  transaction_type_id?: string; // Added based on sample JSON
   description: string;
   amount: string;
   status: string;
   reference_number: string;
   channel: string;
-  source_account: string;
-  destination_account: string;
+  source_account: Account | string | null; // Updated to allow Account object, string, or null
+  destination_account: Account | string | null; // Updated to allow Account object, string, or null
   created_at: string;
   updated_at: string;
+  ledger_entries?: any[]; // Added based on sample JSON
 }
 
 export interface TransaksiApiResponse {
@@ -103,8 +105,8 @@ export interface Account {
   status: string; // e.g., "TIDAK AKTIF"
   open_date: string;
   close_date: string | null;
-  customer: AccountCustomer;
-  product: AccountProduct;
+  customer?: AccountCustomer; // Made optional
+  product?: AccountProduct; // Made optional
   created_at: string;
   updated_at: string;
 }
