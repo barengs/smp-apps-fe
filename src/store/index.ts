@@ -1,70 +1,55 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { smpApi } from './baseApi';
 import authReducer from './slices/authSlice';
+import { smpApi } from './baseApi';
+import { setupListeners } from '@reduxjs/toolkit/query';
 
-// These imports are crucial to run the `injectEndpoints` code.
-// They don't need to be individually added to the store config
-// if they are injected into smpApi.
-import './slices/authApi';
-import './slices/roleApi';
-import './slices/santriApi';
-import './slices/employeeApi';
-import './slices/permissionApi';
-import './slices/studentApi';
-import './slices/parentApi';
-import './slices/dashboardApi';
-import './slices/provinceApi';
-import './slices/cityApi';
-import './slices/districtApi';
-import './slices/villageApi';
-import './slices/programApi';
-import './slices/tahunAjaranApi';
-import './slices/hostelApi';
-import './slices/educationApi';
-import './slices/classroomApi';
-import './slices/classGroupApi';
-import './slices/menuApi';
-import './slices/pekerjaanApi';
-import './slices/beritaApi';
-import './slices/studyApi';
-import './slices/calonSantriApi';
-// import { bankApi } from './slices/bankApi'; // bankApi is a separate API, so we need its export. -> Dihapus karena sudah di-inject
-import './slices/educationGroupApi';
-import './slices/activityApi';
-import './slices/controlPanelApi';
-import './slices/produkBankApi';
-import './slices/coaApi';
-import './slices/accountApi';
-import './slices/roomApi'; // Register the new room API slice
-import './slices/internshipApi'; // Register the new internship API slice
-import './slices/partnerApi'; // Register the new partner API slice
-import './slices/supervisorApi'; // Register the new supervisor API slice
-import './slices/bankApi'; // Pastikan bankApi diimpor untuk menjalankan injectEndpoints
+// Import all API slices (these are imported for their endpoints, not for their reducers directly here)
+import { authApi } from './slices/authApi';
+import { employeeApi } from './slices/employeeApi';
+import { permissionApi } from './slices/permissionApi';
+import { roleApi } from './slices/roleApi';
+import { provinceApi } from './slices/provinceApi';
+import { cityApi } from './slices/cityApi';
+import { districtApi } from './slices/districtApi';
+import { villageApi } from './slices/villageApi';
+import { programApi } from './slices/programApi';
+import { tahunAjaranApi } from './slices/tahunAjaranApi';
+import { hostelApi } from './slices/hostelApi';
+import { educationApi } from './slices/educationApi';
+import { classroomApi } from './slices/classroomApi';
+import { classGroupApi } from './slices/classGroupApi';
+import { educationGroupApi } from './slices/educationGroupApi';
+import { studyApi } from './slices/studyApi';
+import { activityApi } from './slices/activityApi';
+import { santriApi } from './slices/santriApi';
+import { parentApi } from './slices/parentApi';
+import { dashboardApi } from './slices/dashboardApi';
+import { pekerjaanApi } from './slices/pekerjaanApi';
+import { beritaApi } from './slices/beritaApi';
+import { controlPanelApi } from './slices/controlPanelApi';
+import { internshipApi } from './slices/internshipApi'; // Changed from guruTugasApi
+import { calonSantriApi } from './slices/calonSantriApi';
+import { supervisorApi } from './slices/supervisorApi';
+import { bankApi } from './slices/bankApi';
+import { produkBankApi } from './slices/produkBankApi';
+import { coaApi } from './slices/coaApi';
+import { transactionTypeApi } from './slices/transactionTypeApi';
+import { accountApi } from './slices/accountApi';
+import { roomApi } from './slices/roomApi';
+import { teacherApi } from './slices/teacherApi';
 
 export const store = configureStore({
   reducer: {
-    // Register the main API reducer. This handles all injected endpoints.
-    [smpApi.reducerPath]: smpApi.reducer,
-    // [bankApi.reducerPath]: bankApi.reducer, // Perbaikan: Dihapus karena duplikasi reducerPath
-    // Register the auth slice reducer.
     auth: authReducer,
+    [smpApi.reducerPath]: smpApi.reducer,
+    // All other API slices are already included in smpApi.reducer via injectEndpoints
+    // No need to list them individually here.
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      // Add the middleware for the main API and the separate bank API.
-      smpApi.middleware,
-      // bankApi.middleware // Perbaikan: Dihapus karena middleware sudah ditangani oleh smpApi
-    ),
+    getDefaultMiddleware().concat(smpApi.middleware),
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {smpApi: SmpApiState, ...}
-export type AppDispatch = typeof store.dispatch;
+setupListeners(store.dispatch);
 
-// Define the types for the API slices
-export type StudentStatistics = any;
-export type ProdukBank = any;
-export type Coa = any;
-export type TransactionType = any;
-export type Account = any;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
