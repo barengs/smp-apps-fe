@@ -75,9 +75,10 @@ const CalonSantriPage: React.FC = () => {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.original.status;
-        let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'secondary';
-        if (status === 'diterima') variant = 'default';
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'secondary'; // Tambahkan varian baru
+        if (status === 'diterima') variant = 'success'; // Gunakan 'success' untuk diterima
         if (status === 'ditolak') variant = 'destructive';
+        if (status === 'pending') variant = 'warning'; // Gunakan 'warning' untuk pending
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
       },
     },
@@ -86,9 +87,9 @@ const CalonSantriPage: React.FC = () => {
       header: 'Status Pembayaran',
       cell: ({ row }) => {
         const paymentStatus = row.original.payment_status;
-        let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'secondary';
-        if (paymentStatus === 'paid') variant = 'default';
-        if (paymentStatus === 'pending') variant = 'secondary';
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'secondary'; // Tambahkan varian baru
+        if (paymentStatus === 'paid') variant = 'success'; // Gunakan 'success' untuk paid
+        if (paymentStatus === 'pending') variant = 'warning'; // Gunakan 'warning' untuk pending
         if (paymentStatus === 'failed') variant = 'destructive';
         return <Badge variant={variant} className="capitalize">{paymentStatus}</Badge>;
       },
