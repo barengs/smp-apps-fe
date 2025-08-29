@@ -18,6 +18,8 @@ interface StudentApiData {
   gender: string;
   status: string;
   program: ProgramApiData;
+  created_at: string; // Ditambahkan
+  updated_at: string; // Ditambahkan
   // other properties
 }
 

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import React, { useMemo, useState } from 'react'; // Import useState
+import { ColumnDef, SortingState } from '@tanstack/react-table'; // Import SortingState
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -19,6 +19,8 @@ interface Santri {
   gender: string;
   status: string;
   programName: string;
+  created_at: string; // Tambahkan created_at
+  updated_at: string; // Tambahkan updated_at
 }
 
 interface SantriTableProps {
@@ -28,6 +30,7 @@ interface SantriTableProps {
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const { data: studentsData, error, isLoading } = useGetStudentsQuery();
   const navigate = useNavigate();
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // Atur pengurutan default
 
   const santriList: Santri[] = useMemo(() => {
     if (studentsData?.data) {
@@ -40,6 +43,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         gender: student.gender === 'L' ? 'Laki-Laki' : student.gender === 'P' ? 'Perempuan' : 'Tidak Diketahui',
         status: student.status,
         programName: student.program.name,
+        created_at: student.created_at, // Petakan created_at
+        updated_at: student.updated_at, // Petakan updated_at
       }));
     }
     return [];
@@ -78,6 +83,15 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       {
         accessorKey: 'programName',
         header: 'Program',
+      },
+      {
+        accessorKey: 'updated_at', // Tambahkan kolom updated_at
+        header: 'Terakhir Diperbarui',
+        cell: ({ row }) => {
+          const date = new Date(row.original.updated_at);
+          return date.toLocaleString('id-ID'); // Format tanggal untuk tampilan
+        },
+        enableSorting: true, // Aktifkan pengurutan untuk kolom ini
       },
       {
         id: 'actions',
@@ -123,7 +137,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
           placeholder: 'Filter berdasarkan program...',
         },
       }}
-      onAddData={onAddData} // Meneruskan prop onAddData ke DataTable
+      onAddData={onAddData}
+      sorting={sorting} // Teruskan state sorting
+      onSortingChange={setSorting} // Teruskan handler perubahan sorting
     />
   );
 };
