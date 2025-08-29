@@ -58,6 +58,12 @@ const TransaksiDetailPage: React.FC = () => {
 
   const transaction = apiResponse?.data;
 
+  // Memoize PdfDocument to prevent unnecessary re-renders, moved to top-level
+  const PdfDocument = React.useMemo(() => {
+    if (!transaction) return null;
+    return <TransactionPdf transaction={transaction} />;
+  }, [transaction]);
+
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
     { label: 'Transaksi', href: '/dashboard/bank-santri/transaksi', icon: <Receipt className="h-4 w-4" /> },
@@ -142,7 +148,6 @@ const TransaksiDetailPage: React.FC = () => {
     );
   }
 
-  const PdfDocument = <TransactionPdf transaction={transaction} />;
   const pdfFileName = `Transaksi-${transaction.reference_number || transaction.id}.pdf`;
   const changeAmount = parseFloat(paymentAmount) - parseFloat(transaction.amount);
 
@@ -204,7 +209,7 @@ const TransaksiDetailPage: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="flex-grow bg-gray-200">
-            {typeof window !== 'undefined' && (
+            {typeof window !== 'undefined' && PdfDocument && ( // Ensure PdfDocument is not null
               <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
                 {PdfDocument}
               </PDFViewer>
@@ -214,14 +219,16 @@ const TransaksiDetailPage: React.FC = () => {
             <Button type="button" variant="outline" onClick={() => setIsPrintPreviewOpen(false)}>
               Tutup
             </Button>
-            <PDFDownloadLink document={PdfDocument} fileName={pdfFileName}>
-              {({ loading }) => (
-                <Button disabled={loading}>
-                  <Download className="mr-2 h-4 w-4" />
-                  {loading ? 'Membuat PDF...' : 'Unduh'}
-                </Button>
-              )}
-            </PDFDownloadLink>
+            {PdfDocument && ( // Only show download link if PdfDocument is available
+              <PDFDownloadLink document={PdfDocument} fileName={pdfFileName}>
+                {({ loading }) => (
+                  <Button disabled={loading}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {loading ? 'Membuat PDF...' : 'Unduh'}
+                  </Button>
+                )}
+              </PDFDownloadLink>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

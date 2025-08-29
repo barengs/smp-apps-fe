@@ -1,43 +1,49 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQueryWithReauth } from '../baseApi';
-import { Transaksi, TransaksiApiResponse, SingleTransaksiApiResponse } from '@/types/keuangan';
+import { smpApi } from '../baseApi';
+import { TransaksiApiResponse, SingleTransaksiApiResponse } from '@/types/keuangan';
 
-export const bankApi = createApi({
-  reducerPath: 'bankApi',
-  baseQuery: baseQueryWithReauth,
-  tagTypes: ['Transaksi'],
+export const bankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTransactions: builder.query<TransaksiApiResponse, void>({
-      query: () => '/transaction',
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.data.map(({ id }) => ({ type: 'Transaksi' as const, id })),
-              { type: 'Transaksi', id: 'LIST' },
-            ]
-          : [{ type: 'Transaksi', id: 'LIST' }],
+      query: () => 'transaction',
+      providesTags: ['Transaksi'], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
     }),
-    getTransactionById: builder.query<SingleTransaksiApiResponse, string>({ // New endpoint
-      query: (id) => `/transaction/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Transaksi', id }],
+    getTransactionById: builder.query<SingleTransaksiApiResponse, string>({
+      query: (id) => `transaction/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Transaksi', id }], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
     }),
-    addTransaction: builder.mutation<SingleTransaksiApiResponse, Partial<Transaksi>>({
-      query: (body) => ({
-        url: '/transaction',
-        method: 'POST',
-        body,
-      }),
-      invalidatesTags: [{ type: 'Transaksi', id: 'LIST' }],
+    getTransactionsByAccount: builder.query<TransaksiApiResponse, { accountNumber: string; days?: number }>({
+      query: ({ accountNumber, days }) => {
+        let url = `account/${accountNumber}/transactions`;
+        if (days) {
+          url += `?days=${days}`;
+        }
+        return url;
+      },
+      providesTags: (result, error, { accountNumber }) => [{ type: 'Transaksi', id: `LIST-${accountNumber}` }], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
     }),
-    validateTransaction: builder.mutation<SingleTransaksiApiResponse, { id: string; paidAmount: number }>({
+    validateTransaction: builder.mutation<{ message: string }, { id: string; paidAmount: number }>({
       query: ({ id, paidAmount }) => ({
-        url: `/transaction/${id}/validate`,
+        url: `transaction/${id}/validate`,
         method: 'POST',
         body: { paid_amount: paidAmount },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, { type: 'Transaksi', id: 'LIST' }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, 'Transaksi'], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
+    }),
+    addTransaction: builder.mutation<any, { destination_account: string; transaction_type: string; amount: string; description: string }>({
+      query: (newTransaction) => ({
+        url: 'transaction',
+        method: 'POST',
+        body: newTransaction,
+      }),
+      invalidatesTags: ['Transaksi'], // Invalidate all transactions list after adding a new one
     }),
   }),
 });
 
-export const { useGetTransactionsQuery, useAddTransactionMutation, useGetTransactionByIdQuery, useValidateTransactionMutation } = bankApi;
+export const {
+  useGetTransactionsQuery,
+  useGetTransactionByIdQuery,
+  useGetTransactionsByAccountQuery,
+  useValidateTransactionMutation,
+  useAddTransactionMutation, // Menambahkan export untuk hook baru
+} = bankApi;
