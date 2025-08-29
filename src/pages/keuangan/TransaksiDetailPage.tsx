@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import * as toast from '@/utils/toast';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { usePDF, PDFDownloadLink } from '@react-pdf/renderer';
 import TransactionPdf from '@/components/TransactionPdf';
 import {
   Dialog,
@@ -58,11 +58,12 @@ const TransaksiDetailPage: React.FC = () => {
 
   const transaction = apiResponse?.data;
 
-  // Memoize PdfDocument to prevent unnecessary re-renders, moved to top-level
   const PdfDocument = React.useMemo(() => {
     if (!transaction) return null;
     return <TransactionPdf transaction={transaction} />;
   }, [transaction]);
+
+  const [instance] = usePDF({ document: PdfDocument });
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
@@ -84,14 +85,12 @@ const TransaksiDetailPage: React.FC = () => {
     if (!transactionId || !paymentAmount || !transaction) return;
 
     const paidAmountNumber = parseFloat(paymentAmount);
-    // Validasi jumlah pembayaran tetap dilakukan di sisi klien
     if (isNaN(paidAmountNumber) || paidAmountNumber < parseFloat(transaction.amount)) {
       toast.showError("Jumlah pembayaran tidak valid atau kurang dari tagihan.");
       return;
     }
 
     try {
-      // Panggilan API hanya mengirimkan ID transaksi
       await validateTransaction({ id: transactionId }).unwrap();
       toast.showSuccess("Transaksi berhasil divalidasi.");
       setIsValidationModalOpen(false);
@@ -172,7 +171,7 @@ const TransaksiDetailPage: React.FC = () => {
                   <CheckCircle className="mr-2 h-4 w-4" /> Validasi
                 </Button>
               )}
-              <Button variant="info" onClick={() => setIsPrintPreviewOpen(true)}>
+              <Button variant="info" onClick={() => setIsPrintPreviewOpen(true)} disabled={!PdfDocument}>
                 <Printer className="mr-2 h-4 w-4" /> Cetak
               </Button>
             </div>
@@ -210,21 +209,29 @@ const TransaksiDetailPage: React.FC = () => {
               Ini adalah pratinjau detail transaksi. Klik 'Unduh' untuk menyimpan sebagai PDF.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex-grow bg-gray-200">
-            {typeof window !== 'undefined' && PdfDocument && ( // Ensure PdfDocument is not null
-              <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-                {PdfDocument}
-              </PDFViewer>
+          <div className="flex-grow bg-gray-200 flex items-center justify-center">
+            {instance.loading ? (
+              <p className="text-muted-foreground">Membuat pratinjau PDF...</p>
+            ) : instance.url ? (
+              <iframe
+                src={instance.url}
+                width="100%"
+                height="100%"
+                style={{ border: 'none' }}
+                title={pdfFileName}
+              />
+            ) : (
+              <p className="text-red-500">Gagal membuat pratinjau PDF.</p>
             )}
           </div>
           <DialogFooter className="p-6 pt-4 border-t">
             <Button type="button" variant="outline" onClick={() => setIsPrintPreviewOpen(false)}>
               Tutup
             </Button>
-            {PdfDocument && ( // Only show download link if PdfDocument is available
+            {PdfDocument && (
               <PDFDownloadLink document={PdfDocument} fileName={pdfFileName}>
                 {({ loading }) => (
-                  <Button disabled={loading}>
+                  <Button disabled={loading || instance.loading}>
                     <Download className="mr-2 h-4 w-4" />
                     {loading ? 'Membuat PDF...' : 'Unduh'}
                   </Button>
