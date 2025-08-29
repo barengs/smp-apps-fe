@@ -5,11 +5,11 @@ export const bankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTransactions: builder.query<TransaksiApiResponse, void>({
       query: () => 'transaction',
-      providesTags: ['Transaksi'], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
+      providesTags: ['Transaksi'],
     }),
     getTransactionById: builder.query<SingleTransaksiApiResponse, string>({
       query: (id) => `transaction/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Transaksi', id }], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
+      providesTags: (result, error, id) => [{ type: 'Transaksi', id }],
     }),
     getTransactionsByAccount: builder.query<TransaksiApiResponse, { accountNumber: string; days?: number }>({
       query: ({ accountNumber, days }) => {
@@ -19,15 +19,14 @@ export const bankApi = smpApi.injectEndpoints({
         }
         return url;
       },
-      providesTags: (result, error, { accountNumber }) => [{ type: 'Transaksi', id: `LIST-${accountNumber}` }], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
+      providesTags: (result, error, { accountNumber }) => [{ type: 'Transaksi', id: `LIST-${accountNumber}` }],
     }),
-    validateTransaction: builder.mutation<{ message: string }, { id: string; paidAmount: number }>({
-      query: ({ id, paidAmount }) => ({
-        url: `transaction/${id}/validate`,
-        method: 'POST',
-        body: { paid_amount: paidAmount },
+    validateTransaction: builder.mutation<{ message: string }, { id: string }>({
+      query: ({ id }) => ({
+        url: `transaction/${id}/activate`,
+        method: 'PUT', // Perbaikan: Mengubah metode dari POST menjadi PUT
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, 'Transaksi'], // Perbaikan: Mengubah 'Transaction' menjadi 'Transaksi'
+      invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, 'Transaksi'],
     }),
     addTransaction: builder.mutation<any, { destination_account: string; transaction_type: string; amount: string; description: string }>({
       query: (newTransaction) => ({
@@ -35,7 +34,7 @@ export const bankApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newTransaction,
       }),
-      invalidatesTags: ['Transaksi'], // Invalidate all transactions list after adding a new one
+      invalidatesTags: ['Transaksi'],
     }),
   }),
 });
@@ -45,5 +44,5 @@ export const {
   useGetTransactionByIdQuery,
   useGetTransactionsByAccountQuery,
   useValidateTransactionMutation,
-  useAddTransactionMutation, // Menambahkan export untuk hook baru
+  useAddTransactionMutation,
 } = bankApi;
