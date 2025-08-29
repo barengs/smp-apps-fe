@@ -241,7 +241,7 @@ const TransaksiDetailPage: React.FC = () => {
             <DialogDescription>
               Konfirmasi pembayaran untuk No. Referensi: {transaction.reference_number}.
             </DialogDescription>
-          </DialogDescription>
+          </DialogHeader> {/* Corrected: Closing DialogHeader here */}
           <div className="space-y-4 py-4">
             <div className="rounded-md border">
               <table className="w-full text-sm">
