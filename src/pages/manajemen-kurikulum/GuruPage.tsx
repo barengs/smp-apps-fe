@@ -7,7 +7,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi';
+// import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi'; // Dihapus sementara
 import { Teacher } from '@/types/teacher';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,10 +23,44 @@ import * as toast from '@/utils/toast';
 
 const GuruPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery();
-  const [deleteTeacher] = useDeleteTeacherMutation();
+  // const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery(); // Dihapus sementara
+  // const [deleteTeacher] = useDeleteTeacherMutation(); // Dihapus sementara
 
-  const teachersData = apiResponse?.data?.data || [];
+  // Data dummy untuk sementara
+  const dummyTeachersData: Teacher[] = [
+    {
+      id: '1',
+      first_name: 'Budi',
+      last_name: 'Santoso',
+      education_level: 'S1 Pendidikan',
+      class_name: 'Kelas 7A',
+      status: 'active',
+      created_at: '2023-01-15T10:00:00Z',
+      updated_at: '2023-01-15T10:00:00Z',
+    },
+    {
+      id: '2',
+      first_name: 'Siti',
+      last_name: 'Aminah',
+      education_level: 'S2 Matematika',
+      class_name: 'Kelas 8B',
+      status: 'on_leave',
+      created_at: '2023-02-20T11:30:00Z',
+      updated_at: '2023-02-20T11:30:00Z',
+    },
+    {
+      id: '3',
+      first_name: 'Joko',
+      last_name: 'Susilo',
+      education_level: 'S1 Bahasa Inggris',
+      class_name: 'Kelas 9C',
+      status: 'inactive',
+      created_at: '2023-03-01T09:15:00Z',
+      updated_at: '2023-03-01T09:15:00Z',
+    },
+  ];
+
+  const teachersData = dummyTeachersData; // Menggunakan data dummy
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -39,18 +73,21 @@ const GuruPage: React.FC = () => {
   };
 
   const handleEdit = (teacher: Teacher) => {
+    toast.showInfo(`Aksi Edit untuk guru ${teacher.first_name} ${teacher.last_name} (Dummy).`);
     navigate(`/dashboard/manajemen-kurikulum/guru/${teacher.id}/edit`);
   };
 
   const handleDelete = async (teacher: Teacher) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus guru ${teacher.first_name} ${teacher.last_name}?`)) {
-      try {
-        await deleteTeacher(teacher.id).unwrap();
-        toast.showSuccess('Guru berhasil dihapus!');
-      } catch (err) {
-        console.error('Gagal menghapus guru:', err);
-        toast.showError('Gagal menghapus guru.');
-      }
+      // try {
+      //   await deleteTeacher(teacher.id).unwrap(); // Dihapus sementara
+      //   toast.showSuccess('Guru berhasil dihapus!');
+      // } catch (err) {
+      //   console.error('Gagal menghapus guru:', err);
+      //   toast.showError('Gagal menghapus guru.');
+      // }
+      toast.showInfo(`Aksi Hapus untuk guru ${teacher.first_name} ${teacher.last_name} (Dummy).`);
+      // Di sini Anda bisa menambahkan logika untuk menghapus dari data dummy jika diperlukan untuk simulasi
     }
   };
 
@@ -123,14 +160,14 @@ const GuruPage: React.FC = () => {
     },
   ];
 
-  if (isError) {
-    console.error("Error fetching teachers:", error);
-    return (
-      <DashboardLayout title="Manajemen Guru" role="administrasi">
-        <div className="text-red-500">Terjadi kesalahan saat memuat data guru. Silakan cek konsol untuk detail.</div>
-      </DashboardLayout>
-    );
-  }
+  // if (isError) { // Dihapus sementara
+  //   console.error("Error fetching teachers:", error);
+  //   return (
+  //     <DashboardLayout title="Manajemen Guru" role="administrasi">
+  //       <div className="text-red-500">Terjadi kesalahan saat memuat data guru. Silakan cek konsol untuk detail.</div>
+  //     </DashboardLayout>
+  //   );
+  // }
 
   return (
     <DashboardLayout title="Manajemen Guru" role="administrasi">
@@ -142,9 +179,9 @@ const GuruPage: React.FC = () => {
             <CardDescription>Kelola data guru di sini.</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <TableLoadingSkeleton />
-            ) : (
+            {/* {isLoading ? ( // Dihapus sementara */}
+              {/* <TableLoadingSkeleton /> */}
+            {/* ) : ( */}
               <DataTable
                 columns={columns}
                 data={teachersData}
@@ -152,7 +189,7 @@ const GuruPage: React.FC = () => {
                 exportTitle="Data Guru"
                 onAddData={handleAddData}
               />
-            )}
+            {/* )} */}
           </CardContent>
         </Card>
       </div>
