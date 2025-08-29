@@ -84,13 +84,15 @@ const TransaksiDetailPage: React.FC = () => {
     if (!transactionId || !paymentAmount || !transaction) return;
 
     const paidAmountNumber = parseFloat(paymentAmount);
+    // Validasi jumlah pembayaran tetap dilakukan di sisi klien
     if (isNaN(paidAmountNumber) || paidAmountNumber < parseFloat(transaction.amount)) {
       toast.showError("Jumlah pembayaran tidak valid atau kurang dari tagihan.");
       return;
     }
 
     try {
-      await validateTransaction({ id: transactionId, paidAmount: paidAmountNumber }).unwrap();
+      // Panggilan API hanya mengirimkan ID transaksi
+      await validateTransaction({ id: transactionId }).unwrap();
       toast.showSuccess("Transaksi berhasil divalidasi.");
       setIsValidationModalOpen(false);
       setPaymentAmount('');
