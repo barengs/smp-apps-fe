@@ -28,7 +28,7 @@ import './slices/pekerjaanApi';
 import './slices/beritaApi';
 import './slices/studyApi';
 import './slices/calonSantriApi';
-import { bankApi } from './slices/bankApi'; // bankApi is a separate API, so we need its export.
+// import { bankApi } from './slices/bankApi'; // bankApi is a separate API, so we need its export. -> Dihapus karena sudah di-inject
 import './slices/educationGroupApi';
 import './slices/activityApi';
 import './slices/controlPanelApi';
@@ -39,13 +39,13 @@ import './slices/roomApi'; // Register the new room API slice
 import './slices/internshipApi'; // Register the new internship API slice
 import './slices/partnerApi'; // Register the new partner API slice
 import './slices/supervisorApi'; // Register the new supervisor API slice
+import './slices/bankApi'; // Pastikan bankApi diimpor untuk menjalankan injectEndpoints
 
 export const store = configureStore({
   reducer: {
     // Register the main API reducer. This handles all injected endpoints.
     [smpApi.reducerPath]: smpApi.reducer,
-    // Register the separate bank API reducer.
-    [bankApi.reducerPath]: bankApi.reducer,
+    // [bankApi.reducerPath]: bankApi.reducer, // Perbaikan: Dihapus karena duplikasi reducerPath
     // Register the auth slice reducer.
     auth: authReducer,
   },
@@ -53,7 +53,7 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       // Add the middleware for the main API and the separate bank API.
       smpApi.middleware,
-      bankApi.middleware
+      // bankApi.middleware // Perbaikan: Dihapus karena middleware sudah ditangani oleh smpApi
     ),
 });
 

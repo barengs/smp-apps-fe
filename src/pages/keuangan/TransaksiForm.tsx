@@ -60,10 +60,12 @@ const TransaksiForm: React.FC<TransaksiFormProps> = ({ isOpen, onClose }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Convert amount to string before sending to API
+      // Explicitly construct the object to ensure all properties are present and typed correctly
       const transactionData = {
-        ...values,
-        amount: values.amount.toString(),
+        destination_account: values.destination_account,
+        transaction_type: values.transaction_type,
+        amount: values.amount.toString(), // Convert amount to string before sending to API
+        description: values.description,
       };
       await addTransaction(transactionData).unwrap();
       toast.showSuccess('Transaksi berhasil ditambahkan.');
