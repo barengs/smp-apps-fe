@@ -21,11 +21,10 @@ export const bankApi = smpApi.injectEndpoints({
       },
       providesTags: (result, error, { accountNumber }) => [{ type: 'Transaksi', id: `LIST-${accountNumber}` }],
     }),
-    validateTransaction: builder.mutation<{ message: string }, { id: string }>({ // Tipe input diubah menjadi hanya { id: string }
-      query: ({ id }) => ({ // Hanya id yang diambil dari argumen
-        url: `transaction/${id}/activate`, // URL diubah menjadi /activate
-        method: 'POST',
-        // body: { paid_amount: paidAmount }, // Body dihapus karena tidak dibutuhkan
+    validateTransaction: builder.mutation<{ message: string }, { id: string }>({
+      query: ({ id }) => ({
+        url: `transaction/${id}/activate`,
+        method: 'PUT', // Perbaikan: Mengubah metode dari POST menjadi PUT
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, 'Transaksi'],
     }),
