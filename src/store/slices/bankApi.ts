@@ -30,10 +30,10 @@ export const bankApi = createApi({
       invalidatesTags: [{ type: 'Transaksi', id: 'LIST' }],
     }),
     validateTransaction: builder.mutation<SingleTransaksiApiResponse, { id: string; paidAmount: number }>({
-      query: ({ id, paidAmount }) => ({
-        url: `/transaction/${id}/validate`,
-        method: 'POST',
-        body: { paid_amount: paidAmount },
+      query: ({ id }) => ({ // paidAmount is used for client-side logic, but not sent to this specific endpoint
+        url: `/transaction/${id}/activate`, // Changed URL to /activate
+        method: 'PUT', // Changed method to PUT
+        // Assuming /activate endpoint only needs the ID from the URL and no specific body for activation
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, { type: 'Transaksi', id: 'LIST' }],
     }),
