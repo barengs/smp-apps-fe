@@ -58,6 +58,12 @@ const TransaksiDetailPage: React.FC = () => {
 
   const transaction = apiResponse?.data;
 
+  // Memoize PdfDocument to prevent unnecessary re-renders, moved to top-level
+  const PdfDocument = React.useMemo(() => {
+    if (!transaction) return null;
+    return <TransactionPdf transaction={transaction} />;
+  }, [transaction]);
+
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
     { label: 'Transaksi', href: '/dashboard/bank-santri/transaksi', icon: <Receipt className="h-4 w-4" /> },
@@ -141,12 +147,6 @@ const TransaksiDetailPage: React.FC = () => {
       </DashboardLayout>
     );
   }
-
-  // Memoize PdfDocument to prevent unnecessary re-renders
-  const PdfDocument = React.useMemo(() => {
-    if (!transaction) return null;
-    return <TransactionPdf transaction={transaction} />;
-  }, [transaction]);
 
   const pdfFileName = `Transaksi-${transaction.reference_number || transaction.id}.pdf`;
   const changeAmount = parseFloat(paymentAmount) - parseFloat(transaction.amount);
@@ -241,7 +241,7 @@ const TransaksiDetailPage: React.FC = () => {
             <DialogDescription>
               Konfirmasi pembayaran untuk No. Referensi: {transaction.reference_number}.
             </DialogDescription>
-          </DialogHeader> {/* Corrected: Closing DialogHeader here */}
+          </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="rounded-md border">
               <table className="w-full text-sm">
