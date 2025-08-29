@@ -59,7 +59,8 @@ import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppProfilePage from './pages/utility/AppProfilePage';
-import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage'; // Import the new page
+import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
+import GuruPage from '@/pages/manajemen-kurikulum/GuruPage'; // Import the new page
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -127,7 +128,7 @@ function App() {
                 <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
                 <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
                 <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
-                <Route path="/dashboard/bank-santri/transaksi/:id" element={<TransaksiDetailPage />} /> {/* New route for transaction detail */}
+                <Route path="/dashboard/bank-santri/transaksi/:id" element={<TransaksiDetailPage />} />
                 <Route path="/dashboard/bank-santri/produk" element={<ProdukPage />} />
                 <Route path="/dashboard/bank-santri/coa" element={<CoaPage />} />
                 <Route path="/dashboard/bank-santri/jenis-transaksi" element={<JenisTransaksiPage />} />
@@ -154,6 +155,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/guru" element={<GuruPage />} /> {/* New route */}
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
