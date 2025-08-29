@@ -135,14 +135,16 @@ const SantriDetailPage: React.FC = () => {
     } else if (typeof parentsData === 'object') {
       console.log('getParentLinks: parentsData is an object.');
       // Check if it's a direct ParentDetailData object
-      if ('user_id' in parentsData && typeof parentsData.user_id === 'number' && 'first_name' in parentsData && typeof parentsData.first_name === 'string') {
+      // Changed typeof parentsData.user_id === 'number' to typeof parentsData.user_id === 'string'
+      if ('user_id' in parentsData && typeof parentsData.user_id === 'string' && 'first_name' in parentsData && typeof parentsData.first_name === 'string') {
         console.log('getParentLinks: Detected single ParentDetailData object.');
         parentsArray = [parentsData as ParentDetailData];
       } else {
         // Assume it's an object where keys map to ParentDetailData (e.g., { 'ayah': {...}, 'ibu': {...} })
         console.log('getParentLinks: Attempting to extract ParentDetailData from object values.');
         parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData => {
-          const isValid = typeof val === 'object' && val !== null && 'user_id' in val && typeof val.user_id === 'number' && 'first_name' in val && typeof val.first_name === 'string';
+          // Changed typeof val.user_id === 'number' to typeof val.user_id === 'string'
+          const isValid = typeof val === 'object' && val !== null && 'user_id' in val && typeof val.user_id === 'string' && 'first_name' in val && typeof val.first_name === 'string';
           if (!isValid) {
             console.log('getParentLinks: Filtered out invalid parent object:', val);
           }
@@ -158,7 +160,8 @@ const SantriDetailPage: React.FC = () => {
 
     const links = parentsArray
       .map((p, index) => {
-        if (p.user_id && typeof p.user_id === 'number') {
+        // Removed typeof p.user_id === 'number' check as user_id is now string
+        if (p.user_id) {
           return (
             <React.Fragment key={p.user_id}>
               <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
