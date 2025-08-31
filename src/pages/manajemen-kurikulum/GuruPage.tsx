@@ -155,7 +155,6 @@ const GuruPage: React.FC = () => {
               <TableLoadingSkeleton />
             ) : (
               <>
-                {console.log("Data passed to DataTable:", teachersData)}
                 <DataTable
                   columns={columns}
                   data={teachersData} // Menggunakan data dari API
