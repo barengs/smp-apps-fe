@@ -1,38 +1,43 @@
 import { smpApi } from '../baseApi';
-import { TeacherApiResponse, SingleTeacherApiResponse, Teacher } from '@/types/teacher';
+import { TeacherApiResponse, SingleTeacherApiResponse } from '@/types/teacher';
 
 export const teacherApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTeachers: builder.query<TeacherApiResponse, void>({
-      query: () => 'staff/teachers-advisors', // Endpoint diperbarui
+      query: () => 'staff/teachers-advisors',
       providesTags: ['Teacher'],
     }),
     getTeacherById: builder.query<SingleTeacherApiResponse, string>({
       query: (id) => `teachers/${id}`,
       providesTags: (result, error, id) => [{ type: 'Teacher', id }],
     }),
-    addTeacher: builder.mutation<SingleTeacherApiResponse, Partial<Teacher>>({
+    addTeacher: builder.mutation<SingleTeacherApiResponse, FormData>({
       query: (newTeacher) => ({
         url: 'teachers',
         method: 'POST',
         body: newTeacher,
+        formData: true,
       }),
       invalidatesTags: ['Teacher'],
     }),
-    updateTeacher: builder.mutation<SingleTeacherApiResponse, { id: string; data: Partial<Teacher> }>({
-      query: ({ id, data }) => ({
-        url: `teachers/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Teacher', id }],
+    updateTeacher: builder.mutation<SingleTeacherApiResponse, { id: string; data: FormData }>({
+      query: ({ id, data }) => {
+        data.append('_method', 'PUT');
+        return {
+          url: `teachers/${id}`,
+          method: 'POST', // Menggunakan POST untuk mengirim FormData pada update
+          body: data,
+          formData: true,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: 'Teacher', id }, 'Teacher'],
     }),
     deleteTeacher: builder.mutation<{ message: string }, string>({
       query: (id) => ({
         url: `teachers/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Teacher', id }],
+      invalidatesTags: ['Teacher'],
     }),
   }),
 });
