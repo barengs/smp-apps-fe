@@ -28,6 +28,7 @@ import RombelPage from "@/pages/manajemen-pendidikan/RombelPage";
 import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
+import MataPelajaranForm from "@/pages/manajemen-kurikulum/MataPelajaranForm";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
@@ -153,12 +154,19 @@ function App() {
                 <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
                 <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
                 <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
-                <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
-                <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/add" element={<MataPelajaranForm />} />
+                <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/:id/edit" element={<MataPelajaranForm />} />
                 <Route path="/dashboard/manajemen-kurikulum/guru" element={<GuruPage />} />
-                <Route path="/dashboard/manajemen-kurikulum/guru/add" element={<GuruFormPage />} /> {/* New route for add */}
-                <Route path="/dashboard/manajemen-kurikulum/guru/:id/edit" element={<GuruFormPage />} /> {/* New route for edit */}
+                <Route path="/dashboard/manajemen-kurikulum/guru/add" element={<GuruFormPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/guru/:id/edit" element={<GuruFormPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/guru" element={<GuruPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/guru/add" element={<GuruFormPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/guru/:id/edit" element={<GuruFormPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
