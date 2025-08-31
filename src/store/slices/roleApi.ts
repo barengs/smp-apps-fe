@@ -38,7 +38,7 @@ interface CreateUpdateRoleRequest {
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRoles: builder.query<GetRolesResponse, void>({
-      query: () => 'master/role',
+      query: () => '/staff/teachers/roles', // Endpoint diubah di sini
       providesTags: ['Role'],
     }),
     createRole: builder.mutation<RoleApiResponse, CreateUpdateRoleRequest>({
