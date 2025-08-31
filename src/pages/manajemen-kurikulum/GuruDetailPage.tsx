@@ -137,7 +137,23 @@ const GuruDetailPage: React.FC = () => {
             <div className="lg:col-span-2">
               <DetailRow label="Email" value={staff.email} icon={<Mail className="h-4 w-4" />} />
               <DetailRow label="Telepon" value={staff.phone_number} icon={<Phone className="h-4 w-4" />} />
-              <DetailRow label="Tempat, Tanggal Lahir" value={`${staff.birth_place}, ${format(new Date(staff.birth_date), 'd MMMM yyyy', { locale: idLocale })}`} icon={<Calendar className="h-4 w-4" />} />
+              <DetailRow label="Tempat, Tanggal Lahir" value={
+                (() => {
+                  let birthDateDisplay = '-';
+                  if (staff.birth_date) {
+                    const dateObj = new Date(staff.birth_date);
+                    if (!isNaN(dateObj.getTime())) { // Memeriksa apakah tanggal valid
+                      const formattedDate = format(dateObj, 'd MMMM yyyy', { locale: idLocale });
+                      birthDateDisplay = `${staff.birth_place || '-'} ${formattedDate}`;
+                    } else {
+                      birthDateDisplay = `${staff.birth_place || '-'} Tanggal tidak valid`;
+                    }
+                  } else if (staff.birth_place) {
+                    birthDateDisplay = `${staff.birth_place} Tanggal tidak tersedia`;
+                  }
+                  return birthDateDisplay;
+                })()
+              } icon={<Calendar className="h-4 w-4" />} />
               <DetailRow label="Alamat Lengkap" value={fullAddress} icon={<MapPin className="h-4 w-4" />} />
               <DetailRow label="NIK" value={staff.nik} icon={<User className="h-4 w-4" />} />
               <DetailRow label="NIP" value={staff.nip} icon={<User className="h-4 w-4" />} />
