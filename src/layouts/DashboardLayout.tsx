@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       titleKey: "sidebar.internshipManagement",
       icon: <Briefcase className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
+        { titleKey: "sidebar.internshipTeacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
         { titleKey: "sidebar.responsiblePerson", href: "/dashboard/penanggung-jawab-magang", icon: <UserSearch className="h-4 w-4" /> },
       ],
     },
