@@ -1,10 +1,10 @@
 import React from 'react';
-import { Control, Controller, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DatePicker } from '@/components/ui/datepicker';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, Controller } from 'react-hook-form';
 
 interface GuruProfileStepProps {
   form: UseFormReturn<any>;
