@@ -20,7 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import * as toast from '@/utils/toast';
+import * as toast from '@/utils/toast'; // Baris ini diperbaiki
 
 const GuruPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,9 +29,6 @@ const GuruPage: React.FC = () => {
 
   // Data diambil dari API, jika tidak ada, gunakan array kosong
   const teachersData: UserWithStaffAndRoles[] = apiResponse?.data?.data || [];
-
-  // Tambahkan log ini untuk debugging
-  console.log("Data yang diteruskan ke DataTable:", teachersData);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -45,13 +42,13 @@ const GuruPage: React.FC = () => {
 
   const handleEdit = (user: UserWithStaffAndRoles) => {
     toast.showInfo(`Aksi Edit untuk guru ${user.staff.first_name} ${user.staff.last_name}.`);
-    navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}/edit`);
+    navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}/edit`); // Menggunakan user.staff.id
   };
 
   const handleDelete = async (user: UserWithStaffAndRoles) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus guru ${user.staff.first_name} ${user.staff.last_name}?`)) {
       try {
-        await deleteTeacher(user.staff.id).unwrap();
+        await deleteTeacher(user.staff.id).unwrap(); // Menggunakan user.staff.id
         toast.showSuccess('Guru berhasil dihapus!');
       } catch (err) {
         console.error('Gagal menghapus guru:', err);
@@ -60,28 +57,28 @@ const GuruPage: React.FC = () => {
     }
   };
 
-  const columns: ColumnDef<UserWithStaffAndRoles>[] = [
+  const columns: ColumnDef<UserWithStaffAndRoles>[] = [ // Mengubah tipe ColumnDef
     {
       accessorFn: row => `${row.staff.first_name} ${row.staff.last_name}`.toUpperCase(),
       id: 'full_name',
       header: 'Nama Lengkap',
     },
     {
-      accessorFn: row => row.staff.email,
+      accessorFn: row => row.staff.email, // Mengubah dari accessorKey
       id: 'email',
       header: 'Email',
     },
     {
-      accessorFn: row => row.roles.map(role => role.name).join(', '),
+      accessorFn: row => row.roles.map(role => role.name).join(', '), // Menampilkan nama peran
       id: 'roles',
       header: 'Peran',
     },
     {
-      accessorFn: row => row.staff.status,
+      accessorFn: row => row.staff.status, // Mengubah dari accessorKey
       id: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.staff.status;
+        const status = row.original.staff.status; // Mengakses status dari objek staff
         let variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'secondary';
         if (status === 'Aktif') variant = 'success';
         if (status === 'Tidak Aktif') variant = 'destructive';
@@ -93,7 +90,7 @@ const GuruPage: React.FC = () => {
       id: 'actions',
       header: 'Aksi',
       cell: ({ row }) => {
-        const user = row.original;
+        const user = row.original; // Mengubah nama variabel dari teacher menjadi user
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -154,12 +151,10 @@ const GuruPage: React.FC = () => {
           <CardContent>
             {isLoading ? (
               <TableLoadingSkeleton />
-            ) : teachersData.length === 0 ? ( // Pemeriksaan eksplisit untuk data kosong
-              <p className="text-center text-gray-500">Tidak ada data guru yang tersedia.</p>
             ) : (
               <DataTable
                 columns={columns}
-                data={teachersData}
+                data={teachersData} // Menggunakan data dari API
                 exportFileName="data_guru"
                 exportTitle="Data Guru"
                 onAddData={handleAddData}
