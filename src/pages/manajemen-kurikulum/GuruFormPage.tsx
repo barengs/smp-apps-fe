@@ -11,8 +11,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import ActionButton from '@/components/ActionButton';
-import * as toast from '@/utils/toast';
-import FormStepIndicator from '@/components/FormStepIndicator';
+import * as toast from '@/utils/toast'; // Baris ini diperbaiki
 
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
@@ -41,7 +40,7 @@ const formSchema = z.object({
   city_code: z.string().min(1, 'Kota/Kabupaten wajib dipilih'),
   district_code: z.string().min(1, 'Kecamatan wajib dipilih'),
   village_code: z.string().min(1, 'Desa/Kelurahan wajib dipilih'),
-  religion: z.string().optional(), // Mengubah menjadi opsional
+  religion: z.string().optional(),
   marital_status: z.string().min(1, 'Status pernikahan wajib dipilih'),
   job_id: z.number({ required_error: 'Pekerjaan wajib dipilih' }),
   role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
@@ -92,7 +91,7 @@ const GuruFormPage: React.FC = () => {
       city_code: '',
       district_code: '',
       village_code: '',
-      religion: '', // Tetap kosongkan default value
+      religion: '',
       marital_status: '',
       password: '',
       password_confirmation: '',
@@ -199,10 +198,9 @@ const GuruFormPage: React.FC = () => {
 
   const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
   const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
-  // Desa/kelurahan sekarang langsung dari data API yang sudah difilter
   const filteredVillages = useMemo(() => {
     if (!districtCode) {
-      return []; // Jika tidak ada kecamatan terpilih, kembalikan array kosong
+      return [];
     }
     return villagesByDistrict;
   }, [villagesByDistrict, districtCode]);
@@ -210,7 +208,7 @@ const GuruFormPage: React.FC = () => {
   const stepFields: (keyof GuruFormValues)[][] = [
     ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
     ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
-    ['marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'], // 'religion' dihapus dari sini
+    ['marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'],
   ];
 
   const steps = [
@@ -245,7 +243,15 @@ const GuruFormPage: React.FC = () => {
           <CardContent>
             {isLoading && isEditMode ? <p>Memuat data...</p> : (
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && currentStep < steps.length - 1) {
+                      e.preventDefault(); // Mencegah pengiriman formulir saat Enter ditekan pada langkah perantara
+                    }
+                  }}
+                >
                   {steps[currentStep].component}
                   <div className="flex justify-between pt-4">
                     <div className="flex gap-2">
