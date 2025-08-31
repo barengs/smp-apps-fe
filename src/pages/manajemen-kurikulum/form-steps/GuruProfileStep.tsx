@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DatePicker } from '@/components/ui/datepicker';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
+import { dataURLtoFile } from '@/lib/utils';
 
 interface GuruProfileStepProps {
   form: UseFormReturn<any>;
@@ -13,6 +14,12 @@ interface GuruProfileStepProps {
 }
 
 const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, setPhotoPreview }) => {
+  const handleCapture = (imageSrc: string) => {
+    const capturedFile = dataURLtoFile(imageSrc, `webcam-photo-${Date.now()}.jpg`);
+    form.setValue('photo', capturedFile, { shouldValidate: true });
+    setPhotoPreview(imageSrc);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div className="md:col-span-1 flex flex-col items-center">
@@ -23,11 +30,12 @@ const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, s
             <FormItem>
               <FormLabel className="text-center block mb-2">Foto Profil</FormLabel>
               <FormControl>
-                <>
-                  <ProfilePhotoCard photoUrl={photoPreview} />
+                <div className="flex flex-col items-center gap-4">
+                  <ProfilePhotoCard photoUrl={photoPreview} onCapture={handleCapture} />
+                  <div className="text-sm text-muted-foreground">atau</div>
                   <Input
                     type="file"
-                    className="mt-2"
+                    className="max-w-xs"
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
@@ -37,7 +45,7 @@ const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, s
                       }
                     }}
                   />
-                </>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
