@@ -2,12 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { User, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query'; // Import FetchBaseQueryError
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi'; // Diaktifkan
+import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi';
 import { Teacher } from '@/types/teacher';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,8 +24,8 @@ import * as toast from '@/utils/toast';
 
 const GuruPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery(); // Diaktifkan
-  const [deleteTeacher] = useDeleteTeacherMutation(); // Diaktifkan
+  const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery();
+  const [deleteTeacher] = useDeleteTeacherMutation();
 
   // Data diambil dari API, jika tidak ada, gunakan array kosong
   const teachersData = apiResponse?.data?.data || [];
@@ -47,7 +48,7 @@ const GuruPage: React.FC = () => {
   const handleDelete = async (teacher: Teacher) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus guru ${teacher.first_name} ${teacher.last_name}?`)) {
       try {
-        await deleteTeacher(teacher.id).unwrap(); // Diaktifkan
+        await deleteTeacher(teacher.id).unwrap();
         toast.showSuccess('Guru berhasil dihapus!');
       } catch (err) {
         console.error('Gagal menghapus guru:', err);
@@ -125,7 +126,8 @@ const GuruPage: React.FC = () => {
     },
   ];
 
-  if (isError) { // Diaktifkan
+  // Periksa apakah ada error dan bukan error 404 (data tidak ditemukan)
+  if (isError && (error as FetchBaseQueryError).status !== 404) {
     console.error("Error fetching teachers:", error);
     return (
       <DashboardLayout title="Manajemen Guru" role="administrasi">
@@ -144,7 +146,7 @@ const GuruPage: React.FC = () => {
             <CardDescription>Kelola data guru di sini.</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? ( // Diaktifkan
+            {isLoading ? (
               <TableLoadingSkeleton />
             ) : (
               <DataTable
