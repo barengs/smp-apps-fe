@@ -1,22 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { User, Eye, EyeOff } from 'lucide-react';
+import { User } from 'lucide-react';
 import { format } from 'date-fns';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
-import { DatePicker } from '@/components/ui/datepicker';
-import { Combobox } from '@/components/ui/combobox';
-import ProfilePhotoCard from '@/components/ProfilePhotoCard';
+import { Form } from '@/components/ui/form';
 import ActionButton from '@/components/ActionButton';
 import * as toast from '@/utils/toast';
 
@@ -27,6 +20,10 @@ import { useLazyGetVillagesQuery } from '@/store/slices/villageApi';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
+
+import GuruProfileStep from './form-steps/GuruProfileStep';
+import GuruAddressStep from './form-steps/GuruAddressStep';
+import GuruEmploymentStep from './form-steps/GuruEmploymentStep';
 
 const formSchema = z.object({
   first_name: z.string().min(1, 'Nama depan wajib diisi'),
@@ -49,7 +46,7 @@ const formSchema = z.object({
   role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
   status: z.enum(['active', 'inactive', 'on_leave']),
   photo: z.any().optional(),
-  password: z.string().min(8, 'Password minimal 8 karakter').optional(),
+  password: z.string().min(8, 'Password minimal 8 karakter').optional().or(z.literal('')),
   password_confirmation: z.string().optional(),
 }).refine(data => {
   if (data.password && data.password !== data.password_confirmation) {
@@ -68,6 +65,7 @@ const GuruFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
 
+  const [currentStep, setCurrentStep] = useState(0);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -81,7 +79,24 @@ const GuruFormPage: React.FC = () => {
     defaultValues: {
       status: 'active',
       gender: 'male',
+      first_name: '',
+      last_name: '',
+      nik: '',
+      nip: '',
+      phone_number: '',
+      email: '',
+      birth_place: '',
+      address: '',
+      province_code: '',
+      city_code: '',
+      district_code: '',
+      village_code: '',
+      religion: '',
+      marital_status: '',
+      password: '',
+      password_confirmation: '',
     },
+    mode: 'onChange',
   });
 
   const { data: provinces = [] } = useGetProvincesQuery();
@@ -97,7 +112,7 @@ const GuruFormPage: React.FC = () => {
 
   useEffect(() => {
     if (districtCode) {
-      triggerGetVillages({ page: 1, per_page: 1000 }); // Fetch all villages for now
+      triggerGetVillages({ page: 1, per_page: 1000 });
     }
   }, [districtCode, triggerGetVillages]);
 
@@ -111,9 +126,9 @@ const GuruFormPage: React.FC = () => {
 
       form.reset({
         first_name: teacher.first_name,
-        last_name: teacher.last_name,
-        nik: teacher.nik,
-        nip: teacher.nip,
+        last_name: teacher.last_name || '',
+        nik: teacher.nik || '',
+        nip: teacher.nip || '',
         gender: teacher.gender,
         phone_number: teacher.phone_number,
         email: teacher.email,
@@ -139,7 +154,7 @@ const GuruFormPage: React.FC = () => {
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
+      if (value !== null && value !== undefined && value !== '') {
         if (key === 'birth_date' && value instanceof Date) {
           formData.append(key, format(value, 'yyyy-MM-dd'));
         } else if (key === 'photo' && value instanceof File) {
@@ -178,6 +193,31 @@ const GuruFormPage: React.FC = () => {
   const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
   const filteredVillages = useMemo(() => villages.data.filter(v => v.district_code === districtCode), [villages.data, districtCode]);
 
+  const stepFields: (keyof GuruFormValues)[][] = [
+    ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
+    ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
+    ['religion', 'marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'],
+  ];
+
+  const steps = [
+    { name: 'Profil Guru', component: <GuruProfileStep form={form} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} /> },
+    { name: 'Alamat', component: <GuruAddressStep form={form} provinces={provinces.map(p => ({ value: p.code, label: p.name }))} cities={filteredCities.map(c => ({ value: c.code, label: c.name }))} districts={filteredDistricts.map(d => ({ value: d.code, label: d.name }))} villages={filteredVillages.map(v => ({ value: v.code, label: v.name }))} isCityDisabled={!provinceCode} isDistrictDisabled={!cityCode} isVillageDisabled={!districtCode} /> },
+    { name: 'Kepegawaian & Akun', component: <GuruEmploymentStep form={form} jobs={jobs.map(j => ({ value: j.id, label: j.name }))} roles={roles.data.map(r => ({ value: r.id, label: r.name }))} isEditMode={isEditMode} showPassword={showPassword} setShowPassword={setShowPassword} showConfirmPassword={showConfirmPassword} setShowConfirmPassword={setShowConfirmPassword} /> },
+  ];
+
+  const handleNext = async () => {
+    const isValid = await form.trigger(stepFields[currentStep]);
+    if (isValid) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      toast.showError("Harap lengkapi semua bidang wajib di langkah ini.");
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(prev => prev - 1);
+  };
+
   return (
     <DashboardLayout title={isEditMode ? 'Edit Guru' : 'Tambah Guru'} role="administrasi">
       <div className="container mx-auto px-4 pb-4">
@@ -185,84 +225,32 @@ const GuruFormPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>{isEditMode ? 'Edit Guru' : 'Tambah Guru'}</CardTitle>
-            <CardDescription>Lengkapi formulir di bawah ini untuk {isEditMode ? 'memperbarui' : 'menambahkan'} data guru.</CardDescription>
+            <CardDescription>Langkah {currentStep + 1} dari {steps.length}: {steps[currentStep].name}</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading && isEditMode ? <p>Memuat data...</p> : (
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="md:col-span-1 flex flex-col items-center">
-                      <FormField
-                        control={form.control}
-                        name="photo"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-center block mb-2">Foto Profil</FormLabel>
-                            <FormControl>
-                              <>
-                                <ProfilePhotoCard photoUrl={photoPreview} />
-                                <Input
-                                  type="file"
-                                  className="mt-2"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      field.onChange(file);
-                                      setPhotoPreview(URL.createObjectURL(file));
-                                    }
-                                  }}
-                                />
-                              </>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  {steps[currentStep].component}
+                  <div className="flex justify-between pt-4">
+                    <div>
+                      {currentStep > 0 && (
+                        <ActionButton type="button" variant="outline" onClick={handleBack} disabled={isLoading}>
+                          Kembali
+                        </ActionButton>
+                      )}
                     </div>
-                    <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField name="first_name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nama Depan</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="last_name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nama Belakang</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="nik" control={form.control} render={({ field }) => (<FormItem><FormLabel>NIK</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="nip" control={form.control} render={({ field }) => (<FormItem><FormLabel>NIP</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="gender" control={form.control} render={({ field }) => (<FormItem><FormLabel>Jenis Kelamin</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Laki-laki</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Perempuan</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="phone_number" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nomor Telepon</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="email" control={form.control} render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="birth_place" control={form.control} render={({ field }) => (<FormItem><FormLabel>Tempat Lahir</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <Controller name="birth_date" control={form.control} render={({ field }) => (<FormItem><FormLabel>Tanggal Lahir</FormLabel><FormControl><DatePicker value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="religion" control={form.control} render={({ field }) => (<FormItem><FormLabel>Agama</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih Agama" /></SelectTrigger></FormControl><SelectContent><SelectItem value="islam">Islam</SelectItem><SelectItem value="kristen">Kristen</SelectItem><SelectItem value="katolik">Katolik</SelectItem><SelectItem value="hindu">Hindu</SelectItem><SelectItem value="buddha">Buddha</SelectItem><SelectItem value="konghucu">Konghucu</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                      <FormField name="marital_status" control={form.control} render={({ field }) => (<FormItem><FormLabel>Status Pernikahan</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih Status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="single">Belum Menikah</SelectItem><SelectItem value="married">Menikah</SelectItem><SelectItem value="divorced">Bercerai</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                      <Controller name="job_id" control={form.control} render={({ field }) => (<FormItem><FormLabel>Pekerjaan</FormLabel><Combobox options={jobs.map(j => ({ value: j.id, label: j.name }))} value={field.value} onChange={field.onChange} placeholder="Pilih Pekerjaan" /><FormMessage /></FormItem>)} />
-                      <Controller name="role_id" control={form.control} render={({ field }) => (<FormItem><FormLabel>Hak Akses</FormLabel><Combobox options={roles.data.map(r => ({ value: r.id, label: r.name }))} value={field.value} onChange={field.onChange} placeholder="Pilih Hak Akses" /><FormMessage /></FormItem>)} />
-                      <FormField name="status" control={form.control} render={({ field }) => (<FormItem><FormLabel>Status Kepegawaian</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih Status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="active">Aktif</SelectItem><SelectItem value="inactive">Tidak Aktif</SelectItem><SelectItem value="on_leave">Cuti</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                    <div>
+                      {currentStep < steps.length - 1 ? (
+                        <ActionButton type="button" onClick={handleNext} disabled={isLoading}>
+                          Selanjutnya
+                        </ActionButton>
+                      ) : (
+                        <ActionButton type="submit" isLoading={isLoading}>
+                          {isEditMode ? 'Simpan Perubahan' : 'Simpan'}
+                        </ActionButton>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <CardTitle className="text-lg">Informasi Alamat</CardTitle>
-                    <FormField name="address" control={form.control} render={({ field }) => (<FormItem><FormLabel>Alamat Lengkap</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <Controller name="province_code" control={form.control} render={({ field }) => (<FormItem><FormLabel>Provinsi</FormLabel><Combobox options={provinces.map(p => ({ value: p.code, label: p.name }))} value={field.value} onChange={field.onChange} placeholder="Pilih Provinsi" /><FormMessage /></FormItem>)} />
-                      <Controller name="city_code" control={form.control} render={({ field }) => (<FormItem><FormLabel>Kota/Kabupaten</FormLabel><Combobox options={filteredCities.map(c => ({ value: c.code, label: c.name }))} value={field.value} onChange={field.onChange} placeholder="Pilih Kota/Kabupaten" disabled={!provinceCode} /><FormMessage /></FormItem>)} />
-                      <Controller name="district_code" control={form.control} render={({ field }) => (<FormItem><FormLabel>Kecamatan</FormLabel><Combobox options={filteredDistricts.map(d => ({ value: d.code, label: d.name }))} value={field.value} onChange={field.onChange} placeholder="Pilih Kecamatan" disabled={!cityCode} /><FormMessage /></FormItem>)} />
-                      <Controller name="village_code" control={form.control} render={({ field }) => (<FormItem><FormLabel>Desa/Kelurahan</FormLabel><Combobox options={filteredVillages.map(v => ({ value: v.code, label: v.name }))} value={field.value} onChange={field.onChange} placeholder="Pilih Desa/Kelurahan" disabled={!districtCode} /><FormMessage /></FormItem>)} />
-                    </div>
-                  </div>
-
-                  {!isEditMode && (
-                    <div className="space-y-6">
-                      <CardTitle className="text-lg">Informasi Akun</CardTitle>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField name="password" control={form.control} render={({ field }) => (<FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative"><Input type={showPassword ? 'text' : 'password'} {...field} /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center">{showPassword ? <EyeOff /> : <Eye />}</button></div></FormControl><FormMessage /></FormItem>)} />
-                        <FormField name="password_confirmation" control={form.control} render={({ field }) => (<FormItem><FormLabel>Konfirmasi Password</FormLabel><FormControl><div className="relative"><Input type={showConfirmPassword ? 'text' : 'password'} {...field} /><button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center">{showConfirmPassword ? <EyeOff /> : <Eye />}</button></div></FormControl><FormMessage /></FormItem>)} />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end space-x-4">
-                    <ActionButton type="button" variant="outline" onClick={() => navigate('/dashboard/manajemen-kurikulum/guru')} disabled={isLoading}>Batal</ActionButton>
-                    <ActionButton type="submit" isLoading={isLoading}>{isEditMode ? 'Simpan Perubahan' : 'Simpan'}</ActionButton>
                   </div>
                 </form>
               </Form>
