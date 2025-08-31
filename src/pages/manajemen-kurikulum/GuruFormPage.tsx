@@ -12,12 +12,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form } from '@/components/ui/form';
 import ActionButton from '@/components/ActionButton';
 import * as toast from '@/utils/toast';
-import FormStepIndicator from '@/components/FormStepIndicator'; // Import komponen baru
+import FormStepIndicator from '@/components/FormStepIndicator';
 
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
-import { useLazyGetVillagesQuery } from '@/store/slices/villageApi';
+import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi'; // Menggunakan useLazyGetVillageByNikQuery
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
@@ -103,7 +103,7 @@ const GuruFormPage: React.FC = () => {
   const { data: provinces = [] } = useGetProvincesQuery();
   const { data: cities = [] } = useGetCitiesQuery();
   const { data: districts = [] } = useGetDistrictsQuery();
-  const [triggerGetVillages, { data: villages = { data: [] } }] = useLazyGetVillagesQuery();
+  const [triggerGetVillagesByDistrict, { data: villagesByDistrict = [] }] = useLazyGetVillageByNikQuery(); // Menggunakan hook baru
   const { data: jobs = [] } = useGetPekerjaanQuery();
   const { data: roles = { data: [] } } = useGetRolesQuery();
 
@@ -113,9 +113,12 @@ const GuruFormPage: React.FC = () => {
 
   useEffect(() => {
     if (districtCode) {
-      triggerGetVillages({ page: 1, per_page: 1000 });
+      triggerGetVillagesByDistrict(districtCode); // Panggil API dengan districtCode
+    } else {
+      // Jika districtCode kosong, pastikan daftar desa juga kosong
+      // villagesByDistrict akan otomatis kosong jika query tidak dipanggil
     }
-  }, [districtCode, triggerGetVillages]);
+  }, [districtCode, triggerGetVillagesByDistrict]);
 
   useEffect(() => {
     if (isEditMode && teacherData) {
@@ -149,8 +152,12 @@ const GuruFormPage: React.FC = () => {
       if (teacher.photo) {
         setPhotoPreview(teacher.photo);
       }
+      // Panggil API desa untuk mengisi combobox saat edit mode
+      if (district?.code) {
+        triggerGetVillagesByDistrict(district.code);
+      }
     }
-  }, [isEditMode, teacherData, form, triggerGetVillages]);
+  }, [isEditMode, teacherData, form, triggerGetVillagesByDistrict]);
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
@@ -192,7 +199,13 @@ const GuruFormPage: React.FC = () => {
 
   const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
   const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
-  const filteredVillages = useMemo(() => villages.data.filter(v => v.district_code === districtCode), [villages.data, districtCode]);
+  // Desa/kelurahan sekarang langsung dari data API yang sudah difilter
+  const filteredVillages = useMemo(() => {
+    if (!districtCode) {
+      return []; // Jika tidak ada kecamatan terpilih, kembalikan array kosong
+    }
+    return villagesByDistrict;
+  }, [villagesByDistrict, districtCode]);
 
   const stepFields: (keyof GuruFormValues)[][] = [
     ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
