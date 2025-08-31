@@ -145,6 +145,8 @@ export function DataTable<TData, TValue>({
     getSubRows: (row) => (row as any).subRows, // Menambahkan ini secara eksplisit
   });
 
+  console.log("React Table rows:", table.getRowModel().rows); // Tambahkan baris ini
+
   const exportToPdf = (allData: boolean) => {
     const exportData = allData && !manualPagination ? data : table.getRowModel().rows.map(row => row.original);
     const fileNameSuffix = allData && !manualPagination ? '_semua' : '';

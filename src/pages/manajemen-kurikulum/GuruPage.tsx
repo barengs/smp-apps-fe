@@ -152,13 +152,16 @@ const GuruPage: React.FC = () => {
             {isLoading ? (
               <TableLoadingSkeleton />
             ) : (
-              <DataTable
-                columns={columns}
-                data={teachersData} // Menggunakan data dari API
-                exportFileName="data_guru"
-                exportTitle="Data Guru"
-                onAddData={handleAddData}
-              />
+              <>
+                {console.log("Data passed to DataTable:", teachersData)}
+                <DataTable
+                  columns={columns}
+                  data={teachersData} // Menggunakan data dari API
+                  exportFileName="data_guru"
+                  exportTitle="Data Guru"
+                  onAddData={handleAddData}
+                />
+              </>
             )}
           </CardContent>
         </Card>
