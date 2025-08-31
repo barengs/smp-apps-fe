@@ -1,0 +1,163 @@
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useGetTeacherByIdQuery } from '@/store/slices/teacherApi';
+import * as toast from '@/utils/toast';
+import { Button } from '@/components/ui/button';
+import { User, ArrowLeft, Edit, Mail, Phone, MapPin, Briefcase, Key, Calendar, Home, Building2, Tent, Landmark } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
+import { format } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
+
+const DetailRow: React.FC<{ label: string; value?: React.ReactNode; icon?: React.ReactNode }> = ({ label, value, icon }) => (
+  <div className="flex items-start space-x-3 py-2 border-b last:border-b-0">
+    {icon && <div className="flex-shrink-0 text-muted-foreground pt-1">{icon}</div>}
+    <div className="flex-grow">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <div className="text-base font-semibold break-words">{value || '-'}</div>
+    </div>
+  </div>
+);
+
+const GuruDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  if (!id) {
+    toast.showError('ID guru tidak valid.');
+    navigate('/dashboard/manajemen-kurikulum/guru');
+    return null;
+  }
+
+  const { data: teacherResponse, error, isLoading } = useGetTeacherByIdQuery(id);
+
+  const teacher = teacherResponse?.data;
+  const staff = teacher?.staff;
+  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Detail Guru';
+
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: 'Dashboard', href: '/dashboard/administrasi' },
+    { label: 'Manajemen Kurikulum', href: '/dashboard/manajemen-kurikulum/mata-pelajaran' },
+    { label: 'Guru', href: '/dashboard/manajemen-kurikulum/guru' },
+    { label: fullName, icon: <User className="h-4 w-4" /> },
+  ];
+
+  const handleEdit = () => {
+    navigate(`/dashboard/manajemen-kurikulum/guru/${id}/edit`);
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout title="Detail Guru" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-7 w-1/3" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 flex flex-col items-center">
+                <Skeleton className="aspect-square w-full max-w-[240px] rounded-lg" />
+                <Skeleton className="h-6 w-3/4 mt-4" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+              </div>
+              <div className="lg:col-span-2 space-y-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="grid grid-cols-[150px_1fr] items-center gap-x-4">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-full" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !teacher || !staff) {
+    toast.showError('Gagal memuat detail guru atau guru tidak ditemukan.');
+    navigate('/dashboard/manajemen-kurikulum/guru');
+    return null;
+  }
+
+  const roles = teacher.roles;
+  const village = staff.village;
+  const district = village?.district;
+  const city = district?.city;
+  const province = city?.province;
+
+  const fullAddress = [
+    staff.address,
+    village?.name,
+    district?.name,
+    city?.name,
+    province?.name,
+  ].filter(Boolean).join(', ');
+
+  return (
+    <DashboardLayout title="Detail Guru" role="administrasi">
+      <div className="container mx-auto pb-4 px-4">
+        <CustomBreadcrumb items={breadcrumbItems} />
+        <Card className="w-full">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle>Informasi Guru</CardTitle>
+                <CardDescription>Detail lengkap mengenai guru ini.</CardDescription>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" onClick={handleEdit}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </Button>
+                <Button variant="outline" onClick={() => navigate(-1)}>
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1 flex flex-col items-center text-center">
+              <div className="aspect-square w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
+                {staff.photo ? (
+                  <img src={staff.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-24 w-24 text-muted-foreground" />
+                )}
+              </div>
+              <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
+              <p className="text-sm text-muted-foreground">{staff.email || '-'}</p>
+              <Badge variant={staff.status === 'Aktif' ? 'success' : 'destructive'} className="mt-2">{staff.status}</Badge>
+            </div>
+            <div className="lg:col-span-2">
+              <DetailRow label="Email" value={staff.email} icon={<Mail className="h-4 w-4" />} />
+              <DetailRow label="Telepon" value={staff.phone_number} icon={<Phone className="h-4 w-4" />} />
+              <DetailRow label="Tempat, Tanggal Lahir" value={`${staff.birth_place}, ${format(new Date(staff.birth_date), 'd MMMM yyyy', { locale: idLocale })}`} icon={<Calendar className="h-4 w-4" />} />
+              <DetailRow label="Alamat Lengkap" value={fullAddress} icon={<MapPin className="h-4 w-4" />} />
+              <DetailRow label="NIK" value={staff.nik} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="NIP" value={staff.nip} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="Peran" value={
+                roles && roles.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {roles.map((role, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">{role.name}</Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-500 italic">Tidak ada peran</span>
+                )
+              } icon={<Key className="h-4 w-4" />} />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default GuruDetailPage;

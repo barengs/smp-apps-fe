@@ -42,6 +42,10 @@ const GuruPage: React.FC = () => {
     navigate('/dashboard/manajemen-kurikulum/guru/add');
   };
 
+  const handleRowClick = (user: UserWithStaffAndRoles) => {
+    navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}`);
+  };
+
   const handleEdit = (user: UserWithStaffAndRoles) => {
     toast.showInfo(`Aksi Edit untuk guru ${user.staff.first_name} ${user.staff.last_name}.`);
     navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}/edit`); // Menggunakan user.staff.id
@@ -161,6 +165,7 @@ const GuruPage: React.FC = () => {
                   exportFileName="data_guru"
                   exportTitle="Data Guru"
                   onAddData={handleAddData}
+                  onRowClick={handleRowClick}
                 />
               </>
             )}
