@@ -4,7 +4,7 @@ import { TeacherApiResponse, SingleTeacherApiResponse, Teacher } from '@/types/t
 export const teacherApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTeachers: builder.query<TeacherApiResponse, void>({
-      query: () => 'teachers', // Asumsi endpoint API untuk guru
+      query: () => 'staff/teachers-advisors', // Endpoint diperbarui
       providesTags: ['Teacher'],
     }),
     getTeacherById: builder.query<SingleTeacherApiResponse, string>({
