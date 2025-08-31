@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { User, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query'; // Import FetchBaseQueryError
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi';
-import { Teacher } from '@/types/teacher';
+import { UserWithStaffAndRoles } from '@/types/teacher'; // Mengubah import Teacher menjadi UserWithStaffAndRoles
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ const GuruPage: React.FC = () => {
   const [deleteTeacher] = useDeleteTeacherMutation();
 
   // Data diambil dari API, jika tidak ada, gunakan array kosong
-  const teachersData = apiResponse?.data?.data || [];
+  const teachersData: UserWithStaffAndRoles[] = apiResponse?.data?.data || [];
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -40,15 +40,15 @@ const GuruPage: React.FC = () => {
     navigate('/dashboard/manajemen-kurikulum/guru/add');
   };
 
-  const handleEdit = (teacher: Teacher) => {
-    toast.showInfo(`Aksi Edit untuk guru ${teacher.first_name} ${teacher.last_name}.`);
-    navigate(`/dashboard/manajemen-kurikulum/guru/${teacher.id}/edit`);
+  const handleEdit = (user: UserWithStaffAndRoles) => {
+    toast.showInfo(`Aksi Edit untuk guru ${user.staff.first_name} ${user.staff.last_name}.`);
+    navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}/edit`); // Menggunakan user.staff.id
   };
 
-  const handleDelete = async (teacher: Teacher) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus guru ${teacher.first_name} ${teacher.last_name}?`)) {
+  const handleDelete = async (user: UserWithStaffAndRoles) => {
+    if (window.confirm(`Apakah Anda yakin ingin menghapus guru ${user.staff.first_name} ${user.staff.last_name}?`)) {
       try {
-        await deleteTeacher(teacher.id).unwrap();
+        await deleteTeacher(user.staff.id).unwrap(); // Menggunakan user.staff.id
         toast.showSuccess('Guru berhasil dihapus!');
       } catch (err) {
         console.error('Gagal menghapus guru:', err);
@@ -57,29 +57,30 @@ const GuruPage: React.FC = () => {
     }
   };
 
-  const columns: ColumnDef<Teacher>[] = [
+  const columns: ColumnDef<UserWithStaffAndRoles>[] = [ // Mengubah tipe ColumnDef
     {
-      accessorFn: row => `${row.first_name} ${row.last_name}`.toUpperCase(),
+      accessorFn: row => `${row.staff.first_name} ${row.staff.last_name}`.toUpperCase(),
       id: 'full_name',
       header: 'Nama Lengkap',
     },
     {
-      accessorKey: 'education_level',
-      header: 'Jenjang Pendidikan',
+      accessorKey: 'staff.email', // Mengakses email dari objek staff
+      header: 'Email',
     },
     {
-      accessorKey: 'class_name',
-      header: 'Kelas',
+      accessorFn: row => row.roles.map(role => role.name).join(', '), // Menampilkan nama peran
+      id: 'roles',
+      header: 'Peran',
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'staff.status', // Mengakses status dari objek staff
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original.staff.status; // Mengakses status dari objek staff
         let variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'secondary';
-        if (status === 'active') variant = 'success';
-        if (status === 'inactive') variant = 'destructive';
-        if (status === 'on_leave') variant = 'warning';
+        if (status === 'Aktif') variant = 'success';
+        if (status === 'Tidak Aktif') variant = 'destructive';
+        if (status === 'Cuti') variant = 'warning';
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
       },
     },
@@ -87,7 +88,7 @@ const GuruPage: React.FC = () => {
       id: 'actions',
       header: 'Aksi',
       cell: ({ row }) => {
-        const teacher = row.original;
+        const user = row.original; // Mengubah nama variabel dari teacher menjadi user
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -105,7 +106,7 @@ const GuruPage: React.FC = () => {
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleEdit(teacher);
+                  handleEdit(user);
                 }}
               >
                 <Edit className="mr-2 h-4 w-4" /> Edit
@@ -113,7 +114,7 @@ const GuruPage: React.FC = () => {
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete(teacher);
+                  handleDelete(user);
                 }}
                 className="text-red-600"
               >

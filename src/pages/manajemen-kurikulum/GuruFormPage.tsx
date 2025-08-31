@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { User } from 'lucide-react';
-import { format } from 'date-fns'; // Baris ini diperbaiki
+import { format } from 'date-fns';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -45,7 +45,7 @@ const formSchema = z.object({
   marital_status: z.string().min(1, 'Status pernikahan wajib dipilih'),
   job_id: z.number({ required_error: 'Pekerjaan wajib dipilih' }),
   role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
-  status: z.enum(['active', 'inactive', 'on_leave']),
+  status: z.enum(['Aktif', 'Tidak Aktif', 'Cuti']),
   photo: z.any().optional(),
   password: z.string().min(8, 'Password minimal 8 karakter').optional().or(z.literal('')),
   password_confirmation: z.string().optional(),
@@ -78,7 +78,7 @@ const GuruFormPage: React.FC = () => {
   const form = useForm<GuruFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: 'active',
+      status: 'Aktif',
       gender: 'male',
       first_name: '',
       last_name: '',
@@ -123,34 +123,36 @@ const GuruFormPage: React.FC = () => {
   useEffect(() => {
     if (isEditMode && teacherData) {
       const teacher = teacherData.data;
-      const village = teacher.village;
+      // Akses properti melalui objek staff
+      const staff = teacher.staff;
+      const village = staff.village; // Mengakses village dari staff
       const district = village?.district;
       const city = district?.city;
       const province = city?.province;
 
       form.reset({
-        first_name: teacher.first_name,
-        last_name: teacher.last_name || '',
-        nik: teacher.nik || '',
-        nip: teacher.nip || '',
-        gender: teacher.gender,
-        phone_number: teacher.phone_number,
-        email: teacher.email,
-        birth_place: teacher.birth_place,
-        birth_date: new Date(teacher.birth_date),
-        address: teacher.address,
+        first_name: staff.first_name, // Mengakses dari staff
+        last_name: staff.last_name || '', // Mengakses dari staff
+        nik: staff.nik || '', // Mengakses dari staff
+        nip: staff.nip || '', // Mengakses dari staff
+        gender: staff.gender, // Mengakses dari staff
+        phone_number: staff.phone_number || '', // Mengakses dari staff
+        email: staff.email, // Mengakses dari staff
+        birth_place: staff.birth_place, // Mengakses dari staff
+        birth_date: new Date(staff.birth_date), // Mengakses dari staff
+        address: staff.address || '', // Mengakses dari staff
         province_code: province?.code,
         city_code: city?.code,
         district_code: district?.code,
         village_code: village?.code,
-        religion: teacher.religion,
-        marital_status: teacher.marital_status,
-        job_id: teacher.job_id,
-        role_id: teacher.user?.roles[0]?.id,
-        status: teacher.status,
+        religion: staff.religion, // Mengakses dari staff
+        marital_status: staff.marital_status, // Mengakses dari staff
+        job_id: staff.job_id, // Mengakses dari staff
+        role_id: teacher.roles[0]?.id, // Mengakses roles langsung dari teacher
+        status: staff.status, // Mengakses dari staff
       });
-      if (teacher.photo) {
-        setPhotoPreview(teacher.photo);
+      if (staff.photo) { // Mengakses dari staff
+        setPhotoPreview(staff.photo); // Mengakses dari staff
       }
       // Panggil API desa untuk mengisi combobox saat edit mode
       if (district?.code) {
