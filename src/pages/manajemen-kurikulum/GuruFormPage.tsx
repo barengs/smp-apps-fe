@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form } from '@/components/ui/form';
 import ActionButton from '@/components/ActionButton';
 import * as toast from '@/utils/toast';
+import FormStepIndicator from '@/components/FormStepIndicator'; // Import komponen baru
 
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
@@ -222,7 +223,8 @@ const GuruFormPage: React.FC = () => {
     <DashboardLayout title={isEditMode ? 'Edit Guru' : 'Tambah Guru'} role="administrasi">
       <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
-        <Card>
+        <FormStepIndicator steps={steps.map(s => s.name)} currentStep={currentStep} />
+        <Card className="mt-4">
           <CardHeader>
             <CardTitle>{isEditMode ? 'Edit Guru' : 'Tambah Guru'}</CardTitle>
             <CardDescription>Langkah {currentStep + 1} dari {steps.length}: {steps[currentStep].name}</CardDescription>
@@ -233,12 +235,15 @@ const GuruFormPage: React.FC = () => {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   {steps[currentStep].component}
                   <div className="flex justify-between pt-4">
-                    <div>
+                    <div className="flex gap-2">
                       {currentStep > 0 && (
                         <ActionButton type="button" variant="outline" onClick={handleBack} disabled={isLoading}>
                           Kembali
                         </ActionButton>
                       )}
+                      <ActionButton type="button" variant="outline-danger" onClick={() => navigate('/dashboard/manajemen-kurikulum/guru')} disabled={isLoading}>
+                        Batal
+                      </ActionButton>
                     </div>
                     <div>
                       {currentStep < steps.length - 1 ? (
