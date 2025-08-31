@@ -18,8 +18,7 @@ import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation
 const formSchema = z.object({
   first_name: z.string().min(1, { message: 'Nama depan wajib diisi.' }),
   last_name: z.string().optional(),
-  education_level: z.string().min(1, { message: 'Jenjang pendidikan wajib diisi.' }),
-  class_name: z.string().min(1, { message: 'Nama kelas wajib diisi.' }),
+  // education_level dan class_name dihapus sesuai permintaan
   status: z.enum(['active', 'inactive', 'on_leave'], {
     required_error: 'Status wajib dipilih.',
   }),
@@ -44,8 +43,8 @@ const GuruFormPage: React.FC = () => {
     defaultValues: {
       first_name: '',
       last_name: '',
-      education_level: '',
-      class_name: '',
+      // education_level: '', // Dihapus
+      // class_name: '', // Dihapus
       status: 'active',
     },
   });
@@ -56,8 +55,8 @@ const GuruFormPage: React.FC = () => {
       form.reset({
         first_name: teacher.first_name,
         last_name: teacher.last_name || '',
-        education_level: teacher.education_level,
-        class_name: teacher.class_name,
+        // education_level: teacher.education_level, // Dihapus
+        // class_name: teacher.class_name, // Dihapus
         status: teacher.status,
       });
     }
@@ -132,32 +131,7 @@ const GuruFormPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="education_level"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Jenjang Pendidikan</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Contoh: SMA, S1" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="class_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Kelas</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Contoh: Kelas 7A" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {/* FormField untuk education_level dan class_name dihapus */}
                     <FormField
                       control={form.control}
                       name="status"
