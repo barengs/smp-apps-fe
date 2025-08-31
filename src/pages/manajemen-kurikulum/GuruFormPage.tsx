@@ -17,7 +17,7 @@ import FormStepIndicator from '@/components/FormStepIndicator';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
-import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi'; // Menggunakan useLazyGetVillageByNikQuery
+import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
@@ -41,7 +41,7 @@ const formSchema = z.object({
   city_code: z.string().min(1, 'Kota/Kabupaten wajib dipilih'),
   district_code: z.string().min(1, 'Kecamatan wajib dipilih'),
   village_code: z.string().min(1, 'Desa/Kelurahan wajib dipilih'),
-  religion: z.string().min(1, 'Agama wajib dipilih'),
+  religion: z.string().optional(), // Mengubah menjadi opsional
   marital_status: z.string().min(1, 'Status pernikahan wajib dipilih'),
   job_id: z.number({ required_error: 'Pekerjaan wajib dipilih' }),
   role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
@@ -92,7 +92,7 @@ const GuruFormPage: React.FC = () => {
       city_code: '',
       district_code: '',
       village_code: '',
-      religion: '',
+      religion: '', // Tetap kosongkan default value
       marital_status: '',
       password: '',
       password_confirmation: '',
@@ -103,7 +103,7 @@ const GuruFormPage: React.FC = () => {
   const { data: provinces = [] } = useGetProvincesQuery();
   const { data: cities = [] } = useGetCitiesQuery();
   const { data: districts = [] } = useGetDistrictsQuery();
-  const [triggerGetVillagesByDistrict, { data: villagesByDistrict = [] }] = useLazyGetVillageByNikQuery(); // Menggunakan hook baru
+  const [triggerGetVillagesByDistrict, { data: villagesByDistrict = [] }] = useLazyGetVillageByNikQuery();
   const { data: jobs = [] } = useGetPekerjaanQuery();
   const { data: roles = { data: [] } } = useGetRolesQuery();
 
@@ -113,7 +113,7 @@ const GuruFormPage: React.FC = () => {
 
   useEffect(() => {
     if (districtCode) {
-      triggerGetVillagesByDistrict(districtCode); // Panggil API dengan districtCode
+      triggerGetVillagesByDistrict(districtCode);
     } else {
       // Jika districtCode kosong, pastikan daftar desa juga kosong
       // villagesByDistrict akan otomatis kosong jika query tidak dipanggil
@@ -210,7 +210,7 @@ const GuruFormPage: React.FC = () => {
   const stepFields: (keyof GuruFormValues)[][] = [
     ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
     ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
-    ['religion', 'marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'],
+    ['marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'], // 'religion' dihapus dari sini
   ];
 
   const steps = [
