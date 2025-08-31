@@ -76,17 +76,11 @@ export interface UserWithStaffAndRoles {
   roles: Role[];
 }
 
+// Diperbarui agar sesuai dengan respons API yang lebih datar
 export interface TeacherApiResponse {
-  data: {
-    data: UserWithStaffAndRoles[];
-    total: number;
-    per_page: number;
-    current_page: number;
-    last_page: number;
-    from: number;
-    to: number;
-  };
+  data: UserWithStaffAndRoles[]; // Langsung array guru
   message: string;
+  status?: number; // Menambahkan properti status jika ada di respons
 }
 
 export interface SingleTeacherApiResponse {

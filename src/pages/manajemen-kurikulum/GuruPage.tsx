@@ -30,7 +30,7 @@ const GuruPage: React.FC = () => {
   console.log("Full API Response from useGetTeachersQuery:", apiResponse); // Tambahkan baris ini
 
   // Data diambil dari API, jika tidak ada, gunakan array kosong
-  const teachersData: UserWithStaffAndRoles[] = apiResponse?.data?.data || [];
+  const teachersData: UserWithStaffAndRoles[] = apiResponse?.data || [];
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
