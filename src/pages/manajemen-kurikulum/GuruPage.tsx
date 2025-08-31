@@ -9,7 +9,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi';
-import { UserWithStaffAndRoles } from '@/types/teacher'; // Mengubah import Teacher menjadi UserWithStaffAndRoles
+import { UserWithStaffAndRoles } from '@/types/teacher';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import * as toast from '@/utils/toast';
+import * as toast from '@/utils/toast'; // Baris ini diperbaiki
 
 const GuruPage: React.FC = () => {
   const navigate = useNavigate();
@@ -64,7 +64,8 @@ const GuruPage: React.FC = () => {
       header: 'Nama Lengkap',
     },
     {
-      accessorKey: 'staff.email', // Mengakses email dari objek staff
+      accessorFn: row => row.staff.email, // Mengubah dari accessorKey
+      id: 'email',
       header: 'Email',
     },
     {
@@ -73,7 +74,8 @@ const GuruPage: React.FC = () => {
       header: 'Peran',
     },
     {
-      accessorKey: 'staff.status', // Mengakses status dari objek staff
+      accessorFn: row => row.staff.status, // Mengubah dari accessorKey
+      id: 'status',
       header: 'Status',
       cell: ({ row }) => {
         const status = row.original.staff.status; // Mengakses status dari objek staff
