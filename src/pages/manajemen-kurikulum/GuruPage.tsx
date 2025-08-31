@@ -27,8 +27,6 @@ const GuruPage: React.FC = () => {
   const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery();
   const [deleteTeacher] = useDeleteTeacherMutation();
 
-  console.log("Full API Response from useGetTeachersQuery:", apiResponse); // Tambahkan baris ini
-
   // Data diambil dari API, jika tidak ada, gunakan array kosong
   const teachersData: UserWithStaffAndRoles[] = apiResponse?.data || [];
 
