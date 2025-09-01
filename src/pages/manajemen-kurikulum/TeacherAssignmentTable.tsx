@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DataTable } from '@/components/DataTable';
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
-import { TeacherAssignmentRow, StaffDetailFromApi, Staff, Study } from '@/types/teacherAssignment';
+import { StaffDetailFromApi, Staff } from '@/types/teacherAssignment';
 import * as toast from '@/utils/toast';
 import { Badge } from '@/components/ui/badge';
 import AssignStudyModal from './AssignStudyModal';
@@ -32,45 +32,71 @@ const TeacherAssignmentTable: React.FC = () => {
     setSelectedStaff(null);
   };
 
-  const columns: ColumnDef<TeacherAssignmentRow>[] = [
+  const columns: ColumnDef<StaffDetailFromApi>[] = [
     {
-      accessorKey: 'staff.nip',
+      accessorKey: 'nik',
       header: 'NIP',
-      cell: ({ row }) => row.original.staff.nip || '-',
+      cell: ({ row }) => row.original.nik || '-',
     },
     {
-      accessorKey: 'staff.first_name',
+      accessorKey: 'first_name',
       header: 'Nama Guru',
       cell: ({ row }) => {
-        const staff = row.original.staff;
+        const staff = row.original;
         return `${staff.first_name} ${staff.last_name}`;
       },
     },
     {
-      accessorKey: 'study.name',
+      accessorKey: 'studies',
       header: 'Mata Pelajaran',
       cell: ({ row }) => {
-        const { study, staff } = row.original;
-        if (study.id === 0) {
+        const staffDetail = row.original;
+        const studies = staffDetail.studies;
+
+        const staffForModal: Staff = {
+          id: staffDetail.user_id,
+          first_name: staffDetail.first_name,
+          last_name: staffDetail.last_name,
+          nip: staffDetail.nik,
+          email: staffDetail.email,
+        };
+
+        if (studies.length === 0) {
           return (
             <Button
               variant="outline"
               size="sm"
               className="h-auto py-1 px-2 text-xs"
-              onClick={() => handleOpenModal(staff)}
+              onClick={() => handleOpenModal(staffForModal)}
             >
               <PlusCircle className="mr-2 h-3 w-3" />
               Tugaskan Mapel
             </Button>
           );
         }
-        return <Badge variant="outline">{study.name}</Badge>;
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {studies.map((study) => (
+              <Badge key={study.id} variant="outline">
+                {study.name}
+              </Badge>
+            ))}
+          </div>
+        );
       },
     },
     {
       id: 'actions',
       cell: ({ row }) => {
-        const assignment = row.original;
+        const staffDetail = row.original;
+        const staffForModal: Staff = {
+          id: staffDetail.user_id,
+          first_name: staffDetail.first_name,
+          last_name: staffDetail.last_name,
+          nip: staffDetail.nik,
+          email: staffDetail.email,
+        };
 
         return (
           <div className="text-right">
@@ -84,12 +110,14 @@ const TeacherAssignmentTable: React.FC = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                 <DropdownMenuItem
-                  onClick={() => navigator.clipboard.writeText(String(assignment.staff.id))}
+                  onClick={() => navigator.clipboard.writeText(staffDetail.user_id)}
                 >
                   Salin ID Guru
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Ubah</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleOpenModal(staffForModal)}>
+                  Ubah Mapel
+                </DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive focus:text-destructive">Hapus</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -104,45 +132,19 @@ const TeacherAssignmentTable: React.FC = () => {
     console.error('Error fetching teacher assignments:', error);
   }
 
-  const flattenedData: TeacherAssignmentRow[] = React.useMemo(() => {
-    if (!data?.data) return [];
-    return data.data.flatMap((staffDetail: StaffDetailFromApi) => {
-      const staffInfo: Staff = {
-        id: staffDetail.user_id,
-        first_name: staffDetail.first_name,
-        last_name: staffDetail.last_name,
-        nip: staffDetail.nik,
-        email: staffDetail.email,
-      };
-
-      if (staffDetail.studies.length === 0) {
-        return [{
-          staff: staffInfo,
-          study: { id: 0, name: 'Tidak ada mata pelajaran', description: null },
-        }];
-      } else {
-        return staffDetail.studies.map((study: Study) => ({
-          staff: staffInfo,
-          study: study,
-        }));
-      }
-    });
+  const tableData: StaffDetailFromApi[] = React.useMemo(() => {
+    return data?.data || [];
   }, [data]);
 
   return (
     <>
       <DataTable
         columns={columns}
-        data={flattenedData}
+        data={tableData}
         isLoading={isLoading}
         exportFileName="penugasan_guru"
         exportTitle="Data Penugasan Guru"
-        filterableColumns={{
-          'study.name': {
-            placeholder: 'Filter mata pelajaran...',
-          },
-        }}
-        getRowId={(row) => `${row.staff.id}-${row.study.id}`}
+        getRowId={(row) => row.user_id}
       />
       <AssignStudyModal
         isOpen={isModalOpen}
