@@ -3,6 +3,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { UserCheck } from 'lucide-react';
+import TeacherAssignmentTable from './TeacherAssignmentTable';
 
 const PenugasanGuruPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -18,10 +19,10 @@ const PenugasanGuruPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Manajemen Penugasan Guru</CardTitle>
-            <CardDescription>Halaman ini akan digunakan untuk mengelola penugasan guru.</CardDescription>
+            <CardDescription>Kelola guru yang mengajar mata pelajaran tertentu di halaman ini.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p>Konten untuk manajemen penugasan guru akan ditambahkan di sini.</p>
+            <TeacherAssignmentTable />
           </CardContent>
         </Card>
       </div>

@@ -1,7 +1,12 @@
-// File contents excluded from context
-
+{
+    "sidebar.dashboard": "Dasbor",
+    "sidebar.bankSantri": "Bank Santri",
+    "sidebar.account": "Akun",
+    "sidebar.transactions": "Transaksi",
+    "sidebar.reports": "Laporan",
     "sidebar.teacher": "Guru",
     "sidebar.teacherAssignment": "Penugasan Guru",
     "sidebar.internshipTeacherAssignment": "Guru Tugas",
     "sidebar.securityManagement": "Manajemen Keamanan & Ketertiban",
-    "sidebar.violations": "Pelanggaran",
+    "sidebar.violations": "Pelanggaran"
+}
