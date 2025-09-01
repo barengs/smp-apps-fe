@@ -78,6 +78,7 @@ const TeacherAssignmentTable: React.FC = () => {
   }
 
   // Meratakan data: setiap staf dengan mata pelajaran yang diajarkan akan menjadi baris terpisah
+  // Jika staf tidak memiliki mata pelajaran, tetap tampilkan staf dengan indikasi 'Tidak ada mata pelajaran'
   const flattenedData: TeacherAssignmentRow[] = React.useMemo(() => {
     if (!data?.data) return [];
     return data.data.flatMap((staffDetail: StaffDetailFromApi) => {
@@ -88,10 +89,20 @@ const TeacherAssignmentTable: React.FC = () => {
         nip: staffDetail.nik,
         email: staffDetail.email,
       };
-      return staffDetail.studies.map((study: Study) => ({
-        staff: staffInfo,
-        study: study,
-      }));
+
+      if (staffDetail.studies.length === 0) {
+        // Jika tidak ada mata pelajaran, tambahkan satu baris dengan placeholder
+        return [{
+          staff: staffInfo,
+          study: { id: 0, name: 'Tidak ada mata pelajaran', description: null },
+        }];
+      } else {
+        // Jika ada mata pelajaran, buat baris untuk setiap mata pelajaran
+        return staffDetail.studies.map((study: Study) => ({
+          staff: staffInfo,
+          study: study,
+        }));
+      }
     });
   }, [data]);
 
