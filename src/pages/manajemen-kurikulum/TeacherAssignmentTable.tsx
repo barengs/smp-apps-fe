@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,70 +15,95 @@ import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentA
 import { TeacherAssignmentRow, StaffDetailFromApi, Staff, Study } from '@/types/teacherAssignment';
 import * as toast from '@/utils/toast';
 import { Badge } from '@/components/ui/badge';
-
-const columns: ColumnDef<TeacherAssignmentRow>[] = [
-  {
-    accessorKey: 'staff.nip',
-    header: 'NIP',
-    cell: ({ row }) => row.original.staff.nip || '-',
-  },
-  {
-    accessorKey: 'staff.first_name',
-    header: 'Nama Guru',
-    cell: ({ row }) => {
-      const staff = row.original.staff;
-      return `${staff.first_name} ${staff.last_name}`;
-    },
-  },
-  {
-    accessorKey: 'study.name',
-    header: 'Mata Pelajaran',
-    cell: ({ row }) => (
-      <Badge variant="outline">{row.original.study.name}</Badge>
-    ),
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const assignment = row.original;
-
-      return (
-        <div className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Buka menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(String(assignment.staff.id))}
-              >
-                Salin ID Guru
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Ubah</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">Hapus</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
+import AssignStudyModal from './AssignStudyModal';
 
 const TeacherAssignmentTable: React.FC = () => {
   const { data, error, isLoading } = useGetTeacherAssignmentsQuery();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+
+  const handleOpenModal = (staff: Staff) => {
+    setSelectedStaff(staff);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedStaff(null);
+  };
+
+  const columns: ColumnDef<TeacherAssignmentRow>[] = [
+    {
+      accessorKey: 'staff.nip',
+      header: 'NIP',
+      cell: ({ row }) => row.original.staff.nip || '-',
+    },
+    {
+      accessorKey: 'staff.first_name',
+      header: 'Nama Guru',
+      cell: ({ row }) => {
+        const staff = row.original.staff;
+        return `${staff.first_name} ${staff.last_name}`;
+      },
+    },
+    {
+      accessorKey: 'study.name',
+      header: 'Mata Pelajaran',
+      cell: ({ row }) => {
+        const { study, staff } = row.original;
+        if (study.id === 0) {
+          return (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-auto py-1 px-2 text-xs"
+              onClick={() => handleOpenModal(staff)}
+            >
+              <PlusCircle className="mr-2 h-3 w-3" />
+              Tugaskan Mapel
+            </Button>
+          );
+        }
+        return <Badge variant="outline">{study.name}</Badge>;
+      },
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => {
+        const assignment = row.original;
+
+        return (
+          <div className="text-right">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Buka menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(String(assignment.staff.id))}
+                >
+                  Salin ID Guru
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Ubah</DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive">Hapus</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    },
+  ];
 
   if (error) {
     toast.showError('Gagal memuat data penugasan guru.');
     console.error('Error fetching teacher assignments:', error);
   }
 
-  // Meratakan data: setiap staf dengan mata pelajaran yang diajarkan akan menjadi baris terpisah
-  // Jika staf tidak memiliki mata pelajaran, tetap tampilkan staf dengan indikasi 'Tidak ada mata pelajaran'
   const flattenedData: TeacherAssignmentRow[] = React.useMemo(() => {
     if (!data?.data) return [];
     return data.data.flatMap((staffDetail: StaffDetailFromApi) => {
@@ -91,13 +116,11 @@ const TeacherAssignmentTable: React.FC = () => {
       };
 
       if (staffDetail.studies.length === 0) {
-        // Jika tidak ada mata pelajaran, tambahkan satu baris dengan placeholder
         return [{
           staff: staffInfo,
           study: { id: 0, name: 'Tidak ada mata pelajaran', description: null },
         }];
       } else {
-        // Jika ada mata pelajaran, buat baris untuk setiap mata pelajaran
         return staffDetail.studies.map((study: Study) => ({
           staff: staffInfo,
           study: study,
@@ -107,19 +130,26 @@ const TeacherAssignmentTable: React.FC = () => {
   }, [data]);
 
   return (
-    <DataTable
-      columns={columns}
-      data={flattenedData}
-      isLoading={isLoading}
-      exportFileName="penugasan_guru"
-      exportTitle="Data Penugasan Guru"
-      filterableColumns={{
-        'study.name': {
-          placeholder: 'Filter mata pelajaran...',
-        },
-      }}
-      getRowId={(row) => `${row.staff.id}-${row.study.id}`} // Memberikan ID unik untuk setiap baris
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={flattenedData}
+        isLoading={isLoading}
+        exportFileName="penugasan_guru"
+        exportTitle="Data Penugasan Guru"
+        filterableColumns={{
+          'study.name': {
+            placeholder: 'Filter mata pelajaran...',
+          },
+        }}
+        getRowId={(row) => `${row.staff.id}-${row.study.id}`}
+      />
+      <AssignStudyModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        staff={selectedStaff}
+      />
+    </>
   );
 };
 
