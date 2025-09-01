@@ -12,11 +12,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DataTable } from '@/components/DataTable';
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
-import { TeacherAssignment } from '@/types/teacherAssignment';
+import { TeacherAssignmentRow, StaffDetailFromApi, Staff, Study } from '@/types/teacherAssignment';
 import * as toast from '@/utils/toast';
 import { Badge } from '@/components/ui/badge';
 
-const columns: ColumnDef<TeacherAssignment>[] = [
+const columns: ColumnDef<TeacherAssignmentRow>[] = [
   {
     accessorKey: 'staff.nip',
     header: 'NIP',
@@ -54,9 +54,9 @@ const columns: ColumnDef<TeacherAssignment>[] = [
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(String(assignment.id))}
+                onClick={() => navigator.clipboard.writeText(String(assignment.staff.id))}
               >
-                Salin ID
+                Salin ID Guru
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Ubah</DropdownMenuItem>
@@ -77,12 +77,28 @@ const TeacherAssignmentTable: React.FC = () => {
     console.error('Error fetching teacher assignments:', error);
   }
 
-  const tableData = data?.data || [];
+  // Meratakan data: setiap staf dengan mata pelajaran yang diajarkan akan menjadi baris terpisah
+  const flattenedData: TeacherAssignmentRow[] = React.useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.flatMap((staffDetail: StaffDetailFromApi) => {
+      const staffInfo: Staff = {
+        id: staffDetail.user_id,
+        first_name: staffDetail.first_name,
+        last_name: staffDetail.last_name,
+        nip: staffDetail.nik,
+        email: staffDetail.email,
+      };
+      return staffDetail.studies.map((study: Study) => ({
+        staff: staffInfo,
+        study: study,
+      }));
+    });
+  }, [data]);
 
   return (
     <DataTable
       columns={columns}
-      data={tableData}
+      data={flattenedData}
       isLoading={isLoading}
       exportFileName="penugasan_guru"
       exportTitle="Data Penugasan Guru"
@@ -91,6 +107,7 @@ const TeacherAssignmentTable: React.FC = () => {
           placeholder: 'Filter mata pelajaran...',
         },
       }}
+      getRowId={(row) => `${row.staff.id}-${row.study.id}`} // Memberikan ID unik untuk setiap baris
     />
   );
 };
