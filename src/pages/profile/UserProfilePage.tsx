@@ -32,10 +32,10 @@ const UserProfilePage: React.FC = () => {
     { label: 'Profil', icon: <User className="h-4 w-4" /> },
   ];
 
-  const handleEditPhoto = () => {
-    // Logika untuk mengedit foto (misalnya, membuka modal upload)
-    console.log("Edit foto diklik!");
-    // Anda bisa menambahkan logika modal di sini
+  // Mengubah handleEditPhoto agar sesuai dengan prop onCapture
+  const handleEditPhoto = (imageSrc: string) => {
+    console.log("Foto diambil dari kamera:", imageSrc);
+    // TODO: Implementasikan logika pengunggahan/pembaruan foto di sini
   };
 
   const handleEditProfile = () => {
@@ -133,7 +133,7 @@ const UserProfilePage: React.FC = () => {
               <div className="flex flex-col items-center space-y-4 md:flex-row md:items-start md:space-y-0 md:space-x-6">
                 <ProfilePhotoCard
                   photoUrl={profile?.photo}
-                  onEdit={handleEditPhoto}
+                  onCapture={handleEditPhoto} // Mengubah onEdit menjadi onCapture
                 />
                 <div className="text-center md:text-left">
                   <CardTitle className="text-2xl">{fullName}</CardTitle>

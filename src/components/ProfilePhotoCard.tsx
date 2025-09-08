@@ -1,37 +1,37 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Edit } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, Camera } from 'lucide-react';
+import WebcamCapture from './WebcamCapture';
 
 interface ProfilePhotoCardProps {
-  photoUrl?: string | null;
-  onEdit?: () => void;
+  photoUrl: string | null;
+  onCapture: (imageSrc: string) => void;
 }
 
-const ProfilePhotoCard: React.FC<ProfilePhotoCardProps> = ({ photoUrl, onEdit }) => {
+const ProfilePhotoCard: React.FC<ProfilePhotoCardProps> = ({ photoUrl, onCapture }) => {
+  const [isWebcamOpen, setIsWebcamOpen] = useState(false);
+
   return (
-    <Card className="w-36 h-48 flex flex-col items-center justify-center relative overflow-hidden shadow-md"> {/* Ukuran sekitar 4x6 cm (144px x 192px) */}
-      <CardContent className="p-0 w-full h-full flex items-center justify-center">
-        <Avatar className="w-full h-full rounded-none"> {/* Avatar mengisi seluruh kartu */}
-          {photoUrl ? (
-            <AvatarImage src={photoUrl} alt="User Photo" className="object-cover" />
-          ) : (
-            <AvatarFallback className="w-full h-full rounded-none bg-gray-200 flex items-center justify-center">
-              <User className="h-1/2 w-1/2 text-gray-500" />
-            </AvatarFallback>
-          )}
+    <>
+      <div className="flex flex-col items-center space-y-4">
+        <Avatar className="h-32 w-32 border">
+          <AvatarImage src={photoUrl || undefined} alt="Foto Profil" className="object-cover" />
+          <AvatarFallback>
+            <User className="h-16 w-16" />
+          </AvatarFallback>
         </Avatar>
-      </CardContent>
-      {!photoUrl && onEdit && (
-        <button
-          onClick={onEdit}
-          className="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 transition-colors z-10"
-          aria-label="Edit photo"
-        >
-          <Edit className="h-5 w-5 text-gray-600" />
-        </button>
-      )}
-    </Card>
+        <Button type="button" variant="outline" size="sm" onClick={() => setIsWebcamOpen(true)}>
+          <Camera className="mr-2 h-4 w-4" />
+          Ambil dari Kamera
+        </Button>
+      </div>
+      <WebcamCapture
+        open={isWebcamOpen}
+        onOpenChange={setIsWebcamOpen}
+        onCapture={onCapture}
+      />
+    </>
   );
 };
 

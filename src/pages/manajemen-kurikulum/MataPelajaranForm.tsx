@@ -17,6 +17,7 @@ import { MataPelajaran } from '@/types/pendidikan';
 import { useCreateStudyMutation, useUpdateStudyMutation } from '@/store/slices/studyApi';
 import * as toast from '@/utils/toast';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Nama mata pelajaran harus diisi.' }),
@@ -25,10 +26,11 @@ const formSchema = z.object({
 
 interface MataPelajaranFormProps {
   initialData?: MataPelajaran;
-  onSuccess: () => void;
+  onSuccess?: () => void; // Membuat onSuccess menjadi opsional
 }
 
 const MataPelajaranForm: React.FC<MataPelajaranFormProps> = ({ initialData, onSuccess }) => {
+  const navigate = useNavigate(); // Inisialisasi useNavigate
   const [createStudy, { isLoading: isCreating }] = useCreateStudyMutation();
   const [updateStudy, { isLoading: isUpdating }] = useUpdateStudyMutation();
 
@@ -63,7 +65,12 @@ const MataPelajaranForm: React.FC<MataPelajaranFormProps> = ({ initialData, onSu
         await createStudy(values).unwrap();
         toast.showSuccess('Mata pelajaran berhasil ditambahkan!');
       }
-      onSuccess();
+      
+      if (onSuccess) {
+        onSuccess(); // Jika onSuccess disediakan, panggil
+      } else {
+        navigate('/dashboard/manajemen-kurikulum/mata-pelajaran'); // Jika tidak, navigasi kembali
+      }
     } catch (error) {
       toast.showError('Terjadi kesalahan. Silakan coba lagi.');
       console.error(error);
