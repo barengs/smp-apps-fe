@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       titleKey: "sidebar.internshipManagement",
       icon: <Briefcase className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
+        { titleKey: "sidebar.internshipTeacherAssignment", href: "/dashboard/guru-tugas", icon: <User className="h-4 w-4" /> },
         { titleKey: "sidebar.responsiblePerson", href: "/dashboard/penanggung-jawab-magang", icon: <UserSearch className="h-4 w-4" /> },
       ],
     },
@@ -105,6 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.classPromotion", href: "/dashboard/manajemen-kurikulum/kenaikan-kelas", icon: <TrendingUp className="h-4 w-4" /> },
         { titleKey: "sidebar.lessonSchedule", href: "/dashboard/manajemen-kurikulum/jadwal-pelajaran", icon: <CalendarClock className="h-4 w-4" /> },
         { titleKey: "sidebar.teacher", href: "/dashboard/manajemen-kurikulum/guru", icon: <User className="h-4 w-4" /> }, // New item
+        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/manajemen-kurikulum/penugasan-guru", icon: <UserCheck className="h-4 w-4" /> }, // New submenu item
       ],
     },
     {

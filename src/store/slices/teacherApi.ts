@@ -8,7 +8,7 @@ export const teacherApi = smpApi.injectEndpoints({
       providesTags: ['Teacher'],
     }),
     getTeacherById: builder.query<SingleTeacherApiResponse, string>({
-      query: (id) => `teachers/${id}`,
+      query: (id) => `staff/teachers/roles/${id}`, // Endpoint diperbarui di sini
       providesTags: (result, error, id) => [{ type: 'Teacher', id }],
     }),
     addTeacher: builder.mutation<SingleTeacherApiResponse, FormData>({
