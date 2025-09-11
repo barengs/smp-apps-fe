@@ -21,12 +21,12 @@ export interface ControlPanelSettings {
 export const controlPanelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getControlPanelSettings: builder.query<ControlPanelSettings, void>({
-      query: () => 'control-panel',
+      query: () => 'main/control-panel',
       providesTags: ['ControlPanelSettings'],
     }),
     updateControlPanelSettings: builder.mutation<ControlPanelSettings, { id: string | number; formData: FormData }>({
       query: ({ id, formData }) => ({
-        url: `control-panel/${id}`,
+        url: `main/control-panel/${id}`,
         method: 'POST',
         body: formData,
       }),

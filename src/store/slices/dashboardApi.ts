@@ -26,11 +26,11 @@ interface GetStudentStatisticsByPeriodResponse {
 export const dashboardApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getDashboardStats: builder.query<GetDashboardResponse, void>({
-      query: () => 'dashboard',
+      query: () => 'main/dashboard',
       providesTags: ['Dashboard'], // Tag this query for caching
     }),
     getStudentStatisticsByPeriod: builder.query<GetStudentStatisticsByPeriodResponse, void>({
-      query: () => 'dashboard/student-statistics-by-period',
+      query: () => 'main/dashboard/student-statistics-by-period',
       providesTags: ['StudentStatistics'], // Tag this query for caching
     }),
   }),

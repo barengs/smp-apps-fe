@@ -114,7 +114,7 @@ export const authApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (credentials) => ({
-        url: 'login',
+        url: 'auth/login',
         method: 'POST',
         body: credentials,
       }),
@@ -122,7 +122,7 @@ export const authApi = smpApi.injectEndpoints({
     }),
     register: builder.mutation<AuthResponse, RegisterRequest>({
       query: (userInfo) => ({
-        url: 'register',
+        url: 'auth/register',
         method: 'POST',
         body: userInfo,
       }),
@@ -134,14 +134,14 @@ export const authApi = smpApi.injectEndpoints({
     }),
     logout: builder.mutation<LogoutResponse, void>({
       query: () => ({
-        url: 'logout',
+        url: 'auth/logout',
         method: 'POST',
       }),
       invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on logout
     }),
     refreshToken: builder.mutation<{ access_token: string; expires_in: number }, void>({
         query: () => ({
-            url: 'refresh',
+            url: 'auth/refresh',
             method: 'POST',
         }),
     }),

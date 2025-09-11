@@ -100,16 +100,16 @@ export interface CreateUpdateEmployeeRequest {
 export const employeeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployees: builder.query<GetEmployeesResponse, void>({
-      query: () => 'staff', // Changed from 'employee' to 'staff'
+      query: () => 'main/staff', // Changed from 'employee' to 'staff'
       providesTags: ['Employee'],
     }),
     getEmployeeById: builder.query<GetEmployeeByIdResponse, number>({
-      query: (id) => `staff/${id}`, // Changed from 'employee' to 'staff'
+      query: (id) => `main/staff/${id}`, // Changed from 'employee' to 'staff'
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
     createEmployee: builder.mutation<StaffApiData, CreateUpdateEmployeeRequest>({ // Updated return type
       query: (newEmployee) => ({
-        url: 'staff', // Changed from 'employee' to 'staff'
+        url: 'main/staff', // Changed from 'employee' to 'staff'
         method: 'POST',
         body: newEmployee,
       }),
@@ -117,7 +117,7 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     updateEmployee: builder.mutation<StaffApiData, { id: number; data: CreateUpdateEmployeeRequest }>({ // Updated return type
       query: ({ id, data }) => ({
-        url: `staff/${id}`, // Changed from 'employee' to 'staff'
+        url: `main/staff/${id}`, // Changed from 'employee' to 'staff'
         method: 'PUT',
         body: data,
       }),
@@ -125,14 +125,14 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
-        url: `staff/${id}`, // Changed from 'employee' to 'staff'
+        url: `main/staff/${id}`, // Changed from 'employee' to 'staff'
         method: 'DELETE',
       }),
       invalidatesTags: ['Employee'],
     }),
     importEmployee: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
-        url: 'staff/import', // Changed from 'employee/import' to 'staff/import'
+        url: 'main/staff/import', // Changed from 'employee/import' to 'staff/import'
         method: 'POST',
         body: formData,
       }),
