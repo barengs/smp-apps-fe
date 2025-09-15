@@ -29,6 +29,7 @@ export const coaApi = smpApi.injectEndpoints({
     getCoa: builder.query<Coa[], void>({ // Tipe kembalian diubah menjadi Coa[]
       query: () => 'master/chart-of-account',
       providesTags: ['Coa'],
+      transformResponse: (response: { data: Coa[] }) => response.data, // Menambahkan ini untuk mengekstrak array Coa
     }),
     getHeaderAccounts: builder.query<Coa[], void>({ // New endpoint for header accounts
       query: () => 'master/chart-of-account/header-accounts',
