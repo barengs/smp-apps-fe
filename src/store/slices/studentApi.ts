@@ -101,16 +101,16 @@ export interface CreateUpdateStudentRequest {
 export const studentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getStudents: builder.query<GetStudentsResponse, void>({
-      query: () => 'student',
+      query: () => 'main/student',
       providesTags: ['Student'],
     }),
     getStudentById: builder.query<GetStudentByIdResponse, number>({
-      query: (id) => `student/${id}`,
+      query: (id) => `main/student/${id}`,
       providesTags: (result, error, id) => [{ type: 'Student', id }],
     }),
     createStudent: builder.mutation<StudentApiData, CreateUpdateStudentRequest>({
       query: (newStudent) => ({
-        url: 'student',
+        url: 'main/student',
         method: 'POST',
         body: newStudent,
       }),
@@ -118,7 +118,7 @@ export const studentApi = smpApi.injectEndpoints({
     }),
     updateStudent: builder.mutation<StudentApiData, { id: number; data: CreateUpdateStudentRequest }>({
       query: ({ id, data }) => ({
-        url: `student/${id}`,
+        url: `main/student/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -126,7 +126,7 @@ export const studentApi = smpApi.injectEndpoints({
     }),
     deleteStudent: builder.mutation<void, number>({
       query: (id) => ({
-        url: `student/${id}`,
+        url: `main/student/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Student'],

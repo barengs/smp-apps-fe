@@ -27,12 +27,12 @@ export interface CreateUpdateDistrictRequest {
 export const districtApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getDistricts: builder.query<GetDistrictsResponse, void>({
-      query: () => 'region/district',
+      query: () => 'master/district',
       providesTags: ['District'],
     }),
     createDistrict: builder.mutation<DistrictApiData, CreateUpdateDistrictRequest>({
       query: (newDistrict) => ({
-        url: 'region/district',
+        url: 'master/district',
         method: 'POST',
         body: newDistrict,
       }),
@@ -40,7 +40,7 @@ export const districtApi = smpApi.injectEndpoints({
     }),
     updateDistrict: builder.mutation<DistrictApiData, { id: number; data: CreateUpdateDistrictRequest }>({
       query: ({ id, data }) => ({
-        url: `region/district/${id}`,
+        url: `master/district/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -48,7 +48,7 @@ export const districtApi = smpApi.injectEndpoints({
     }),
     deleteDistrict: builder.mutation<void, number>({
       query: (id) => ({
-        url: `region/district/${id}`,
+        url: `master/district/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['District', 'City'],

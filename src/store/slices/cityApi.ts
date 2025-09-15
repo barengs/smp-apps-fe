@@ -31,12 +31,12 @@ export interface CreateUpdateCityRequest {
 export const cityApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCities: builder.query<GetCitiesResponse, void>({
-      query: () => 'region/city',
+      query: () => 'master/city',
       providesTags: ['City'],
     }),
     createCity: builder.mutation<CityApiData, CreateUpdateCityRequest>({
       query: (newCity) => ({
-        url: 'region/city',
+        url: 'master/city',
         method: 'POST',
         body: newCity,
       }),
@@ -44,7 +44,7 @@ export const cityApi = smpApi.injectEndpoints({
     }),
     updateCity: builder.mutation<CityApiData, { id: number; data: CreateUpdateCityRequest }>({
       query: ({ id, data }) => ({
-        url: `region/city/${id}`,
+        url: `master/city/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -52,7 +52,7 @@ export const cityApi = smpApi.injectEndpoints({
     }),
     deleteCity: builder.mutation<void, number>({
       query: (id) => ({
-        url: `region/city/${id}`,
+        url: `master/city/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['City', 'Province'],

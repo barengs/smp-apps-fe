@@ -21,12 +21,12 @@ export interface CreateUpdateProvinceRequest {
 export const provinceApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProvinces: builder.query<GetProvincesResponse, void>({
-      query: () => 'region/province', // Updated endpoint
+      query: () => 'master/province', // Updated endpoint
       providesTags: ['Province'],
     }),
     createProvince: builder.mutation<ProvinceApiData, CreateUpdateProvinceRequest>({
       query: (newProvince) => ({
-        url: 'region/province', // Updated endpoint
+        url: 'master/province', // Updated endpoint
         method: 'POST',
         body: newProvince,
       }),
@@ -34,7 +34,7 @@ export const provinceApi = smpApi.injectEndpoints({
     }),
     updateProvince: builder.mutation<ProvinceApiData, { id: number; data: CreateUpdateProvinceRequest }>({
       query: ({ id, data }) => ({
-        url: `region/province/${id}`, // Updated endpoint
+        url: `master/province/${id}`, // Updated endpoint
         method: 'PUT',
         body: data,
       }),
@@ -42,7 +42,7 @@ export const provinceApi = smpApi.injectEndpoints({
     }),
     deleteProvince: builder.mutation<void, number>({
       query: (id) => ({
-        url: `region/province/${id}`, // Updated endpoint
+        url: `master/province/${id}`, // Updated endpoint
         method: 'DELETE',
       }),
       invalidatesTags: ['Province'],
