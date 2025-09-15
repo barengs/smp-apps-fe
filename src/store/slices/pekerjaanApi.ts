@@ -5,7 +5,9 @@ import { Pekerjaan } from '@/types/master-data';
 
 // Struktur respons API untuk list
 interface GetPekerjaanApiResponse {
-  data: Pekerjaan[];
+  data: {
+    data: Pekerjaan[];
+  };
 }
 
 // Struktur respons API untuk satu item
@@ -24,7 +26,7 @@ export const pekerjaanApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getPekerjaan: builder.query<Pekerjaan[], void>({
       query: () => 'master/occupation',
-      transformResponse: (response: GetPekerjaanApiResponse) => response.data,
+      transformResponse: (response: GetPekerjaanApiResponse) => response.data.data,
       providesTags: ['Pekerjaan'],
     }),
     createPekerjaan: builder.mutation<Pekerjaan, CreateUpdatePekerjaanRequest>({
