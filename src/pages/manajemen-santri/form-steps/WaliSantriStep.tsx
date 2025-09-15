@@ -28,7 +28,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const checkedNik = useRef<string | null>(null);
 
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
-  const pekerjaanList = pekerjaanResponse?.data || [];
+  const pekerjaanList = pekerjaanResponse || [];
 
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
   const educationLevelsList = educationLevelsResponse?.data || [];
