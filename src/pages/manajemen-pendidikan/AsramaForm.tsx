@@ -136,7 +136,7 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
                 </FormControl>
                 <SelectContent>
                   {isLoadingPrograms ? (
-                    <SelectItem value="" disabled>Memuat program...</SelectItem>
+                    <SelectItem value="loading" disabled>Memuat program...</SelectItem>
                   ) : (
                     programsData?.map((program) => (
                       <SelectItem key={program.id} value={program.id.toString()}>
