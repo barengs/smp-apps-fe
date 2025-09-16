@@ -14,10 +14,31 @@ interface HostelApiData {
   capacity: number; // Menambahkan properti capacity
 }
 
-// Structure for the GET /hostel response
-interface GetHostelsResponse {
+// Structure for the paginated data wrapper (Laravel pagination)
+interface PaginatedData<T> {
+  current_page: number;
+  data: T[]; // This is the array of actual items
+  first_page_url: string | null;
+  from: number;
+  last_page: number;
+  last_page_url: string | null;
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+}
+
+// Structure for the raw GET /hostel response with pagination
+interface GetHostelsRawResponse {
   message: string;
-  data: HostelApiData[];
+  data: PaginatedData<HostelApiData>; // The actual paginated data is here
 }
 
 // Structure for the POST/PUT request body
@@ -35,8 +56,9 @@ export interface ImportHostelResponse {
 
 export const hostelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getHostels: builder.query<GetHostelsResponse, void>({
+    getHostels: builder.query<PaginatedData<HostelApiData>, void>({ // Change return type to PaginatedData<HostelApiData>
       query: () => 'master/hostel',
+      transformResponse: (response: GetHostelsRawResponse) => response.data, // Extract the PaginatedData object
       providesTags: ['Hostel'],
     }),
     createHostel: builder.mutation<HostelApiData, CreateUpdateHostelRequest>({
