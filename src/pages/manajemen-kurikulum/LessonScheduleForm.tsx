@@ -94,129 +94,131 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-screen-xl">
         <DialogHeader>
           <DialogTitle>{t('lessonScheduleForm.title')}</DialogTitle>
           <DialogDescription>{t('lessonScheduleForm.description')}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-6 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="educationLevel">{t('lessonScheduleForm.educationLevel')}</Label>
-              <Select value={educationLevelId} onValueChange={setEducationLevelId}>
-                <SelectTrigger id="educationLevel">
-                  <SelectValue placeholder={t('lessonScheduleForm.selectEducationLevel')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {educationLevelsData?.data.map(level => (
-                    <SelectItem key={level.id} value={String(level.id)}>{level.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
+          <div className="grid gap-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="educationLevel">{t('lessonScheduleForm.educationLevel')}</Label>
+                <Select value={educationLevelId} onValueChange={setEducationLevelId}>
+                  <SelectTrigger id="educationLevel">
+                    <SelectValue placeholder={t('lessonScheduleForm.selectEducationLevel')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {educationLevelsData?.data.map(level => (
+                      <SelectItem key={level.id} value={String(level.id)}>{level.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="class">{t('lessonScheduleForm.class')}</Label>
+                <Select value={classroomId} onValueChange={setClassroomId} disabled={!educationLevelId}>
+                  <SelectTrigger id="class">
+                    <SelectValue placeholder={t('lessonScheduleForm.selectClass')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classroomsData?.data.map(classroom => (
+                      <SelectItem key={classroom.id} value={String(classroom.id)}>{classroom.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="classGroup">{t('lessonScheduleForm.classGroup')}</Label>
+                <Select value={classGroupId} onValueChange={setClassGroupId} disabled={!classroomId}>
+                  <SelectTrigger id="classGroup">
+                    <SelectValue placeholder={t('lessonScheduleForm.selectClassGroup')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredClassGroups?.map(group => (
+                      <SelectItem key={group.id} value={String(group.id)}>{group.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="day">{t('lessonScheduleForm.day')}</Label>
+                <Select value={day} onValueChange={setDay}>
+                  <SelectTrigger id="day">
+                    <SelectValue placeholder={t('lessonScheduleForm.selectDay')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {days.map(d => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="session">{t('lessonScheduleForm.session')}</Label>
+                <Select value={session} onValueChange={setSession}>
+                  <SelectTrigger id="session">
+                    <SelectValue placeholder={t('lessonScheduleForm.selectSession')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sessions.map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="class">{t('lessonScheduleForm.class')}</Label>
-              <Select value={classroomId} onValueChange={setClassroomId} disabled={!educationLevelId}>
-                <SelectTrigger id="class">
-                  <SelectValue placeholder={t('lessonScheduleForm.selectClass')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {classroomsData?.data.map(classroom => (
-                    <SelectItem key={classroom.id} value={String(classroom.id)}>{classroom.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="classGroup">{t('lessonScheduleForm.classGroup')}</Label>
-              <Select value={classGroupId} onValueChange={setClassGroupId} disabled={!classroomId}>
-                <SelectTrigger id="classGroup">
-                  <SelectValue placeholder={t('lessonScheduleForm.selectClassGroup')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredClassGroups?.map(group => (
-                    <SelectItem key={group.id} value={String(group.id)}>{group.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="day">{t('lessonScheduleForm.day')}</Label>
-              <Select value={day} onValueChange={setDay}>
-                <SelectTrigger id="day">
-                  <SelectValue placeholder={t('lessonScheduleForm.selectDay')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {days.map(d => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="session">{t('lessonScheduleForm.session')}</Label>
-              <Select value={session} onValueChange={setSession}>
-                <SelectTrigger id="session">
-                  <SelectValue placeholder={t('lessonScheduleForm.selectSession')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {sessions.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
-          <div className="mt-4">
-            <Label className="text-lg font-semibold">{t('lessonScheduleForm.detailsTitle')}</Label>
-            <Table className="mt-2">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[150px]">{t('lessonScheduleForm.lessonHour')}</TableHead>
-                  <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
-                  <TableHead className="w-[50px] text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {details.map((detail, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        placeholder={t('lessonScheduleForm.lessonHourPlaceholder')}
-                        value={detail.lessonHour}
-                        onChange={(e) => handleDetailChange(index, 'lessonHour', e.target.value)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={detail.subjectId}
-                        onValueChange={(value) => handleDetailChange(index, 'subjectId', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('lessonScheduleForm.selectSubject')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {studiesData?.map(study => (
-                            <SelectItem key={study.id} value={String(study.id)}>{study.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => removeDetailRow(index)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </TableCell>
+            <div className="mt-4">
+              <Label className="text-lg font-semibold">{t('lessonScheduleForm.detailsTitle')}</Label>
+              <Table className="mt-2">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[150px]">{t('lessonScheduleForm.lessonHour')}</TableHead>
+                    <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
+                    <TableHead className="w-[50px] text-right"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <Button variant="outline" size="sm" className="mt-2" onClick={addDetailRow}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('lessonScheduleForm.addDetail')}
-            </Button>
+                </TableHeader>
+                <TableBody>
+                  {details.map((detail, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          placeholder={t('lessonScheduleForm.lessonHourPlaceholder')}
+                          value={detail.lessonHour}
+                          onChange={(e) => handleDetailChange(index, 'lessonHour', e.target.value)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={detail.subjectId}
+                          onValueChange={(value) => handleDetailChange(index, 'subjectId', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('lessonScheduleForm.selectSubject')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {studiesData?.map(study => (
+                              <SelectItem key={study.id} value={String(study.id)}>{study.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => removeDetailRow(index)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Button variant="outline" size="sm" className="mt-2" onClick={addDetailRow}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('lessonScheduleForm.addDetail')}
+              </Button>
+            </div>
           </div>
         </div>
         <DialogFooter>
