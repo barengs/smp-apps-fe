@@ -84,5 +84,14 @@
   "header.toggleFullscreen": "Toggle Fullscreen",
   "header.toggleTheme": "Toggle Theme",
   "header.selectLanguage": "Select Language",
-  "footer.copyright": "Copyright © {{year}} SMP. All Rights Reserved."
+  "footer.copyright": "Copyright © {{year}} SMP. All Rights Reserved.",
+  "lessonSchedulePage.description": "Manage lesson schedules for each class.",
+  "lessonSchedulePage.educationLevel": "Education Level",
+  "lessonSchedulePage.class": "Class",
+  "lessonSchedulePage.classGroup": "Class Group",
+  "lessonSchedulePage.day": "Day",
+  "lessonSchedulePage.subject": "Subject",
+  "lessonSchedulePage.teacher": "Teacher",
+  "lessonSchedulePage.time": "Time",
+  "lessonSchedulePage.addScheduleSuccess": "'Add Schedule' button clicked! (Simulation)"
 }

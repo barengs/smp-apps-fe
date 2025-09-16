@@ -77,5 +77,14 @@
     "sidebar.village": "Kelurahan/Desa",
     "sidebar.settings": "Pengaturan",
     "sidebar.navigation": "Navigasi",
-    "sidebar.appProfile": "Profil Aplikasi"
+    "sidebar.appProfile": "Profil Aplikasi",
+    "lessonSchedulePage.description": "Kelola jadwal pelajaran untuk setiap kelas.",
+    "lessonSchedulePage.educationLevel": "Tingkat Pendidikan",
+    "lessonSchedulePage.class": "Kelas",
+    "lessonSchedulePage.classGroup": "Rombel",
+    "lessonSchedulePage.day": "Hari",
+    "lessonSchedulePage.subject": "Mata Pelajaran",
+    "lessonSchedulePage.teacher": "Guru",
+    "lessonSchedulePage.time": "Waktu",
+    "lessonSchedulePage.addScheduleSuccess": "Tombol 'Tambah Jadwal' diklik! (Simulasi)"
 }
