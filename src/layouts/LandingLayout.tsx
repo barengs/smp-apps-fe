@@ -31,7 +31,8 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [logoutApi] = useLogoutMutation();
-  const { data: settings } = useGetControlPanelSettingsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel
+  const settings = settingsResponse?.data; // Mengakses data dari properti 'data'
 
   useEffect(() => {
     document.title = `${settings?.app_name || 'SMP'} | ${title}`;

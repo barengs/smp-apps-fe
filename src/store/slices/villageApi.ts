@@ -8,7 +8,7 @@ interface NestedDistrictData {
   name: string;
 }
 
-interface VillageApiData {
+export interface VillageApiData { // Exported for use in other files if needed
   id: number;
   code: string;
   district_code: string;
@@ -37,6 +37,11 @@ export interface CreateUpdateVillageRequest {
   district_code: string;
 }
 
+// New interface for the raw API response for getVillageByNik
+interface GetVillageByNikRawResponse {
+  data: VillageApiData[];
+}
+
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
@@ -51,7 +56,7 @@ export const villageApi = smpApi.injectEndpoints({
     }),
     createVillage: builder.mutation<VillageApiData, CreateUpdateVillageRequest>({
       query: (newVillage) => ({
-        url: 'region/village',
+        url: 'master/village',
         method: 'POST',
         body: newVillage,
       }),
@@ -59,7 +64,7 @@ export const villageApi = smpApi.injectEndpoints({
     }),
     updateVillage: builder.mutation<VillageApiData, { id: number; data: CreateUpdateVillageRequest }>({
       query: ({ id, data }) => ({
-        url: `region/village/${id}`,
+        url: `master/village/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -67,14 +72,15 @@ export const villageApi = smpApi.injectEndpoints({
     }),
     deleteVillage: builder.mutation<void, number>({
       query: (id) => ({
-        url: `region/village/${id}`,
+        url: `master/village/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
     // Corrected: Endpoint to get village by NIK, now returns an array
     getVillageByNik: builder.query<VillageApiData[], string>({
-      query: (nik) => `village/nik/${nik}`,
+      query: (nik) => `master/village/${nik}/nik`,
+      transformResponse: (response: GetVillageByNikRawResponse) => response.data, // Extract the array from the 'data' property
     }),
   }),
 });

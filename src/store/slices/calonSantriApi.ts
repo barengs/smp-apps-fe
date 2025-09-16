@@ -15,16 +15,16 @@ export interface ProcessRegistrationPaymentRequest {
 export const calonSantriApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCalonSantri: builder.query<CalonSantriApiResponse, void>({ // Change return type to CalonSantriApiResponse
-      query: () => 'registration',
+      query: () => 'main/registration',
       providesTags: ['CalonSantri'],
     }),
     getCalonSantriById: builder.query<SingleCalonSantriApiResponse, number>({
-      query: (id) => `registration/${id}`,
+      query: (id) => `main/registration/${id}`,
       providesTags: (result, error, id) => [{ type: 'CalonSantri', id }],
     }),
     registerSantri: builder.mutation<any, FormData>({
       query: (formData) => ({
-        url: 'registration',
+        url: 'main/registration',
         method: 'POST',
         body: formData,
       }),
@@ -34,7 +34,7 @@ export const calonSantriApi = smpApi.injectEndpoints({
       query: ({ id, formData }) => {
         formData.append('_method', 'PUT');
         return {
-          url: `registration/${id}`,
+          url: `main/registration/${id}`,
           method: 'POST',
           body: formData,
         };
@@ -44,7 +44,7 @@ export const calonSantriApi = smpApi.injectEndpoints({
     // New mutation for processing registration payment
     processRegistrationPayment: builder.mutation<any, ProcessRegistrationPaymentRequest>({
       query: (paymentData) => ({
-        url: 'registration/transaction',
+        url: 'main/registration/transaction',
         method: 'POST',
         body: paymentData,
       }),

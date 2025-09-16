@@ -18,15 +18,20 @@ export interface ControlPanelSettings {
   app_language: string;
 }
 
+// Antarmuka baru untuk membungkus ControlPanelSettings dalam properti 'data'
+export interface ControlPanelApiResponse {
+  data: ControlPanelSettings;
+}
+
 export const controlPanelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getControlPanelSettings: builder.query<ControlPanelSettings, void>({
-      query: () => 'control-panel',
+    getControlPanelSettings: builder.query<ControlPanelApiResponse, void>({ // Menggunakan ControlPanelApiResponse
+      query: () => 'master/control-panel',
       providesTags: ['ControlPanelSettings'],
     }),
-    updateControlPanelSettings: builder.mutation<ControlPanelSettings, { id: string | number; formData: FormData }>({
+    updateControlPanelSettings: builder.mutation<ControlPanelApiResponse, { id: string | number; formData: FormData }>({ // Menggunakan ControlPanelApiResponse
       query: ({ id, formData }) => ({
-        url: `control-panel/${id}`,
+        url: `master/control-panel/${id}`,
         method: 'POST',
         body: formData,
       }),

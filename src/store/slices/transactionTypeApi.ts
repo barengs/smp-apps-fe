@@ -4,12 +4,12 @@ import { TransactionType, TransactionTypeApiResponse, CreateUpdateTransactionTyp
 export const transactionTypeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTransactionTypes: builder.query<TransactionTypeApiResponse, void>({
-      query: () => 'transaction-type',
+      query: () => 'main/transaction-type',
       providesTags: ['TransactionType'],
     }),
     createTransactionType: builder.mutation<TransactionType, CreateUpdateTransactionTypeRequest>({
       query: (newType) => ({
-        url: 'transaction-type',
+        url: 'main/transaction-type',
         method: 'POST',
         body: newType,
       }),
@@ -17,7 +17,7 @@ export const transactionTypeApi = smpApi.injectEndpoints({
     }),
     updateTransactionType: builder.mutation<TransactionType, { id: number; data: CreateUpdateTransactionTypeRequest }>({
         query: ({ id, data }) => ({
-            url: `transaction-type/${id}`,
+            url: `main/transaction-type/${id}`,
             method: 'PUT',
             body: data,
         }),
@@ -25,7 +25,7 @@ export const transactionTypeApi = smpApi.injectEndpoints({
     }),
     deleteTransactionType: builder.mutation<{ message: string }, number>({
         query: (id) => ({
-            url: `transaction-type/${id}`,
+            url: `main/transaction-type/${id}`,
             method: 'DELETE',
         }),
         invalidatesTags: ['TransactionType'],

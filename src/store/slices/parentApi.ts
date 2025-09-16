@@ -104,20 +104,20 @@ export interface CreateUpdateParentRequest {
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getParents: builder.query<GetParentsResponse, void>({
-      query: () => 'parent',
+      query: () => 'main/parent',
       providesTags: ['Parent'],
     }),
     getParentById: builder.query<GetParentByIdResponse, number>({
-      query: (id) => `parent/${id}`,
+      query: (id) => `main/parent/${id}`,
       providesTags: (result, error, id) => [{ type: 'Parent', id }],
     }),
     // Updated to use the new response type
     getParentByNik: builder.query<GetParentByNikResponse, string>({
-      query: (nik) => `parent/nik/${nik}/cek`,
+      query: (nik) => `main/parent/nik/${nik}/cek`,
     }),
     createParent: builder.mutation<ParentApiData, CreateUpdateParentRequest>({
       query: (newParent) => ({
-        url: 'parent',
+        url: 'main/parent',
         method: 'POST',
         body: newParent,
       }),
@@ -125,7 +125,7 @@ export const parentApi = smpApi.injectEndpoints({
     }),
     updateParent: builder.mutation<ParentApiData, { id: number; data: CreateUpdateParentRequest }>({
       query: ({ id, data }) => ({
-        url: `parent/${id}`,
+        url: `main/parent/${id}`,
         method: 'PUT',
         body: data,
       }),

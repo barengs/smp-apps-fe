@@ -36,12 +36,12 @@ interface UpdateActivityRequest {
 export const activityApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getActivities: builder.query<GetActivitiesResponse, void>({
-      query: () => 'activity',
+      query: () => 'main/activity',
       providesTags: ['Activity'],
     }),
     createActivity: builder.mutation<ActivityApiResponse, CreateActivityRequest>({
       query: (newActivity) => ({
-        url: 'activity',
+        url: 'main/activity',
         method: 'POST',
         body: newActivity,
       }),
@@ -49,7 +49,7 @@ export const activityApi = smpApi.injectEndpoints({
     }),
     updateActivity: builder.mutation<ActivityApiResponse, { id: number; data: UpdateActivityRequest }>({
       query: ({ id, data }) => ({
-        url: `activity/${id}`,
+        url: `main/activity/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -57,7 +57,7 @@ export const activityApi = smpApi.injectEndpoints({
     }),
     deleteActivity: builder.mutation<void, number>({
       query: (id) => ({
-        url: `activity/${id}`,
+        url: `main/activity/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Activity'],

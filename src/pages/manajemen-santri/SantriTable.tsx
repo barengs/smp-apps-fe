@@ -42,7 +42,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         period: student.period,
         gender: student.gender === 'L' ? 'Laki-Laki' : student.gender === 'P' ? 'Perempuan' : 'Tidak Diketahui',
         status: student.status,
-        programName: student.program.name,
+        programName: student.program ? student.program.name : '', // Perbaikan di sini
         created_at: student.created_at, // Petakan created_at
         updated_at: student.updated_at, // Petakan updated_at
       }));

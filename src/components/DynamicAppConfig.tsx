@@ -10,7 +10,8 @@ const languageMapping: { [key: string]: string } = {
 };
 
 const DynamicAppConfig = () => {
-  const { data: settings } = useGetControlPanelSettingsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery();
+  const settings = settingsResponse?.data;
   const { setTheme } = useTheme();
   const { i18n } = useTranslation();
 

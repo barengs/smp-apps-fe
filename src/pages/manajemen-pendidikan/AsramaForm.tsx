@@ -73,9 +73,13 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
     const payload: CreateUpdateHostelRequest = {
       name: values.name,
       description: values.description,
-      program_id: values.program_id,
       capacity: values.capacity,
     };
+
+    // Hanya tambahkan program_id jika nilainya valid (bukan undefined atau null)
+    if (values.program_id !== undefined && values.program_id !== null) {
+      payload.program_id = values.program_id;
+    }
 
     try {
       if (initialData) {
@@ -128,7 +132,7 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
           render={({ field }) => (
             <FormItem>
               <FormLabel>Program</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value?.toString()} disabled={isLoadingPrograms || isSubmitting}>
+              <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()} disabled={isLoadingPrograms || isSubmitting}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih Program" />
@@ -136,7 +140,7 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
                 </FormControl>
                 <SelectContent>
                   {isLoadingPrograms ? (
-                    <SelectItem value="" disabled>Memuat program...</SelectItem>
+                    <SelectItem value="loading" disabled>Memuat program...</SelectItem>
                   ) : (
                     programsData?.map((program) => (
                       <SelectItem key={program.id} value={program.id.toString()}>

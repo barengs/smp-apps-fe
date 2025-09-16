@@ -33,12 +33,12 @@ interface GetProdukBankResponse {
 export const produkBankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProdukBank: builder.query<GetProdukBankResponse, void>({
-      query: () => 'product',
+      query: () => 'master/product',
       providesTags: ['ProdukBank'],
     }),
     createProdukBank: builder.mutation<ProdukBank, CreateUpdateProdukBankRequest>({
       query: (newProduk) => ({
-        url: 'product',
+        url: 'master/product',
         method: 'POST',
         body: newProduk,
       }),
@@ -46,7 +46,7 @@ export const produkBankApi = smpApi.injectEndpoints({
     }),
     updateProdukBank: builder.mutation<ProdukBank, { id: string; data: CreateUpdateProdukBankRequest }>({
       query: ({ id, data }) => ({
-        url: `product/${id}`,
+        url: `master/product/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -54,7 +54,7 @@ export const produkBankApi = smpApi.injectEndpoints({
     }),
     deleteProdukBank: builder.mutation<void, string>({
       query: (id) => ({
-        url: `product/${id}`,
+        url: `master/product/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['ProdukBank'],

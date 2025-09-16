@@ -27,20 +27,21 @@ export interface CreateUpdateCoaRequest {
 export const coaApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCoa: builder.query<Coa[], void>({ // Tipe kembalian diubah menjadi Coa[]
-      query: () => 'chart-of-account',
+      query: () => 'master/chart-of-account',
       providesTags: ['Coa'],
+      transformResponse: (response: { data: Coa[] }) => response.data, // Menambahkan ini untuk mengekstrak array Coa
     }),
     getHeaderAccounts: builder.query<Coa[], void>({ // New endpoint for header accounts
-      query: () => 'chart-of-account/header-accounts',
+      query: () => 'master/chart-of-account/header-accounts',
       providesTags: ['Coa'], // Still provides 'Coa' tag for invalidation
     }),
     getDetailAccounts: builder.query<Coa[], void>({ // New endpoint for detail accounts
-      query: () => 'chart-of-account/detail-accounts',
+      query: () => 'master/chart-of-account/detail-accounts',
       providesTags: ['Coa'],
     }),
     createCoa: builder.mutation<Coa, CreateUpdateCoaRequest>({
       query: (newCoa) => ({
-        url: 'chart-of-account',
+        url: 'master/chart-of-account',
         method: 'POST',
         body: newCoa,
       }),
@@ -48,7 +49,7 @@ export const coaApi = smpApi.injectEndpoints({
     }),
     updateCoa: builder.mutation<Coa, { id: string; data: CreateUpdateCoaRequest }>({
         query: ({ id, data }) => ({
-            url: `chart-of-account/${id}`,
+            url: `master/chart-of-account/${id}`,
             method: 'PUT',
             body: data,
         }),
@@ -56,7 +57,7 @@ export const coaApi = smpApi.injectEndpoints({
     }),
     deleteCoa: builder.mutation<{ message: string }, string>({
         query: (id) => ({
-            url: `chart-of-account/${id}`,
+            url: `master/chart-of-account/${id}`,
             method: 'DELETE',
         }),
         invalidatesTags: ['Coa'],

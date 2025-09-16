@@ -258,11 +258,23 @@ export function DataTable<TData, TValue>({
             const facetedValues = column.getFacetedUniqueValues();
             const sortedValues = Array.from(facetedValues.keys()).sort();
 
+            // Define a placeholder for empty string values
+            const EMPTY_VALUE_PLACEHOLDER = '__EMPTY_VALUE__';
+
             return (
               <Select
                 key={columnId}
-                onValueChange={(value) => column.setFilterValue(value === 'all' ? undefined : value)}
-                value={(column.getFilterValue() as string) ?? 'all'}
+                onValueChange={(selectedValue) => {
+                  const filterValue = selectedValue === 'all'
+                    ? undefined
+                    : (selectedValue === EMPTY_VALUE_PLACEHOLDER ? '' : selectedValue);
+                  column.setFilterValue(filterValue);
+                }}
+                value={
+                  (column.getFilterValue() === '' && column.getFilterValue() !== undefined)
+                    ? EMPTY_VALUE_PLACEHOLDER
+                    : (column.getFilterValue() as string) ?? 'all'
+                }
               >
                 <SelectTrigger className="w-[220px]">
                   <SelectValue placeholder={filterableColumns[columnId].placeholder} />
@@ -270,8 +282,11 @@ export function DataTable<TData, TValue>({
                 <SelectContent>
                   <SelectItem value="all">Semua</SelectItem>
                   {sortedValues.map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {value}
+                    <SelectItem
+                      key={value === '' ? EMPTY_VALUE_PLACEHOLDER : value}
+                      value={value === '' ? EMPTY_VALUE_PLACEHOLDER : value}
+                    >
+                      {value === '' ? '(Kosong)' : value}
                     </SelectItem>
                   ))}
                 </SelectContent>

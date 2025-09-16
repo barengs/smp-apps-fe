@@ -4,16 +4,16 @@ import { AccountApiResponse, SingleAccountApiResponse, CreateUpdateAccountReques
 export const accountApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getAccounts: builder.query<AccountApiResponse, void>({ // Mengubah tipe kembalian menjadi AccountApiResponse (yang sekarang adalah Account[])
-      query: () => 'account',
+      query: () => 'main/account',
       providesTags: ['Account'],
     }),
     getAccountById: builder.query<Account, string>({ // Mengubah tipe kembalian menjadi Account
-      query: (accountNumber) => `account/${accountNumber}`,
+      query: (accountNumber) => `main/account/${accountNumber}`,
       providesTags: (result, error, accountNumber) => [{ type: 'Account', id: accountNumber }],
     }),
     createAccount: builder.mutation<SingleAccountApiResponse, CreateUpdateAccountRequest>({
       query: (newAccount) => ({
-        url: 'account',
+        url: 'main/account',
         method: 'POST',
         body: newAccount,
       }),
@@ -21,7 +21,7 @@ export const accountApi = smpApi.injectEndpoints({
     }),
     updateAccount: builder.mutation<SingleAccountApiResponse, { accountNumber: string; data: Partial<CreateUpdateAccountRequest> }>({
       query: ({ accountNumber, data }) => ({
-        url: `account/${accountNumber}`,
+        url: `main/account/${accountNumber}`,
         method: 'PUT',
         body: data,
       }),
@@ -29,7 +29,7 @@ export const accountApi = smpApi.injectEndpoints({
     }),
     deleteAccount: builder.mutation<{ message: string }, string>({
       query: (accountNumber) => ({
-        url: `account/${accountNumber}`,
+        url: `main/account/${accountNumber}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Account'],

@@ -17,7 +17,8 @@ import { Separator } from '@/components/ui/separator';
 
 const AppProfilePage: React.FC = () => {
   const { t } = useTranslation();
-  const { data: settings, isLoading, isError, refetch } = useGetControlPanelSettingsQuery();
+  const { data: apiResponse, isLoading, isError, refetch } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel menjadi apiResponse
+  const settings = apiResponse?.data; // Mengambil data sebenarnya dari properti 'data'
   const [updateSettings, { isLoading: isUpdating }] = useUpdateControlPanelSettingsMutation();
 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -29,7 +30,7 @@ const AppProfilePage: React.FC = () => {
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
 
   useEffect(() => {
-    if (settings) {
+    if (settings) { // Menggunakan 'settings' yang sudah di-unwrap
       setFormState(settings);
       if (settings.app_logo) {
         setLogoPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`);
@@ -78,7 +79,7 @@ const AppProfilePage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    if (settings) {
+    if (settings) { // Menggunakan 'settings' yang sudah di-unwrap
       setFormState(settings);
       if (settings.app_logo) {
         setLogoPreview(`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`);
@@ -99,7 +100,7 @@ const AppProfilePage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!settings?.id) {
+    if (!settings?.id) { // Menggunakan 'settings' yang sudah di-unwrap
       showError("ID profil aplikasi tidak ditemukan untuk melakukan pembaruan.");
       return;
     }
@@ -113,7 +114,7 @@ const AppProfilePage: React.FC = () => {
         if (typedKey === 'app_logo' || typedKey === 'app_favicon' || typedKey === 'id') return;
 
         if (typedKey === 'is_maintenance_mode') {
-            formData.append(typedKey, value ? '1' : '0');
+            formData.append(typedKey, value ? 'true' : 'false'); // Mengubah dari '1'/'0' menjadi 'true'/'false'
         } else if (value !== null && value !== undefined) {
             formData.append(typedKey, String(value));
         }
@@ -134,7 +135,7 @@ const AppProfilePage: React.FC = () => {
     }
 
     try {
-      await updateSettings({ id: settings.id, formData }).unwrap();
+      await updateSettings({ id: settings.id, formData }).unwrap(); // Menggunakan 'settings' yang sudah di-unwrap
       showSuccess('Profil aplikasi berhasil diperbarui!');
       setIsEditMode(false);
       setLogoFile(null);
@@ -293,17 +294,17 @@ const AppProfilePage: React.FC = () => {
                 </div>
                 <Separator />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {renderDetailItem(<Info className="h-5 w-5" />, "Nama Aplikasi", formState.app_name)}
-                  {renderDetailItem(<Server className="h-5 w-5" />, "Versi", formState.app_version)}
-                  {renderDetailItem(<GlobeIcon className="h-5 w-5" />, "URL", <a href={formState.app_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{formState.app_url}</a>)}
-                  {renderDetailItem(<Mail className="h-5 w-5" />, "Email", formState.app_email)}
-                  {renderDetailItem(<Phone className="h-5 w-5" />, "Telepon", formState.app_phone)}
-                  {renderDetailItem(<Palette className="h-5 w-5" />, "Tema", formState.app_theme)}
-                  {renderDetailItem(<Languages className="h-5 w-5" />, "Bahasa", formState.app_language)}
-                  {renderDetailItem(<ToggleLeft className="h-5 w-5" />, "Mode Pemeliharaan", formState.is_maintenance_mode ? 'Aktif' : 'Tidak Aktif')}
-                  {renderDetailItem(<MapPin className="h-5 w-5" />, "Alamat", formState.app_address, "md:col-span-2")}
-                  {renderDetailItem(<Info className="h-5 w-5" />, "Deskripsi", <p className="whitespace-pre-wrap">{formState.app_description}</p>, "md:col-span-2")}
-                  {formState.is_maintenance_mode && renderDetailItem(<MessageSquare className="h-5 w-5" />, "Pesan Pemeliharaan", formState.maintenance_message, "md:col-span-2")}
+                  {renderDetailItem(<Info className="h-5 w-5" />, "Nama Aplikasi", settings?.app_name)}
+                  {renderDetailItem(<Server className="h-5 w-5" />, "Versi", settings?.app_version)}
+                  {renderDetailItem(<GlobeIcon className="h-5 w-5" />, "URL", <a href={settings?.app_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{settings?.app_url}</a>)}
+                  {renderDetailItem(<Mail className="h-5 w-5" />, "Email", settings?.app_email)}
+                  {renderDetailItem(<Phone className="h-5 w-5" />, "Telepon", settings?.app_phone)}
+                  {renderDetailItem(<Palette className="h-5 w-5" />, "Tema", settings?.app_theme)}
+                  {renderDetailItem(<Languages className="h-5 w-5" />, "Bahasa", settings?.app_language)}
+                  {renderDetailItem(<ToggleLeft className="h-5 w-5" />, "Mode Pemeliharaan", settings?.is_maintenance_mode ? 'Aktif' : 'Tidak Aktif')}
+                  {renderDetailItem(<MapPin className="h-5 w-5" />, "Alamat", settings?.app_address, "md:col-span-2")}
+                  {renderDetailItem(<Info className="h-5 w-5" />, "Deskripsi", <p className="whitespace-pre-wrap">{settings?.app_description}</p>, "md:col-span-2")}
+                  {settings?.is_maintenance_mode && renderDetailItem(<MessageSquare className="h-5 w-5" />, "Pesan Pemeliharaan", settings?.maintenance_message, "md:col-span-2")}
                 </div>
               </div>
             )}

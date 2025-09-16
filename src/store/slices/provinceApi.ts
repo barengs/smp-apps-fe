@@ -9,7 +9,12 @@ interface ProvinceApiData {
   name: string;
 }
 
-// The GET response is now a direct array
+// Raw response structure from the API with 'data' wrapper
+interface GetProvincesRawResponse {
+  data: ProvinceApiData[];
+}
+
+// The GET response is now a direct array after transformation
 type GetProvincesResponse = ProvinceApiData[];
 
 // Updated structure for the POST/PUT request body
@@ -21,12 +26,13 @@ export interface CreateUpdateProvinceRequest {
 export const provinceApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProvinces: builder.query<GetProvincesResponse, void>({
-      query: () => 'region/province', // Updated endpoint
+      query: () => 'master/province', // Updated endpoint
+      transformResponse: (response: GetProvincesRawResponse) => response.data, // Extract the array from the 'data' property
       providesTags: ['Province'],
     }),
     createProvince: builder.mutation<ProvinceApiData, CreateUpdateProvinceRequest>({
       query: (newProvince) => ({
-        url: 'region/province', // Updated endpoint
+        url: 'master/province', // Updated endpoint
         method: 'POST',
         body: newProvince,
       }),
@@ -34,7 +40,7 @@ export const provinceApi = smpApi.injectEndpoints({
     }),
     updateProvince: builder.mutation<ProvinceApiData, { id: number; data: CreateUpdateProvinceRequest }>({
       query: ({ id, data }) => ({
-        url: `region/province/${id}`, // Updated endpoint
+        url: `master/province/${id}`, // Updated endpoint
         method: 'PUT',
         body: data,
       }),
@@ -42,7 +48,7 @@ export const provinceApi = smpApi.injectEndpoints({
     }),
     deleteProvince: builder.mutation<void, number>({
       query: (id) => ({
-        url: `region/province/${id}`, // Updated endpoint
+        url: `master/province/${id}`, // Updated endpoint
         method: 'DELETE',
       }),
       invalidatesTags: ['Province'],

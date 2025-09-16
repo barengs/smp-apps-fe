@@ -114,7 +114,7 @@ export const authApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (credentials) => ({
-        url: 'login',
+        url: 'auth/login',
         method: 'POST',
         body: credentials,
       }),
@@ -122,31 +122,31 @@ export const authApi = smpApi.injectEndpoints({
     }),
     register: builder.mutation<AuthResponse, RegisterRequest>({
       query: (userInfo) => ({
-        url: 'register',
+        url: 'auth/register',
         method: 'POST',
         body: userInfo,
       }),
       invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on register
     }),
     getProfile: builder.query<ProfileResponse, void>({
-      query: () => 'profile',
+      query: () => 'auth/profile',
       providesTags: ['User'],
     }),
     logout: builder.mutation<LogoutResponse, void>({
       query: () => ({
-        url: 'logout',
+        url: 'auth/logout',
         method: 'POST',
       }),
       invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on logout
     }),
     refreshToken: builder.mutation<{ access_token: string; expires_in: number }, void>({
         query: () => ({
-            url: 'refresh',
+            url: 'auth/refresh',
             method: 'POST',
         }),
     }),
     getProfileDetails: builder.query<GetProfileDetailsResponse, void>({
-      query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
+      query: () => 'auth/profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
     updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: FormData }>({
