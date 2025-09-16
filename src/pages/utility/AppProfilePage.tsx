@@ -114,7 +114,7 @@ const AppProfilePage: React.FC = () => {
         if (typedKey === 'app_logo' || typedKey === 'app_favicon' || typedKey === 'id') return;
 
         if (typedKey === 'is_maintenance_mode') {
-            formData.append(typedKey, value ? '1' : '0');
+            formData.append(typedKey, value ? 'true' : 'false'); // Mengubah dari '1'/'0' menjadi 'true'/'false'
         } else if (value !== null && value !== undefined) {
             formData.append(typedKey, String(value));
         }
