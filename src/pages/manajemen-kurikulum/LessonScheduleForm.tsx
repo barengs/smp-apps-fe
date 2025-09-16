@@ -186,7 +186,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 <TableBody>
                   {details.map((detail, index) => (
                     <TableRow key={index}>
-                      <TableCell>
+                      <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
                         <Input
                           type="text" // Mengubah tipe input menjadi text
                           placeholder={t('lessonScheduleForm.timePlaceholder')} // Placeholder baru
@@ -194,7 +194,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           onChange={(e) => handleDetailChange(index, 'lessonHour', e.target.value)}
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
                         <Select
                           value={detail.teacherId}
                           onValueChange={(value) => handleDetailChange(index, 'teacherId', value)}
@@ -209,7 +209,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
                         <Select
                           value={detail.subjectId}
                           onValueChange={(value) => handleDetailChange(index, 'subjectId', value)}
@@ -224,7 +224,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right py-1"> {/* Mengurangi padding vertikal */}
                         <Button variant="ghost" size="icon" onClick={() => removeDetailRow(index)}>
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
