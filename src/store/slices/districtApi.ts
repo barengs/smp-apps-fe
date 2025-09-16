@@ -16,6 +16,12 @@ interface DistrictApiData {
   city: NestedCityData;
 }
 
+// Raw response structure from the API with 'data' wrapper
+interface GetDistrictsRawResponse {
+  data: DistrictApiData[];
+}
+
+// The GET response is a direct array after transformation
 type GetDistrictsResponse = DistrictApiData[];
 
 export interface CreateUpdateDistrictRequest {
@@ -28,6 +34,7 @@ export const districtApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getDistricts: builder.query<GetDistrictsResponse, void>({
       query: () => 'master/district',
+      transformResponse: (response: GetDistrictsRawResponse) => response.data, // Extract the array from the 'data' property
       providesTags: ['District'],
     }),
     createDistrict: builder.mutation<DistrictApiData, CreateUpdateDistrictRequest>({

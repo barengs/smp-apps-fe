@@ -9,7 +9,12 @@ interface ProvinceApiData {
   name: string;
 }
 
-// The GET response is now a direct array
+// Raw response structure from the API with 'data' wrapper
+interface GetProvincesRawResponse {
+  data: ProvinceApiData[];
+}
+
+// The GET response is now a direct array after transformation
 type GetProvincesResponse = ProvinceApiData[];
 
 // Updated structure for the POST/PUT request body
@@ -22,6 +27,7 @@ export const provinceApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProvinces: builder.query<GetProvincesResponse, void>({
       query: () => 'master/province', // Updated endpoint
+      transformResponse: (response: GetProvincesRawResponse) => response.data, // Extract the array from the 'data' property
       providesTags: ['Province'],
     }),
     createProvince: builder.mutation<ProvinceApiData, CreateUpdateProvinceRequest>({

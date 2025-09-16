@@ -38,12 +38,12 @@ interface CreateUpdateRoleRequest {
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRoles: builder.query<GetRolesResponse, void>({
-      query: () => 'master/role',
+      query: () => 'main/role',
       providesTags: ['Role'],
     }),
     createRole: builder.mutation<RoleApiResponse, CreateUpdateRoleRequest>({
       query: (newRole) => ({
-        url: 'master/role',
+        url: 'main/role',
         method: 'POST',
         body: newRole,
       }),
@@ -51,7 +51,7 @@ export const roleApi = smpApi.injectEndpoints({
     }),
     updateRole: builder.mutation<RoleApiResponse, { id: number; data: CreateUpdateRoleRequest }>({
       query: ({ id, data }) => ({
-        url: `master/role/${id}`,
+        url: `main/role/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -59,7 +59,7 @@ export const roleApi = smpApi.injectEndpoints({
     }),
     deleteRole: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/role/${id}`,
+        url: `main/role/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Role'],

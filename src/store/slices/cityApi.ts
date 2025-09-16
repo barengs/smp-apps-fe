@@ -18,7 +18,12 @@ interface CityApiData {
   province: NestedProvinceData;
 }
 
-// The GET response is a direct array of cities
+// Raw response structure from the API with 'data' wrapper
+interface GetCitiesRawResponse {
+  data: CityApiData[];
+}
+
+// The GET response is a direct array of cities after transformation
 type GetCitiesResponse = CityApiData[];
 
 // Structure for the POST/PUT request body
@@ -32,6 +37,7 @@ export const cityApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getCities: builder.query<GetCitiesResponse, void>({
       query: () => 'master/city',
+      transformResponse: (response: GetCitiesRawResponse) => response.data, // Extract the array from the 'data' property
       providesTags: ['City'],
     }),
     createCity: builder.mutation<CityApiData, CreateUpdateCityRequest>({
