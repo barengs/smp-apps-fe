@@ -17,8 +17,13 @@ interface ProgramApiData {
   hostels?: HostelInfo[]; // Array of associated hostels
 }
 
+// New interface for the raw API response for getPrograms
+interface GetProgramsRawResponse {
+  data: ProgramApiData[];
+}
+
 // The GET response is a direct array
-type GetProgramsResponse = ProgramApiData[];
+// type GetProgramsResponse = ProgramApiData[]; // This type is no longer directly used for the query return type
 
 // Structure for the POST/PUT request body
 export interface CreateUpdateProgramRequest {
@@ -28,8 +33,9 @@ export interface CreateUpdateProgramRequest {
 
 export const programApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPrograms: builder.query<GetProgramsResponse, void>({
+    getPrograms: builder.query<ProgramApiData[], void>({ // Change return type to ProgramApiData[]
       query: () => 'master/program',
+      transformResponse: (response: GetProgramsRawResponse) => response.data, // Extract the array from the 'data' property
       providesTags: ['Program'],
     }),
     createProgram: builder.mutation<ProgramApiData, CreateUpdateProgramRequest>({
