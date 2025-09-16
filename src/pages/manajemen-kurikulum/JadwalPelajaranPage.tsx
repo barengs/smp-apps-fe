@@ -6,6 +6,7 @@ import { BookCopy, CalendarClock } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
+import LessonScheduleForm from './LessonScheduleForm';
 import { showSuccess } from '@/utils/toast';
 
 // Tipe data untuk jadwal pelajaran
@@ -22,6 +23,7 @@ interface LessonSchedule {
 
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: t('sidebar.curriculum'), href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -79,9 +81,7 @@ const JadwalPelajaranPage: React.FC = () => {
   ];
 
   const handleAddSchedule = () => {
-    showSuccess(t('lessonSchedulePage.addScheduleSuccess'));
-    // Logika untuk menambah jadwal baru
-    console.log('Tambah Jadwal clicked!');
+    setIsFormOpen(true);
   };
 
   return (
@@ -104,6 +104,10 @@ const JadwalPelajaranPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      <LessonScheduleForm
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+      />
     </DashboardLayout>
   );
 };
