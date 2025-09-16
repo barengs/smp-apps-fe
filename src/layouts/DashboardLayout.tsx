@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight, Bed, Building, Info } from 'lucide-react';
+import { Home, Users, Calendar, Settings, LayoutDashboard, Menu, User, BookOpenText, LogOut, Sun, Moon, Briefcase, Key, UsersRound, UserCog, Megaphone, UserCheck, UserPlus, Maximize, Minimize, ChevronsLeft, ChevronsRight, Map, Landmark, Building2, Tent, GraduationCap, Network, School, BedDouble, ClipboardList, Globe, BookCopy, TrendingUp, CalendarClock, Shield, AlertTriangle, BookMarked, Compass, Newspaper, UserSearch, Receipt, Wallet, FileText, Package, BookKey, Banknote, ArrowLeftRight, Bed, Building, Info, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -103,6 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       icon: <BookCopy className="h-5 w-5" />,
       children: [
         { titleKey: "sidebar.subjects", href: "/dashboard/manajemen-kurikulum/mata-pelajaran", icon: <BookMarked className="h-4 w-4" /> },
+        { titleKey: "sidebar.lessonHours", href: "/dashboard/manajemen-kurikulum/jam-pelajaran", icon: <Clock className="h-4 w-4" /> },
         { titleKey: "sidebar.classPromotion", href: "/dashboard/manajemen-kurikulum/kenaikan-kelas", icon: <TrendingUp className="h-4 w-4" /> },
         { titleKey: "sidebar.lessonSchedule", href: "/dashboard/manajemen-kurikulum/jadwal-pelajaran", icon: <CalendarClock className="h-4 w-4" /> },
         { titleKey: "sidebar.teacher", href: "/dashboard/manajemen-kurikulum/guru", icon: <User className="h-4 w-4" /> }, // New item
@@ -320,20 +321,24 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   );
 };
 
-const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administrasi'; isMobile: boolean; isCollapsed: boolean; setIsCollapsed: (collapsed: boolean) => void; }> = ({ title, role, isMobile, isCollapsed, setIsCollapsed }) => {
+const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administrasi'; isMobile: boolean; isCollapsed: boolean; setIsCollapsed: (collapsed: boolean) => void; settings: any }> = ({ title, role, isMobile, isCollapsed, setIsCollapsed, settings }) => {
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [hijriDate, setHijriDate] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logoutApi] = useLogoutMutation();
   const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
+  const [hijriDate, setHijriDate] = useState(''); // Menambahkan deklarasi state untuk hijriDate
 
   // Mengambil nama dari properti profile, dengan fallback ke name atau placeholder
   const displayName = currentUser?.profile?.first_name && currentUser?.profile?.last_name
     ? `${currentUser.profile.first_name} ${currentUser.profile.last_name}`
     : currentUser?.name || t('header.usernamePlaceholder');
+
+  useEffect(() => {
+    document.title = `${settings?.app_name || 'SMP'} | ${title}`;
+  }, [title, settings]);
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -509,7 +514,7 @@ const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({ childre
           </aside>
         )}
         <div className="flex flex-1 flex-col overflow-hidden">
-          <DashboardHeader title={title} role={role} isMobile={isMobile} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <DashboardHeader title={title} role={role} isMobile={isMobile} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} settings={settings} />
           <main className="flex-1 overflow-y-auto p-4">
             {children}
           </main>
