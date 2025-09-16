@@ -18,12 +18,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { JamPelajaran } from '@/types/kurikulum';
 import * as toast from '@/utils/toast';
 import TimePicker from '@/components/TimePicker'; // Import TimePicker
+import { useAddLessonHourMutation, useUpdateLessonHourMutation } from '@/store/slices/lessonHourApi';
 
 const formSchema = z.object({
-  lesson_hour: z.coerce.number().min(0, { message: "Jam ke harus angka positif atau 0 untuk istirahat." }),
+  order: z.coerce.number().min(0, { message: "Jam ke harus angka positif atau 0 untuk istirahat." }),
   start_time: z.string().min(1, { message: "Waktu mulai tidak boleh kosong." }).regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Format waktu mulai tidak valid (HH:MM)." }),
   end_time: z.string().min(1, { message: "Waktu selesai tidak boleh kosong." }).regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Format waktu selesai tidak valid (HH:MM)." }),
-  description: z.string().optional(),
+  name: z.string().optional(),
 });
 
 interface JamPelajaranFormProps {
@@ -34,44 +35,64 @@ interface JamPelajaranFormProps {
 
 const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const { t } = useTranslation();
+  const [addLessonHour, { isLoading: isAdding }] = useAddLessonHourMutation();
+  const [updateLessonHour, { isLoading: isUpdating }] = useUpdateLessonHourMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      lesson_hour: initialData?.lesson_hour || 0,
+      order: initialData?.order ?? 0,
       start_time: initialData?.start_time || '',
       end_time: initialData?.end_time || '',
-      description: initialData?.description || '',
+      name: initialData?.name || '',
     },
   });
 
   useEffect(() => {
     if (initialData) {
       form.reset({
-        lesson_hour: initialData.lesson_hour,
+        order: initialData.order,
         start_time: initialData.start_time,
         end_time: initialData.end_time,
-        description: initialData.description,
+        name: initialData.name,
       });
     } else {
       form.reset({
-        lesson_hour: 0,
+        order: 0,
         start_time: '',
         end_time: '',
-        description: '',
+        name: '',
       });
     }
   }, [initialData, form]);
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // TODO: Implement actual API call for adding/editing
-    console.log('Form submitted:', values);
-    if (initialData) {
-      toast.showSuccess(t('lessonHoursForm.successEdit'));
-    } else {
-      toast.showSuccess(t('lessonHoursForm.successAdd'));
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (initialData) {
+        const updatePayload = {
+          id: initialData.id,
+          order: values.order,
+          start_time: values.start_time,
+          end_time: values.end_time,
+          name: values.name,
+        };
+        await updateLessonHour(updatePayload).unwrap();
+        toast.showSuccess(t('lessonHoursForm.successEdit'));
+      } else {
+        const addPayload = {
+          order: values.order,
+          start_time: values.start_time,
+          end_time: values.end_time,
+          name: values.name,
+        };
+        await addLessonHour(addPayload).unwrap();
+        toast.showSuccess(t('lessonHoursForm.successAdd'));
+      }
+      onSuccess();
+    } catch (error) {
+      toast.showError('Gagal menyimpan data. Silakan coba lagi.');
+      console.error('Failed to save lesson hour:', error);
     }
-    onSuccess();
   };
 
   return (
@@ -79,7 +100,7 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="lesson_hour"
+          name="order"
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('lessonHoursForm.lessonHourLabel')}</FormLabel>
@@ -134,7 +155,7 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
         </div>
         <FormField
           control={form.control}
-          name="description"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('lessonHoursForm.descriptionLabel')}</FormLabel>
@@ -152,8 +173,8 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
           <Button type="button" variant="outline" onClick={onCancel}>
             {t('lessonHoursForm.cancelButton')}
           </Button>
-          <Button type="submit">
-            {t('lessonHoursForm.saveButton')}
+          <Button type="submit" disabled={isAdding || isUpdating}>
+            {isAdding || isUpdating ? 'Menyimpan...' : t('lessonHoursForm.saveButton')}
           </Button>
         </div>
       </form>

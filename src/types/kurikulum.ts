@@ -1,7 +1,7 @@
 export interface JamPelajaran {
   id: number;
-  lesson_hour: number;
+  order: number;
   start_time: string;
   end_time: string;
-  description?: string;
+  name?: string;
 }

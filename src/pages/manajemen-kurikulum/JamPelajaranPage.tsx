@@ -31,30 +31,40 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import JamPelajaranForm from './JamPelajaranForm';
+import { useGetLessonHoursQuery, useDeleteLessonHourMutation } from '@/store/slices/lessonHourApi';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import * as toast from '@/utils/toast';
 
 // Data contoh untuk demonstrasi. Nantinya akan diganti dengan data dari API.
 const mockJamPelajaran: JamPelajaran[] = [
-  { id: 1, lesson_hour: 1, start_time: '07:00', end_time: '07:45', description: 'Pelajaran Pagi' },
-  { id: 2, lesson_hour: 2, start_time: '07:45', end_time: '08:30', description: 'Pelajaran Pagi' },
-  { id: 3, lesson_hour: 3, start_time: '08:30', end_time: '09:15', description: 'Pelajaran Pagi' },
-  { id: 4, lesson_hour: 4, start_time: '09:15', end_time: '10:00', description: 'Pelajaran Pagi' },
-  { id: 5, lesson_hour: 0, start_time: '10:00', end_time: '10:15', description: 'Istirahat' },
-  { id: 6, lesson_hour: 5, start_time: '10:15', end_time: '11:00', description: 'Pelajaran Siang' },
-  { id: 7, lesson_hour: 6, start_time: '11:00', end_time: '11:45', description: 'Pelajaran Siang' },
-  { id: 8, lesson_hour: 7, start_time: '11:45', end_time: '12:30', description: 'Pelajaran Siang' },
+  { id: 1, order: 1, start_time: '07:00', end_time: '07:45', name: 'Pelajaran Pagi' },
+  { id: 2, order: 2, start_time: '07:45', end_time: '08:30', name: 'Pelajaran Pagi' },
+  { id: 3, order: 3, start_time: '08:30', end_time: '09:15', name: 'Pelajaran Pagi' },
+  { id: 4, order: 4, start_time: '09:15', end_time: '10:00', name: 'Pelajaran Pagi' },
+  { id: 5, order: 0, start_time: '10:00', end_time: '10:15', name: 'Istirahat' },
+  { id: 6, order: 5, start_time: '10:15', end_time: '11:00', name: 'Pelajaran Siang' },
+  { id: 7, order: 6, start_time: '11:00', end_time: '11:45', name: 'Pelajaran Siang' },
+  { id: 8, order: 7, start_time: '11:45', end_time: '12:30', name: 'Pelajaran Siang' },
 ];
 
 const JamPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingJamPelajaran, setEditingJamPelajaran] = useState<JamPelajaran | undefined>(undefined);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingJamPelajaranId, setDeletingJamPelajaranId] = useState<number | null>(null);
 
-  // TODO: Ganti dengan hook dari RTK Query setelah API tersedia
-  const { data, isLoading, isError } = {
-    data: mockJamPelajaran,
-    isLoading: false,
-    isError: false,
-  };
+  const { data, isLoading, isError, refetch } = useGetLessonHoursQuery();
+  const [deleteLessonHour, { isLoading: isDeleting }] = useDeleteLessonHourMutation();
 
   const breadcrumbItems = [
     { label: t('sidebar.curriculum'), href: '#' },
@@ -63,11 +73,11 @@ const JamPelajaranPage: React.FC = () => {
 
   const columns: ColumnDef<JamPelajaran>[] = useMemo(() => [
     {
-      accessorKey: 'lesson_hour',
+      accessorKey: 'order',
       header: t('lessonHoursPage.lessonHour'),
       cell: ({ row }) => {
         const jam = row.original;
-        return jam.lesson_hour === 0 ? <Badge variant="outline">Istirahat</Badge> : `Jam ke-${jam.lesson_hour}`;
+        return jam.order === 0 ? <Badge variant="outline">Istirahat</Badge> : `Jam ke-${jam.order}`;
       },
       size: 100,
     },
@@ -82,7 +92,7 @@ const JamPelajaranPage: React.FC = () => {
       size: 150,
     },
     {
-      accessorKey: 'description',
+      accessorKey: 'name',
       header: t('lessonHoursPage.description'),
     },
     {
@@ -103,7 +113,7 @@ const JamPelajaranPage: React.FC = () => {
                 <DropdownMenuItem onClick={() => handleEditData(jam)}>
                   {t('actions.edit')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => alert(`Hapus jam ${jam.id}`)} className="text-destructive">
+                <DropdownMenuItem onClick={() => handleDeleteConfirmation(jam.id)} className="text-destructive">
                   {t('actions.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -128,12 +138,31 @@ const JamPelajaranPage: React.FC = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingJamPelajaran(undefined);
-    // TODO: Refresh data table if using actual API
+    refetch();
   };
 
   const handleFormCancel = () => {
     setIsFormOpen(false);
     setEditingJamPelajaran(undefined);
+  };
+
+  const handleDeleteConfirmation = (id: number) => {
+    setDeletingJamPelajaranId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (deletingJamPelajaranId) {
+      try {
+        await deleteLessonHour(deletingJamPelajaranId).unwrap();
+        toast.showSuccess('Jam pelajaran berhasil dihapus.');
+        setIsDeleteDialogOpen(false);
+        setDeletingJamPelajaranId(null);
+      } catch (error) {
+        toast.showError('Gagal menghapus data.');
+        console.error('Failed to delete lesson hour:', error);
+      }
+    }
   };
 
   if (isError) {
@@ -184,6 +213,23 @@ const JamPelajaranPage: React.FC = () => {
             />
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tindakan ini tidak dapat dibatalkan. Ini akan menghapus data jam pelajaran secara permanen.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? 'Menghapus...' : 'Hapus'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );
