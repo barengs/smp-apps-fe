@@ -14,9 +14,11 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetStudiesQuery } from '@/store/slices/studyApi';
+import { useGetTeachersQuery } from '@/store/slices/teacherApi'; // Import hook untuk mengambil data guru
 
 interface LessonScheduleDetail {
-  lessonHour: string;
+  lessonHour: string; // Mengganti nama secara konseptual menjadi 'time'
+  teacherId: string; // Kolom baru untuk Guru Pengampu
   subjectId: string;
 }
 
@@ -34,13 +36,14 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const [classGroupId, setClassGroupId] = useState<string>('');
   const [day, setDay] = useState<string>('');
   const [session, setSession] = useState<string>('');
-  const [details, setDetails] = useState<LessonScheduleDetail[]>([{ lessonHour: '', subjectId: '' }]);
+  const [details, setDetails] = useState<LessonScheduleDetail[]>([{ lessonHour: '', teacherId: '', subjectId: '' }]);
 
   // Fetch data for selects
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: classroomsData } = useGetClassroomsQuery();
   const { data: classGroupsData } = useGetClassGroupsQuery();
   const { data: studiesData } = useGetStudiesQuery();
+  const { data: teachersData } = useGetTeachersQuery(); // Mengambil data guru
 
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
@@ -55,7 +58,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const addDetailRow = () => {
-    setDetails([...details, { lessonHour: '', subjectId: '' }]);
+    setDetails([...details, { lessonHour: '', teacherId: '', subjectId: '' }]);
   };
 
   const removeDetailRow = (index: number) => {
@@ -88,7 +91,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
       setClassGroupId('');
       setDay('');
       setSession('');
-      setDetails([{ lessonHour: '', subjectId: '' }]);
+      setDetails([{ lessonHour: '', teacherId: '', subjectId: '' }]);
     }
   }, [isOpen]);
 
@@ -174,7 +177,8 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               <Table className="mt-2">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[150px]">{t('lessonScheduleForm.lessonHour')}</TableHead>
+                    <TableHead className="w-[150px]">{t('lessonScheduleForm.time')}</TableHead> {/* Mengubah label */}
+                    <TableHead>{t('lessonScheduleForm.teacher')}</TableHead> {/* Kolom baru */}
                     <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
                     <TableHead className="w-[50px] text-right"></TableHead>
                   </TableRow>
@@ -184,11 +188,26 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                     <TableRow key={index}>
                       <TableCell>
                         <Input
-                          type="number"
-                          placeholder={t('lessonScheduleForm.lessonHourPlaceholder')}
+                          type="text" // Mengubah tipe input menjadi text
+                          placeholder={t('lessonScheduleForm.timePlaceholder')} // Placeholder baru
                           value={detail.lessonHour}
                           onChange={(e) => handleDetailChange(index, 'lessonHour', e.target.value)}
                         />
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={detail.teacherId}
+                          onValueChange={(value) => handleDetailChange(index, 'teacherId', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('lessonScheduleForm.selectTeacher')} /> {/* Placeholder baru */}
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teachersData?.data.map(teacher => (
+                              <SelectItem key={teacher.id} value={String(teacher.id)}>{teacher.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
                         <Select
