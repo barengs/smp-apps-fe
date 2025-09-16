@@ -128,7 +128,7 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
           render={({ field }) => (
             <FormItem>
               <FormLabel>Program</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value?.toString()} disabled={isLoadingPrograms || isSubmitting}>
+              <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()} disabled={isLoadingPrograms || isSubmitting}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih Program" />
