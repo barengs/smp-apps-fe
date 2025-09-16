@@ -42,6 +42,7 @@
   "sidebar.waliSantri": "Student Guardian",
   "sidebar.internshipManagement": "Internship Management",
   "sidebar.teacherAssignment": "Assigned Teacher",
+  "sidebar.teachingHours": "Teaching Hours",
   "sidebar.responsiblePerson": "Internship Supervisor",
   "sidebar.staffManagement": "Staff Management",
   "sidebar.staff": "Staff",
@@ -117,5 +118,6 @@
   "lessonScheduleForm.selectSubject": "Select Subject",
   "lessonScheduleForm.addDetail": "Add Row",
   "lessonScheduleForm.success.scheduleSaved": "Schedule saved successfully! (Simulation)",
-  "lessonScheduleForm.error.mustHaveOneDetail": "There must be at least one schedule detail."
+  "lessonScheduleForm.error.mustHaveOneDetail": "There must be at least one schedule detail.",
+  "teachingHoursPage.description": "This page will display and manage teacher teaching hours."
 }

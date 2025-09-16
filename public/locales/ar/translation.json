@@ -68,6 +68,8 @@
   "sidebar.subjects": "المواد الدراسية",
   "sidebar.classPromotion": "ترقية الصف",
   "sidebar.lessonSchedule": "جدول الحصص",
+  "sidebar.teacher": "المعلم",
+  "sidebar.teachingHours": "ساعات التدريس",
   "sidebar.securityManagement": "إدارة الأمن",
   "sidebar.violations": "المخالفات",
   "sidebar.kepesantrenan": "شؤون المعهد",
@@ -181,5 +183,6 @@
   "lessonScheduleForm.selectSubject": "اختر المادة",
   "lessonScheduleForm.addDetail": "إضافة صف",
   "lessonScheduleForm.success.scheduleSaved": "تم حفظ الجدول بنجاح! (محاكاة)",
-  "lessonScheduleForm.error.mustHaveOneDetail": "يجب أن يكون هناك تفصيل واحد على الأقل للجدول."
+  "lessonScheduleForm.error.mustHaveOneDetail": "يجب أن يكون هناك تفصيل واحد على الأقل للجدول.",
+  "teachingHoursPage.description": "ستعرض هذه الصفحة وتدير ساعات تدريس المعلمين."
 }

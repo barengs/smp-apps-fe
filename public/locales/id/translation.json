@@ -37,6 +37,7 @@
     "sidebar.reports": "Laporan",
     "sidebar.teacher": "Guru",
     "sidebar.teacherAssignment": "Penugasan Guru",
+    "sidebar.teachingHours": "Jam Mengajar",
     "sidebar.internshipTeacherAssignment": "Guru Tugas",
     "sidebar.securityManagement": "Manajemen Kamtib",
     "sidebar.violations": "Pelanggaran",
@@ -110,5 +111,6 @@
     "lessonScheduleForm.selectSubject": "Pilih Mata Pelajaran",
     "lessonScheduleForm.addDetail": "Tambah Baris",
     "lessonScheduleForm.success.scheduleSaved": "Jadwal berhasil disimpan! (Simulasi)",
-    "lessonScheduleForm.error.mustHaveOneDetail": "Harus ada setidaknya satu detail jadwal."
+    "lessonScheduleForm.error.mustHaveOneDetail": "Harus ada setidaknya satu detail jadwal.",
+    "teachingHoursPage.description": "Halaman ini akan menampilkan dan mengelola jam mengajar guru."
 }
