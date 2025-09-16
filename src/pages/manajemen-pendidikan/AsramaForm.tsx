@@ -73,9 +73,13 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
     const payload: CreateUpdateHostelRequest = {
       name: values.name,
       description: values.description,
-      program_id: values.program_id,
       capacity: values.capacity,
     };
+
+    // Hanya tambahkan program_id jika nilainya valid (bukan undefined atau null)
+    if (values.program_id !== undefined && values.program_id !== null) {
+      payload.program_id = values.program_id;
+    }
 
     try {
       if (initialData) {
