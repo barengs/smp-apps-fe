@@ -177,6 +177,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               <Table className="mt-2">
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[50px]">No.</TableHead> {/* Kolom baru untuk nomor */}
                     <TableHead className="w-[150px]">{t('lessonScheduleForm.time')}</TableHead> {/* Mengubah label */}
                     <TableHead>{t('lessonScheduleForm.teacher')}</TableHead> {/* Kolom baru */}
                     <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
@@ -186,6 +187,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 <TableBody>
                   {details.map((detail, index) => (
                     <TableRow key={index}>
+                      <TableCell className="py-1">{index + 1}.</TableCell> {/* Menampilkan nomor urut */}
                       <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
                         <Input
                           type="text" // Mengubah tipe input menjadi text
