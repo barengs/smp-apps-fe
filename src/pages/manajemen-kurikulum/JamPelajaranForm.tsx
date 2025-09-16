@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { JamPelajaran } from '@/types/kurikulum';
 import * as toast from '@/utils/toast';
+import TimePicker from '@/components/TimePicker'; // Import TimePicker
 
 const formSchema = z.object({
   lesson_hour: z.coerce.number().min(0, { message: "Jam ke harus angka positif atau 0 untuk istirahat." }),
@@ -101,10 +102,11 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
               <FormItem>
                 <FormLabel>{t('lessonHoursForm.startTimeLabel')}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="time"
+                  <TimePicker
                     placeholder={t('lessonHoursForm.startTimePlaceholder')}
-                    {...field}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -118,10 +120,11 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
               <FormItem>
                 <FormLabel>{t('lessonHoursForm.endTimeLabel')}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="time"
+                  <TimePicker
                     placeholder={t('lessonHoursForm.endTimePlaceholder')}
-                    {...field}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage />
