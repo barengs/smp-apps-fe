@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
@@ -23,6 +23,14 @@ import {
 } from "@/components/ui/card";
 import { JamPelajaran } from '@/types/kurikulum';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import JamPelajaranForm from './JamPelajaranForm';
 
 // Data contoh untuk demonstrasi. Nantinya akan diganti dengan data dari API.
 const mockJamPelajaran: JamPelajaran[] = [
@@ -38,6 +46,8 @@ const mockJamPelajaran: JamPelajaran[] = [
 
 const JamPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingJamPelajaran, setEditingJamPelajaran] = useState<JamPelajaran | undefined>(undefined);
 
   // TODO: Ganti dengan hook dari RTK Query setelah API tersedia
   const { data, isLoading, isError } = {
@@ -90,11 +100,11 @@ const JamPelajaranPage: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{t('actions.title')}</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => alert(`Edit jam ${jam.id}`)}>
-                  Edit
+                <DropdownMenuItem onClick={() => handleEditData(jam)}>
+                  {t('actions.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => alert(`Hapus jam ${jam.id}`)} className="text-destructive">
-                  Hapus
+                  {t('actions.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -106,8 +116,24 @@ const JamPelajaranPage: React.FC = () => {
   ], [t]);
 
   const handleAddData = () => {
-    // TODO: Implement navigation to form or show a dialog
-    alert('Tambah data jam pelajaran baru');
+    setEditingJamPelajaran(undefined);
+    setIsFormOpen(true);
+  };
+
+  const handleEditData = (jam: JamPelajaran) => {
+    setEditingJamPelajaran(jam);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsFormOpen(false);
+    setEditingJamPelajaran(undefined);
+    // TODO: Refresh data table if using actual API
+  };
+
+  const handleFormCancel = () => {
+    setIsFormOpen(false);
+    setEditingJamPelajaran(undefined);
   };
 
   if (isError) {
@@ -140,6 +166,24 @@ const JamPelajaranPage: React.FC = () => {
             />
           </CardContent>
         </Card>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                {editingJamPelajaran ? t('lessonHoursForm.editTitle') : t('lessonHoursForm.addTitle')}
+              </DialogTitle>
+              <DialogDescription>
+                {editingJamPelajaran ? t('lessonHoursForm.editDescription') : t('lessonHoursForm.addDescription')}
+              </DialogDescription>
+            </DialogHeader>
+            <JamPelajaranForm
+              initialData={editingJamPelajaran}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
