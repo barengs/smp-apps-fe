@@ -129,7 +129,7 @@ export const authApi = smpApi.injectEndpoints({
       invalidatesTags: ['User', 'Profile'], // Invalidate Profile tag on register
     }),
     getProfile: builder.query<ProfileResponse, void>({
-      query: () => 'profile',
+      query: () => 'auth/profile',
       providesTags: ['User'],
     }),
     logout: builder.mutation<LogoutResponse, void>({
@@ -146,7 +146,7 @@ export const authApi = smpApi.injectEndpoints({
         }),
     }),
     getProfileDetails: builder.query<GetProfileDetailsResponse, void>({
-      query: () => 'profile', // Assuming the same /profile endpoint returns detailed data
+      query: () => 'auth/profile', // Assuming the same /profile endpoint returns detailed data
       providesTags: ['Profile'],
     }),
     updateProfile: builder.mutation<UpdateProfileResponse, { id: number; data: FormData }>({

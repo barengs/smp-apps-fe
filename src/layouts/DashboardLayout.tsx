@@ -457,7 +457,11 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
                 <User className="mr-2 h-4 w-4" /><span>{t('header.profile')}</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span></DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/settings/app-profile">
+                <Settings className="mr-2 h-4 w-4" /><span>{t('header.settings')}</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>{t('header.logout')}</span></DropdownMenuItem>
           </DropdownMenuContent>
