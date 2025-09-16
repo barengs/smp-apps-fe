@@ -15,9 +15,10 @@ import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetStudiesQuery } from '@/store/slices/studyApi';
 import { useGetTeachersQuery } from '@/store/slices/teacherApi'; // Import hook untuk mengambil data guru
+import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi'; // Import hook untuk mengambil data jam pelajaran
 
 interface LessonScheduleDetail {
-  lessonHour: string; // Mengganti nama secara konseptual menjadi 'time'
+  lessonHourId: string; // Mengganti nama dan tipe menjadi ID jam pelajaran
   teacherId: string; // Kolom baru untuk Guru Pengampu
   subjectId: string;
 }
@@ -36,7 +37,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const [classGroupId, setClassGroupId] = useState<string>('');
   const [day, setDay] = useState<string>('');
   const [session, setSession] = useState<string>('');
-  const [details, setDetails] = useState<LessonScheduleDetail[]>([{ lessonHour: '', teacherId: '', subjectId: '' }]);
+  const [details, setDetails] = useState<LessonScheduleDetail[]>([{ lessonHourId: '', teacherId: '', subjectId: '' }]);
 
   // Fetch data for selects
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
@@ -44,6 +45,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: classGroupsData } = useGetClassGroupsQuery();
   const { data: studiesData } = useGetStudiesQuery();
   const { data: teachersData } = useGetTeachersQuery(); // Mengambil data guru
+  const { data: lessonHoursData } = useGetLessonHoursQuery(); // Mengambil data jam pelajaran
 
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
@@ -58,7 +60,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const addDetailRow = () => {
-    setDetails([...details, { lessonHour: '', teacherId: '', subjectId: '' }]);
+    setDetails([...details, { lessonHourId: '', teacherId: '', subjectId: '' }]);
   };
 
   const removeDetailRow = (index: number) => {
@@ -91,7 +93,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
       setClassGroupId('');
       setDay('');
       setSession('');
-      setDetails([{ lessonHour: '', teacherId: '', subjectId: '' }]);
+      setDetails([{ lessonHourId: '', teacherId: '', subjectId: '' }]);
     }
   }, [isOpen]);
 
@@ -177,9 +179,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               <Table className="mt-2">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px]">No.</TableHead> {/* Kolom baru untuk nomor */}
-                    <TableHead className="w-[150px]">{t('lessonScheduleForm.time')}</TableHead> {/* Mengubah label */}
-                    <TableHead>{t('lessonScheduleForm.teacher')}</TableHead> {/* Kolom baru */}
+                    <TableHead className="w-[50px]">No.</TableHead>
+                    <TableHead className="w-[150px]">{t('lessonScheduleForm.lessonHour')}</TableHead> {/* Mengubah label menjadi 'Jam Ke' */}
+                    <TableHead>{t('lessonScheduleForm.teacher')}</TableHead>
                     <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
                     <TableHead className="w-[50px] text-right"></TableHead>
                   </TableRow>
@@ -187,22 +189,31 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 <TableBody>
                   {details.map((detail, index) => (
                     <TableRow key={index}>
-                      <TableCell className="py-1">{index + 1}.</TableCell> {/* Menampilkan nomor urut */}
-                      <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
-                        <Input
-                          type="text" // Mengubah tipe input menjadi text
-                          placeholder={t('lessonScheduleForm.timePlaceholder')} // Placeholder baru
-                          value={detail.lessonHour}
-                          onChange={(e) => handleDetailChange(index, 'lessonHour', e.target.value)}
-                        />
+                      <TableCell className="py-1">{index + 1}.</TableCell>
+                      <TableCell className="py-1">
+                        <Select
+                          value={detail.lessonHourId}
+                          onValueChange={(value) => handleDetailChange(index, 'lessonHourId', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('lessonScheduleForm.selectLessonHour')} /> {/* Placeholder baru */}
+                          </SelectTrigger>
+                          <SelectContent>
+                            {lessonHoursData?.map(lh => (
+                              <SelectItem key={lh.id} value={String(lh.id)}>
+                                {lh.name || `${lh.start_time} - ${lh.end_time}`} {/* Menampilkan nama, fallback ke rentang waktu */}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
-                      <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
+                      <TableCell className="py-1">
                         <Select
                           value={detail.teacherId}
                           onValueChange={(value) => handleDetailChange(index, 'teacherId', value)}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={t('lessonScheduleForm.selectTeacher')} /> {/* Placeholder baru */}
+                            <SelectValue placeholder={t('lessonScheduleForm.selectTeacher')} />
                           </SelectTrigger>
                           <SelectContent>
                             {teachersData?.data.map(teacher => (
@@ -211,7 +222,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell className="py-1"> {/* Mengurangi padding vertikal */}
+                      <TableCell className="py-1">
                         <Select
                           value={detail.subjectId}
                           onValueChange={(value) => handleDetailChange(index, 'subjectId', value)}
@@ -226,7 +237,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell className="text-right py-1"> {/* Mengurangi padding vertikal */}
+                      <TableCell className="text-right py-1">
                         <Button variant="ghost" size="icon" onClick={() => removeDetailRow(index)}>
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>

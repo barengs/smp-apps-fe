@@ -117,6 +117,7 @@
   "lessonScheduleForm.selectTeacher": "Select Teacher",
   "lessonScheduleForm.subject": "Subject",
   "lessonScheduleForm.selectSubject": "Select Subject",
+  "lessonScheduleForm.selectLessonHour": "Select Lesson Hour",
   "lessonScheduleForm.addDetail": "Add Row",
   "lessonScheduleForm.success.scheduleSaved": "Schedule saved successfully! (Simulation)",
   "lessonScheduleForm.error.mustHaveOneDetail": "There must be at least one schedule detail.",

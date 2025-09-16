@@ -182,6 +182,7 @@
   "lessonScheduleForm.selectTeacher": "اختر المعلم",
   "lessonScheduleForm.subject": "المادة الدراسية",
   "lessonScheduleForm.selectSubject": "اختر المادة",
+  "lessonScheduleForm.selectLessonHour": "اختر ساعة الدرس",
   "lessonScheduleForm.addDetail": "إضافة صف",
   "lessonScheduleForm.success.scheduleSaved": "تم حفظ الجدول بنجاح! (محاكاة)",
   "lessonScheduleForm.error.mustHaveOneDetail": "يجب أن يكون هناك تفصيل واحد على الأقل للجدول.",
