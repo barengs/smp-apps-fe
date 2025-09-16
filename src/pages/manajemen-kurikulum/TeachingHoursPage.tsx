@@ -25,6 +25,13 @@ import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { AcademicYear } from '@/types/pendidikan';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // NOTE: Ini adalah tipe data placeholder. Perlu disesuaikan dengan API sebenarnya.
 interface TeachingHour {
@@ -135,47 +142,51 @@ const TeachingHoursPage: React.FC = () => {
     <DashboardLayout title={t('sidebar.teachingHours')} role="administrasi">
       <div className="container mx-auto p-4">
         <CustomBreadcrumb items={breadcrumbItems} />
-        <div className="my-4">
-          <h1 className="text-3xl font-bold">{t('sidebar.teachingHours')}</h1>
-          <p className="text-muted-foreground">{t('teachingHoursPage.description')}</p>
-        </div>
+        
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>{t('sidebar.teachingHours')}</CardTitle>
+            <CardDescription>{t('teachingHoursPage.description')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <label htmlFor="academic-year-select" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('sidebar.academicYear')}
+              </label>
+              {isLoadingAcademicYears ? (
+                <Skeleton className="h-10 w-full md:w-1/4" />
+              ) : (
+                <Select
+                  value={selectedAcademicYear}
+                  onValueChange={setSelectedAcademicYear}
+                >
+                  <SelectTrigger id="academic-year-select" className="w-full md:w-1/4">
+                    <SelectValue placeholder={t('teachingHoursPage.selectAcademicYear')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academicYears?.map((year: AcademicYear) => (
+                      <SelectItem key={year.id} value={String(year.id)}>
+                        {`${year.year} - ${t(((year.semester || '') as string).toLowerCase() as 'ganjil' | 'genap')}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
 
-        <div className="mb-4">
-          <label htmlFor="academic-year-select" className="block text-sm font-medium text-gray-700 mb-1">
-            {t('sidebar.academicYear')}
-          </label>
-          {isLoadingAcademicYears ? (
-            <Skeleton className="h-10 w-full md:w-1/4" />
-          ) : (
-            <Select
-              value={selectedAcademicYear}
-              onValueChange={setSelectedAcademicYear}
-            >
-              <SelectTrigger id="academic-year-select" className="w-full md:w-1/4">
-                <SelectValue placeholder={t('teachingHoursPage.selectAcademicYear')} />
-              </SelectTrigger>
-              <SelectContent>
-                {academicYears?.map((year: AcademicYear) => (
-                  <SelectItem key={year.id} value={String(year.id)}>
-                    {`${year.year} - ${t(((year.semester || '') as string).toLowerCase() as 'ganjil' | 'genap')}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={data || []}
-          isLoading={isLoading}
-          exportFileName="jam_mengajar"
-          exportTitle={t('sidebar.teachingHours')}
-          filterableColumns={{
-            teacherName: { placeholder: t('teachingHoursPage.filterByTeacher') },
-            subjectName: { placeholder: t('teachingHoursPage.filterBySubject') },
-          }}
-        />
+            <DataTable
+              columns={columns}
+              data={data || []}
+              isLoading={isLoading}
+              exportFileName="jam_mengajar"
+              exportTitle={t('sidebar.teachingHours')}
+              filterableColumns={{
+                teacherName: { placeholder: t('teachingHoursPage.filterByTeacher') },
+                subjectName: { placeholder: t('teachingHoursPage.filterBySubject') },
+              }}
+            />
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
