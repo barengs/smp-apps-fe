@@ -14,15 +14,6 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetStudiesQuery } from '@/store/slices/studyApi';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 
 interface LessonScheduleDetail {
   lessonHour: string;
@@ -102,12 +93,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   }, [isOpen]);
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full h-full overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{t('lessonScheduleForm.title')}</SheetTitle>
-          <SheetDescription>{t('lessonScheduleForm.description')}</SheetDescription>
-        </SheetHeader>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{t('lessonScheduleForm.title')}</DialogTitle>
+          <DialogDescription>{t('lessonScheduleForm.description')}</DialogDescription>
+        </DialogHeader>
         <div className="grid gap-6 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
@@ -228,14 +219,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
             </Button>
           </div>
         </div>
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button variant="outline" onClick={onClose}>{t('cancelButton')}</Button>
-          </SheetClose>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t('cancelButton')}</Button>
           <Button onClick={handleSubmit}>{t('saveChanges')}</Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
