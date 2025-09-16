@@ -119,5 +119,16 @@
   "lessonScheduleForm.addDetail": "Add Row",
   "lessonScheduleForm.success.scheduleSaved": "Schedule saved successfully! (Simulation)",
   "lessonScheduleForm.error.mustHaveOneDetail": "There must be at least one schedule detail.",
-  "teachingHoursPage.description": "This page will display and manage teacher teaching hours."
+  "teachingHoursPage.description": "This page will display and manage teacher teaching hours.",
+  "teachingHoursPage.teacherName": "Teacher Name",
+  "teachingHoursPage.subjectName": "Subject",
+  "teachingHoursPage.totalHours": "Total Hours",
+  "teachingHoursPage.selectAcademicYear": "Select Academic Year",
+  "teachingHoursPage.filterByTeacher": "Filter by teacher...",
+  "teachingHoursPage.filterBySubject": "Filter by subject...",
+  "teachingHoursPage.error": "Failed to load teaching hours data.",
+  "actions.title": "Actions",
+  "actions.viewDetails": "View Details",
+  "genap": "Even",
+  "ganjil": "Odd"
 }

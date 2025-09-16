@@ -184,5 +184,16 @@
   "lessonScheduleForm.addDetail": "إضافة صف",
   "lessonScheduleForm.success.scheduleSaved": "تم حفظ الجدول بنجاح! (محاكاة)",
   "lessonScheduleForm.error.mustHaveOneDetail": "يجب أن يكون هناك تفصيل واحد على الأقل للجدول.",
-  "teachingHoursPage.description": "ستعرض هذه الصفحة وتدير ساعات تدريس المعلمين."
+  "teachingHoursPage.description": "ستعرض هذه الصفحة وتدير ساعات تدريس المعلمين.",
+  "teachingHoursPage.teacherName": "اسم المعلم",
+  "teachingHoursPage.subjectName": "المادة الدراسية",
+  "teachingHoursPage.totalHours": "مجموع الساعات",
+  "teachingHoursPage.selectAcademicYear": "اختر العام الدراسي",
+  "teachingHoursPage.filterByTeacher": "تصفية حسب المعلم...",
+  "teachingHoursPage.filterBySubject": "تصفية حسب المادة...",
+  "teachingHoursPage.error": "فشل تحميل بيانات ساعات التدريس.",
+  "actions.title": "إجراءات",
+  "actions.viewDetails": "عرض التفاصيل",
+  "genap": "زوجي",
+  "ganjil": "فردي"
 }

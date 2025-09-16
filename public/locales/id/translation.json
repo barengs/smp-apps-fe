@@ -112,5 +112,16 @@
     "lessonScheduleForm.addDetail": "Tambah Baris",
     "lessonScheduleForm.success.scheduleSaved": "Jadwal berhasil disimpan! (Simulasi)",
     "lessonScheduleForm.error.mustHaveOneDetail": "Harus ada setidaknya satu detail jadwal.",
-    "teachingHoursPage.description": "Halaman ini akan menampilkan dan mengelola jam mengajar guru."
+    "teachingHoursPage.description": "Halaman ini akan menampilkan dan mengelola jam mengajar guru.",
+    "teachingHoursPage.teacherName": "Nama Guru",
+    "teachingHoursPage.subjectName": "Mata Pelajaran",
+    "teachingHoursPage.totalHours": "Total Jam",
+    "teachingHoursPage.selectAcademicYear": "Pilih Tahun Ajaran",
+    "teachingHoursPage.filterByTeacher": "Filter berdasarkan guru...",
+    "teachingHoursPage.filterBySubject": "Filter berdasarkan mapel...",
+    "teachingHoursPage.error": "Gagal memuat data jam mengajar.",
+    "actions.title": "Aksi",
+    "actions.viewDetails": "Lihat Detail",
+    "genap": "Genap",
+    "ganjil": "Ganjil"
 }
