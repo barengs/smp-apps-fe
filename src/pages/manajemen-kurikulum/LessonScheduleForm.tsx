@@ -180,10 +180,10 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[50px]">No.</TableHead>
-                    <TableHead className="w-[150px]">{t('lessonScheduleForm.lessonHour')}</TableHead> {/* Mengubah label menjadi 'Jam Ke' */}
+                    <TableHead>{t('lessonScheduleForm.lessonHour')}</TableHead> {/* Mengubah label menjadi 'Jam Ke' */}
                     <TableHead>{t('lessonScheduleForm.teacher')}</TableHead>
                     <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
-                    <TableHead className="w-[50px] text-right"></TableHead>
+                    <TableHead className="text-right"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
