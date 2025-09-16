@@ -157,7 +157,7 @@ const TeachingHoursPage: React.FC = () => {
               <SelectContent>
                 {academicYears?.map((year: AcademicYear) => (
                   <SelectItem key={year.id} value={String(year.id)}>
-                    {`${year.year} - ${t(year.semester.toLowerCase() as 'ganjil' | 'genap')}`}
+                    {`${year.year} - ${t(((year.semester || '') as string).toLowerCase() as 'ganjil' | 'genap')}`}
                   </SelectItem>
                 ))}
               </SelectContent>
