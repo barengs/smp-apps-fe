@@ -11,7 +11,8 @@ import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi'
 
 const Index = () => {
   const { t } = useTranslation();
-  const { data: settings } = useGetControlPanelSettingsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel
+  const settings = settingsResponse?.data; // Mengakses data dari properti 'data'
   const infoSlides = [
     t('infoSlide1'),
     t('infoSlide2'),

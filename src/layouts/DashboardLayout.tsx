@@ -48,7 +48,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const location = useLocation();
   const { t } = useTranslation();
-  const { data: settings } = useGetControlPanelSettingsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel
+  const settings = settingsResponse?.data; // Mengakses data dari properti 'data'
 
   const adminSidebarNavItems: SidebarNavItem[] = [
     { titleKey: "sidebar.dashboard", href: "/dashboard/administrasi", icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -488,7 +489,8 @@ const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({ childre
   const { isLocked } = useLockScreen();
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { data: settings } = useGetControlPanelSettingsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel
+  const settings = settingsResponse?.data; // Mengakses data dari properti 'data'
 
   useEffect(() => {
     document.title = `${settings?.app_name || 'SMP'} | ${title}`;

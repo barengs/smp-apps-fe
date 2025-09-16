@@ -77,7 +77,8 @@ import { useEffect } from 'react';
 import { useGetControlPanelSettingsQuery } from './store/slices/controlPanelApi';
 
 function App() {
-  const { data: settings } = useGetControlPanelSettingsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel
+  const settings = settingsResponse?.data; // Mengakses data dari properti 'data'
 
   useEffect(() => {
     if (settings?.app_description) {
