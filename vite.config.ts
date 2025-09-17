@@ -9,7 +9,7 @@ export default defineConfig(() => ({
     port: 8080,
     proxy: {
       '/storage': {
-        target: 'https://api.smp.barengsaya.com',
+        target: 'https://api-smp.umediatama.com',
         changeOrigin: true,
         secure: false,
       },
