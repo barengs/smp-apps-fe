@@ -64,7 +64,7 @@ const Index = () => {
       <section className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
         <div className="text-center mb-12">
           {settings?.app_logo ? (
-            <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`} alt="App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
+            <img src={`https://api-smp.umediatama.com/storage/uploads/logos/large/${settings.app_logo}`} alt="App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
           ) : (
             <img src={defaultLogoPath} alt="Default App Logo" className="h-48 w-48 mx-auto mb-8 object-contain" />
           )}

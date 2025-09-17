@@ -74,7 +74,7 @@ const LandingLayout: React.FC<LandingLayoutProps> = ({ children, title }) => {
       <header className="bg-white/80 backdrop-blur-sm shadow-sm py-2 px-6 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center">
           {settings?.app_logo ? (
-            <img src={`https://api-smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-10 w-10 mr-4 object-contain" />
+            <img src={`https://api-smp.umediatama.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-10 w-10 mr-4 object-contain" />
           ) : (
             <img src={defaultLogoPath} alt="Default App Logo" className="h-10 w-10 mr-4 object-contain" />
           )}

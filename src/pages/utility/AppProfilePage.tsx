@@ -33,14 +33,14 @@ const AppProfilePage: React.FC = () => {
     if (settings) { // Menggunakan 'settings' yang sudah di-unwrap
       setFormState(settings);
       if (settings.app_logo) {
-        setLogoPreview(`https://api-smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`);
-        setLargeLogoPreview(`https://api-smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`);
+        setLogoPreview(`https://api-smp.umediatama.com/storage/uploads/logos/small/${settings.app_logo}`);
+        setLargeLogoPreview(`https://api-smp.umediatama.com/storage/uploads/logos/large/${settings.app_logo}`);
       } else {
         setLogoPreview(null);
         setLargeLogoPreview(null);
       }
       if (settings.app_favicon) {
-        setFaviconPreview(`https://api-smp.barengsaya.com/storage/uploads/logos/${settings.app_favicon}`);
+        setFaviconPreview(`https://api-smp.umediatama.com/storage/uploads/logos/${settings.app_favicon}`);
       } else {
         setFaviconPreview(null);
       }
@@ -82,14 +82,14 @@ const AppProfilePage: React.FC = () => {
     if (settings) { // Menggunakan 'settings' yang sudah di-unwrap
       setFormState(settings);
       if (settings.app_logo) {
-        setLogoPreview(`https://api-smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`);
-        setLargeLogoPreview(`https://api-smp.barengsaya.com/storage/uploads/logos/large/${settings.app_logo}`);
+        setLogoPreview(`https://api-smp.umediatama.com/storage/uploads/logos/small/${settings.app_logo}`);
+        setLargeLogoPreview(`https://api-smp.umediatama.com/storage/uploads/logos/large/${settings.app_logo}`);
       } else {
         setLogoPreview(null);
         setLargeLogoPreview(null);
       }
       if (settings.app_favicon) {
-        setFaviconPreview(`https://api-smp.barengsaya.com/storage/uploads/logos/${settings.app_favicon}`);
+        setFaviconPreview(`https://api-smp.umediatama.com/storage/uploads/logos/${settings.app_favicon}`);
       } else {
         setFaviconPreview(null);
       }

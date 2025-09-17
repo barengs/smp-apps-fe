@@ -198,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       )}>
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
           {settings?.app_logo ? (
-            <img src={`https://api.smp.barengsaya.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-8 w-8 object-contain" />
+            <img src={`https://api-smp.umediatama.com/storage/uploads/logos/small/${settings.app_logo}`} alt="App Logo" className="h-8 w-8 object-contain" />
           ) : (
             <img src={defaultLogoPath} alt="Default App Logo" className="h-8 w-8 object-contain" />
           )}

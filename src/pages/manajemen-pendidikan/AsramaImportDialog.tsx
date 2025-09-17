@@ -49,7 +49,7 @@ const AsramaImportDialog: React.FC<AsramaImportDialogProps> = ({ isOpen, onClose
     }
   };
 
-  const API_BASE_URL = 'https://api-smp.barengsaya.com';
+  const API_BASE_URL = 'https://api-smp.umediatama.com';
   const TEMPLATE_DOWNLOAD_URL = `${API_BASE_URL}/master/hostel/import/template`;
 
   return (

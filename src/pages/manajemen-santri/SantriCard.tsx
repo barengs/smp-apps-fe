@@ -18,7 +18,7 @@ interface SantriCardProps {
   santri: SantriData;
 }
 
-const BASE_IMAGE_URL = "https://api-smp.barengsaya.com/storage/";
+const BASE_IMAGE_URL = "https://api-smp.umediatama.com/storage/";
 
 // Menggunakan React.forwardRef untuk meneruskan ref ke komponen
 const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }, ref) => {
