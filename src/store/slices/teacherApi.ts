@@ -4,11 +4,11 @@ import { TeacherApiResponse, SingleTeacherApiResponse } from '@/types/teacher';
 export const teacherApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTeachers: builder.query<TeacherApiResponse, void>({
-      query: () => 'main/staff/teachers/roles', // Endpoint diubah di sini
+      query: () => 'main/staff/teachers/roles',
       providesTags: ['Teacher'],
     }),
     getTeacherById: builder.query<SingleTeacherApiResponse, string>({
-      query: (id) => `main/staff/teachers/roles/${id}`, // Endpoint diperbarui di sini
+      query: (id) => `main/staff/teachers/roles/${id}`,
       providesTags: (result, error, id) => [{ type: 'Teacher', id }],
     }),
     addTeacher: builder.mutation<SingleTeacherApiResponse, FormData>({
@@ -16,7 +16,8 @@ export const teacherApi = smpApi.injectEndpoints({
         url: 'main/staff',
         method: 'POST',
         body: formData,
-        // FormData akan otomatis diatur dengan content-type yang benar
+        // JANGAN set headers secara manual untuk FormData
+        // Laravel akan otomatis mengenali multipart/form-data
       }),
       invalidatesTags: ['Teacher'],
     }),
@@ -27,7 +28,7 @@ export const teacherApi = smpApi.injectEndpoints({
           url: `main/staff/${id}`,
           method: 'POST',
           body: data,
-          // FormData akan otomatis diatur dengan content-type yang benar
+          // JANGAN set headers secara manual untuk FormData
         };
       },
       invalidatesTags: (result, error, { id }) => [{ type: 'Teacher', id }, 'Teacher'],

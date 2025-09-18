@@ -204,36 +204,46 @@ const GuruFormPage: React.FC = () => {
     const selectedRole = roles.data.find(r => r.id === values.role_id);
     const roleName = selectedRole ? selectedRole.name : '';
 
-    // Mapping form values to the expected backend fields
-    formData.append('name', values.email); // Use email as username
-    formData.append('first_name', values.first_name);
-    formData.append('last_name', values.last_name);
-    formData.append('email', values.email);
+    // Append semua field dengan benar
+    formData.append('name', values.email.trim());
+    formData.append('first_name', values.first_name.trim());
+    formData.append('last_name', values.last_name.trim());
+    formData.append('email', values.email.trim());
     formData.append('gender', values.gender === 'male' ? 'Pria' : 'Wanita');
-    formData.append('phone', values.phone_number);
-    formData.append('address', values.address);
+    formData.append('phone', values.phone_number.trim());
+    formData.append('address', values.address.trim());
     formData.append('marital_status', values.marital_status);
     formData.append('status', values.status);
-    formData.append('village_id', values.village_code);
+    formData.append('village_id', String(values.village_code));
     formData.append('job_id', String(values.job_id));
-    formData.append('role', roleName); // Mengirim nama role, bukan ID
+    formData.append('role', roleName);
 
-    // Append optional fields only if they have a value
-    if (values.nip) formData.append('nip', values.nip);
-    if (values.nik) formData.append('nik', values.nik);
-    if (values.birth_date) formData.append('birth_date', format(values.birth_date, 'yyyy-MM-dd'));
-    if (values.birth_place) formData.append('birth_place', values.birth_place);
-    if (values.religion) formData.append('religion', values.religion);
-
-    // Append password only if it's being set (not in edit mode or if provided)
+    // Password - wajib untuk mode tambah
     if (values.password) {
       formData.append('password', values.password);
     }
 
-    // Append photo if it's a file
+    // Optional fields
+    if (values.nip) formData.append('nip', values.nip.trim());
+    if (values.nik) formData.append('nik', values.nik.trim());
+    if (values.birth_date) formData.append('birth_date', format(values.birth_date, 'yyyy-MM-dd'));
+    if (values.birth_place) formData.append('birth_place', values.birth_place.trim());
+    if (values.religion) formData.append('religion', values.religion.trim());
+
+    // Photo
     if (values.photo instanceof File) {
       formData.append('photo', values.photo);
     }
+
+    // Debug log untuk melihat isi FormData
+    console.log('=== FormData Contents ===');
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}: ${pair[1]} (${typeof pair[1]})`);
+    }
+    console.log('========================');
+
+    // Alternatif: Coba kirim sebagai JSON jika FormData tetap gagal
+    // Tapi untuk sekarang, tetap gunakan FormData dengan configurasi yang benar
 
     try {
       if (isEditMode && id) {
@@ -244,9 +254,20 @@ const GuruFormPage: React.FC = () => {
         toast.showSuccess('Guru baru berhasil ditambahkan!');
       }
       navigate('/dashboard/manajemen-kurikulum/guru');
-    } catch (error) {
-      toast.showError('Gagal menyimpan data guru.');
-      console.error(error);
+    } catch (error: any) {
+      console.error('Error saving teacher:', error);
+      
+      // Tampilkan pesan error yang lebih detail
+      if (error.data?.errors) {
+        const errorMessages = Object.entries(error.data.errors)
+          .map(([field, messages]: [string, any]) => `${field}: ${messages.join(', ')}`)
+          .join('\n');
+        toast.showError(`Validasi gagal:\n${errorMessages}`);
+      } else if (error.data?.message) {
+        toast.showError(error.data.message);
+      } else {
+        toast.showError('Gagal menyimpan data guru.');
+      }
     }
   };
 

@@ -21,18 +21,32 @@ const baseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState, endpoint }) => {
     // Ambil token dari state auth
     const token = (getState() as RootState).auth.token;
-    console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada'); // Tambahkan baris ini
+    console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada');
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
-    // Tambahkan header Accept dan Content-Type
-    headers.set('Accept', 'application/json');
     
-    // Jangan set Content-Type untuk endpoint yang menggunakan FormData
-    const formDataEndpoints = ['registerSantri', 'importEmployee', 'createBerita', 'updateBerita', 'updateControlPanelSettings'];
+    // Daftar endpoint yang menggunakan FormData
+    const formDataEndpoints = [
+      'registerSantri', 
+      'importEmployee', 
+      'createBerita', 
+      'updateBerita', 
+      'updateControlPanelSettings',
+      'addTeacher',
+      'updateTeacher'
+    ];
+    
     if (!formDataEndpoints.includes(endpoint)) {
+      // Untuk JSON endpoints
+      headers.set('Accept', 'application/json');
       headers.set('Content-Type', 'application/json');
+    } else {
+      // Untuk FormData endpoints - hanya set Accept, biarkan browser atur Content-Type
+      headers.set('Accept', 'application/json');
+      // JANGAN SET Content-Type - browser akan atur multipart/form-data dengan boundary
     }
+    
     return headers;
   },
 });
