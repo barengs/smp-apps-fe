@@ -126,6 +126,7 @@ const GuruFormPage: React.FC = () => {
 
             form.setValue('gender', genderValue, { shouldValidate: true });
             form.setValue('birth_date', birthDateValue, { shouldValidate: true });
+            form.setValue('birth_place', data.city, { shouldValidate: true });
             form.setValue('province_code', data.province_code, { shouldValidate: true });
             form.setValue('city_code', data.city_code, { shouldValidate: true });
             form.setValue('district_code', data.district_code, { shouldValidate: true });
