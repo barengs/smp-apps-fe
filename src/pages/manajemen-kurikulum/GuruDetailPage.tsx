@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,13 +26,30 @@ const GuruDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // Validasi ID di useEffect untuk menghindari setState dalam render
+  useEffect(() => {
+    if (!id) {
+      toast.showError('ID guru tidak valid.');
+      navigate('/dashboard/manajemen-kurikulum/guru');
+    }
+  }, [id, navigate]);
+
+  const { data: teacherResponse, error, isLoading } = useGetTeacherByIdQuery(id || '', {
+    skip: !id, // Skip query jika ID tidak valid
+  });
+
+  // Handle error dan redirect di useEffect
+  useEffect(() => {
+    if (error || (!isLoading && !teacherResponse?.data)) {
+      toast.showError('Gagal memuat detail guru atau guru tidak ditemukan.');
+      navigate('/dashboard/manajemen-kurikulum/guru');
+    }
+  }, [error, isLoading, teacherResponse, navigate]);
+
+  // Jangan render apa-apa jika ID tidak valid
   if (!id) {
-    toast.showError('ID guru tidak valid.');
-    navigate('/dashboard/manajemen-kurikulum/guru');
     return null;
   }
-
-  const { data: teacherResponse, error, isLoading } = useGetTeacherByIdQuery(id);
 
   const teacher = teacherResponse?.data;
   const staff = teacher?.staff;
@@ -80,9 +97,8 @@ const GuruDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !teacher || !staff) {
-    toast.showError('Gagal memuat detail guru atau guru tidak ditemukan.');
-    navigate('/dashboard/manajemen-kurikulum/guru');
+  // Jangan render konten jika tidak ada data
+  if (!teacher || !staff) {
     return null;
   }
 
