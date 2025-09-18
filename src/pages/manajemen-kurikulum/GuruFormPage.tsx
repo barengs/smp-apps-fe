@@ -83,7 +83,7 @@ const GuruFormPage: React.FC = () => {
       status: 'Aktif',
       gender: 'male',
       first_name: '',
-      last_name: '',
+      last_name: '', // Ini akan diperbarui oleh form.reset jika edit mode
       nik: '',
       nip: '',
       phone_number: '',
