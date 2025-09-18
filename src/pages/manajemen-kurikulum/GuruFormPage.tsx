@@ -200,9 +200,14 @@ const GuruFormPage: React.FC = () => {
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
 
+    // Mencari nama role berdasarkan role_id yang dipilih
+    const selectedRole = roles.data.find(r => r.id === values.role_id);
+    const roleName = selectedRole ? selectedRole.name : '';
+
     // Mapping form values to the expected backend fields
     formData.append('name', values.email); // Use email as username
     formData.append('first_name', values.first_name);
+    formData.append('last_name', values.last_name);
     formData.append('email', values.email);
     formData.append('gender', values.gender === 'male' ? 'Pria' : 'Wanita');
     formData.append('phone', values.phone_number);
@@ -211,10 +216,9 @@ const GuruFormPage: React.FC = () => {
     formData.append('status', values.status);
     formData.append('village_id', values.village_code);
     formData.append('job_id', String(values.job_id));
-    formData.append('role_id', String(values.role_id)); // Tetap mengirim role_id karena penting untuk guru
+    formData.append('role', roleName); // Mengirim nama role, bukan ID
 
     // Append optional fields only if they have a value
-    if (values.last_name) formData.append('last_name', values.last_name);
     if (values.nip) formData.append('nip', values.nip);
     if (values.nik) formData.append('nik', values.nik);
     if (values.birth_date) formData.append('birth_date', format(values.birth_date, 'yyyy-MM-dd'));
