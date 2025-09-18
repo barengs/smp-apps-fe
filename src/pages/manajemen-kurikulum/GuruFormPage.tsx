@@ -260,7 +260,19 @@ const GuruFormPage: React.FC = () => {
     const selectedRole = roles.data.find(r => r.id === values.role_id);
     const roleName = selectedRole ? selectedRole.name : '';
 
-    // Append semua field dengan benar
+    // Debug: Cek semua values dari form
+    console.log('=== Form Values ===');
+    console.log('password:', values.password);
+    console.log('password_confirmation:', values.password_confirmation);
+    console.log('==================');
+
+    // Validasi data wajib
+    if (!values.email || !values.first_name || !values.last_name || !values.status || !roleName) {
+      toast.showError('Data wajib tidak lengkap');
+      return;
+    }
+
+    // Append semua field dengan benar - semua sebagai string untuk Laravel
     formData.append('name', values.email.trim());
     formData.append('first_name', values.first_name.trim());
     formData.append('last_name', values.last_name.trim());
@@ -274,9 +286,15 @@ const GuruFormPage: React.FC = () => {
     formData.append('job_id', String(values.job_id));
     formData.append('role', roleName);
 
+    // PASTIKAN password_confirmation selalu dikirim sebagai string
+    formData.append('password_confirmation', String(values.password_confirmation || ''));
+
     // Password - wajib untuk mode tambah
     if (values.password) {
-      formData.append('password', values.password);
+      formData.append('password', String(values.password));
+    } else if (!isEditMode) {
+      toast.showError('Password wajib diisi untuk guru baru');
+      return;
     }
 
     // Optional fields
@@ -297,9 +315,6 @@ const GuruFormPage: React.FC = () => {
       console.log(`${pair[0]}: ${pair[1]} (${typeof pair[1]})`);
     }
     console.log('========================');
-
-    // Alternatif: Coba kirim sebagai JSON jika FormData tetap gagal
-    // Tapi untuk sekarang, tetap gunakan FormData dengan configurasi yang benar
 
     try {
       if (isEditMode && id) {
