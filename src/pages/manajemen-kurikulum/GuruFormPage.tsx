@@ -114,6 +114,62 @@ const GuruFormPage: React.FC = () => {
   const districtCode = form.watch('district_code');
   const nikValue = form.watch('nik');
 
+  // Schema validasi yang berbeda untuk mode tambah dan edit
+  const getFormSchema = () => {
+    const baseSchema = z.object({
+      first_name: z.string().min(1, 'Nama depan wajib diisi'),
+      last_name: z.string().min(1, 'Nama belakang wajib diisi'),
+      nik: z.string().length(16, 'NIK harus 16 digit').optional().or(z.literal('')),
+      nip: z.string().optional(),
+      gender: z.enum(['male', 'female'], { required_error: 'Jenis kelamin wajib dipilih' }),
+      phone_number: z.string().min(10, 'Nomor telepon minimal 10 digit'),
+      email: z.string().email('Email tidak valid'),
+      birth_place: z.string().min(1, 'Tempat lahir wajib diisi'),
+      birth_date: z.date({ required_error: 'Tanggal lahir wajib diisi' }),
+      address: z.string().min(1, 'Alamat wajib diisi'),
+      province_code: z.string().min(1, 'Provinsi wajib dipilih'),
+      city_code: z.string().min(1, 'Kota/Kabupaten wajib dipilih'),
+      district_code: z.string().min(1, 'Kecamatan wajib dipilih'),
+      village_code: z.string().min(1, 'Desa/Kelurahan wajib dipilih'),
+      religion: z.string().optional(),
+      marital_status: z.string().min(1, 'Status pernikahan wajib dipilih'),
+      job_id: z.number({ required_error: 'Pekerjaan wajib dipilih' }),
+      role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
+      status: z.enum(['Aktif', 'Tidak Aktif', 'Cuti'], { required_error: 'Status kepegawaian wajib dipilih' }),
+      photo: z.any().optional(),
+    });
+
+    if (isEditMode) {
+      // Mode edit: password opsional
+      return baseSchema.extend({
+        password: z.string().min(8, 'Password minimal 8 karakter').optional().or(z.literal('')),
+        password_confirmation: z.string().optional(),
+      }).refine(data => {
+        if (data.password && data.password !== data.password_confirmation) {
+          return false;
+        }
+        return true;
+      }, {
+        message: 'Konfirmasi password tidak cocok',
+        path: ['password_confirmation'],
+      });
+    } else {
+      // Mode tambah: password wajib
+      return baseSchema.extend({
+        password: z.string().min(8, 'Password minimal 8 karakter'),
+        password_confirmation: z.string(),
+      }).refine(data => {
+        if (data.password !== data.password_confirmation) {
+          return false;
+        }
+        return true;
+      }, {
+        message: 'Konfirmasi password tidak cocok',
+        path: ['password_confirmation'],
+      });
+    }
+  };
+
   useEffect(() => {
     const handleNikCheck = async () => {
       if (nikValue && nikValue.length === 16) {
