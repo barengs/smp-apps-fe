@@ -12,11 +12,11 @@ export const teacherApi = smpApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Teacher', id }],
     }),
     addTeacher: builder.mutation<SingleTeacherApiResponse, FormData>({
-      query: (newTeacher) => ({
+      query: (formData) => ({
         url: 'main/staff',
         method: 'POST',
-        body: newTeacher,
-        formData: true,
+        body: formData,
+        // FormData akan otomatis diatur dengan content-type yang benar
       }),
       invalidatesTags: ['Teacher'],
     }),
@@ -25,9 +25,9 @@ export const teacherApi = smpApi.injectEndpoints({
         data.append('_method', 'PUT');
         return {
           url: `main/staff/${id}`,
-          method: 'POST', // Menggunakan POST untuk mengirim FormData pada update
+          method: 'POST',
           body: data,
-          formData: true,
+          // FormData akan otomatis diatur dengan content-type yang benar
         };
       },
       invalidatesTags: (result, error, { id }) => [{ type: 'Teacher', id }, 'Teacher'],
