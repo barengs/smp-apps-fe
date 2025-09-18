@@ -6,14 +6,16 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DatePicker } from '@/components/ui/datepicker';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import { dataURLtoFile } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 
 interface GuruProfileStepProps {
   form: UseFormReturn<any>;
   photoPreview: string | null;
   setPhotoPreview: (url: string | null) => void;
+  isCheckingNik: boolean;
 }
 
-const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, setPhotoPreview }) => {
+const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, setPhotoPreview, isCheckingNik }) => {
   const handleCapture = (imageSrc: string) => {
     const capturedFile = dataURLtoFile(imageSrc, `webcam-photo-${Date.now()}.jpg`);
     form.setValue('photo', capturedFile, { shouldValidate: true });
@@ -55,7 +57,26 @@ const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, s
       <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField name="first_name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nama Depan</FormLabel><FormControl><Input placeholder="Nama Depan" {...field} /></FormControl><FormMessage /></FormItem>)} />
         <FormField name="last_name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nama Belakang</FormLabel><FormControl><Input placeholder="Nama Belakang" {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <FormField name="nik" control={form.control} render={({ field }) => (<FormItem><FormLabel>NIK</FormLabel><FormControl><Input placeholder="16 digit NIK" {...field} /></FormControl><FormMessage /></FormItem>)} />
+        <FormField
+          name="nik"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>NIK</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input placeholder="16 digit NIK" {...field} />
+                  {isCheckingNik && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField name="nip" control={form.control} render={({ field }) => (<FormItem><FormLabel>NIP</FormLabel><FormControl><Input placeholder="NIP (jika ada)" {...field} /></FormControl><FormMessage /></FormItem>)} />
         <FormField name="gender" control={form.control} render={({ field }) => (<FormItem><FormLabel>Jenis Kelamin</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Laki-laki</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Perempuan</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
         <FormField name="phone_number" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nomor Telepon</FormLabel><FormControl><Input placeholder="08..." {...field} /></FormControl><FormMessage /></FormItem>)} />

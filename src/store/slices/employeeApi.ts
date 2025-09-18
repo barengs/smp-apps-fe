@@ -82,6 +82,23 @@ interface GetEmployeeByIdResponse {
   data: StaffDetailData;
 }
 
+// Add NIK Check response interface
+interface NikCheckData {
+  nik: string;
+  province: string;
+  city: string;
+  district: string;
+  birth_date: string; // "YYYY-MM-DD"
+  gender: 'Laki-laki' | 'Perempuan';
+  province_code: string;
+  city_code: string;
+  district_code: string;
+}
+
+interface NikCheckResponse {
+  data: NikCheckData;
+}
+
 export interface CreateUpdateEmployeeRequest {
   first_name: string;
   last_name: string;
@@ -138,6 +155,13 @@ export const employeeApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Employee'],
     }),
+    checkNik: builder.query<NikCheckResponse, { nik: string }>({
+      query: (body) => ({
+        url: 'main/staff/check-nik',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -148,4 +172,5 @@ export const {
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
   useImportEmployeeMutation,
+  useLazyCheckNikQuery,
 } = employeeApi;

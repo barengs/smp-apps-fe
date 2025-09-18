@@ -21,6 +21,7 @@ import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
+import { useLazyCheckNikQuery } from '@/store/slices/employeeApi';
 
 import GuruProfileStep from './form-steps/GuruProfileStep';
 import GuruAddressStep from './form-steps/GuruAddressStep';
@@ -74,6 +75,7 @@ const GuruFormPage: React.FC = () => {
   const { data: teacherData, isLoading: isLoadingTeacher } = useGetTeacherByIdQuery(id!, { skip: !isEditMode });
   const [addTeacher, { isLoading: isAdding }] = useAddTeacherMutation();
   const [updateTeacher, { isLoading: isUpdating }] = useUpdateTeacherMutation();
+  const [triggerCheckNik, { isFetching: isCheckingNik }] = useLazyCheckNikQuery();
 
   const form = useForm<GuruFormValues>({
     resolver: zodResolver(formSchema),
@@ -110,6 +112,39 @@ const GuruFormPage: React.FC = () => {
   const provinceCode = form.watch('province_code');
   const cityCode = form.watch('city_code');
   const districtCode = form.watch('district_code');
+  const nikValue = form.watch('nik');
+
+  useEffect(() => {
+    const handleNikCheck = async () => {
+      if (nikValue && nikValue.length === 16) {
+        try {
+          const result = await triggerCheckNik({ nik: nikValue }).unwrap();
+          if (result && result.data) {
+            const { data } = result;
+            const genderValue = data.gender === 'Laki-laki' ? 'male' : 'female';
+            const birthDateValue = new Date(data.birth_date);
+
+            form.setValue('gender', genderValue, { shouldValidate: true });
+            form.setValue('birth_date', birthDateValue, { shouldValidate: true });
+            form.setValue('province_code', data.province_code, { shouldValidate: true });
+            form.setValue('city_code', data.city_code, { shouldValidate: true });
+            form.setValue('district_code', data.district_code, { shouldValidate: true });
+
+            toast.showSuccess('Data NIK ditemukan dan berhasil diisikan.');
+          }
+        } catch (error) {
+          toast.showError('Data NIK tidak ditemukan atau terjadi kesalahan.');
+          console.error('NIK check failed:', error);
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      handleNikCheck();
+    }, 500); // Debounce to avoid rapid firing
+
+    return () => clearTimeout(timer);
+  }, [nikValue, triggerCheckNik, form]);
 
   useEffect(() => {
     if (districtCode) {
@@ -197,7 +232,7 @@ const GuruFormPage: React.FC = () => {
     { label: isEditMode ? 'Edit Guru' : 'Tambah Guru', icon: <User className="h-4 w-4" /> },
   ];
 
-  const isLoading = isAdding || isUpdating || isLoadingTeacher;
+  const isLoading = isAdding || isUpdating || isLoadingTeacher || isCheckingNik;
 
   const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
   const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
@@ -215,7 +250,7 @@ const GuruFormPage: React.FC = () => {
   ];
 
   const steps = [
-    { name: 'Profil Guru', component: <GuruProfileStep form={form} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} /> },
+    { name: 'Profil Guru', component: <GuruProfileStep form={form} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} isCheckingNik={isCheckingNik} /> },
     { name: 'Alamat', component: <GuruAddressStep form={form} provinces={provinces.map(p => ({ value: p.code, label: p.name }))} cities={filteredCities.map(c => ({ value: c.code, label: c.name }))} districts={filteredDistricts.map(d => ({ value: d.code, label: d.name }))} villages={filteredVillages.map(v => ({ value: v.code, label: v.name }))} isCityDisabled={!provinceCode} isDistrictDisabled={!cityCode} isVillageDisabled={!districtCode} /> },
     { name: 'Kepegawaian & Akun', component: <GuruEmploymentStep form={form} jobs={jobs.map(j => ({ value: j.id, label: j.name }))} roles={roles.data.map(r => ({ value: r.id, label: r.name }))} isEditMode={isEditMode} showPassword={showPassword} setShowPassword={setShowPassword} showConfirmPassword={showConfirmPassword} setShowConfirmPassword={setShowConfirmPassword} /> },
   ];
