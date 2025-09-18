@@ -13,7 +13,7 @@ export const teacherApi = smpApi.injectEndpoints({
     }),
     addTeacher: builder.mutation<SingleTeacherApiResponse, FormData>({
       query: (newTeacher) => ({
-        url: 'teachers',
+        url: 'main/staff',
         method: 'POST',
         body: newTeacher,
         formData: true,
@@ -24,7 +24,7 @@ export const teacherApi = smpApi.injectEndpoints({
       query: ({ id, data }) => {
         data.append('_method', 'PUT');
         return {
-          url: `teachers/${id}`,
+          url: `main/staff/${id}`,
           method: 'POST', // Menggunakan POST untuk mengirim FormData pada update
           body: data,
           formData: true,

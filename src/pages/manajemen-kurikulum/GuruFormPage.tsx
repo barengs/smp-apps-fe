@@ -199,17 +199,37 @@ const GuruFormPage: React.FC = () => {
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        if (key === 'birth_date' && value instanceof Date) {
-          formData.append(key, format(value, 'yyyy-MM-dd'));
-        } else if (key === 'photo' && value instanceof File) {
-          formData.append(key, value);
-        } else if (key !== 'photo') {
-          formData.append(key, String(value));
-        }
-      }
-    });
+
+    // Mapping form values to the expected backend fields
+    formData.append('name', values.email); // Use email as username
+    formData.append('first_name', values.first_name);
+    formData.append('email', values.email);
+    formData.append('gender', values.gender === 'male' ? 'Pria' : 'Wanita');
+    formData.append('phone', values.phone_number);
+    formData.append('address', values.address);
+    formData.append('marital_status', values.marital_status);
+    formData.append('status', values.status);
+    formData.append('village_id', values.village_code);
+    formData.append('job_id', String(values.job_id));
+    formData.append('role_id', String(values.role_id)); // Tetap mengirim role_id karena penting untuk guru
+
+    // Append optional fields only if they have a value
+    if (values.last_name) formData.append('last_name', values.last_name);
+    if (values.nip) formData.append('nip', values.nip);
+    if (values.nik) formData.append('nik', values.nik);
+    if (values.birth_date) formData.append('birth_date', format(values.birth_date, 'yyyy-MM-dd'));
+    if (values.birth_place) formData.append('birth_place', values.birth_place);
+    if (values.religion) formData.append('religion', values.religion);
+
+    // Append password only if it's being set (not in edit mode or if provided)
+    if (values.password) {
+      formData.append('password', values.password);
+    }
+
+    // Append photo if it's a file
+    if (values.photo instanceof File) {
+      formData.append('photo', values.photo);
+    }
 
     try {
       if (isEditMode && id) {
