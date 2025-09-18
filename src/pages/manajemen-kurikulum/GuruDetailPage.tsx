@@ -26,6 +26,13 @@ const GuruDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // Debug log untuk melihat ID
+  useEffect(() => {
+    console.log('=== Guru Detail Page ===');
+    console.log('ID from params:', id);
+    console.log('========================');
+  }, [id]);
+
   // Validasi ID di useEffect untuk menghindari setState dalam render
   useEffect(() => {
     if (!id) {
@@ -38,13 +45,23 @@ const GuruDetailPage: React.FC = () => {
     skip: !id, // Skip query jika ID tidak valid
   });
 
+  // Debug log untuk melihat data
+  useEffect(() => {
+    console.log('=== Teacher Data ===');
+    console.log('teacherResponse:', teacherResponse);
+    console.log('error:', error);
+    console.log('isLoading:', isLoading);
+    console.log('====================');
+  }, [teacherResponse, error, isLoading]);
+
   // Handle error dan redirect di useEffect
   useEffect(() => {
-    if (error || (!isLoading && !teacherResponse?.data)) {
+    if (error) {
+      console.error('Error loading teacher:', error);
       toast.showError('Gagal memuat detail guru atau guru tidak ditemukan.');
       navigate('/dashboard/manajemen-kurikulum/guru');
     }
-  }, [error, isLoading, teacherResponse, navigate]);
+  }, [error, navigate]);
 
   // Jangan render apa-apa jika ID tidak valid
   if (!id) {
@@ -97,9 +114,26 @@ const GuruDetailPage: React.FC = () => {
     );
   }
 
-  // Jangan render konten jika tidak ada data
+  // Tampilkan pesan jika tidak ada data
   if (!teacher || !staff) {
-    return null;
+    return (
+      <DashboardLayout title="Detail Guru" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
+          <Card>
+            <CardContent className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Data guru tidak ditemukan</p>
+                <Button variant="outline" onClick={() => navigate(-1)} className="mt-4">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   const roles = teacher.roles;

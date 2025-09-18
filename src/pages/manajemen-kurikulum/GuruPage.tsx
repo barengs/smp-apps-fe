@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { User, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { User, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
@@ -109,6 +109,14 @@ const GuruPage: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}`);
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" /> Detail
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
