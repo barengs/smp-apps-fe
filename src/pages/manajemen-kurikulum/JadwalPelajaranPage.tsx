@@ -20,7 +20,29 @@ const JadwalPelajaranPage: React.FC = () => {
     { label: t('sidebar.lessonSchedule'), icon: <CalendarClock className="h-4 w-4" /> },
   ];
 
-  const columns: ColumnDef<ClassScheduleData>[] = [
+  // Flatten the nested structure for the table
+  const flattenScheduleData = (schedules: ClassScheduleData[]) => {
+    const flattened: any[] = [];
+    schedules.forEach(schedule => {
+      schedule.details.forEach(detail => {
+        flattened.push({
+          id: detail.id,
+          education: schedule.education,
+          classroom: detail.classroom,
+          class_group: detail.class_group,
+          day: detail.day,
+          study: detail.study,
+          teacher: detail.teacher,
+          lesson_hour: detail.lesson_hour,
+          session: schedule.session,
+          status: schedule.status,
+        });
+      });
+    });
+    return flattened;
+  };
+
+  const columns: ColumnDef<any>[] = [
     {
       accessorKey: 'education.name',
       header: t('lessonSchedulePage.educationLevel'),
@@ -51,7 +73,7 @@ const JadwalPelajaranPage: React.FC = () => {
       header: t('lessonSchedulePage.teacher'),
       cell: ({ row }) => {
         const teacher = row.original.teacher;
-        const teacherName = teacher.staff ? `${teacher.staff.first_name} ${teacher.staff.last_name}`.trim() : 'Unknown';
+        const teacherName = `${teacher.first_name} ${teacher.last_name}`.trim();
         return <div className="capitalize">{teacherName}</div>;
       },
     },
@@ -69,7 +91,7 @@ const JadwalPelajaranPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const data = schedulesResponse?.data ?? [];
+  const data = schedulesResponse?.data ? flattenScheduleData(schedulesResponse.data) : [];
 
   return (
     <DashboardLayout title={t('sidebar.lessonSchedule')} role="administrasi">
