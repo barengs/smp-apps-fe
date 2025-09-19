@@ -173,16 +173,10 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 </TableHeader>
                 <TableBody>
                   {details.map((detail, index) => {
-                    // Debug: Log the data to check the structure
-                    console.log('ClassGroupsData:', classGroupsData);
-                    console.log('Current classroomId:', detail.classroomId);
-                    
-                    // Filter class groups based on classroom_id
+                    // Filter class groups based on classroom_id (number) vs classroomId (string)
                     const filteredClassGroups = classGroupsData?.data?.filter(
                       cg => cg.classroom_id === parseInt(detail.classroomId)
                     ) || [];
-
-                    console.log('Filtered class groups:', filteredClassGroups);
 
                     return (
                       <TableRow key={index}>
@@ -232,7 +226,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                                   <SelectItem key={group.id} value={String(group.id)}>{group.name}</SelectItem>
                                 ))
                               ) : (
-                                <SelectItem value="" disabled>
+                                <SelectItem value="placeholder" disabled>
                                   {detail.classroomId ? 'Tidak ada rombel untuk kelas ini' : 'Pilih kelas terlebih dahulu'}
                                 </SelectItem>
                               )}
