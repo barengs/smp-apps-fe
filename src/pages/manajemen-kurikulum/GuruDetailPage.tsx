@@ -41,18 +41,18 @@ const GuruDetailPage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  const { data: teacherResponse, error, isLoading } = useGetTeacherByIdQuery(id || '', {
+  const { data: apiResponse, error, isLoading } = useGetTeacherByIdQuery(id || '', {
     skip: !id, // Skip query jika ID tidak valid
   });
 
   // Debug log untuk melihat data
   useEffect(() => {
     console.log('=== Teacher Data ===');
-    console.log('teacherResponse:', teacherResponse);
+    console.log('apiResponse:', apiResponse);
     console.log('error:', error);
     console.log('isLoading:', isLoading);
     console.log('====================');
-  }, [teacherResponse, error, isLoading]);
+  }, [apiResponse, error, isLoading]);
 
   // Handle error dan redirect di useEffect
   useEffect(() => {
@@ -68,9 +68,10 @@ const GuruDetailPage: React.FC = () => {
     return null;
   }
 
-  // Struktur data yang benar: teacherResponse.data adalah objek guru langsung
-  const teacher = teacherResponse?.data;
-  const fullName = teacher ? `${teacher.first_name || ''} ${teacher.last_name || ''}`.trim() : 'Detail Guru';
+  // Struktur data yang benar: apiResponse.data adalah objek guru langsung
+  const teacher = apiResponse?.data;
+  const staff = teacher?.staff;
+  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Detail Guru';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -115,7 +116,7 @@ const GuruDetailPage: React.FC = () => {
   }
 
   // Tampilkan pesan jika tidak ada data
-  if (!teacher) {
+  if (!teacher || !staff) {
     return (
       <DashboardLayout title="Detail Guru" role="administrasi">
         <div className="container mx-auto py-4 px-4">
@@ -137,10 +138,10 @@ const GuruDetailPage: React.FC = () => {
   }
 
   // Data roles dari user.roles (jika ada)
-  const roles = teacher.user?.roles || [];
+  const roles = teacher.roles || [];
   
   // Data wilayah masih null karena village_id null, tapi kita siapkan untuk data yang ada
-  const fullAddress = teacher.address || 'Alamat tidak tersedia';
+  const fullAddress = staff.address || 'Alamat tidak tersedia';
 
   return (
     <DashboardLayout title="Detail Guru" role="administrasi">
@@ -166,41 +167,41 @@ const GuruDetailPage: React.FC = () => {
           <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               <div className="aspect-square w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                {teacher.photo ? (
-                  <img src={teacher.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+                {staff.photo ? (
+                  <img src={staff.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
                 ) : (
                   <User className="h-24 w-24 text-muted-foreground" />
                 )}
               </div>
               <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
               <p className="text-sm text-muted-foreground">{teacher.email || '-'}</p>
-              <Badge variant={teacher.status === 'Aktif' ? 'success' : 'destructive'} className="mt-2">{teacher.status}</Badge>
+              <Badge variant={staff.status === 'Aktif' ? 'success' : 'destructive'} className="mt-2">{staff.status}</Badge>
             </div>
             <div className="lg:col-span-2">
               <DetailRow label="Email" value={teacher.email} icon={<Mail className="h-4 w-4" />} />
-              <DetailRow label="Telepon" value={teacher.phone} icon={<Phone className="h-4 w-4" />} />
+              <DetailRow label="Telepon" value={staff.phone} icon={<Phone className="h-4 w-4" />} />
               <DetailRow label="Tempat, Tanggal Lahir" value={
                 (() => {
                   let birthDateDisplay = '-';
-                  if (teacher.birth_date) {
-                    const dateObj = new Date(teacher.birth_date);
+                  if (staff.birth_date) {
+                    const dateObj = new Date(staff.birth_date);
                     if (!isNaN(dateObj.getTime())) { // Memeriksa apakah tanggal valid
                       const formattedDate = format(dateObj, 'd MMMM yyyy', { locale: idLocale });
-                      birthDateDisplay = `${teacher.birth_place || '-'} ${formattedDate}`;
+                      birthDateDisplay = `${staff.birth_place || '-'} ${formattedDate}`;
                     } else {
-                      birthDateDisplay = `${teacher.birth_place || '-'} Tanggal tidak valid`;
+                      birthDateDisplay = `${staff.birth_place || '-'} Tanggal tidak valid`;
                     }
-                  } else if (teacher.birth_place) {
-                    birthDateDisplay = `${teacher.birth_place} Tanggal tidak tersedia`;
+                  } else if (staff.birth_place) {
+                    birthDateDisplay = `${staff.birth_place} Tanggal tidak tersedia`;
                   }
                   return birthDateDisplay;
                 })()
               } icon={<Calendar className="h-4 w-4" />} />
               <DetailRow label="Alamat Lengkap" value={fullAddress} icon={<MapPin className="h-4 w-4" />} />
-              <DetailRow label="NIK" value={teacher.nik} icon={<User className="h-4 w-4" />} />
-              <DetailRow label="NIP" value={teacher.nip} icon={<User className="h-4 w-4" />} />
-              <DetailRow label="Jenis Kelamin" value={teacher.gender} icon={<User className="h-4 w-4" />} />
-              <DetailRow label="Status Pernikahan" value={teacher.marital_status} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="NIK" value={staff.nik} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="NIP" value={staff.nip} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="Jenis Kelamin" value={staff.gender} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="Status Pernikahan" value={staff.marital_status} icon={<User className="h-4 w-4" />} />
               <DetailRow label="Peran" value={
                 roles && roles.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
