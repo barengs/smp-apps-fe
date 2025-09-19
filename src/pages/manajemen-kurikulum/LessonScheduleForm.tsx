@@ -112,11 +112,11 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         </DialogHeader>
         <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
           <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
               <div>
                 <Label htmlFor="academicYear">{t('sidebar.academicYear')}</Label>
                 <Select value={activeAcademicYear?.id ? String(activeAcademicYear.id) : ''} disabled>
-                  <SelectTrigger id="academicYear">
+                  <SelectTrigger id="academicYear" className="w-full">
                     <SelectValue placeholder={formatAcademicYearDisplay(activeAcademicYear)} />
                   </SelectTrigger>
                   <SelectContent>
@@ -131,7 +131,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               <div>
                 <Label htmlFor="educationLevel">{t('lessonScheduleForm.educationLevel')}</Label>
                 <Select value={educationLevelId} onValueChange={setEducationLevelId}>
-                  <SelectTrigger id="educationLevel">
+                  <SelectTrigger id="educationLevel" className="w-full">
                     <SelectValue placeholder={t('lessonScheduleForm.selectEducationLevel')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -144,7 +144,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               <div>
                 <Label htmlFor="session">{t('lessonScheduleForm.session')}</Label>
                 <Select value={session} onValueChange={setSession}>
-                  <SelectTrigger id="session">
+                  <SelectTrigger id="session" className="w-full">
                     <SelectValue placeholder={t('lessonScheduleForm.selectSession')} />
                   </SelectTrigger>
                   <SelectContent>
