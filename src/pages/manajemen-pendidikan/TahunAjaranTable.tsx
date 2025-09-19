@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 interface TahunAjaran {
   id: number;
   year: string;
-  active: boolean;
+  active: boolean | number | string;
   description: string | null;
 }
 
@@ -56,6 +56,13 @@ const TahunAjaranTable: React.FC = () => {
     setEditingTahunAjaran(undefined);
   };
 
+  const getStatusValue = (active: boolean | number | string): boolean => {
+    if (typeof active === 'boolean') return active;
+    if (typeof active === 'number') return active === 1;
+    if (typeof active === 'string') return active === '1';
+    return false;
+  };
+
   const columns: ColumnDef<TahunAjaran>[] = useMemo(
     () => [
       {
@@ -66,7 +73,7 @@ const TahunAjaranTable: React.FC = () => {
         accessorKey: 'active',
         header: 'Status',
         cell: ({ row }) => {
-          const isActive = row.original.active;
+          const isActive = getStatusValue(row.original.active);
           return (
             <Badge variant={isActive ? 'default' : 'destructive'}>
               {isActive ? 'Aktif' : 'Tidak Aktif'}
