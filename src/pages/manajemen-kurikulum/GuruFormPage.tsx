@@ -224,6 +224,16 @@ const GuruFormPage: React.FC = () => {
       // Convert gender from API ('Pria'/'Wanita') to form value ('male'/'female')
       const genderValue = teacher.gender === 'Pria' ? 'male' : 'female';
 
+      // Handle birth_date safely
+      let birthDateValue: Date | undefined = undefined;
+      if (teacher.birth_date) {
+        const parsedDate = new Date(teacher.birth_date);
+        // Check if the date is valid
+        if (!isNaN(parsedDate.getTime())) {
+          birthDateValue = parsedDate;
+        }
+      }
+
       form.reset({
         first_name: teacher.first_name, // Langsung dari teacher
         last_name: teacher.last_name || '', // Langsung dari teacher
@@ -233,7 +243,7 @@ const GuruFormPage: React.FC = () => {
         phone_number: teacher.phone || '', // Langsung dari teacher (phone, bukan phone_number)
         email: teacher.email, // Langsung dari teacher
         birth_place: teacher.birth_place, // Langsung dari teacher
-        birth_date: new Date(teacher.birth_date), // Langsung dari teacher
+        birth_date: birthDateValue, // Use the safely parsed date
         address: teacher.address || '', // Langsung dari teacher
         province_code: province?.code,
         city_code: city?.code,
