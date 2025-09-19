@@ -213,7 +213,7 @@ const GuruFormPage: React.FC = () => {
   }, [districtCode, triggerGetVillagesByDistrict]);
 
   useEffect(() => {
-    if (isEditMode && teacherData) {
+    if (isEditMode && teacherData && jobs.length > 0 && provinces.length > 0) {
       const teacher = teacherData.data; // Ini adalah objek Staff langsung
       // Tidak perlu akses melalui staff karena teacher sudah adalah Staff
       const village = teacher.village; // Mengakses village langsung dari teacher
@@ -234,6 +234,7 @@ const GuruFormPage: React.FC = () => {
         }
       }
 
+      // Reset form with teacher data
       form.reset({
         first_name: teacher.first_name, // Langsung dari teacher
         last_name: teacher.last_name || '', // Langsung dari teacher
@@ -263,7 +264,7 @@ const GuruFormPage: React.FC = () => {
         triggerGetVillagesByDistrict(district.code);
       }
     }
-  }, [isEditMode, teacherData, form, triggerGetVillagesByDistrict]);
+  }, [isEditMode, teacherData, form, triggerGetVillagesByDistrict, jobs.length, provinces.length]);
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
