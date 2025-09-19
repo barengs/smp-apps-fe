@@ -7,6 +7,11 @@ interface GetAcademicYearsApiResponse {
   data: AcademicYear[];
 }
 
+interface GetActiveAcademicYearApiResponse {
+  message: string;
+  data: AcademicYear;
+}
+
 export interface CreateUpdateTahunAjaranRequest {
   year: string;
   semester: 'Ganjil' | 'Genap';
@@ -19,6 +24,11 @@ export const tahunAjaranApi = smpApi.injectEndpoints({
     getTahunAjaran: builder.query<AcademicYear[], void>({
       query: () => 'master/academic-year',
       transformResponse: (response: GetAcademicYearsApiResponse) => response.data, // Extract the data array
+      providesTags: ['TahunAjaran'],
+    }),
+    getActiveTahunAjaran: builder.query<AcademicYear, void>({
+      query: () => 'master/academic-year/active',
+      transformResponse: (response: GetActiveAcademicYearApiResponse) => response.data,
       providesTags: ['TahunAjaran'],
     }),
     createTahunAjaran: builder.mutation<AcademicYear, CreateUpdateTahunAjaranRequest>({
@@ -42,6 +52,7 @@ export const tahunAjaranApi = smpApi.injectEndpoints({
 
 export const { 
   useGetTahunAjaranQuery,
+  useGetActiveTahunAjaranQuery,
   useCreateTahunAjaranMutation,
   useUpdateTahunAjaranMutation,
 } = tahunAjaranApi;

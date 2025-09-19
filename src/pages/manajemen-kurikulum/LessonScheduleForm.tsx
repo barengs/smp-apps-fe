@@ -15,6 +15,7 @@ import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetStudiesQuery } from '@/store/slices/studyApi';
 import { useGetTeachersQuery } from '@/store/slices/teacherApi';
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
+import { useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 
 interface LessonScheduleDetail {
   day: string;
@@ -45,6 +46,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: studiesData } = useGetStudiesQuery();
   const { data: teachersData } = useGetTeachersQuery();
   const { data: lessonHoursData } = useGetLessonHoursQuery();
+  const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
 
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
@@ -76,6 +78,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     const formData = {
       educationLevelId,
       session,
+      academicYearId: activeAcademicYear?.id,
       details,
     };
     console.log('Form Submitted:', formData);
@@ -101,6 +104,21 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
           <div className="grid gap-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="academicYear">{t('sidebar.academicYear')}</Label>
+                <Select value={activeAcademicYear?.id ? String(activeAcademicYear.id) : ''} disabled>
+                  <SelectTrigger id="academicYear">
+                    <SelectValue placeholder={activeAcademicYear ? `${activeAcademicYear.year} (${activeAcademicYear.semester})` : 'Loading...'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeAcademicYear && (
+                      <SelectItem value={String(activeAcademicYear.id)}>
+                        {activeAcademicYear.year} ({activeAcademicYear.semester})
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <Label htmlFor="educationLevel">{t('lessonScheduleForm.educationLevel')}</Label>
                 <Select value={educationLevelId} onValueChange={setEducationLevelId}>
