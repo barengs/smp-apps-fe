@@ -17,7 +17,7 @@ import FormStepIndicator from '@/components/FormStepIndicator';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
-import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
+import { useGetVillagesByDistrictQuery } from '@/store/slices/villageApi';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
@@ -105,7 +105,6 @@ const GuruFormPage: React.FC = () => {
   const { data: provinces = [] } = useGetProvincesQuery();
   const { data: cities = [] } = useGetCitiesQuery();
   const { data: districts = [] } = useGetDistrictsQuery();
-  const [triggerGetVillagesByDistrict, { data: villagesByDistrict = [] }] = useLazyGetVillageByNikQuery();
   const { data: jobs = [] } = useGetPekerjaanQuery();
   const { data: roles = { data: [] } } = useGetRolesQuery();
 
@@ -113,6 +112,37 @@ const GuruFormPage: React.FC = () => {
   const cityCode = form.watch('city_code');
   const districtCode = form.watch('district_code');
   const nikValue = form.watch('nik');
+  const currentVillageCode = form.watch('village_code');
+  const currentJobId = form.watch('job_id');
+
+  const { data: villagesByDistrict = [], refetch: refetchVillages } = useGetVillagesByDistrictQuery(districtCode, {
+    skip: !districtCode, // Skip query if no districtCode
+  });
+
+  const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
+  const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
+  const filteredVillages = useMemo(() => {
+    if (!districtCode) {
+      return [];
+    }
+    return villagesByDistrict.map(v => ({ value: v.code, label: v.name }));
+  }, [villagesByDistrict, districtCode]);
+
+  const jobOptions = useMemo(() => jobs.map(j => ({ value: j.id, label: j.name })), [jobs]);
+  const roleOptions = useMemo(() => roles.data.map(r => ({ value: r.id, label: r.name })), [roles.data]);
+
+  // Debug log untuk melihat struktur data dan nilai saat ini
+  console.log('=== Debug Data ===');
+  console.log('Current village_code:', currentVillageCode, 'Type:', typeof currentVillageCode);
+  console.log('Current job_id:', currentJobId, 'Type:', typeof currentJobId);
+  console.log('villagesByDistrict:', villagesByDistrict);
+  console.log('jobs:', jobs);
+  if (teacherData?.data) {
+    console.log('teacher job_id:', teacherData.data.job_id, 'Type:', typeof teacherData.data.job_id);
+    console.log('teacher village_code:', teacherData.data.village?.code, 'Type:', typeof teacherData.data.village?.code);
+  }
+  console.log('village options:', filteredVillages.map(v => ({ value: v.value, label: v.label })));
+  console.log('job options:', jobOptions);
 
   // Schema validasi yang berbeda untuk mode tambah dan edit
   const getFormSchema = () => {
@@ -205,18 +235,14 @@ const GuruFormPage: React.FC = () => {
 
   useEffect(() => {
     if (districtCode) {
-      triggerGetVillagesByDistrict(districtCode);
-    } else {
-      // Jika districtCode kosong, pastikan daftar desa juga kosong
-      // villagesByDistrict akan otomatis kosong jika query tidak dipanggil
+      refetchVillages();
     }
-  }, [districtCode, triggerGetVillagesByDistrict]);
+  }, [districtCode, refetchVillages]);
 
   useEffect(() => {
-    if (isEditMode && teacherData && jobs.length > 0 && provinces.length > 0) {
-      const teacher = teacherData.data; // Ini adalah objek Staff langsung
-      // Tidak perlu akses melalui staff karena teacher sudah adalah Staff
-      const village = teacher.village; // Mengakses village langsung dari teacher
+    if (isEditMode && teacherData && jobs.length > 0 && provinces.length > 0 && cities.length > 0 && districts.length > 0) {
+      const teacher = teacherData.data;
+      const village = teacher.village;
       const district = village?.district;
       const city = district?.city;
       const province = city?.province;
@@ -228,43 +254,47 @@ const GuruFormPage: React.FC = () => {
       let birthDateValue: Date | undefined = undefined;
       if (teacher.birth_date) {
         const parsedDate = new Date(teacher.birth_date);
-        // Check if the date is valid
         if (!isNaN(parsedDate.getTime())) {
           birthDateValue = parsedDate;
         }
       }
 
-      // Reset form with teacher data
-      form.reset({
-        first_name: teacher.first_name, // Langsung dari teacher
-        last_name: teacher.last_name || '', // Langsung dari teacher
-        nik: teacher.nik || '', // Langsung dari teacher
-        nip: teacher.nip || '', // Langsung dari teacher
-        gender: genderValue, // Menggunakan nilai yang sudah dikonversi
-        phone_number: teacher.phone || '', // Langsung dari teacher (phone, bukan phone_number)
-        email: teacher.email, // Langsung dari teacher
-        birth_place: teacher.birth_place, // Langsung dari teacher
-        birth_date: birthDateValue, // Use the safely parsed date
-        address: teacher.address || '', // Langsung dari teacher
-        province_code: province?.code,
-        city_code: city?.code,
-        district_code: district?.code,
-        village_code: village?.code,
-        religion: teacher.religion, // Langsung dari teacher
-        marital_status: teacher.marital_status, // Langsung dari teacher
-        job_id: teacher.job_id, // Langsung dari teacher
-        role_id: teacher.user?.roles[0]?.id || 0, // Mengakses roles dari teacher.user
-        status: teacher.status, // Langsung dari teacher
-      });
-      if (teacher.photo) { // Langsung dari teacher
-        setPhotoPreview(teacher.photo); // Langsung dari teacher
-      }
-      // Panggil API desa untuk mengisi combobox saat edit mode
+      // Set values step by step to ensure proper loading
+      form.setValue('first_name', teacher.first_name);
+      form.setValue('last_name', teacher.last_name || '');
+      form.setValue('nik', teacher.nik || '');
+      form.setValue('nip', teacher.nip || '');
+      form.setValue('gender', genderValue);
+      form.setValue('phone_number', teacher.phone || '');
+      form.setValue('email', teacher.email);
+      form.setValue('birth_place', teacher.birth_place);
+      form.setValue('birth_date', birthDateValue);
+      form.setValue('address', teacher.address || '');
+      form.setValue('province_code', province?.code || '');
+      form.setValue('city_code', city?.code || '');
+      form.setValue('district_code', district?.code || '');
+      
+      // Load villages first, then set the village code
       if (district?.code) {
-        triggerGetVillagesByDistrict(district.code);
+        refetchVillages().then(() => {
+          // Set village code after villages are loaded
+          setTimeout(() => {
+            form.setValue('village_code', village?.code || '');
+          }, 100);
+        });
+      }
+      
+      form.setValue('religion', teacher.religion);
+      form.setValue('marital_status', teacher.marital_status);
+      form.setValue('job_id', teacher.job_id);
+      form.setValue('role_id', teacher.user?.roles[0]?.id || 0);
+      form.setValue('status', teacher.status);
+
+      if (teacher.photo) {
+        setPhotoPreview(teacher.photo);
       }
     }
-  }, [isEditMode, teacherData, form, triggerGetVillagesByDistrict, jobs.length, provinces.length]);
+  }, [isEditMode, teacherData, form, refetchVillages, jobs.length, provinces.length, cities.length, districts.length]);
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
@@ -364,15 +394,6 @@ const GuruFormPage: React.FC = () => {
 
   const isLoading = isAdding || isUpdating || isLoadingTeacher || isCheckingNik;
 
-  const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
-  const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
-  const filteredVillages = useMemo(() => {
-    if (!districtCode) {
-      return [];
-    }
-    return villagesByDistrict;
-  }, [villagesByDistrict, districtCode]);
-
   const stepFields: (keyof GuruFormValues)[][] = [
     ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
     ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
@@ -381,8 +402,8 @@ const GuruFormPage: React.FC = () => {
 
   const steps = [
     { name: 'Profil Guru', component: <GuruProfileStep form={form} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} isCheckingNik={isCheckingNik} /> },
-    { name: 'Alamat', component: <GuruAddressStep form={form} provinces={provinces.map(p => ({ value: p.code, label: p.name }))} cities={filteredCities.map(c => ({ value: c.code, label: c.name }))} districts={filteredDistricts.map(d => ({ value: d.code, label: d.name }))} villages={filteredVillages.map(v => ({ value: v.code, label: v.name }))} isCityDisabled={!provinceCode} isDistrictDisabled={!cityCode} isVillageDisabled={!districtCode} /> },
-    { name: 'Kepegawaian & Akun', component: <GuruEmploymentStep form={form} jobs={jobs.map(j => ({ value: j.id, label: j.name }))} roles={roles.data.map(r => ({ value: r.id, label: r.name }))} isEditMode={isEditMode} showPassword={showPassword} setShowPassword={setShowPassword} showConfirmPassword={showConfirmPassword} setShowConfirmPassword={setShowConfirmPassword} /> },
+    { name: 'Alamat', component: <GuruAddressStep form={form} provinces={provinces.map(p => ({ value: p.code, label: p.name }))} cities={filteredCities.map(c => ({ value: c.code, label: c.name }))} districts={filteredDistricts.map(d => ({ value: d.code, label: d.name }))} villages={filteredVillages} isCityDisabled={!provinceCode} isDistrictDisabled={!cityCode} isVillageDisabled={!districtCode} /> },
+    { name: 'Kepegawaian & Akun', component: <GuruEmploymentStep form={form} jobs={jobOptions} roles={roleOptions} isEditMode={isEditMode} showPassword={showPassword} setShowPassword={setShowPassword} showConfirmPassword={showConfirmPassword} setShowConfirmPassword={setShowConfirmPassword} /> },
   ];
 
   const handleNext = async () => {

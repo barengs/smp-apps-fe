@@ -42,6 +42,11 @@ interface GetVillageByNikRawResponse {
   data: VillageApiData[];
 }
 
+// New interface for getting villages by district
+interface GetVillagesByDistrictResponse {
+  data: VillageApiData[];
+}
+
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
@@ -50,6 +55,17 @@ export const villageApi = smpApi.injectEndpoints({
         result
           ? [
               ...result.data.map(({ id }) => ({ type: 'Village' as const, id })),
+              { type: 'Village', id: 'LIST' },
+            ]
+          : [{ type: 'Village', id: 'LIST' }],
+    }),
+    getVillagesByDistrict: builder.query<VillageApiData[], string>({
+      query: (districtCode) => `master/village/district/${districtCode}`,
+      transformResponse: (response: GetVillagesByDistrictResponse) => response.data,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Village' as const, id })),
               { type: 'Village', id: 'LIST' },
             ]
           : [{ type: 'Village', id: 'LIST' }],
@@ -87,6 +103,7 @@ export const villageApi = smpApi.injectEndpoints({
 
 export const {
   useLazyGetVillagesQuery, // Mengubah ini menjadi lazy query
+  useGetVillagesByDistrictQuery,
   useCreateVillageMutation,
   useUpdateVillageMutation,
   useDeleteVillageMutation,
