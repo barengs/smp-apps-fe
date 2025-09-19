@@ -94,6 +94,15 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     }
   }, [isOpen]);
 
+  // Helper function to format academic year display
+  const formatAcademicYearDisplay = (academicYear: any) => {
+    if (!academicYear) return 'Loading...';
+    if (academicYear.year) {
+      return academicYear.year;
+    }
+    return 'Loading...';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-screen-xl">
@@ -108,12 +117,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 <Label htmlFor="academicYear">{t('sidebar.academicYear')}</Label>
                 <Select value={activeAcademicYear?.id ? String(activeAcademicYear.id) : ''} disabled>
                   <SelectTrigger id="academicYear">
-                    <SelectValue placeholder={activeAcademicYear ? `${activeAcademicYear.year} (${activeAcademicYear.semester})` : 'Loading...'} />
+                    <SelectValue placeholder={formatAcademicYearDisplay(activeAcademicYear)} />
                   </SelectTrigger>
                   <SelectContent>
                     {activeAcademicYear && (
                       <SelectItem value={String(activeAcademicYear.id)}>
-                        {activeAcademicYear.year} ({activeAcademicYear.semester})
+                        {formatAcademicYearDisplay(activeAcademicYear)}
                       </SelectItem>
                     )}
                   </SelectContent>
