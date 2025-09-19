@@ -61,7 +61,10 @@ export const villageApi = smpApi.injectEndpoints({
     }),
     getVillagesByDistrict: builder.query<VillageApiData[], string>({
       query: (districtCode) => `master/village/district/${districtCode}`,
-      transformResponse: (response: GetVillagesByDistrictResponse) => response.data,
+      transformResponse: (response: GetVillagesByDistrictResponse) => {
+        console.log('Raw response from getVillagesByDistrict:', response);
+        return response.data;
+      },
       providesTags: (result) =>
         result
           ? [

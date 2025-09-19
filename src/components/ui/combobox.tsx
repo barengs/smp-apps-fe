@@ -27,7 +27,7 @@ interface ComboboxProps {
   searchPlaceholder?: string;
   notFoundMessage?: string;
   disabled?: boolean;
-  isLoading?: boolean; // Added isLoading prop
+  isLoading?: boolean;
 }
 
 export function Combobox({
@@ -41,6 +41,32 @@ export function Combobox({
   isLoading = false,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
+  const [selectedLabel, setSelectedLabel] = React.useState<string>("")
+
+  // Update selected label when value or options change
+  React.useEffect(() => {
+    if (value !== undefined && options && options.length > 0) {
+      const selectedOption = options.find((option) => option.value === value)
+      setSelectedLabel(selectedOption ? selectedOption.label : "")
+    } else {
+      setSelectedLabel("")
+    }
+  }, [value, options])
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <Button
+        variant="outline"
+        role="combobox"
+        className="w-full justify-between"
+        disabled={true}
+      >
+        Loading...
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    )
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,9 +78,7 @@ export function Combobox({
           className="w-full justify-between"
           disabled={disabled}
         >
-          {value
-            ? options.find((option) => option.value === value)?.label
-            : placeholder}
+          {selectedLabel || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

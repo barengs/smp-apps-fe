@@ -115,7 +115,7 @@ const GuruFormPage: React.FC = () => {
   const currentVillageCode = form.watch('village_code');
   const currentJobId = form.watch('job_id');
 
-  const { data: villagesByDistrict = [], refetch: refetchVillages } = useGetVillagesByDistrictQuery(districtCode, {
+  const { data: villagesByDistrict = [], refetch: refetchVillages, isLoading: isLoadingVillages } = useGetVillagesByDistrictQuery(districtCode, {
     skip: !districtCode, // Skip query if no districtCode
   });
 
@@ -295,6 +295,37 @@ const GuruFormPage: React.FC = () => {
       }
     }
   }, [isEditMode, teacherData, form, refetchVillages, jobs.length, provinces.length, cities.length, districts.length]);
+
+  // Effect to handle village selection with retry mechanism
+  useEffect(() => {
+    if (isEditMode && teacherData?.data && districtCode && villagesByDistrict.length === 0 && !isLoadingVillages) {
+      // Retry loading villages if they haven't loaded
+      console.log('Retrying village data load...');
+      refetchVillages();
+    }
+  }, [isEditMode, teacherData, districtCode, villagesByDistrict.length, isLoadingVillages, refetchVillages]);
+
+  // Effect to handle village selection after data loads
+  useEffect(() => {
+    if (isEditMode && teacherData?.data && villagesByDistrict.length > 0) {
+      const teacher = teacherData.data;
+      const villageCode = teacher.village?.code;
+      const currentVillage = form.getValues('village_code');
+      
+      if (villageCode && !currentVillage) {
+        console.log('Setting village code after data loaded:', villageCode);
+        form.setValue('village_code', villageCode, { shouldValidate: true });
+      }
+    }
+  }, [isEditMode, teacherData, villagesByDistrict, form]);
+
+  // Add effect to monitor when district changes and reset village
+  useEffect(() => {
+    if (districtCode) {
+      // Reset village when district changes
+      form.setValue('village_code', '', { shouldValidate: false });
+    }
+  }, [districtCode, form]);
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
