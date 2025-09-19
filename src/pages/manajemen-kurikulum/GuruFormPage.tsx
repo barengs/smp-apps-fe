@@ -115,34 +115,37 @@ const GuruFormPage: React.FC = () => {
   const currentVillageCode = form.watch('village_code');
   const currentJobId = form.watch('job_id');
 
-  const { data: villagesByDistrict = [], refetch: refetchVillages, isLoading: isLoadingVillages } = useGetVillagesByDistrictQuery(districtCode, {
+  // Village data loading with correct endpoint
+  const { data: villagesByDistrict = [], isLoading: isLoadingVillages, error: villageError, refetch: refetchVillages } = useGetVillagesByDistrictQuery(districtCode, {
     skip: !districtCode, // Skip query if no districtCode
   });
 
   const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
   const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
   const filteredVillages = useMemo(() => {
-    if (!districtCode) {
+    if (!districtCode || !villagesByDistrict || villagesByDistrict.length === 0) {
+      console.log('No villages available for district:', districtCode);
       return [];
     }
-    return villagesByDistrict.map(v => ({ value: v.code, label: v.name }));
+    const villages = villagesByDistrict.map(v => ({ 
+      value: v.code, 
+      label: v.name 
+    }));
+    console.log('Mapped villages for combobox:', villages);
+    return villages;
   }, [villagesByDistrict, districtCode]);
 
   const jobOptions = useMemo(() => jobs.map(j => ({ value: j.id, label: j.name })), [jobs]);
   const roleOptions = useMemo(() => roles.data.map(r => ({ value: r.id, label: r.name })), [roles.data]);
 
-  // Debug log untuk melihat struktur data dan nilai saat ini
-  console.log('=== Debug Data ===');
-  console.log('Current village_code:', currentVillageCode, 'Type:', typeof currentVillageCode);
-  console.log('Current job_id:', currentJobId, 'Type:', typeof currentJobId);
+  // Enhanced debugging for village data loading
+  console.log('=== Village Data Debug ===');
+  console.log('districtCode:', districtCode);
   console.log('villagesByDistrict:', villagesByDistrict);
-  console.log('jobs:', jobs);
-  if (teacherData?.data) {
-    console.log('teacher job_id:', teacherData.data.job_id, 'Type:', typeof teacherData.data.job_id);
-    console.log('teacher village_code:', teacherData.data.village?.code, 'Type:', typeof teacherData.data.village?.code);
-  }
-  console.log('village options:', filteredVillages.map(v => ({ value: v.value, label: v.label })));
-  console.log('job options:', jobOptions);
+  console.log('isLoadingVillages:', isLoadingVillages);
+  console.log('villageError:', villageError);
+  console.log('filteredVillages:', filteredVillages);
+  console.log('currentVillageCode:', currentVillageCode);
 
   // Schema validasi yang berbeda untuk mode tambah dan edit
   const getFormSchema = () => {
@@ -235,6 +238,7 @@ const GuruFormPage: React.FC = () => {
 
   useEffect(() => {
     if (districtCode) {
+      console.log('District changed, refetching villages for:', districtCode);
       refetchVillages();
     }
   }, [districtCode, refetchVillages]);
@@ -259,39 +263,45 @@ const GuruFormPage: React.FC = () => {
         }
       }
 
-      // Set values step by step to ensure proper loading
-      form.setValue('first_name', teacher.first_name);
-      form.setValue('last_name', teacher.last_name || '');
-      form.setValue('nik', teacher.nik || '');
-      form.setValue('nip', teacher.nip || '');
-      form.setValue('gender', genderValue);
-      form.setValue('phone_number', teacher.phone || '');
-      form.setValue('email', teacher.email);
-      form.setValue('birth_place', teacher.birth_place);
-      form.setValue('birth_date', birthDateValue);
-      form.setValue('address', teacher.address || '');
-      form.setValue('province_code', province?.code || '');
-      form.setValue('city_code', city?.code || '');
-      form.setValue('district_code', district?.code || '');
-      
-      // Load villages first, then set the village code
-      if (district?.code) {
-        refetchVillages().then(() => {
-          // Set village code after villages are loaded
-          setTimeout(() => {
-            form.setValue('village_code', village?.code || '');
-          }, 100);
-        });
-      }
-      
-      form.setValue('religion', teacher.religion);
-      form.setValue('marital_status', teacher.marital_status);
-      form.setValue('job_id', teacher.job_id);
-      form.setValue('role_id', teacher.user?.roles[0]?.id || 0);
-      form.setValue('status', teacher.status);
+      // Reset form with teacher data
+      form.reset({
+        first_name: teacher.first_name,
+        last_name: teacher.last_name || '',
+        nik: teacher.nik || '',
+        nip: teacher.nip || '',
+        gender: genderValue,
+        phone_number: teacher.phone || '',
+        email: teacher.email,
+        birth_place: teacher.birth_place,
+        birth_date: birthDateValue,
+        address: teacher.address || '',
+        province_code: province?.code || '',
+        city_code: city?.code || '',
+        district_code: district?.code || '',
+        village_code: '', // Set empty first, will be set after villages load
+        religion: teacher.religion,
+        marital_status: teacher.marital_status,
+        job_id: teacher.job_id,
+        role_id: teacher.user?.roles[0]?.id || 0,
+        status: teacher.status,
+      });
 
       if (teacher.photo) {
         setPhotoPreview(teacher.photo);
+      }
+
+      // Load villages for the district and then set village code
+      if (district?.code) {
+        console.log('Loading villages for district:', district.code);
+        refetchVillages().then(() => {
+          // Wait for villages to load, then set the village code
+          setTimeout(() => {
+            if (village?.code) {
+              console.log('Setting village code after delay:', village.code);
+              form.setValue('village_code', village.code, { shouldValidate: true });
+            }
+          }, 800); // Give more time for data to load
+        });
       }
     }
   }, [isEditMode, teacherData, form, refetchVillages, jobs.length, provinces.length, cities.length, districts.length]);
