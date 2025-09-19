@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { TeacherApiResponse, SingleTeacherApiResponse } from '@/types/teacher';
+import { TeacherApiResponse, SingleTeacherApiResponse, StaffApiResponse } from '@/types/teacher';
 
 export const teacherApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,7 +7,7 @@ export const teacherApi = smpApi.injectEndpoints({
       query: () => 'main/staff/teachers/roles',
       providesTags: ['Teacher'],
     }),
-    getTeacherById: builder.query<SingleTeacherApiResponse, string>({
+    getTeacherById: builder.query<StaffApiResponse, string>({
       query: (id) => `main/staff/${id}`,
       providesTags: (result, error, id) => [{ type: 'Teacher', id }],
     }),

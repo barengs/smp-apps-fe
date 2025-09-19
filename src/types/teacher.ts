@@ -50,6 +50,15 @@ export interface Staff {
   marital_status: string;
   job_id: number;
   village: Village | null;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
+    roles: Role[];
+  };
 }
 
 export interface Role {
@@ -86,4 +95,11 @@ export interface TeacherApiResponse {
 export interface SingleTeacherApiResponse {
   data: UserWithStaffAndRoles;
   message: string;
+}
+
+// New type for direct Staff API response (what the actual endpoint returns)
+export interface StaffApiResponse {
+  data: Staff;
+  message: string;
+  status: number;
 }

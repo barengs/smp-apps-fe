@@ -214,37 +214,36 @@ const GuruFormPage: React.FC = () => {
 
   useEffect(() => {
     if (isEditMode && teacherData) {
-      const teacher = teacherData.data;
-      // Akses properti melalui objek staff
-      const staff = teacher.staff;
-      const village = staff.village; // Mengakses village dari staff
+      const teacher = teacherData.data; // Ini adalah objek Staff langsung
+      // Tidak perlu akses melalui staff karena teacher sudah adalah Staff
+      const village = teacher.village; // Mengakses village langsung dari teacher
       const district = village?.district;
       const city = district?.city;
       const province = city?.province;
 
       form.reset({
-        first_name: staff.first_name, // Mengakses dari staff
-        last_name: staff.last_name || '', // Mengakses dari staff
-        nik: staff.nik || '', // Mengakses dari staff
-        nip: staff.nip || '', // Mengakses dari staff
-        gender: staff.gender, // Mengakses dari staff
-        phone_number: staff.phone_number || '', // Mengakses dari staff
-        email: staff.email, // Mengakses dari staff
-        birth_place: staff.birth_place, // Mengakses dari staff
-        birth_date: new Date(staff.birth_date), // Mengakses dari staff
-        address: staff.address || '', // Mengakses dari staff
+        first_name: teacher.first_name, // Langsung dari teacher
+        last_name: teacher.last_name || '', // Langsung dari teacher
+        nik: teacher.nik || '', // Langsung dari teacher
+        nip: teacher.nip || '', // Langsung dari teacher
+        gender: teacher.gender, // Langsung dari teacher
+        phone_number: teacher.phone || '', // Langsung dari teacher (phone, bukan phone_number)
+        email: teacher.email, // Langsung dari teacher
+        birth_place: teacher.birth_place, // Langsung dari teacher
+        birth_date: new Date(teacher.birth_date), // Langsung dari teacher
+        address: teacher.address || '', // Langsung dari teacher
         province_code: province?.code,
         city_code: city?.code,
         district_code: district?.code,
         village_code: village?.code,
-        religion: staff.religion, // Mengakses dari staff
-        marital_status: staff.marital_status, // Mengakses dari staff
-        job_id: staff.job_id, // Mengakses dari staff
-        role_id: teacher.roles[0]?.id, // Mengakses roles langsung dari teacher
-        status: staff.status, // Mengakses dari staff
+        religion: teacher.religion, // Langsung dari teacher
+        marital_status: teacher.marital_status, // Langsung dari teacher
+        job_id: teacher.job_id, // Langsung dari teacher
+        role_id: teacher.user?.roles[0]?.id || 0, // Mengakses roles dari teacher.user
+        status: teacher.status, // Langsung dari teacher
       });
-      if (staff.photo) { // Mengakses dari staff
-        setPhotoPreview(staff.photo); // Mengakses dari staff
+      if (teacher.photo) { // Langsung dari teacher
+        setPhotoPreview(teacher.photo); // Langsung dari teacher
       }
       // Panggil API desa untuk mengisi combobox saat edit mode
       if (district?.code) {
