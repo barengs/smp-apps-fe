@@ -173,9 +173,16 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 </TableHeader>
                 <TableBody>
                   {details.map((detail, index) => {
-                    const filteredClassGroups = classGroupsData?.data.filter(
+                    // Debug: Log the data to check the structure
+                    console.log('ClassGroupsData:', classGroupsData);
+                    console.log('Current classroomId:', detail.classroomId);
+                    
+                    // Filter class groups based on classroom_id
+                    const filteredClassGroups = classGroupsData?.data?.filter(
                       cg => cg.classroom_id === parseInt(detail.classroomId)
-                    );
+                    ) || [];
+
+                    console.log('Filtered class groups:', filteredClassGroups);
 
                     return (
                       <TableRow key={index}>
@@ -220,9 +227,15 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                               <SelectValue placeholder={t('lessonScheduleForm.selectClassGroup')} />
                             </SelectTrigger>
                             <SelectContent>
-                              {filteredClassGroups?.map(group => (
-                                <SelectItem key={group.id} value={String(group.id)}>{group.name}</SelectItem>
-                              ))}
+                              {filteredClassGroups.length > 0 ? (
+                                filteredClassGroups.map(group => (
+                                  <SelectItem key={group.id} value={String(group.id)}>{group.name}</SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="" disabled>
+                                  {detail.classroomId ? 'Tidak ada rombel untuk kelas ini' : 'Pilih kelas terlebih dahulu'}
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>
