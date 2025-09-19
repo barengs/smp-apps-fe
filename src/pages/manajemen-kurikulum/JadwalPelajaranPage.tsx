@@ -82,6 +82,10 @@ const JadwalPelajaranPage: React.FC = () => {
       header: t('lessonSchedulePage.time'),
       cell: ({ row }) => {
         const lessonHour = row.original.lesson_hour;
+        // Add null safety check
+        if (!lessonHour) {
+          return <div className="text-gray-400">-</div>;
+        }
         return <div className="capitalize">{`${lessonHour.start_time} - ${lessonHour.end_time}`}</div>;
       },
     },
