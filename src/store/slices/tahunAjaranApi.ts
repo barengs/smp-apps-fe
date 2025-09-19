@@ -14,7 +14,6 @@ interface GetActiveAcademicYearApiResponse {
 
 export interface CreateUpdateTahunAjaranRequest {
   year: string;
-  semester: 'Ganjil' | 'Genap';
   active: boolean;
   description?: string;
 }

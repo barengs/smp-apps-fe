@@ -19,7 +19,6 @@ import { Badge } from '@/components/ui/badge';
 interface TahunAjaran {
   id: number;
   year: string;
-  semester: string;
   active: boolean;
   description: string | null;
 }
@@ -64,10 +63,6 @@ const TahunAjaranTable: React.FC = () => {
         header: 'Tahun Ajaran',
       },
       {
-        accessorKey: 'semester',
-        header: 'Semester',
-      },
-      {
         accessorKey: 'active',
         header: 'Status',
         cell: ({ row }) => {
@@ -105,7 +100,7 @@ const TahunAjaranTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={5} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
