@@ -173,10 +173,21 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 </TableHeader>
                 <TableBody>
                   {details.map((detail, index) => {
+                    // Debug: Log the data to check the structure and filtering
+                    console.log('=== DEBUG Rombel ===');
+                    console.log('Current classroomId (selected):', detail.classroomId, 'type:', typeof detail.classroomId);
+                    console.log('All classGroupsData:', classGroupsData?.data);
+                    
                     // Filter class groups based on classroom_id (number) vs classroomId (string)
                     const filteredClassGroups = classGroupsData?.data?.filter(
-                      cg => cg.classroom_id === parseInt(detail.classroomId)
+                      cg => {
+                        const match = cg.classroom_id === parseInt(detail.classroomId);
+                        console.log(`Checking cg.classroom_id: "${cg.classroom_id}" === "${detail.classroomId}" : ${match}`);
+                        return match;
+                      }
                     ) || [];
+
+                    console.log('Filtered class groups result:', filteredClassGroups);
 
                     return (
                       <TableRow key={index}>
