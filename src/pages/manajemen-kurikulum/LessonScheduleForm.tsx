@@ -16,6 +16,7 @@ import { useGetStudiesQuery } from '@/store/slices/studyApi';
 import { useGetTeachersQuery } from '@/store/slices/teacherApi';
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
 import { useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
+import { useCreateClassScheduleMutation, type CreateClassScheduleRequest } from '@/store/slices/classScheduleApi';
 
 interface LessonScheduleDetail {
   day: string;
@@ -33,6 +34,7 @@ interface LessonScheduleFormProps {
 
 const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
+  const [createClassSchedule, { isLoading: isCreating }] = useCreateClassScheduleMutation();
 
   // Form state
   const [educationLevelId, setEducationLevelId] = useState<string>('');
@@ -74,16 +76,44 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     }
   };
 
-  const handleSubmit = () => {
-    const formData = {
-      educationLevelId,
-      session,
-      academicYearId: activeAcademicYear?.id,
-      details,
+  const handleSubmit = async () => {
+    if (!activeAcademicYear?.id || !educationLevelId || !session) {
+      showError('Harap isi semua bidang yang diperlukan di header.');
+      return;
+    }
+
+    const isDetailsInvalid = details.some(
+      (d) => !d.classroomId || !d.classGroupId || !d.day || !d.lessonHourId || !d.teacherId || !d.subjectId
+    );
+
+    if (isDetailsInvalid) {
+      showError('Harap isi semua bidang untuk setiap detail jadwal.');
+      return;
+    }
+
+    const payload: CreateClassScheduleRequest = {
+      academic_year_id: activeAcademicYear.id,
+      education_id: parseInt(educationLevelId),
+      session: session.toLowerCase(),
+      status: 'active',
+      details: details.map((detail) => ({
+        classroom_id: parseInt(detail.classroomId),
+        class_group_id: parseInt(detail.classGroupId),
+        day: detail.day.toLowerCase(),
+        lesson_hour_id: parseInt(detail.lessonHourId),
+        teacher_id: parseInt(detail.teacherId),
+        study_id: parseInt(detail.subjectId),
+      })),
     };
-    console.log('Form Submitted:', formData);
-    showSuccess(t('lessonScheduleForm.success.scheduleSaved'));
-    onClose();
+
+    try {
+      await createClassSchedule(payload).unwrap();
+      showSuccess(t('lessonScheduleForm.success.scheduleSaved'));
+      onClose();
+    } catch (error: any) {
+      console.error('Gagal menyimpan jadwal:', error);
+      showError(error?.data?.message || 'Gagal menyimpan jadwal.');
+    }
   };
 
   useEffect(() => {
@@ -309,7 +339,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t('cancelButton')}</Button>
-          <Button onClick={handleSubmit}>{t('saveChanges')}</Button>
+          <Button onClick={handleSubmit} disabled={isCreating}>
+            {isCreating ? 'Menyimpan...' : t('saveChanges')}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

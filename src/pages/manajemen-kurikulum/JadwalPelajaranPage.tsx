@@ -7,56 +7,34 @@ import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import LessonScheduleForm from './LessonScheduleForm';
-import { showSuccess } from '@/utils/toast';
-
-// Tipe data untuk jadwal pelajaran
-interface LessonSchedule {
-  id: string;
-  educationLevel: string;
-  class: string;
-  classGroup: string;
-  day: string;
-  subject: string;
-  teacher: string;
-  time: string;
-}
+import { useGetClassSchedulesQuery, type ClassScheduleData } from '@/store/slices/classScheduleApi';
+import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: t('sidebar.curriculum'), href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
     { label: t('sidebar.lessonSchedule'), icon: <CalendarClock className="h-4 w-4" /> },
   ];
 
-  // Mock data for lesson schedules
-  const mockData: LessonSchedule[] = [
-    { id: '1', educationLevel: 'SMP', class: 'VII A', classGroup: 'Reguler', day: 'Senin', subject: 'Matematika', teacher: 'Budi Santoso', time: '08:00 - 09:30' },
-    { id: '2', educationLevel: 'SMP', class: 'VII B', classGroup: 'Reguler', day: 'Senin', subject: 'Bahasa Inggris', teacher: 'Siti Aminah', time: '09:30 - 11:00' },
-    { id: '3', educationLevel: 'SMP', class: 'VIII A', classGroup: 'Unggulan', day: 'Selasa', subject: 'Fisika', teacher: 'Agus Wijaya', time: '10:00 - 11:30' },
-    { id: '4', educationLevel: 'SMP', class: 'VIII B', classGroup: 'Reguler', day: 'Selasa', subject: 'Kimia', teacher: 'Dewi Lestari', time: '11:30 - 13:00' },
-    { id: '5', educationLevel: 'SMA', class: 'X IPA 1', classGroup: 'Reguler', day: 'Rabu', subject: 'Biologi', teacher: 'Rina Fitriani', time: '08:00 - 09:30' },
-    { id: '6', educationLevel: 'SMA', class: 'X IPS 1', classGroup: 'Reguler', day: 'Rabu', subject: 'Sejarah', teacher: 'Joko Susilo', time: '09:30 - 11:00' },
-    { id: '7', educationLevel: 'SMP', class: 'VII A', classGroup: 'Reguler', day: 'Selasa', subject: 'Bahasa Arab', teacher: 'Ahmad Fauzi', time: '08:00 - 09:30' },
-    { id: '8', educationLevel: 'SMP', class: 'IX C', classGroup: 'Unggulan', day: 'Kamis', subject: 'Pendidikan Agama Islam', teacher: 'Fatima Zahra', time: '13:00 - 14:30' },
-  ];
-
-  const columns: ColumnDef<LessonSchedule>[] = [
+  const columns: ColumnDef<ClassScheduleData>[] = [
     {
-      accessorKey: 'educationLevel',
+      accessorKey: 'education.name',
       header: t('lessonSchedulePage.educationLevel'),
-      cell: ({ row }) => <div className="capitalize">{row.getValue('educationLevel')}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.education.name}</div>,
     },
     {
-      accessorKey: 'class',
+      accessorKey: 'classroom.name',
       header: t('lessonSchedulePage.class'),
-      cell: ({ row }) => <div className="capitalize">{row.getValue('class')}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.classroom.name}</div>,
     },
     {
-      accessorKey: 'classGroup',
+      accessorKey: 'class_group.name',
       header: t('lessonSchedulePage.classGroup'),
-      cell: ({ row }) => <div className="capitalize">{row.getValue('classGroup')}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.class_group.name}</div>,
     },
     {
       accessorKey: 'day',
@@ -64,25 +42,34 @@ const JadwalPelajaranPage: React.FC = () => {
       cell: ({ row }) => <div className="capitalize">{row.getValue('day')}</div>,
     },
     {
-      accessorKey: 'subject',
+      accessorKey: 'study.name',
       header: t('lessonSchedulePage.subject'),
-      cell: ({ row }) => <div className="capitalize">{row.getValue('subject')}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.study.name}</div>,
     },
     {
       accessorKey: 'teacher',
       header: t('lessonSchedulePage.teacher'),
-      cell: ({ row }) => <div className="capitalize">{row.getValue('teacher')}</div>,
+      cell: ({ row }) => {
+        const teacher = row.original.teacher;
+        const teacherName = teacher.staff ? `${teacher.staff.first_name} ${teacher.staff.last_name}`.trim() : 'Unknown';
+        return <div className="capitalize">{teacherName}</div>;
+      },
     },
     {
-      accessorKey: 'time',
+      accessorKey: 'lesson_hour',
       header: t('lessonSchedulePage.time'),
-      cell: ({ row }) => <div className="capitalize">{row.getValue('time')}</div>,
+      cell: ({ row }) => {
+        const lessonHour = row.original.lesson_hour;
+        return <div className="capitalize">{`${lessonHour.start_time} - ${lessonHour.end_time}`}</div>;
+      },
     },
   ];
 
   const handleAddSchedule = () => {
     setIsFormOpen(true);
   };
+
+  const data = schedulesResponse?.data ?? [];
 
   return (
     <DashboardLayout title={t('sidebar.lessonSchedule')} role="administrasi">
@@ -94,13 +81,19 @@ const JadwalPelajaranPage: React.FC = () => {
             <CardDescription>{t('lessonSchedulePage.description')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable
-              columns={columns}
-              data={mockData}
-              exportFileName="JadwalPelajaran"
-              exportTitle={t('sidebar.lessonSchedule')}
-              onAddData={handleAddSchedule}
-            />
+            {isLoading ? (
+              <TableLoadingSkeleton numRows={8} />
+            ) : isError ? (
+              <div className="text-center text-red-500">Gagal memuat data jadwal pelajaran.</div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={data}
+                exportFileName="JadwalPelajaran"
+                exportTitle={t('sidebar.lessonSchedule')}
+                onAddData={handleAddSchedule}
+              />
+            )}
           </CardContent>
         </Card>
       </div>

@@ -140,6 +140,7 @@ export const smpApi = createApi({
     'Teacher', // Add Teacher tag type here
     'TeacherAssignment',
     'LessonHour',
+    'ClassSchedule',
   ],
   endpoints: () => ({}),
 });
