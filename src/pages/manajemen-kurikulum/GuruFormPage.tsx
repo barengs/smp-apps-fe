@@ -212,8 +212,20 @@ const GuruFormPage: React.FC = () => {
     }
   }, [districtCode, triggerGetVillagesByDistrict]);
 
+  // Separate effect for loading village data when teacher data is loaded
   useEffect(() => {
-    if (isEditMode && teacherData && jobs.length > 0 && provinces.length > 0) {
+    if (isEditMode && teacherData && teacherData.data) {
+      const teacher = teacherData.data;
+      const district = teacher.village?.district;
+      if (district?.code) {
+        triggerGetVillagesByDistrict(district.code);
+      }
+    }
+  }, [isEditMode, teacherData, triggerGetVillagesByDistrict]);
+
+  // Main effect for populating form data - only run after all required data is loaded
+  useEffect(() => {
+    if (isEditMode && teacherData && jobs.length > 0 && provinces.length > 0 && (villagesByDistrict.length > 0 || !teacherData.data.village?.district?.code)) {
       const teacher = teacherData.data; // Ini adalah objek Staff langsung
       // Tidak perlu akses melalui staff karena teacher sudah adalah Staff
       const village = teacher.village; // Mengakses village langsung dari teacher
@@ -259,12 +271,8 @@ const GuruFormPage: React.FC = () => {
       if (teacher.photo) { // Langsung dari teacher
         setPhotoPreview(teacher.photo); // Langsung dari teacher
       }
-      // Panggil API desa untuk mengisi combobox saat edit mode
-      if (district?.code) {
-        triggerGetVillagesByDistrict(district.code);
-      }
     }
-  }, [isEditMode, teacherData, form, triggerGetVillagesByDistrict, jobs.length, provinces.length]);
+  }, [isEditMode, teacherData, form, jobs.length, provinces.length, villagesByDistrict.length]);
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
