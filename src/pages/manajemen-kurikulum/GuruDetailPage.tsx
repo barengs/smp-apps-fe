@@ -201,7 +201,7 @@ const GuruDetailPage: React.FC = () => {
               <DetailRow label="Alamat Lengkap" value={fullAddress} icon={<MapPin className="h-4 w-4" />} />
               <DetailRow label="NIK" value={teacher.nik} icon={<User className="h-4 w-4" />} />
               <DetailRow label="NIP" value={teacher.nip} icon={<User className="h-4 w-4" />} />
-              <DetailRow label="Jenis Kelamin" value={teacher.gender} icon={<User className="h-4 w-4" />} />
+              <DetailRow label="Jenis Kelamin" value={teacher.gender === 'Pria' ? 'Laki-laki' : 'Perempuan'} icon={<User className="h-4 w-4" />} />
               <DetailRow label="Status Pernikahan" value={teacher.marital_status} icon={<User className="h-4 w-4" />} />
               <DetailRow label="Peran" value={
                 roles && roles.length > 0 ? (

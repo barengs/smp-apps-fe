@@ -42,7 +42,7 @@ export interface Staff {
   updated_at: string;
   // Properti yang ditambahkan untuk memperbaiki error
   nip: string | null;
-  gender: 'male' | 'female';
+  gender: 'Pria' | 'Wanita';
   phone_number: string | null;
   birth_place: string;
   birth_date: string;

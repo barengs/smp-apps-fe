@@ -221,12 +221,15 @@ const GuruFormPage: React.FC = () => {
       const city = district?.city;
       const province = city?.province;
 
+      // Convert gender from API ('Pria'/'Wanita') to form value ('male'/'female')
+      const genderValue = teacher.gender === 'Pria' ? 'male' : 'female';
+
       form.reset({
         first_name: teacher.first_name, // Langsung dari teacher
         last_name: teacher.last_name || '', // Langsung dari teacher
         nik: teacher.nik || '', // Langsung dari teacher
         nip: teacher.nip || '', // Langsung dari teacher
-        gender: teacher.gender, // Langsung dari teacher
+        gender: genderValue, // Menggunakan nilai yang sudah dikonversi
         phone_number: teacher.phone || '', // Langsung dari teacher (phone, bukan phone_number)
         email: teacher.email, // Langsung dari teacher
         birth_place: teacher.birth_place, // Langsung dari teacher
