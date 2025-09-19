@@ -103,6 +103,14 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     return 'Loading...';
   };
 
+  // Helper function to get teacher name from staff data
+  const getTeacherName = (teacher: any) => {
+    if (teacher.staff) {
+      return `${teacher.staff.first_name} ${teacher.staff.last_name}`.trim();
+    }
+    return teacher.name || 'Unknown Teacher';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-screen-xl">
@@ -260,7 +268,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                             </SelectTrigger>
                             <SelectContent>
                               {teachersData?.data.map(teacher => (
-                                <SelectItem key={teacher.id} value={String(teacher.id)}>{teacher.name}</SelectItem>
+                                <SelectItem key={teacher.id} value={String(teacher.id)}>
+                                  {getTeacherName(teacher)}
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
