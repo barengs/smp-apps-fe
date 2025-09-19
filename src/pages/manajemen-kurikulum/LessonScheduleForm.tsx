@@ -141,8 +141,17 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     return teacher.name || 'Unknown Teacher';
   };
 
+  // Handle dialog close with proper cleanup
+  const handleClose = () => {
+    // Reset form state before closing
+    setEducationLevelId('');
+    setSession('');
+    setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '' }]);
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-screen-xl">
         <DialogHeader>
           <DialogTitle>{t('lessonScheduleForm.title')}</DialogTitle>
@@ -338,7 +347,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>{t('cancelButton')}</Button>
+          <Button variant="outline" onClick={handleClose}>{t('cancelButton')}</Button>
           <Button onClick={handleSubmit} disabled={isCreating}>
             {isCreating ? 'Menyimpan...' : t('saveChanges')}
           </Button>
