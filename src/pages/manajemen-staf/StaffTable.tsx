@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react'; // Removed Trash2 import
+import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import {
   Dialog,
@@ -37,7 +37,6 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
 interface Staff {
   id: number;
-  // Changed from 'employee' to 'staff'
   staff: {
     first_name: string;
     last_name: string;
@@ -53,18 +52,6 @@ interface Staff {
   username: string;
 }
 
-// Define a default object for the staff details part of the Staff interface
-// Changed from emptyStaffEmployeeDetails to emptyStaffDetails and updated type
-const emptyStaffDetails: Staff['staff'] = {
-  first_name: '',
-  last_name: '',
-  code: '',
-  nik: '',
-  phone: '',
-  address: '',
-  zip_code: '',
-};
-
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
   const [deleteEmployee] = useDeleteEmployeeMutation();
@@ -79,23 +66,21 @@ const StaffTable: React.FC = () => {
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => {
-        // Use data directly from root object, not from 'staff' property
-        const staffSource = apiEmployee; // Changed from apiEmployee.staff
         return {
           id: apiEmployee.id,
-          staff: { // Keep this structure for table display
-            first_name: staffSource.first_name || '',
-            last_name: staffSource.last_name || '',
-            code: staffSource.code || '',
-            nik: staffSource.nik || '',
-            phone: staffSource.phone || '',
-            address: staffSource.address || '',
-            zip_code: staffSource.zip_code || '',
+          staff: {
+            first_name: apiEmployee.first_name || '',
+            last_name: apiEmployee.last_name || '',
+            code: apiEmployee.code || '',
+            nik: apiEmployee.nik || '',
+            phone: apiEmployee.phone || '',
+            address: apiEmployee.address || '',
+            zip_code: apiEmployee.zip_code || '',
           },
           email: apiEmployee.email || '',
-          roles: apiEmployee.user?.roles || [], // Get roles from user.roles
-          fullName: `${staffSource.first_name || ''} ${staffSource.last_name || ''}`,
-          username: apiEmployee.user?.name || '', // Get username from user.name
+          roles: apiEmployee.user?.roles || [],
+          fullName: `${apiEmployee.first_name || ''} ${apiEmployee.last_name || ''}`,
+          username: apiEmployee.user?.name || '',
         };
       });
     }
@@ -158,7 +143,7 @@ const StaffTable: React.FC = () => {
   const columns: ColumnDef<Staff>[] = useMemo(
     () => [
       {
-        accessorFn: row => row.staff.code, // Changed from row.employee.code to row.staff.code
+        accessorFn: row => row.staff.code,
         id: 'code',
         header: 'Kode Staf',
       },
@@ -202,7 +187,6 @@ const StaffTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              {/* Removed Delete Button */}
             </div>
           );
         },
