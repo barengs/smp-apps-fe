@@ -24,6 +24,7 @@ import {
 import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import CoaForm from './CoaForm';
+import { Badge } from '@/components/ui/badge';
 
 // Menambahkan subRows ke interface Coa untuk keperluan tabel
 interface CoaWithSubRows extends Coa {
@@ -119,17 +120,16 @@ const CoaTable: React.FC = () => {
     {
       accessorKey: 'is_postable',
       header: 'Dapat Diposting',
-      cell: ({ row }) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.original.is_postable
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
-        >
-          {row.original.is_postable ? 'Ya' : 'Tidak'}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const isPostable = row.getValue('is_postable');
+        // Handle both string and boolean values
+        const canPost = isPostable === '1' || isPostable === true;
+        return (
+          <Badge variant={canPost ? 'default' : 'secondary'}>
+            {canPost ? 'Ya' : 'Tidak'}
+          </Badge>
+        );
+      },
     },
     {
       id: 'actions',
