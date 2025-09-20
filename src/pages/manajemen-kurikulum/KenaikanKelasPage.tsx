@@ -3,21 +3,26 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { BookCopy, TrendingUp } from 'lucide-react';
+import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
-import { useGetEducationGroupsQuery } from '@/store/slices/educationGroupApi';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
+import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { Button } from '@/components/ui/button';
+import { ArrowUpRight } from 'lucide-react';
 
-// Tipe data untuk baris tabel
+// Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
   id: number;
   siswa: string;
   tahunAjaran: string;
-  kelas: string;
   jenjangPendidikan: string;
+  kelas: string;
+  statusApproval: string;
+  tanggalPembuatan: string;
 }
 
 const KenaikanKelasPage: React.FC = () => {
@@ -26,46 +31,48 @@ const KenaikanKelasPage: React.FC = () => {
     { label: 'Kenaikan Kelas', icon: <TrendingUp className="h-4 w-4" /> },
   ];
 
-  // Mengambil semua data yang diperlukan dari API
+  // Mengambil data dari endpoint main/student-class
+  const { data: studentClasses = [], isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
+  
+  // Mengambil data pendukung
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
   const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery();
-  const { data: groupsResponse, isLoading: isLoadingGroups } = useGetEducationGroupsQuery();
   const { data: levelsResponse, isLoading: isLoadingLevels } = useGetEducationLevelsQuery();
+  const { data: academicYearsResponse, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
 
-  const isLoading = isLoadingStudents || isLoadingPrograms || isLoadingGroups || isLoadingLevels;
+  const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingPrograms || isLoadingLevels || isLoadingAcademicYears;
 
-  // Memproses dan menggabungkan data setelah semua selesai dimuat
+  // Memproses dan menggabungkan data
   const promotionData = React.useMemo(() => {
-    if (isLoading || !studentsResponse || !programsResponse || !groupsResponse || !levelsResponse) {
+    if (isLoading || !studentClasses.length || !studentsResponse?.data || !programsResponse || !levelsResponse || !academicYearsResponse) {
       return [];
     }
 
-    // Asumsi struktur data response API
-    const programs = programsResponse || [];
-    const groups = (groupsResponse as any).data || [];
-    const levels = (levelsResponse as any).data || [];
-
     // Membuat peta untuk pencarian cepat
-    const programMap = new Map(programs.map((p: any) => [p.id, p]));
-    const groupMap = new Map(groups.map((g: any) => [g.code, g]));
-    const levelMap = new Map(levels.map((l: any) => [l.id, l]));
+    const studentMap = new Map(studentsResponse.data.map((s: any) => [s.id, s]));
+    const programMap = new Map(programsResponse.map((p: any) => [p.id, p]));
+    const levelMap = new Map((levelsResponse as any).data.map((l: any) => [l.id, l]));
+    const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
 
-    return studentsResponse.data.map((student): PromotionData => {
-      const program = programMap.get(student.program.id);
-      const group = program ? groupMap.get((program as any).education_group_id) : undefined;
-      const level = group ? levelMap.get((group as any).education_level_id) : undefined;
+    return studentClasses.map((studentClass): PromotionData => {
+      const student = studentMap.get(studentClass.student_id);
+      const program = programMap.get(studentClass.education_id);
+      const level = program ? levelMap.get((program as any).education_level_id) : undefined;
+      const academicYear = academicYearMap.get(studentClass.academic_year_id);
 
       return {
-        id: student.id,
-        siswa: `${student.first_name} ${student.last_name || ''}`.trim(),
-        tahunAjaran: student.period,
-        kelas: student.program.name,
+        id: studentClass.id,
+        siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
+        tahunAjaran: academicYear ? (academicYear as any).name : 'Tidak diketahui',
         jenjangPendidikan: level ? (level as any).name : 'Tidak diketahui',
+        kelas: program ? (program as any).name : 'Tidak diketahui',
+        statusApproval: studentClass.approval_status,
+        tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
       };
     });
-  }, [studentsResponse, programsResponse, groupsResponse, levelsResponse, isLoading]);
+  }, [studentClasses, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
 
-  // Mendefinisikan kolom untuk DataTable
+  // Kolom untuk DataTable
   const columns: ColumnDef<PromotionData>[] = [
     {
       accessorKey: 'tahunAjaran',
@@ -83,7 +90,57 @@ const KenaikanKelasPage: React.FC = () => {
       accessorKey: 'siswa',
       header: 'Siswa',
     },
+    {
+      accessorKey: 'statusApproval',
+      header: 'Status Approval',
+      cell: ({ row }) => {
+        const status = row.getValue('statusApproval') as string;
+        const getStatusBadge = (status: string) => {
+          switch (status.toLowerCase()) {
+            case 'approved':
+              return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Disetujui</span>;
+            case 'pending':
+              return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Menunggu</span>;
+            case 'rejected':
+              return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Ditolak</span>;
+            default:
+              return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{status}</span>;
+          }
+        };
+        return getStatusBadge(status);
+      },
+    },
+    {
+      accessorKey: 'tanggalPembuatan',
+      header: 'Tanggal Pembuatan',
+    },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      cell: ({ row }) => {
+        const data = row.original;
+        return (
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePromotion(data)}
+              className="h-8"
+            >
+              <ArrowUpRight className="h-4 w-4 mr-1" />
+              Naikkan
+            </Button>
+          </div>
+        );
+      },
+    },
   ];
+
+  // Fungsi untuk menangani kenaikan kelas
+  const handlePromotion = (data: PromotionData) => {
+    console.log('Menaikkan kelas untuk:', data);
+    // Implementasi logika kenaikan kelas akan ditambahkan di sini
+  };
 
   return (
     <DashboardLayout title="Manajemen Kenaikan Kelas" role="administrasi">
@@ -92,13 +149,18 @@ const KenaikanKelasPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Kenaikan Kelas</CardTitle>
-            <CardDescription>Daftar siswa aktif berdasarkan kelas untuk proses kenaikan kelas.</CardDescription>
+            <CardDescription>Daftar siswa untuk proses kenaikan kelas berdasarkan data kelas saat ini.</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <TableLoadingSkeleton />
             ) : (
-              <DataTable columns={columns} data={promotionData} exportFileName="data-kenaikan-kelas" exportTitle="Data Kenaikan Kelas" />
+              <DataTable 
+                columns={columns} 
+                data={promotionData} 
+                exportFileName="data-kenaikan-kelas" 
+                exportTitle="Data Kenaikan Kelas" 
+              />
             )}
           </CardContent>
         </Card>

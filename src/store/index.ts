@@ -3,7 +3,7 @@ import authReducer from './slices/authSlice';
 import { smpApi } from './baseApi';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
-// Import all API slices (these are imported for their endpoints, not for their reducers directly here)
+// Import all API slices
 import { authApi } from './slices/authApi';
 import { employeeApi } from './slices/employeeApi';
 import { permissionApi } from './slices/permissionApi';
@@ -27,7 +27,7 @@ import { dashboardApi } from './slices/dashboardApi';
 import { pekerjaanApi } from './slices/pekerjaanApi';
 import { beritaApi } from './slices/beritaApi';
 import { controlPanelApi } from './slices/controlPanelApi';
-import { internshipApi } from './slices/internshipApi'; // Changed from guruTugasApi
+import { internshipApi } from './slices/internshipApi';
 import { calonSantriApi } from './slices/calonSantriApi';
 import { supervisorApi } from './slices/supervisorApi';
 import { bankApi } from './slices/bankApi';
@@ -37,6 +37,7 @@ import { transactionTypeApi } from './slices/transactionTypeApi';
 import { accountApi } from './slices/accountApi';
 import { roomApi } from './slices/roomApi';
 import { teacherApi } from './slices/teacherApi';
+import { studentClassApi } from './slices/studentClassApi';
 
 export const store = configureStore({
   reducer: {
