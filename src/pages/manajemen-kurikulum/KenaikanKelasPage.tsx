@@ -61,7 +61,7 @@ const KenaikanKelasPage: React.FC = () => {
       return [];
     }
 
-    // Validasi struktur response yang benar - PERBAIKAN: akses data.data
+    // Validasi struktur response yang benar
     if (!studentClassesResponse.data || !Array.isArray(studentClassesResponse.data)) {
       console.warn('studentClassesResponse.data is not an array:', studentClassesResponse.data);
       return [];
@@ -136,7 +136,7 @@ const KenaikanKelasPage: React.FC = () => {
               return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Disetujui</span>;
             case 'pending':
             case 'diajukan':
-              return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Menunggu</span>;
+              return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Diajukan</span>;
             case 'rejected':
               return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Ditolak</span>;
             default:
