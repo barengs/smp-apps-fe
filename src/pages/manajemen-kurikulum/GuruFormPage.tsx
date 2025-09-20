@@ -109,20 +109,6 @@ const GuruFormPage: React.FC = () => {
   const { data: jobs = [] } = useGetPekerjaanQuery();
   const { data: roles = { data: [] } } = useGetRolesQuery();
 
-  const { data: allVillages = [], isLoading: isLoadingAllVillages } = useGetAllVillagesQuery();
-  
-  // Try district-specific endpoint as secondary
-  const { data: villagesByDistrict = [], isLoading: isLoadingVillages, error: villageError, refetch: refetchVillages } = useGetVillagesByDistrictQuery(districtCode, {
-    skip: !districtCode,
-  });
-
-  // Test if district endpoint is working
-  useEffect(() => {
-    if (districtCode && villageError) {
-      console.log('District-specific village endpoint failed, using fallback:', villageError);
-    }
-  }, [districtCode, villageError]);
-
   const provinceCode = form.watch('province_code');
   const cityCode = form.watch('city_code');
   const districtCode = form.watch('district_code');
@@ -137,39 +123,67 @@ const GuruFormPage: React.FC = () => {
     skip: !districtCode,
   });
 
+  const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
+  const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
+  
+  // Smart village filtering - use available data
+  const filteredVillages = useMemo(() => {
+    let sourceVillages = [];
+    let source = '';
+
+    // Priority 1: Use district-specific villages if available
+    if (villagesByDistrict && villagesByDistrict.length > 0) {
+      sourceVillages = villagesByDistrict;
+      source = 'district-specific';
+    }
+    // Priority 2: Filter all villages by district_code
+    else if (allVillages && allVillages.length > 0 && districtCode) {
+      sourceVillages = allVillages.filter(v => v.district_code === districtCode);
+      source = 'filtered-all';
+    }
+    // Priority 3: Use all villages (for debugging)
+    else if (allVillages && allVillages.length > 0) {
+      sourceVillages = allVillages;
+      source = 'all-villages';
+    }
+
+    console.log(`Village source: ${source}, count: ${sourceVillages.length}, district: ${districtCode}`);
+
+    if (sourceVillages.length === 0) {
+      console.log('No villages available');
+      return [];
+    }
+    
+    const villages = sourceVillages.map(v => ({ 
+      value: v.code, 
+      label: v.name,
+      district_code: v.district_code // For debugging
+    }));
+    
+    console.log('Mapped villages for combobox:', villages.slice(0, 5)); // Show first 5
+    return villages;
+  }, [villagesByDistrict, allVillages, districtCode]);
+
+  const jobOptions = useMemo(() => jobs.map(j => ({ value: j.id, label: j.name })), [jobs]);
+  const roleOptions = useMemo(() => roles.data.map(r => ({ value: r.id, label: r.name })), [roles.data]);
+
+  // Comprehensive debugging
+  console.log('=== Village Loading Debug ===');
+  console.log('districtCode:', districtCode);
+  console.log('villagesByDistrict count:', villagesByDistrict.length);
+  console.log('allVillages count:', allVillages.length);
+  console.log('isLoadingVillages:', isLoadingVillages);
+  console.log('isLoadingAllVillages:', isLoadingAllVillages);
+  console.log('villageError:', villageError);
+  console.log('filteredVillages count:', filteredVillages.length);
+  console.log('currentVillageCode:', currentVillageCode);
+
   // Test if district endpoint is working
   useEffect(() => {
     if (districtCode && villageError) {
       console.log('District-specific village endpoint failed, using fallback:', villageError);
     }
   }, [districtCode, villageError]);
-
-  const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
-  const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
-  const filteredVillages = useMemo(() => {
-    if (!districtCode || !villagesByDistrict || villagesByDistrict.length === 0) {
-      console.log('No villages available for district:', districtCode);
-      return [];
-    }
-    const villages = villagesByDistrict.map(v => ({ 
-      value: v.code, 
-      label: v.name 
-    }));
-    console.log('Mapped villages for combobox:', villages);
-    return villages;
-  }, [villagesByDistrict, districtCode]);
-
-  const jobOptions = useMemo(() => jobs.map(j => ({ value: j.id, label: j.name })), [jobs]);
-  const roleOptions = useMemo(() => roles.data.map(r => ({ value: r.id, label: r.name })), [roles.data]);
-
-  // Enhanced debugging for village data loading
-  console.log('=== Village Data Debug ===');
-  console.log('districtCode:', districtCode);
-  console.log('villagesByDistrict:', villagesByDistrict);
-  console.log('isLoadingVillages:', isLoadingVillages);
-  console.log('villageError:', villageError);
-  console.log('filteredVillages:', filteredVillages);
-  console.log('currentVillageCode:', currentVillageCode);
 
   // Schema validasi yang berbeda untuk mode tambah dan edit
   const getFormSchema = () => {
@@ -329,15 +343,6 @@ const GuruFormPage: React.FC = () => {
       }
     }
   }, [isEditMode, teacherData, form, refetchVillages, jobs.length, provinces.length, cities.length, districts.length]);
-
-  // Effect to handle village selection with retry mechanism
-  useEffect(() => {
-    if (isEditMode && teacherData?.data && districtCode && villagesByDistrict.length === 0 && !isLoadingVillages) {
-      // Retry loading villages if they haven't loaded
-      console.log('Retrying village data load...');
-      refetchVillages();
-    }
-  }, [isEditMode, teacherData, districtCode, villagesByDistrict.length, isLoadingVillages, refetchVillages]);
 
   // Effect to handle village selection with better timing
   useEffect(() => {
