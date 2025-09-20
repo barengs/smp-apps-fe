@@ -78,13 +78,16 @@ export const studentClassApi = smpApi.injectEndpoints({
         console.log('StudentClass API Response:', response);
         return response;
       },
-      providesTags: (result) =>
-        result && result.data
-          ? [
-              ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
-              { type: 'Student', id: 'LIST' },
-            ]
-          : [{ type: 'Student', id: 'LIST' }],
+      providesTags: (result) => {
+        // Validasi data dengan aman
+        if (result && result.data && Array.isArray(result.data)) {
+          return [
+            ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
+            { type: 'Student', id: 'LIST' },
+          ];
+        }
+        return [{ type: 'Student', id: 'LIST' }];
+      },
     }),
     getStudentClassById: builder.query<StudentClassData, number>({
       query: (id) => `main/student-class/${id}`,
@@ -117,13 +120,16 @@ export const studentClassApi = smpApi.injectEndpoints({
     getStudentClassesByStatus: builder.query<StudentClassPaginatedResponse, string>({
       query: (status) => `main/student-class?approval_status=${status}`,
       transformResponse: (response: StudentClassPaginatedResponse) => response,
-      providesTags: (result) =>
-        result && result.data
-          ? [
-              ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
-              { type: 'Student', id: 'LIST' },
-            ]
-          : [{ type: 'Student', id: 'LIST' }],
+      providesTags: (result) => {
+        // Validasi data dengan aman
+        if (result && result.data && Array.isArray(result.data)) {
+          return [
+            ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
+            { type: 'Student', id: 'LIST' },
+          ];
+        }
+        return [{ type: 'Student', id: 'LIST' }];
+      },
     }),
   }),
 });

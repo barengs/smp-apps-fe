@@ -13,6 +13,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
@@ -32,7 +34,7 @@ const KenaikanKelasPage: React.FC = () => {
   ];
 
   // Mengambil data dari endpoint main/student-class dengan pagination
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses, error } = useGetStudentClassesQuery({
     page: 1,
     per_page: 50 // Ambil 50 data per halaman
   });
@@ -45,9 +47,20 @@ const KenaikanKelasPage: React.FC = () => {
 
   const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingPrograms || isLoadingLevels || isLoadingAcademicYears;
 
-  // Memproses dan menggabungkan data
+  // Memproses dan menggabungkan data dengan validasi yang lebih baik
   const promotionData = React.useMemo(() => {
     if (isLoading || !studentClassesResponse?.data || !studentsResponse?.data || !programsResponse || !levelsResponse || !academicYearsResponse) {
+      return [];
+    }
+
+    // Validasi data yang diterima
+    if (!Array.isArray(studentClassesResponse.data)) {
+      console.warn('studentClassesResponse.data is not an array:', studentClassesResponse.data);
+      return [];
+    }
+
+    if (!Array.isArray(studentsResponse.data)) {
+      console.warn('studentsResponse.data is not an array:', studentsResponse.data);
       return [];
     }
 
@@ -145,6 +158,24 @@ const KenaikanKelasPage: React.FC = () => {
     // Implementasi logika kenaikan kelas akan ditambahkan di sini
   };
 
+  // Tampilkan pesan error jika ada
+  if (error) {
+    return (
+      <DashboardLayout title="Manajemen Kenaikan Kelas" role="administrasi">
+        <div className="container mx-auto py-4 px-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
+          <Alert variant="destructive">
+            <Info className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              Terjadi kesalahan saat memuat data: {error.toString()}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout title="Manajemen Kenaikan Kelas" role="administrasi">
       <div className="container mx-auto py-4 px-4">
@@ -157,6 +188,14 @@ const KenaikanKelasPage: React.FC = () => {
           <CardContent>
             {isLoading ? (
               <TableLoadingSkeleton />
+            ) : promotionData.length === 0 ? (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Data Kosong</AlertTitle>
+                <AlertDescription>
+                  Tidak ada data kenaikan kelas yang tersedia. Pastikan data siswa, program, dan tahun ajaran sudah terisi dengan benar.
+                </AlertDescription>
+              </Alert>
             ) : (
               <DataTable 
                 columns={columns} 
