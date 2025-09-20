@@ -20,6 +20,26 @@ interface TambahKenaikanKelasFormProps {
   onClose: () => void;
 }
 
+interface ClassGroup {
+  id: number;
+  name: string;
+  classroom_id: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Classroom {
+  id: number;
+  name: string;
+  parent_id: number | null;
+  description: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  class_groups: ClassGroup[];
+}
+
 const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpen, onClose }) => {
   // Data fetching
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
@@ -35,6 +55,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const [selectedLevel, setSelectedLevel] = useState<string>('');
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
+  const [selectedClassGroup, setSelectedClassGroup] = useState<string>('');
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
 
   const isLoading = isLoadingStudents || isLoadingAcademicYears || isLoadingLevels || isLoadingPrograms || isLoadingClassrooms || isLoadingStudentClasses;
@@ -45,6 +66,13 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
       setSelectedProgram('');
     }
   }, [selectedLevel, programsResponse]);
+
+  useEffect(() => {
+    if (selectedClassroom) {
+      // Reset class group selection when classroom changes
+      setSelectedClassGroup('');
+    }
+  }, [selectedClassroom]);
 
   const unassignedStudents = useMemo(() => {
     // Validasi data dengan aman
@@ -83,7 +111,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   };
 
   const handleSubmit = async () => {
-    if (!selectedAcademicYear || !selectedLevel || !selectedProgram || !selectedClassroom || selectedStudents.length === 0) {
+    if (!selectedAcademicYear || !selectedLevel || !selectedProgram || !selectedClassroom || !selectedClassGroup || selectedStudents.length === 0) {
       showError('Harap lengkapi semua bidang dan pilih setidaknya satu siswa.');
       return;
     }
@@ -96,7 +124,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
             academic_year_id: parseInt(selectedAcademicYear),
             education_id: parseInt(selectedProgram),
             student_id: studentId,
-            class_id: parseInt(selectedClassroom),
+            class_id: parseInt(selectedClassGroup), // Using class group ID instead of classroom ID
             approval_status: 'pending',
           }).unwrap()
         )
@@ -147,6 +175,22 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
     ));
   };
 
+  const renderClassGroups = () => {
+    if (!classroomsResponse?.data || !Array.isArray(classroomsResponse.data) || !selectedClassroom) return null;
+    
+    const selectedClassroomData = classroomsResponse.data.find(
+      (classroom: Classroom) => classroom.id.toString() === selectedClassroom
+    );
+    
+    if (!selectedClassroomData || !selectedClassroomData.class_groups || !Array.isArray(selectedClassroomData.class_groups)) {
+      return null;
+    }
+    
+    return selectedClassroomData.class_groups.map(classGroup => (
+      <SelectItem key={classGroup.id} value={classGroup.id.toString()}>{classGroup.name}</SelectItem>
+    ));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
@@ -161,7 +205,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
           <TableLoadingSkeleton />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 py-4">
               <div>
                 <Label htmlFor="academic-year">Tahun Ajaran</Label>
                 <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
@@ -190,11 +234,20 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 </Select>
               </div>
               <div>
-                <Label htmlFor="classroom">Rombel</Label>
+                <Label htmlFor="classroom">Kelas</Label>
                 <Select value={selectedClassroom} onValueChange={setSelectedClassroom}>
-                  <SelectTrigger id="classroom"><SelectValue placeholder="Pilih Rombel" /></SelectTrigger>
+                  <SelectTrigger id="classroom"><SelectValue placeholder="Pilih Kelas" /></SelectTrigger>
                   <SelectContent>
                     {renderClassrooms()}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="class-group">Rombel</Label>
+                <Select value={selectedClassGroup} onValueChange={setSelectedClassGroup} disabled={!selectedClassroom}>
+                  <SelectTrigger id="class-group"><SelectValue placeholder="Pilih Rombel" /></SelectTrigger>
+                  <SelectContent>
+                    {renderClassGroups()}
                   </SelectContent>
                 </Select>
               </div>
