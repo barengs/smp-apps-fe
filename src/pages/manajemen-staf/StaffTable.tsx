@@ -79,11 +79,11 @@ const StaffTable: React.FC = () => {
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => {
-        // Use the default object if apiEmployee.staff is null or undefined
-        const staffSource = apiEmployee.staff || emptyStaffDetails; // Changed from employeeSource to staffSource
+        // Use data directly from root object, not from 'staff' property
+        const staffSource = apiEmployee; // Changed from apiEmployee.staff
         return {
           id: apiEmployee.id,
-          staff: { // Changed from 'employee' to 'staff'
+          staff: { // Keep this structure for table display
             first_name: staffSource.first_name || '',
             last_name: staffSource.last_name || '',
             code: staffSource.code || '',
@@ -93,9 +93,9 @@ const StaffTable: React.FC = () => {
             zip_code: staffSource.zip_code || '',
           },
           email: apiEmployee.email || '',
-          roles: apiEmployee.roles || [],
+          roles: apiEmployee.user?.roles || [], // Get roles from user.roles
           fullName: `${staffSource.first_name || ''} ${staffSource.last_name || ''}`,
-          username: apiEmployee.username || '',
+          username: apiEmployee.user?.name || '', // Get username from user.name
         };
       });
     }

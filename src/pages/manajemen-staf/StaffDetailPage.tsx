@@ -34,13 +34,6 @@ const StaffDetailPage: React.FC = () => {
   });
 
   useEffect(() => {
-    console.log('API Response:', responseData);
-    console.log('Error:', error);
-    console.log('Is Loading:', isLoading);
-    console.log('Staff ID:', staffId);
-  }, [responseData, error, isLoading, staffId]);
-
-  useEffect(() => {
     if (error || (responseData && !responseData.data)) {
       toast.showError('Gagal memuat detail staf atau staf tidak ditemukan.');
       navigate('/dashboard/staf');
@@ -48,8 +41,7 @@ const StaffDetailPage: React.FC = () => {
   }, [error, responseData, navigate]);
 
   const staffData = responseData?.data;
-  const staff = staffData?.staff;
-  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Detail Staf';
+  const fullName = staffData ? `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() : 'Detail Staf';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
@@ -96,15 +88,11 @@ const StaffDetailPage: React.FC = () => {
     return null;
   }
 
-  console.log('Staff Data:', staffData);
-  console.log('Staff Object:', staff);
-
-  if (!staffData || !staff) {
-    console.log('No data found, returning null');
+  if (!staffData) {
     return null;
   }
 
-  const roles = staffData.roles;
+  const roles = staffData.user?.roles || [];
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -130,25 +118,27 @@ const StaffDetailPage: React.FC = () => {
           <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                {staff.photo ? (
-                  <img src={staff.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+                {staffData.photo ? (
+                  <img src={staffData.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
                 ) : (
                   <User className="h-24 w-24 text-muted-foreground" />
                 )}
               </div>
               <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
-              <p className="text-sm text-muted-foreground">{staff.email || '-'}</p>
+              <p className="text-sm text-muted-foreground">{staffData.email || '-'}</p>
             </div>
             <div className="lg:col-span-3">
-              <DetailRow label="Nama Depan" value={staff.first_name} />
-              <DetailRow label="Nama Belakang" value={staff.last_name} />
-              <DetailRow label="Email" value={staff.email} />
-              <DetailRow label="Kode Staf" value={staff.code} />
-              <DetailRow label="NIK" value={staff.nik} />
-              <DetailRow label="Telepon" value={staff.phone} />
-              <DetailRow label="Alamat" value={staff.address} />
-              <DetailRow label="Kode Pos" value={staff.zip_code} />
-              <DetailRow label="Username" value={staffData.username} />
+              <DetailRow label="Nama Depan" value={staffData.first_name} />
+              <DetailRow label="Nama Belakang" value={staffData.last_name} />
+              <DetailRow label="Email" value={staffData.email} />
+              <DetailRow label="Kode Staf" value={staffData.code} />
+              <DetailRow label="NIK" value={staffData.nik} />
+              <DetailRow label="Telepon" value={staffData.phone} />
+              <DetailRow label="Alamat" value={staffData.address} />
+              <DetailRow label="Kode Pos" value={staffData.zip_code} />
+              <DetailRow label="Username" value={staffData.user?.name} />
+              <DetailRow label="Gender" value={staffData.gender} />
+              <DetailRow label="Status" value={staffData.status} />
               <DetailRow label="Peran" value={
                 roles && roles.length > 0 ? (
                   <div className="flex flex-wrap gap-1">

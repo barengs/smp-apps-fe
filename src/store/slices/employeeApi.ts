@@ -9,132 +9,89 @@ interface RoleApiData {
   updated_at: string;
 }
 
-interface DataApi {
-  data: any[];
-}
-
-// Changed from EmployeeNestedData to StaffNestedData
-interface StaffNestedData {
-  first_name: string;
-  last_name: string;
-  code: string; // Added code field
-  nik: string; // Added nik field
-  phone: string; // Added phone field
-  address: string; // Added address field
-  zip_code: string; // Added zip_code field
-  email: string;
-  photo: string;
-}
-
-// Changed from EmployeeApiData to StaffApiData and updated 'employee' to 'staff'
-interface StaffApiData {
+interface UserApiData {
   id: number;
-  staff: StaffNestedData; // Changed from 'employee' to 'staff'
-  email: string;
-  roles: RoleApiData[];
-  created_at: string;
-  updated_at: string;
-  username: string; // Ditambahkan: properti username
-}
-
-// Updated GetEmployeesResponse to use StaffApiData
-interface GetEmployeesResponse {
-  message: string;
-  data: StaffApiData[];
-}
-
-// --- Types for Single Employee Detail ---
-
-// Changed from EmployeeDetailNestedDataForDetail to StaffDetailNestedDataForDetail
-interface StaffDetailNestedDataForDetail {
-  first_name: string;
-  last_name: string;
-  code: string;
-  nik: string;
-  phone: string;
-  email: string;
-  address: string;
-  zip_code: string;
-  photo: string;
-}
-
-interface RoleNameOnly {
   name: string;
-}
-
-// This is the object inside the "data" property of the response
-// Changed from EmployeeDetailData to StaffDetailData and updated 'employee' to 'staff'
-interface StaffDetailData {
-  id: number;
-  user_id: number;
-  code: string;
+  email: string;
+  email_verified_at: string | null;
   created_at: string;
   updated_at: string;
-  staff: StaffDetailNestedDataForDetail; // Changed from 'employee' to 'staff'
-  roles: RoleNameOnly[];
-  username: string; // Added username to detail data
+  roles: RoleApiData[];
 }
 
-// This is the full response from the API
-// Updated GetEmployeeByIdResponse to use StaffDetailData
+// Actual API response structure - data is directly in the root
+interface StaffDetailResponse {
+  id: number;
+  user_id: string;
+  code: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  nik: string | null;
+  nip: string | null;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  village_id: string | null;
+  zip_code: string | null;
+  photo: string | null;
+  marital_status: string;
+  job_id: string | null;
+  status: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user: UserApiData;
+}
+
+// Updated GetEmployeeByIdResponse to match actual API structure
 interface GetEmployeeByIdResponse {
   message: string;
-  data: StaffDetailData;
+  data: StaffDetailResponse;
 }
 
-// Add NIK Check response interface
-interface NikCheckData {
-  nik: string;
-  province: string;
-  city: string;
-  district: string;
-  birth_date: string; // "YYYY-MM-DD"
-  gender: 'Laki-laki' | 'Perempuan';
-  province_code: string;
-  city_code: string;
-  district_code: string;
-}
-
-interface NikCheckResponse {
-  data: NikCheckData;
+// For list response - actual structure
+interface GetEmployeesResponse {
+  message: string;
+  data: StaffDetailResponse[];
 }
 
 export interface CreateUpdateEmployeeRequest {
   first_name: string;
   last_name: string;
   email: string;
-  roles: string[]; // Diubah dari role_ids: number[] menjadi roles: string[]
-  code: string; // Added code for creation
-  nik?: string; // Added nik
-  phone?: string; // Added phone
-  address?: string; // Added address
-  zip_code?: string; // Added zip_code
-  username: string; // Added username
-  password?: string; // Added password (optional for updates, required for create)
-  photo?: string; // Ditambahkan: untuk data gambar base64
+  roles: string[];
+  code: string;
+  nik?: string;
+  phone?: string;
+  address?: string;
+  zip_code?: string;
+  username: string;
+  password?: string;
+  photo?: string;
 }
 
 export const employeeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployees: builder.query<GetEmployeesResponse, void>({
-      query: () => 'main/staff', // Changed from 'employee' to 'staff'
+      query: () => 'main/staff',
       providesTags: ['Employee'],
     }),
     getEmployeeById: builder.query<GetEmployeeByIdResponse, number>({
-      query: (id) => `main/staff/${id}`, // Changed from 'employee' to 'staff'
+      query: (id) => `main/staff/${id}`,
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
-    createEmployee: builder.mutation<StaffApiData, CreateUpdateEmployeeRequest>({ // Updated return type
+    createEmployee: builder.mutation<StaffDetailResponse, CreateUpdateEmployeeRequest>({
       query: (newEmployee) => ({
-        url: 'main/staff', // Changed from 'employee' to 'staff'
+        url: 'main/staff',
         method: 'POST',
         body: newEmployee,
       }),
       invalidatesTags: ['Employee'],
     }),
-    updateEmployee: builder.mutation<StaffApiData, { id: number; data: CreateUpdateEmployeeRequest }>({ // Updated return type
+    updateEmployee: builder.mutation<StaffDetailResponse, { id: number; data: CreateUpdateEmployeeRequest }>({
       query: ({ id, data }) => ({
-        url: `main/staff/${id}`, // Changed from 'employee' to 'staff'
+        url: `main/staff/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -142,20 +99,20 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
-        url: `main/staff/${id}`, // Changed from 'employee' to 'staff'
+        url: `main/staff/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Employee'],
     }),
     importEmployee: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
-        url: 'main/staff/import', // Changed from 'employee/import' to 'staff/import'
+        url: 'main/staff/import',
         method: 'POST',
         body: formData,
       }),
       invalidatesTags: ['Employee'],
     }),
-    checkNik: builder.query<NikCheckResponse, { nik: string }>({
+    checkNik: builder.query<{ data: any }, { nik: string }>({
       query: (body) => ({
         url: 'main/staff/check-nik',
         method: 'POST',

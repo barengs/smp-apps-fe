@@ -23,8 +23,7 @@ const StaffEditPage: React.FC = () => {
   const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
   const staffData = responseData?.data;
-  const staff = staffData?.staff; // Changed from 'employee' to 'staff'
-  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Edit Staf'; // Changed from 'employee' to 'staff'
+  const fullName = staffData ? `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() : 'Edit Staf';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
@@ -72,7 +71,7 @@ const StaffEditPage: React.FC = () => {
     );
   }
 
-  if (error || !staffData || !staff) { // Changed from 'employee' to 'staff'
+  if (error || !staffData) {
     toast.showError('Gagal memuat data staf untuk diedit atau staf tidak ditemukan.');
     navigate('/dashboard/staf');
     return null;
@@ -81,18 +80,18 @@ const StaffEditPage: React.FC = () => {
   // Prepare initialData for StaffForm
   const initialFormData = {
     id: staffData.id,
-    staff: { // Changed from 'employee' to 'staff'
-      first_name: staff.first_name, // Changed from 'employee' to 'staff'
-      last_name: staff.last_name, // Changed from 'employee' to 'staff'
-      code: staff.code, // Changed from 'employee' to 'staff'
-      nik: staff.nik, // Changed from 'employee' to 'staff'
-      phone: staff.phone, // Changed from 'employee' to 'staff'
-      address: staff.address, // Changed from 'employee' to 'staff'
-      zip_code: staff.zip_code, // Changed from 'employee' to 'staff'
+    staff: {
+      first_name: staffData.first_name,
+      last_name: staffData.last_name,
+      code: staffData.code,
+      nik: staffData.nik,
+      phone: staffData.phone,
+      address: staffData.address,
+      zip_code: staffData.zip_code,
     },
-    email: staff.email, // Corrected: Access email from staff object
-    roles: staffData.roles,
-    username: staffData.username, // Tambahkan username dari staffData
+    email: staffData.email,
+    roles: staffData.user?.roles || [],
+    username: staffData.user?.name || '',
   };
 
   return (
