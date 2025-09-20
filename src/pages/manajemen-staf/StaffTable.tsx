@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ColumnDef,
 } from '@tanstack/react-table';
@@ -66,21 +66,23 @@ const StaffTable: React.FC = () => {
   const employees: Staff[] = useMemo(() => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => {
+        // Data is in apiEmployee.staff property
+        const staffData = apiEmployee.staff;
         return {
           id: apiEmployee.id,
           staff: {
-            first_name: apiEmployee.first_name || '',
-            last_name: apiEmployee.last_name || '',
-            code: apiEmployee.code || '',
-            nik: apiEmployee.nik || '',
-            phone: apiEmployee.phone || '',
-            address: apiEmployee.address || '',
-            zip_code: apiEmployee.zip_code || '',
+            first_name: staffData.first_name || '',
+            last_name: staffData.last_name || '',
+            code: staffData.code || '',
+            nik: staffData.nik || '',
+            phone: staffData.phone || '',
+            address: staffData.address || '',
+            zip_code: staffData.zip_code || '',
           },
-          email: apiEmployee.email || '',
-          roles: apiEmployee.user?.roles || [],
-          fullName: `${apiEmployee.first_name || ''} ${apiEmployee.last_name || ''}`,
-          username: apiEmployee.user?.name || '',
+          email: staffData.email || '', // Use email from staff object
+          roles: apiEmployee.roles || [], // Roles are directly in apiEmployee.roles
+          fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`,
+          username: apiEmployee.name || '', // Username is in apiEmployee.name
         };
       });
     }

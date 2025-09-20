@@ -9,39 +9,36 @@ interface RoleApiData {
   updated_at: string;
 }
 
-interface UserApiData {
+interface StaffDetailResponse {
   id: number;
-  name: string;
+  name: string; // Username
   email: string;
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
+  staff: {
+    id: number;
+    user_id: string;
+    code: string;
+    first_name: string;
+    last_name: string;
+    gender: string;
+    nik: string | null;
+    nip: string | null;
+    email: string;
+    phone: string | null;
+    address: string | null;
+    village_id: string | null;
+    zip_code: string | null;
+    photo: string | null;
+    marital_status: string;
+    job_id: string | null;
+    status: string;
+    deleted_at: string | null;
+    created_at: string;
+    updated_at: string;
+  };
   roles: RoleApiData[];
-}
-
-// Actual API response structure - data is directly in the root
-interface StaffDetailResponse {
-  id: number;
-  user_id: string;
-  code: string;
-  first_name: string;
-  last_name: string;
-  gender: string;
-  nik: string | null;
-  nip: string | null;
-  email: string;
-  phone: string | null;
-  address: string | null;
-  village_id: string | null;
-  zip_code: string | null;
-  photo: string | null;
-  marital_status: string;
-  job_id: string | null;
-  status: string;
-  deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
-  user: UserApiData;
 }
 
 // Updated GetEmployeeByIdResponse to match actual API structure

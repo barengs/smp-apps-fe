@@ -40,7 +40,7 @@ const StaffDetailPage: React.FC = () => {
     }
   }, [error, responseData, navigate]);
 
-  const staffData = responseData?.data;
+  const staffData = responseData?.data?.staff;
   const fullName = staffData ? `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() : 'Detail Staf';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -92,7 +92,7 @@ const StaffDetailPage: React.FC = () => {
     return null;
   }
 
-  const roles = staffData.user?.roles || [];
+  const roles = responseData?.data?.roles || [];
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -136,7 +136,7 @@ const StaffDetailPage: React.FC = () => {
               <DetailRow label="Telepon" value={staffData.phone} />
               <DetailRow label="Alamat" value={staffData.address} />
               <DetailRow label="Kode Pos" value={staffData.zip_code} />
-              <DetailRow label="Username" value={staffData.user?.name} />
+              <DetailRow label="Username" value={responseData?.data?.name || ''} />
               <DetailRow label="Gender" value={staffData.gender} />
               <DetailRow label="Status" value={staffData.status} />
               <DetailRow label="Peran" value={

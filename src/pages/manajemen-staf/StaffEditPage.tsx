@@ -22,7 +22,7 @@ const StaffEditPage: React.FC = () => {
 
   const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
-  const staffData = responseData?.data;
+  const staffData = responseData?.data?.staff;
   const fullName = staffData ? `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() : 'Edit Staf';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -77,9 +77,9 @@ const StaffEditPage: React.FC = () => {
     return null;
   }
 
-  // Prepare initialData for StaffForm
+  // Prepare initialData for StaffForm - use data from staff object
   const initialFormData = {
-    id: staffData.id,
+    id: responseData.data.id,
     staff: {
       first_name: staffData.first_name,
       last_name: staffData.last_name,
@@ -90,8 +90,8 @@ const StaffEditPage: React.FC = () => {
       zip_code: staffData.zip_code,
     },
     email: staffData.email,
-    roles: staffData.user?.roles || [],
-    username: staffData.user?.name || '',
+    roles: responseData.data.roles || [],
+    username: responseData.data.name || '',
   };
 
   return (
