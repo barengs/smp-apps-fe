@@ -111,6 +111,37 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
     }
   };
 
+  // Safe rendering with proper validation
+  const renderAcademicYears = () => {
+    if (!academicYears || !Array.isArray(academicYears)) return null;
+    return academicYears.map(year => (
+      <SelectItem key={year.id} value={year.id.toString()}>{year.year}</SelectItem>
+    ));
+  };
+
+  const renderLevels = () => {
+    if (!levelsResponse?.data || !Array.isArray(levelsResponse.data)) return null;
+    return levelsResponse.data.map(level => (
+      <SelectItem key={level.id} value={level.id.toString()}>{level.name}</SelectItem>
+    ));
+  };
+
+  const renderPrograms = () => {
+    if (!programsResponse || !Array.isArray(programsResponse) || !selectedLevel) return null;
+    return programsResponse
+      .filter((p) => (p as any).education_level_id?.toString() === selectedLevel)
+      .map(program => (
+        <SelectItem key={program.id} value={program.id.toString()}>{program.name}</SelectItem>
+      ));
+  };
+
+  const renderClassrooms = () => {
+    if (!classroomsResponse?.data || !Array.isArray(classroomsResponse.data)) return null;
+    return classroomsResponse.data.map(classroom => (
+      <SelectItem key={classroom.id} value={classroom.id.toString()}>{classroom.name}</SelectItem>
+    ));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
@@ -131,7 +162,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
                   <SelectTrigger id="academic-year"><SelectValue placeholder="Pilih Tahun Ajaran" /></SelectTrigger>
                   <SelectContent>
-                    {academicYears?.map(year => <SelectItem key={year.id} value={year.id.toString()}>{year.year}</SelectItem>)}
+                    {renderAcademicYears()}
                   </SelectContent>
                 </Select>
               </div>
@@ -140,7 +171,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 <Select value={selectedLevel} onValueChange={setSelectedLevel}>
                   <SelectTrigger id="education-level"><SelectValue placeholder="Pilih Jenjang" /></SelectTrigger>
                   <SelectContent>
-                    {levelsResponse?.data.map(level => <SelectItem key={level.id} value={level.id.toString()}>{level.name}</SelectItem>)}
+                    {renderLevels()}
                   </SelectContent>
                 </Select>
               </div>
@@ -149,7 +180,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={!selectedLevel}>
                   <SelectTrigger id="program"><SelectValue placeholder="Pilih Kelas" /></SelectTrigger>
                   <SelectContent>
-                    {programsResponse?.filter((p) => (p as any).education_level_id.toString() === selectedLevel).map(program => <SelectItem key={program.id} value={program.id.toString()}>{program.name}</SelectItem>)}
+                    {renderPrograms()}
                   </SelectContent>
                 </Select>
               </div>
@@ -158,7 +189,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 <Select value={selectedClassroom} onValueChange={setSelectedClassroom}>
                   <SelectTrigger id="classroom"><SelectValue placeholder="Pilih Rombel" /></SelectTrigger>
                   <SelectContent>
-                    {classroomsResponse?.data.map(classroom => <SelectItem key={classroom.id} value={classroom.id.toString()}>{classroom.name}</SelectItem>)}
+                    {renderClassrooms()}
                   </SelectContent>
                 </Select>
               </div>
