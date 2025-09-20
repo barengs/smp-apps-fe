@@ -127,11 +127,14 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
         academic_year_id: parseInt(selectedAcademicYear),
         education_id: parseInt(selectedLevel),
         student_id: selectedStudents, // Array of student IDs
-        class_id: parseInt(selectedClassGroup), // Using class group ID as class_id
+        class_id: parseInt(selectedClassroom), // Using classroom ID instead of class group ID
         approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
       };
 
       console.log('Submitting payload:', payload);
+      console.log('Selected classroom ID:', selectedClassroom);
+      console.log('Selected class group ID:', selectedClassGroup);
+      console.log('Available classrooms:', classroomsResponse?.data);
       
       // Note: You may need to update the API endpoint to handle array of student_ids
       // For now, we'll keep the individual calls as the mutation might not support bulk operations
@@ -141,7 +144,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
             academic_year_id: parseInt(selectedAcademicYear),
             education_id: parseInt(selectedLevel),
             student_id: studentId,
-            class_id: parseInt(selectedClassGroup), // Using class group ID as class_id
+            class_id: parseInt(selectedClassroom), // Using classroom ID instead of class group ID
             approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
           }).unwrap()
         )
