@@ -73,22 +73,28 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   }, [selectedLevel]);
 
   const unassignedStudents = useMemo(() => {
-    // Validasi data dengan aman
-    if (!studentsResponse?.data || !studentClassesResponse?.data || !Array.isArray(studentClassesResponse.data)) {
-      console.log('Data validation failed:', {
-        hasStudents: !!studentsResponse?.data,
-        hasStudentClasses: !!studentClassesResponse?.data,
-        isStudentClassesArray: Array.isArray(studentClassesResponse?.data)
-      });
+    // Jika tidak ada data students, return array kosong
+    if (!studentsResponse?.data || !Array.isArray(studentsResponse.data)) {
+      console.log('No students data available');
       return [];
     }
     
+    // Jika studentClassesResponse belum ada datanya (masih kosong), 
+    // berarti semua siswa belum memiliki kelas, tampilkan semua siswa
+    if (!studentClassesResponse?.data || !Array.isArray(studentClassesResponse.data) || studentClassesResponse.data.length === 0) {
+      console.log('No student classes data - showing all students as unassigned');
+      return studentsResponse.data;
+    }
+    
     try {
+      // Filter siswa yang belum memiliki kelas
       const assignedStudentIds = new Set(studentClassesResponse.data.map(sc => sc.student_id));
-      return studentsResponse.data.filter(student => !assignedStudentIds.has(student.id));
+      const unassigned = studentsResponse.data.filter(student => !assignedStudentIds.has(student.id));
+      console.log(`Found ${unassigned.length} unassigned students out of ${studentsResponse.data.length} total students`);
+      return unassigned;
     } catch (error) {
       console.error('Error filtering unassigned students:', error);
-      return [];
+      return studentsResponse.data; // Tampilkan semua siswa jika terjadi error
     }
   }, [studentsResponse, studentClassesResponse]);
 
@@ -261,7 +267,12 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center">Semua siswa sudah memiliki kelas.</TableCell>
+                        <TableCell colSpan={3} className="text-center">
+                          {studentsResponse?.data && studentsResponse.data.length > 0 
+                            ? 'Semua siswa sudah memiliki kelas.' 
+                            : 'Tidak ada data siswa yang tersedia.'
+                          }
+                        </TableCell>
                       </TableRow>
                     )}
                   </TableBody>
