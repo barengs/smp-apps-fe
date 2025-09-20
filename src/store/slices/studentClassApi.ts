@@ -22,6 +22,13 @@ interface StudentClassPaginatedResponse {
   total: number;
 }
 
+// New interface for the wrapped response
+interface WrappedStudentClassResponse {
+  message: string;
+  status: number;
+  data: StudentClassPaginatedResponse;
+}
+
 interface StudentClassData {
   id: number;
   academic_year_id: number;
@@ -78,9 +85,9 @@ export const studentClassApi = smpApi.injectEndpoints({
         }
         return `main/student-class?${queryParams.toString()}`;
       },
-      transformResponse: (response: StudentClassPaginatedResponse) => {
+      transformResponse: (response: WrappedStudentClassResponse) => {
         console.log('StudentClass API Response:', response);
-        return response;
+        return response.data; // Extract the nested data property
       },
       providesTags: (result) => {
         // Validasi data dengan aman
@@ -123,7 +130,7 @@ export const studentClassApi = smpApi.injectEndpoints({
     // Endpoint untuk mendapatkan data berdasarkan status approval
     getStudentClassesByStatus: builder.query<StudentClassPaginatedResponse, string>({
       query: (status) => `main/student-class?approval_status=${status}`,
-      transformResponse: (response: StudentClassPaginatedResponse) => response,
+      transformResponse: (response: WrappedStudentClassResponse) => response.data,
       providesTags: (result) => {
         // Validasi data dengan aman
         if (result && result.data && Array.isArray(result.data)) {
