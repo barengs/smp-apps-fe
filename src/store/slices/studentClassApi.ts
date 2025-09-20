@@ -33,6 +33,10 @@ interface StudentClassData {
   approved_by: number;
   created_at: string;
   updated_at: string;
+  // Tambahan properti dari backend response
+  students?: any;
+  academic_years?: any;
+  classrooms?: any;
 }
 
 // Interface untuk request body

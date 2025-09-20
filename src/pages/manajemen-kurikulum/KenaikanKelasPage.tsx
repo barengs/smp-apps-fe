@@ -72,17 +72,21 @@ const KenaikanKelasPage: React.FC = () => {
     const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
 
     return studentClassesResponse.data.map((studentClass): PromotionData => {
-      const student = studentMap.get(studentClass.student_id);
+      // Gunakan data yang sudah tersedia di response (jika ada)
+      const student = studentClass.students || studentMap.get(studentClass.student_id);
+      const academicYear = studentClass.academic_years || academicYearMap.get(studentClass.academic_year_id);
+      const classroom = studentClass.classrooms; // Data classroom sudah tersedia di response
+      
+      // Untuk jenjang pendidikan, kita masih perlu mapping dari program
       const program = programMap.get(studentClass.education_id);
       const level = program ? levelMap.get((program as any).education_level_id) : undefined;
-      const academicYear = academicYearMap.get(studentClass.academic_year_id);
 
       return {
         id: studentClass.id,
         siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
-        tahunAjaran: academicYear ? (academicYear as any).name : 'Tidak diketahui',
+        tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
         jenjangPendidikan: level ? (level as any).name : 'Tidak diketahui',
-        kelas: program ? (program as any).name : 'Tidak diketahui',
+        kelas: classroom ? classroom.name : 'Tidak diketahui',
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
       };
@@ -117,6 +121,7 @@ const KenaikanKelasPage: React.FC = () => {
             case 'approved':
               return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Disetujui</span>;
             case 'pending':
+            case 'diajukan':
               return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Menunggu</span>;
             case 'rejected':
               return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Ditolak</span>;
