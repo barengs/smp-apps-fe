@@ -250,40 +250,40 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
               </div>
             </div>
 
-            <div className="py-4">
+            <div className="py-2">
               <p className="text-sm font-medium mb-2">Pilih Siswa (Siswa yang belum memiliki kelas)</p>
-              <ScrollArea className="h-72 border rounded-md">
+              <ScrollArea className="h-64 border rounded-md">
                 <Table>
                   <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
-                      <TableHead className="w-12">
+                      <TableHead className="w-12 py-2">
                         <Checkbox
                           onCheckedChange={handleSelectAll}
                           checked={selectedStudents.length > 0 && selectedStudents.length === unassignedStudents.length}
                           aria-label="Pilih semua"
                         />
                       </TableHead>
-                      <TableHead>Nama Siswa</TableHead>
-                      <TableHead>NIS</TableHead>
+                      <TableHead className="py-2">Nama Siswa</TableHead>
+                      <TableHead className="py-2">NIS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {unassignedStudents.length > 0 ? (
                       unassignedStudents.map(student => (
-                        <TableRow key={student.id}>
-                          <TableCell>
+                        <TableRow key={student.id} className="h-10">
+                          <TableCell className="py-1">
                             <Checkbox
                               checked={selectedStudents.includes(student.id)}
                               onCheckedChange={(checked) => handleSelectSingle(student.id, !!checked)}
                             />
                           </TableCell>
-                          <TableCell>{`${student.first_name} ${student.last_name || ''}`.trim()}</TableCell>
-                          <TableCell>{student.nis}</TableCell>
+                          <TableCell className="py-1">{`${student.first_name} ${student.last_name || ''}`.trim()}</TableCell>
+                          <TableCell className="py-1">{student.nis}</TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center">
+                        <TableCell colSpan={3} className="text-center py-4">
                           {studentsResponse?.data && studentsResponse.data.length > 0 
                             ? 'Semua siswa sudah memiliki kelas.' 
                             : 'Tidak ada data siswa yang tersedia.'
