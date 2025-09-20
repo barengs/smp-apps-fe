@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, Briefcase, UsersRound, ArrowLeft, Edit } from 'lucide-react'; // Import Edit icon
+import { User, Briefcase, UsersRound, ArrowLeft, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -30,7 +30,7 @@ const StaffDetailPage: React.FC = () => {
   }, [staffId, navigate]);
 
   const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId, {
-    skip: isNaN(staffId), // Skip query if ID is invalid
+    skip: isNaN(staffId),
   });
 
   useEffect(() => {
@@ -41,8 +41,8 @@ const StaffDetailPage: React.FC = () => {
   }, [error, responseData, navigate]);
 
   const staffData = responseData?.data;
-  const staff = staffData?.staff; // Changed from 'employee' to 'staff'
-  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Detail Staf'; // Changed from 'employee' to 'staff'
+  const staff = staffData?.staff;
+  const fullName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() : 'Detail Staf';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
@@ -51,7 +51,7 @@ const StaffDetailPage: React.FC = () => {
   ];
 
   const handleEdit = () => {
-    navigate(`/dashboard/staf/${staffId}/edit`); // Navigate to the edit page
+    navigate(`/dashboard/staf/${staffId}/edit`);
   };
 
   if (isLoading) {
@@ -92,7 +92,7 @@ const StaffDetailPage: React.FC = () => {
   if (!staffData || !staff) {
     return null;
   }
-  
+
   const roles = staffData.roles;
 
   return (
@@ -119,24 +119,25 @@ const StaffDetailPage: React.FC = () => {
           <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                {staff.photo ? ( // Changed from 'employee' to 'staff'
-                  <img src={staff.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" /> // Changed from 'employee' to 'staff'
+                {staff.photo ? (
+                  <img src={staff.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
                 ) : (
                   <User className="h-24 w-24 text-muted-foreground" />
                 )}
               </div>
               <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
-              <p className="text-sm text-muted-foreground">{staff.email || '-'}</p> {/* Changed from 'employee' to 'staff' */}
+              <p className="text-sm text-muted-foreground">{staff.email || '-'}</p>
             </div>
             <div className="lg:col-span-3">
-              <DetailRow label="Nama Depan" value={staff.first_name} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="Nama Belakang" value={staff.last_name} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="Email" value={staff.email} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="Kode Staf" value={staff.code} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="NIK" value={staff.nik} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="Telepon" value={staff.phone} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="Alamat" value={staff.address} /> {/* Changed from 'employee' to 'staff' */}
-              <DetailRow label="Kode Pos" value={staff.zip_code} /> {/* Changed from 'employee' to 'staff' */}
+              <DetailRow label="Nama Depan" value={staff.first_name} />
+              <DetailRow label="Nama Belakang" value={staff.last_name} />
+              <DetailRow label="Email" value={staff.email} />
+              <DetailRow label="Kode Staf" value={staff.code} />
+              <DetailRow label="NIK" value={staff.nik} />
+              <DetailRow label="Telepon" value={staff.phone} />
+              <DetailRow label="Alamat" value={staff.address} />
+              <DetailRow label="Kode Pos" value={staff.zip_code} />
+              <DetailRow label="Username" value={staffData.username} />
               <DetailRow label="Peran" value={
                 roles && roles.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
