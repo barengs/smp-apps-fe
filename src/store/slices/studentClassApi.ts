@@ -87,7 +87,6 @@ export const studentClassApi = smpApi.injectEndpoints({
         return `main/student-class?${queryParams.toString()}`;
       },
       transformResponse: (response: WrappedStudentClassResponse) => {
-        console.log('StudentClass API Response:', response);
         return response.data; // Extract the nested data property
       },
       providesTags: (result) => {

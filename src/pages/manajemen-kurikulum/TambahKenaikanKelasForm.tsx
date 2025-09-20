@@ -75,14 +75,12 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const unassignedStudents = useMemo(() => {
     // Jika tidak ada data students, return array kosong
     if (!studentsResponse?.data || !Array.isArray(studentsResponse.data)) {
-      console.log('No students data available');
       return [];
     }
     
     // Jika studentClassesResponse belum ada datanya (masih kosong), 
     // berarti semua siswa belum memiliki kelas, tampilkan semua siswa
     if (!studentClassesResponse?.data || !Array.isArray(studentClassesResponse.data) || studentClassesResponse.data.length === 0) {
-      console.log('No student classes data - showing all students as unassigned');
       return studentsResponse.data;
     }
     
@@ -90,10 +88,8 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
       // Filter siswa yang belum memiliki kelas
       const assignedStudentIds = new Set(studentClassesResponse.data.map(sc => sc.student_id));
       const unassigned = studentsResponse.data.filter(student => !assignedStudentIds.has(student.id));
-      console.log(`Found ${unassigned.length} unassigned students out of ${studentsResponse.data.length} total students`);
       return unassigned;
     } catch (error) {
-      console.error('Error filtering unassigned students:', error);
       return studentsResponse.data; // Tampilkan semua siswa jika terjadi error
     }
   }, [studentsResponse, studentClassesResponse]);
@@ -131,11 +127,6 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
         approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
       };
 
-      console.log('Submitting payload:', payload);
-      console.log('Selected classroom ID:', selectedClassroom);
-      console.log('Selected class group ID:', selectedClassGroup);
-      console.log('Available classrooms:', classroomsResponse?.data);
-      
       // Note: You may need to update the API endpoint to handle array of student_ids
       // For now, we'll keep the individual calls as the mutation might not support bulk operations
       await Promise.all(
@@ -155,7 +146,6 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
     } catch (error) {
       dismissToast(toastId);
       showError('Gagal menambahkan siswa. Silakan coba lagi.');
-      console.error('Failed to create student class:', error);
     }
   };
 

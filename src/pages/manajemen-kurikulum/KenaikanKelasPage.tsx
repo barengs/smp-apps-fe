@@ -50,25 +50,16 @@ const KenaikanKelasPage: React.FC = () => {
 
   // Memproses dan menggabungkan data dengan validasi yang lebih baik
   const promotionData = React.useMemo(() => {
-    console.log('studentClassesResponse:', studentClassesResponse);
-    console.log('studentsResponse:', studentsResponse);
-    console.log('programsResponse:', programsResponse);
-    console.log('levelsResponse:', levelsResponse);
-    console.log('academicYearsResponse:', academicYearsResponse);
-    
     if (isLoading || !studentClassesResponse || !studentsResponse || !programsResponse || !levelsResponse || !academicYearsResponse) {
-      console.log('Missing required data, returning empty array');
       return [];
     }
 
     // Validasi struktur response yang benar
     if (!studentClassesResponse.data || !Array.isArray(studentClassesResponse.data)) {
-      console.warn('studentClassesResponse.data is not an array:', studentClassesResponse.data);
       return [];
     }
 
     if (!studentsResponse.data || !Array.isArray(studentsResponse.data)) {
-      console.warn('studentsResponse.data is not an array:', studentsResponse.data);
       return [];
     }
 
@@ -78,11 +69,7 @@ const KenaikanKelasPage: React.FC = () => {
     const levelMap = new Map((levelsResponse as any).data.map((l: any) => [l.id, l]));
     const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
 
-    console.log('Processing student classes:', studentClassesResponse.data.length, 'items');
-    
     return studentClassesResponse.data.map((studentClass): PromotionData => {
-      console.log('Processing studentClass:', studentClass);
-      
       // Gunakan data yang sudah tersedia di response (jika ada)
       const student = studentClass.students || studentMap.get(studentClass.student_id);
       const academicYear = studentClass.academic_years || academicYearMap.get(studentClass.academic_year_id);
@@ -102,7 +89,6 @@ const KenaikanKelasPage: React.FC = () => {
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
       };
       
-      console.log('Processed result:', result);
       return result;
     });
   }, [studentClassesResponse, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
@@ -174,7 +160,6 @@ const KenaikanKelasPage: React.FC = () => {
 
   // Fungsi untuk menangani kenaikan kelas
   const handlePromotion = (data: PromotionData) => {
-    console.log('Menaikkan kelas untuk:', data);
     // Implementasi logika kenaikan kelas akan ditambahkan di sini
   };
 
@@ -185,7 +170,6 @@ const KenaikanKelasPage: React.FC = () => {
 
   // Fungsi untuk proses penugasan
   const handleAssignment = () => {
-    console.log('Proses penugasan kenaikan kelas');
     // Implementasi logika penugasan akan ditambahkan di sini
   };
 
