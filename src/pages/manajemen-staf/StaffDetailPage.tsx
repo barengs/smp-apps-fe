@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,13 +22,23 @@ const StaffDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const staffId = parseInt(id || '', 10);
 
-  if (isNaN(staffId)) {
-    toast.showError('ID staf tidak valid.');
-    navigate('/dashboard/staf');
-    return null;
-  }
+  useEffect(() => {
+    if (isNaN(staffId)) {
+      toast.showError('ID staf tidak valid.');
+      navigate('/dashboard/staf');
+    }
+  }, [staffId, navigate]);
 
-  const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
+  const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId, {
+    skip: isNaN(staffId), // Skip query if ID is invalid
+  });
+
+  useEffect(() => {
+    if (error || (responseData && !responseData.data)) {
+      toast.showError('Gagal memuat detail staf atau staf tidak ditemukan.');
+      navigate('/dashboard/staf');
+    }
+  }, [error, responseData, navigate]);
 
   const staffData = responseData?.data;
   const staff = staffData?.staff; // Changed from 'employee' to 'staff'
@@ -75,9 +85,11 @@ const StaffDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !staffData || !staff) { // Changed from 'employee' to 'staff'
-    toast.showError('Gagal memuat detail staf atau staf tidak ditemukan.');
-    navigate('/dashboard/staf');
+  if (isNaN(staffId)) {
+    return null;
+  }
+
+  if (!staffData || !staff) {
     return null;
   }
   
