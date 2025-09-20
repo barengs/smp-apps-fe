@@ -34,6 +34,13 @@ const StaffDetailPage: React.FC = () => {
   });
 
   useEffect(() => {
+    console.log('API Response:', responseData);
+    console.log('Error:', error);
+    console.log('Is Loading:', isLoading);
+    console.log('Staff ID:', staffId);
+  }, [responseData, error, isLoading, staffId]);
+
+  useEffect(() => {
     if (error || (responseData && !responseData.data)) {
       toast.showError('Gagal memuat detail staf atau staf tidak ditemukan.');
       navigate('/dashboard/staf');
@@ -89,7 +96,11 @@ const StaffDetailPage: React.FC = () => {
     return null;
   }
 
+  console.log('Staff Data:', staffData);
+  console.log('Staff Object:', staff);
+
   if (!staffData || !staff) {
+    console.log('No data found, returning null');
     return null;
   }
 
