@@ -419,7 +419,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
           </Button>
         )}
         <div className="hidden md:block">
-          <h1 className="text-2xl font-semibold">{title}</h1>
+          <h3 className="text-xl font-semibold">{title}</h3>
         </div>
       </div>
       <div className="flex items-center space-x-4">
