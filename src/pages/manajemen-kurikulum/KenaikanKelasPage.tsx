@@ -31,8 +31,11 @@ const KenaikanKelasPage: React.FC = () => {
     { label: 'Kenaikan Kelas', icon: <TrendingUp className="h-4 w-4" /> },
   ];
 
-  // Mengambil data dari endpoint main/student-class
-  const { data: studentClasses = [], isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
+  // Mengambil data dari endpoint main/student-class dengan pagination
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({
+    page: 1,
+    per_page: 50 // Ambil 50 data per halaman
+  });
   
   // Mengambil data pendukung
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
@@ -44,7 +47,7 @@ const KenaikanKelasPage: React.FC = () => {
 
   // Memproses dan menggabungkan data
   const promotionData = React.useMemo(() => {
-    if (isLoading || !studentClasses.length || !studentsResponse?.data || !programsResponse || !levelsResponse || !academicYearsResponse) {
+    if (isLoading || !studentClassesResponse?.data || !studentsResponse?.data || !programsResponse || !levelsResponse || !academicYearsResponse) {
       return [];
     }
 
@@ -54,7 +57,7 @@ const KenaikanKelasPage: React.FC = () => {
     const levelMap = new Map((levelsResponse as any).data.map((l: any) => [l.id, l]));
     const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
 
-    return studentClasses.map((studentClass): PromotionData => {
+    return studentClassesResponse.data.map((studentClass): PromotionData => {
       const student = studentMap.get(studentClass.student_id);
       const program = programMap.get(studentClass.education_id);
       const level = program ? levelMap.get((program as any).education_level_id) : undefined;
@@ -70,7 +73,7 @@ const KenaikanKelasPage: React.FC = () => {
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
       };
     });
-  }, [studentClasses, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
+  }, [studentClassesResponse, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
 
   // Kolom untuk DataTable
   const columns: ColumnDef<PromotionData>[] = [

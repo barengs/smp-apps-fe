@@ -1,9 +1,25 @@
 import { smpApi } from '../baseApi';
 
-// Interface untuk response API
-interface StudentClassResponse {
-  status: number;
+// Interface untuk response API dengan pagination
+interface StudentClassPaginatedResponse {
+  current_page: number;
   data: StudentClassData[];
+  first_page_url: string;
+  from: number | null;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{
+    url: string | null;
+    label: string;
+    page: number | null;
+    active: boolean;
+  }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
 }
 
 interface StudentClassData {
@@ -39,18 +55,33 @@ interface UpdateStudentClassRequest {
   approved_by?: number;
 }
 
+// Interface untuk query params
+interface GetStudentClassesParams {
+  page?: number;
+  per_page?: number;
+  approval_status?: string;
+}
+
 export const studentClassApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudentClasses: builder.query<StudentClassData[], void>({
-      query: () => 'main/student-class',
-      transformResponse: (response: StudentClassResponse) => {
+    getStudentClasses: builder.query<StudentClassPaginatedResponse, GetStudentClassesParams | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params) {
+          if (params.page) queryParams.append('page', params.page.toString());
+          if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+          if (params.approval_status) queryParams.append('approval_status', params.approval_status);
+        }
+        return `main/student-class?${queryParams.toString()}`;
+      },
+      transformResponse: (response: StudentClassPaginatedResponse) => {
         console.log('StudentClass API Response:', response);
-        return response.data;
+        return response;
       },
       providesTags: (result) =>
-        result
+        result && result.data
           ? [
-              ...result.map(({ id }) => ({ type: 'Student' as const, id })),
+              ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
               { type: 'Student', id: 'LIST' },
             ]
           : [{ type: 'Student', id: 'LIST' }],
@@ -83,13 +114,13 @@ export const studentClassApi = smpApi.injectEndpoints({
       invalidatesTags: [{ type: 'Student', id: 'LIST' }],
     }),
     // Endpoint untuk mendapatkan data berdasarkan status approval
-    getStudentClassesByStatus: builder.query<StudentClassData[], string>({
+    getStudentClassesByStatus: builder.query<StudentClassPaginatedResponse, string>({
       query: (status) => `main/student-class?approval_status=${status}`,
-      transformResponse: (response: StudentClassResponse) => response.data,
+      transformResponse: (response: StudentClassPaginatedResponse) => response,
       providesTags: (result) =>
-        result
+        result && result.data
           ? [
-              ...result.map(({ id }) => ({ type: 'Student' as const, id })),
+              ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
               { type: 'Student', id: 'LIST' },
             ]
           : [{ type: 'Student', id: 'LIST' }],
