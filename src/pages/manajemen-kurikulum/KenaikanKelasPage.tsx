@@ -61,7 +61,7 @@ const KenaikanKelasPage: React.FC = () => {
       return [];
     }
 
-    // Validasi struktur response yang benar
+    // Validasi struktur response yang benar - PERBAIKAN: akses data.data
     if (!studentClassesResponse.data || !Array.isArray(studentClassesResponse.data)) {
       console.warn('studentClassesResponse.data is not an array:', studentClassesResponse.data);
       return [];
