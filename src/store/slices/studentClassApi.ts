@@ -40,7 +40,7 @@ interface CreateStudentClassRequest {
   academic_year_id: number;
   education_id: number;
   student_id: number | number[]; // Support both single student and array
-  classroom_id: number; // Changed from class_id to classroom_id
+  class_id: number; // Keep as class_id (not classroom_id)
   approval_status?: string;
   approval_note?: string;
 }
@@ -49,7 +49,7 @@ interface UpdateStudentClassRequest {
   academic_year_id?: number;
   education_id?: number;
   student_id?: number;
-  classroom_id?: number; // Changed from class_id to classroom_id
+  class_id: number; // Keep as class_id (not classroom_id)
   approval_status?: string;
   approval_note?: string;
   approved_by?: number;

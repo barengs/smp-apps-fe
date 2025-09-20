@@ -127,7 +127,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
         academic_year_id: parseInt(selectedAcademicYear),
         education_id: parseInt(selectedLevel),
         student_id: selectedStudents, // Array of student IDs
-        classroom_id: parseInt(selectedClassGroup), // Changed from class_id to classroom_id
+        class_id: parseInt(selectedClassGroup), // Using class group ID as class_id
         approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
       };
 
@@ -141,7 +141,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
             academic_year_id: parseInt(selectedAcademicYear),
             education_id: parseInt(selectedLevel),
             student_id: studentId,
-            classroom_id: parseInt(selectedClassGroup), // Changed from class_id to classroom_id
+            class_id: parseInt(selectedClassGroup), // Using class group ID as class_id
             approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
           }).unwrap()
         )
