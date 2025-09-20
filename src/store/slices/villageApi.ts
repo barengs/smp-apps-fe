@@ -59,10 +59,14 @@ export const villageApi = smpApi.injectEndpoints({
             ]
           : [{ type: 'Village', id: 'LIST' }],
     }),
+    // Try the correct endpoint format - master/village/{id}/district
     getVillagesByDistrict: builder.query<VillageApiData[], string>({
-      query: (districtCode) => `master/village/${districtCode}/district`,
+      query: (districtCode) => {
+        console.log('Fetching villages with district code:', districtCode);
+        return `master/village/${districtCode}/district`;
+      },
       transformResponse: (response: GetVillagesByDistrictResponse) => {
-        console.log('Raw response from getVillagesByDistrict:', response);
+        console.log('Response from getVillagesByDistrict:', response);
         return response.data;
       },
       providesTags: (result) =>
@@ -72,6 +76,15 @@ export const villageApi = smpApi.injectEndpoints({
               { type: 'Village', id: 'LIST' },
             ]
           : [{ type: 'Village', id: 'LIST' }],
+    }),
+    // Alternative: Get all villages and filter by district_code
+    getAllVillages: builder.query<VillageApiData[], void>({
+      query: () => 'region/village?per_page=2000', // Get all villages with large page size
+      transformResponse: (response: GetVillagesResponse) => {
+        console.log('Response from getAllVillages:', response);
+        return response.data;
+      },
+      providesTags: [{ type: 'Village', id: 'LIST' }],
     }),
     createVillage: builder.mutation<VillageApiData, CreateUpdateVillageRequest>({
       query: (newVillage) => ({
@@ -96,17 +109,18 @@ export const villageApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Village', id: 'LIST' }, 'District'],
     }),
-    // Corrected: Endpoint to get village by NIK, now returns an array
+    // Endpoint to get village by NIK
     getVillageByNik: builder.query<VillageApiData[], string>({
       query: (nik) => `master/village/${nik}/nik`,
-      transformResponse: (response: GetVillageByNikRawResponse) => response.data, // Extract the array from the 'data' property
+      transformResponse: (response: GetVillageByNikRawResponse) => response.data,
     }),
   }),
 });
 
 export const {
-  useLazyGetVillagesQuery, // Mengubah ini menjadi lazy query
+  useLazyGetVillagesQuery,
   useGetVillagesByDistrictQuery,
+  useGetAllVillagesQuery,
   useCreateVillageMutation,
   useUpdateVillageMutation,
   useDeleteVillageMutation,

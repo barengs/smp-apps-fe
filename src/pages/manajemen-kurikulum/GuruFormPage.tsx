@@ -22,6 +22,7 @@ import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
 import { useLazyCheckNikQuery } from '@/store/slices/employeeApi';
+import { useGetAllVillagesQuery } from '@/store/slices/villageApi';
 
 import GuruProfileStep from './form-steps/GuruProfileStep';
 import GuruAddressStep from './form-steps/GuruAddressStep';
@@ -108,6 +109,20 @@ const GuruFormPage: React.FC = () => {
   const { data: jobs = [] } = useGetPekerjaanQuery();
   const { data: roles = { data: [] } } = useGetRolesQuery();
 
+  const { data: allVillages = [], isLoading: isLoadingAllVillages } = useGetAllVillagesQuery();
+  
+  // Try district-specific endpoint as secondary
+  const { data: villagesByDistrict = [], isLoading: isLoadingVillages, error: villageError, refetch: refetchVillages } = useGetVillagesByDistrictQuery(districtCode, {
+    skip: !districtCode,
+  });
+
+  // Test if district endpoint is working
+  useEffect(() => {
+    if (districtCode && villageError) {
+      console.log('District-specific village endpoint failed, using fallback:', villageError);
+    }
+  }, [districtCode, villageError]);
+
   const provinceCode = form.watch('province_code');
   const cityCode = form.watch('city_code');
   const districtCode = form.watch('district_code');
@@ -115,10 +130,19 @@ const GuruFormPage: React.FC = () => {
   const currentVillageCode = form.watch('village_code');
   const currentJobId = form.watch('job_id');
 
-  // Village data loading with correct endpoint
+  // Consolidated village data loading - single source of truth
+  const { data: allVillages = [], isLoading: isLoadingAllVillages } = useGetAllVillagesQuery();
+  
   const { data: villagesByDistrict = [], isLoading: isLoadingVillages, error: villageError, refetch: refetchVillages } = useGetVillagesByDistrictQuery(districtCode, {
-    skip: !districtCode, // Skip query if no districtCode
+    skip: !districtCode,
   });
+
+  // Test if district endpoint is working
+  useEffect(() => {
+    if (districtCode && villageError) {
+      console.log('District-specific village endpoint failed, using fallback:', villageError);
+    }
+  }, [districtCode, villageError]);
 
   const filteredCities = useMemo(() => cities.filter(c => c.province_code === provinceCode), [cities, provinceCode]);
   const filteredDistricts = useMemo(() => districts.filter(d => d.city_code === cityCode), [districts, cityCode]);
@@ -315,19 +339,21 @@ const GuruFormPage: React.FC = () => {
     }
   }, [isEditMode, teacherData, districtCode, villagesByDistrict.length, isLoadingVillages, refetchVillages]);
 
-  // Effect to handle village selection after data loads
+  // Effect to handle village selection with better timing
   useEffect(() => {
-    if (isEditMode && teacherData?.data && villagesByDistrict.length > 0) {
+    if (isEditMode && teacherData?.data && districtCode && (villagesByDistrict.length > 0 || allVillages.length > 0)) {
       const teacher = teacherData.data;
       const villageCode = teacher.village?.code;
-      const currentVillage = form.getValues('village_code');
       
-      if (villageCode && !currentVillage) {
+      if (villageCode && !currentVillageCode) {
         console.log('Setting village code after data loaded:', villageCode);
-        form.setValue('village_code', villageCode, { shouldValidate: true });
+        // Small delay to ensure UI is ready
+        setTimeout(() => {
+          form.setValue('village_code', villageCode, { shouldValidate: true });
+        }, 300);
       }
     }
-  }, [isEditMode, teacherData, villagesByDistrict, form]);
+  }, [isEditMode, teacherData, villagesByDistrict, allVillages, currentVillageCode, form, districtCode]);
 
   // Add effect to monitor when district changes and reset village
   useEffect(() => {
