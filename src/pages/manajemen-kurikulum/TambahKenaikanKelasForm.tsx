@@ -35,7 +35,6 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const [selectedLevel, setSelectedLevel] = useState<string>('');
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
-  const [selectedClassGroup, setSelectedClassGroup] = useState<string>('');
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
 
   const isLoading = isLoadingStudents || isLoadingAcademicYears || isLoadingLevels || isLoadingPrograms || isLoadingClassrooms || isLoadingStudentClasses;
@@ -44,18 +43,8 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
     if (selectedLevel && programsResponse) {
       // Reset program selection when level changes
       setSelectedProgram('');
-      setSelectedClassroom('');
-      setSelectedClassGroup('');
     }
   }, [selectedLevel, programsResponse]);
-
-  useEffect(() => {
-    if (selectedProgram) {
-      // Reset classroom selection when program changes
-      setSelectedClassroom('');
-      setSelectedClassGroup('');
-    }
-  }, [selectedProgram]);
 
   const unassignedStudents = useMemo(() => {
     // Validasi data dengan aman
@@ -94,7 +83,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   };
 
   const handleSubmit = async () => {
-    if (!selectedAcademicYear || !selectedLevel || !selectedProgram || !selectedClassroom || !selectedClassGroup || selectedStudents.length === 0) {
+    if (!selectedAcademicYear || !selectedLevel || !selectedProgram || !selectedClassroom || selectedStudents.length === 0) {
       showError('Harap lengkapi semua bidang dan pilih setidaknya satu siswa.');
       return;
     }
@@ -107,7 +96,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
             academic_year_id: parseInt(selectedAcademicYear),
             education_id: parseInt(selectedProgram),
             student_id: studentId,
-            class_id: parseInt(selectedClassGroup),
+            class_id: parseInt(selectedClassroom),
             approval_status: 'pending',
           }).unwrap()
         )
@@ -154,18 +143,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const renderClassrooms = () => {
     if (!classroomsResponse?.data || !Array.isArray(classroomsResponse.data)) return null;
     return classroomsResponse.data.map(classroom => (
-      <SelectItem key={classroom.id} value={classroom.id.toString()}>{`${classroom.name} - ${classroom.description || ''}`}</SelectItem>
-    ));
-  };
-
-  const renderClassGroups = () => {
-    if (!selectedClassroom || !classroomsResponse?.data || !Array.isArray(classroomsResponse.data)) return null;
-    
-    const selectedClassroomData = classroomsResponse.data.find(c => c.id.toString() === selectedClassroom);
-    if (!selectedClassroomData || !selectedClassroomData.class_groups || !Array.isArray(selectedClassroomData.class_groups)) return null;
-    
-    return selectedClassroomData.class_groups.map(group => (
-      <SelectItem key={group.id} value={group.id.toString()}>{group.name}</SelectItem>
+      <SelectItem key={classroom.id} value={classroom.id.toString()}>{classroom.name}</SelectItem>
     ));
   };
 
@@ -175,7 +153,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
         <DialogHeader>
           <DialogTitle>Tambah Data Kenaikan Kelas</DialogTitle>
           <DialogDescription>
-            Pilih tahun ajaran, jenjang, program, kelas, dan rombel, lalu pilih siswa yang akan dimasukkan ke kelas tersebut.
+            Pilih tahun ajaran, jenjang, dan kelas, lalu pilih siswa yang akan dimasukkan ke kelas tersebut.
           </DialogDescription>
         </DialogHeader>
         
@@ -183,7 +161,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
           <TableLoadingSkeleton />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-4">
               <div>
                 <Label htmlFor="academic-year">Tahun Ajaran</Label>
                 <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
@@ -203,29 +181,20 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 </Select>
               </div>
               <div>
-                <Label htmlFor="program">Program</Label>
+                <Label htmlFor="program">Kelas/Program</Label>
                 <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={!selectedLevel}>
-                  <SelectTrigger id="program"><SelectValue placeholder="Pilih Program" /></SelectTrigger>
+                  <SelectTrigger id="program"><SelectValue placeholder="Pilih Kelas" /></SelectTrigger>
                   <SelectContent>
                     {renderPrograms()}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="classroom">Kelas</Label>
-                <Select value={selectedClassroom} onValueChange={setSelectedClassroom} disabled={!selectedProgram}>
-                  <SelectTrigger id="classroom"><SelectValue placeholder="Pilih Kelas" /></SelectTrigger>
+                <Label htmlFor="classroom">Rombel</Label>
+                <Select value={selectedClassroom} onValueChange={setSelectedClassroom}>
+                  <SelectTrigger id="classroom"><SelectValue placeholder="Pilih Rombel" /></SelectTrigger>
                   <SelectContent>
                     {renderClassrooms()}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="class-group">Rombel</Label>
-                <Select value={selectedClassGroup} onValueChange={setSelectedClassGroup} disabled={!selectedClassroom}>
-                  <SelectTrigger id="class-group"><SelectValue placeholder="Pilih Rombel" /></SelectTrigger>
-                  <SelectContent>
-                    {renderClassGroups()}
                   </SelectContent>
                 </Select>
               </div>
