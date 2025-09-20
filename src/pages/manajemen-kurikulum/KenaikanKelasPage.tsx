@@ -87,16 +87,16 @@ const KenaikanKelasPage: React.FC = () => {
       const student = studentClass.students || studentMap.get(studentClass.student_id);
       const academicYear = studentClass.academic_years || academicYearMap.get(studentClass.academic_year_id);
       const classroom = studentClass.classrooms; // Data classroom sudah tersedia di response
+      const education = studentClass.educations; // Data education/jenjang pendidikan sudah tersedia di response
       
-      // Untuk jenjang pendidikan, kita masih perlu mapping dari program
-      const program = programMap.get(studentClass.education_id);
-      const level = program ? levelMap.get((program as any).education_level_id) : undefined;
+      // Untuk jenjang pendidikan, gunakan langsung dari properti educations.name
+      const jenjangPendidikan = education ? education.name : 'Tidak diketahui';
 
       const result = {
         id: studentClass.id,
         siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
         tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
-        jenjangPendidikan: level ? (level as any).name : 'Tidak diketahui',
+        jenjangPendidikan: jenjangPendidikan,
         kelas: classroom ? classroom.name : 'Tidak diketahui',
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),

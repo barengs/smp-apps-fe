@@ -44,6 +44,7 @@ interface StudentClassData {
   students?: any;
   academic_years?: any;
   classrooms?: any;
+  educations?: any; // Add this property
 }
 
 // Interface untuk request body
