@@ -50,17 +50,24 @@ const KenaikanKelasPage: React.FC = () => {
 
   // Memproses dan menggabungkan data dengan validasi yang lebih baik
   const promotionData = React.useMemo(() => {
-    if (isLoading || !studentClassesResponse?.data || !studentsResponse?.data || !programsResponse || !levelsResponse || !academicYearsResponse) {
+    console.log('studentClassesResponse:', studentClassesResponse);
+    console.log('studentsResponse:', studentsResponse);
+    console.log('programsResponse:', programsResponse);
+    console.log('levelsResponse:', levelsResponse);
+    console.log('academicYearsResponse:', academicYearsResponse);
+    
+    if (isLoading || !studentClassesResponse || !studentsResponse || !programsResponse || !levelsResponse || !academicYearsResponse) {
+      console.log('Missing required data, returning empty array');
       return [];
     }
 
-    // Validasi data yang diterima
-    if (!Array.isArray(studentClassesResponse.data)) {
+    // Validasi struktur response yang benar
+    if (!studentClassesResponse.data || !Array.isArray(studentClassesResponse.data)) {
       console.warn('studentClassesResponse.data is not an array:', studentClassesResponse.data);
       return [];
     }
 
-    if (!Array.isArray(studentsResponse.data)) {
+    if (!studentsResponse.data || !Array.isArray(studentsResponse.data)) {
       console.warn('studentsResponse.data is not an array:', studentsResponse.data);
       return [];
     }
@@ -71,7 +78,11 @@ const KenaikanKelasPage: React.FC = () => {
     const levelMap = new Map((levelsResponse as any).data.map((l: any) => [l.id, l]));
     const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
 
+    console.log('Processing student classes:', studentClassesResponse.data.length, 'items');
+    
     return studentClassesResponse.data.map((studentClass): PromotionData => {
+      console.log('Processing studentClass:', studentClass);
+      
       // Gunakan data yang sudah tersedia di response (jika ada)
       const student = studentClass.students || studentMap.get(studentClass.student_id);
       const academicYear = studentClass.academic_years || academicYearMap.get(studentClass.academic_year_id);
@@ -81,7 +92,7 @@ const KenaikanKelasPage: React.FC = () => {
       const program = programMap.get(studentClass.education_id);
       const level = program ? levelMap.get((program as any).education_level_id) : undefined;
 
-      return {
+      const result = {
         id: studentClass.id,
         siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
         tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
@@ -90,6 +101,9 @@ const KenaikanKelasPage: React.FC = () => {
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
       };
+      
+      console.log('Processed result:', result);
+      return result;
     });
   }, [studentClassesResponse, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
 
