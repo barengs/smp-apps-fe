@@ -9,7 +9,8 @@ interface RoleApiData {
   updated_at: string;
 }
 
-interface StaffDetailResponse {
+// Structure for LIST response items
+interface StaffInListResponse {
   id: number;
   name: string; // Username
   email: string;
@@ -41,6 +42,39 @@ interface StaffDetailResponse {
   roles: RoleApiData[];
 }
 
+// Structure for DETAIL response
+interface StaffDetailResponse {
+  id: number;
+  user_id: string;
+  code: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  nik: string | null;
+  nip: string | null;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  village_id: string | null;
+  zip_code: string | null;
+  photo: string | null;
+  marital_status: string;
+  job_id: string | null;
+  status: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
+    roles: RoleApiData[];
+  };
+}
+
 // Updated GetEmployeeByIdResponse to match actual API structure
 interface GetEmployeeByIdResponse {
   message: string;
@@ -50,7 +84,7 @@ interface GetEmployeeByIdResponse {
 // For list response - actual structure
 interface GetEmployeesResponse {
   message: string;
-  data: StaffDetailResponse[];
+  data: StaffInListResponse[];
 }
 
 export interface CreateUpdateEmployeeRequest {
@@ -78,7 +112,7 @@ export const employeeApi = smpApi.injectEndpoints({
       query: (id) => `main/staff/${id}`,
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
-    createEmployee: builder.mutation<StaffDetailResponse, CreateUpdateEmployeeRequest>({
+    createEmployee: builder.mutation<GetEmployeeByIdResponse, CreateUpdateEmployeeRequest>({
       query: (newEmployee) => ({
         url: 'main/staff',
         method: 'POST',
@@ -86,7 +120,7 @@ export const employeeApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Employee'],
     }),
-    updateEmployee: builder.mutation<StaffDetailResponse, { id: number; data: CreateUpdateEmployeeRequest }>({
+    updateEmployee: builder.mutation<GetEmployeeByIdResponse, { id: number; data: CreateUpdateEmployeeRequest }>({
       query: ({ id, data }) => ({
         url: `main/staff/${id}`,
         method: 'PUT',
