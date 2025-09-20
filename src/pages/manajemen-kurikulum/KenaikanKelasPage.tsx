@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { BookCopy, TrendingUp } from 'lucide-react';
+import { BookCopy, TrendingUp, PlusCircle, FileText } from 'lucide-react';
 import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
@@ -34,7 +34,7 @@ const KenaikanKelasPage: React.FC = () => {
   ];
 
   // Mengambil data dari endpoint main/student-class dengan pagination
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses, error } = useGetStudentClassesQuery({
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({
     page: 1,
     per_page: 50 // Ambil 50 data per halaman
   });
@@ -158,23 +158,17 @@ const KenaikanKelasPage: React.FC = () => {
     // Implementasi logika kenaikan kelas akan ditambahkan di sini
   };
 
-  // Tampilkan pesan error jika ada
-  if (error) {
-    return (
-      <DashboardLayout title="Manajemen Kenaikan Kelas" role="administrasi">
-        <div className="container mx-auto py-4 px-4">
-          <CustomBreadcrumb items={breadcrumbItems} />
-          <Alert variant="destructive">
-            <Info className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>
-              Terjadi kesalahan saat memuat data: {error.toString()}
-            </AlertDescription>
-          </Alert>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // Fungsi untuk menambah data kenaikan kelas
+  const handleAddData = () => {
+    console.log('Menambah data kenaikan kelas');
+    // Implementasi logika tambah data akan ditambahkan di sini
+  };
+
+  // Fungsi untuk proses penugasan
+  const handleAssignment = () => {
+    console.log('Proses penugasan kenaikan kelas');
+    // Implementasi logika penugasan akan ditambahkan di sini
+  };
 
   return (
     <DashboardLayout title="Manajemen Kenaikan Kelas" role="administrasi">
@@ -188,20 +182,14 @@ const KenaikanKelasPage: React.FC = () => {
           <CardContent>
             {isLoading ? (
               <TableLoadingSkeleton />
-            ) : promotionData.length === 0 ? (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Data Kosong</AlertTitle>
-                <AlertDescription>
-                  Tidak ada data kenaikan kelas yang tersedia. Pastikan data siswa, program, dan tahun ajaran sudah terisi dengan benar.
-                </AlertDescription>
-              </Alert>
             ) : (
               <DataTable 
                 columns={columns} 
                 data={promotionData} 
                 exportFileName="data-kenaikan-kelas" 
-                exportTitle="Data Kenaikan Kelas" 
+                exportTitle="Data Kenaikan Kelas"
+                onAddData={handleAddData}
+                onAssignment={handleAssignment}
               />
             )}
           </CardContent>
