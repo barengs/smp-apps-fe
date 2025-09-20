@@ -41,8 +41,8 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
 
   useEffect(() => {
     if (selectedLevel && programsResponse) {
-      const filtered = programsResponse.filter((p) => (p as any).education_level_id.toString() === selectedLevel);
-      setSelectedProgram(''); // Reset program selection
+      // Reset program selection when level changes
+      setSelectedProgram('');
     }
   }, [selectedLevel, programsResponse]);
 
@@ -128,11 +128,16 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
 
   const renderPrograms = () => {
     if (!programsResponse || !Array.isArray(programsResponse) || !selectedLevel) return null;
-    return programsResponse
-      .filter((p) => (p as any).education_level_id?.toString() === selectedLevel)
-      .map(program => (
-        <SelectItem key={program.id} value={program.id.toString()}>{program.name}</SelectItem>
-      ));
+    
+    // Filter programs by selected education level with safe property access
+    const filteredPrograms = programsResponse.filter((p) => {
+      const program = p as any;
+      return program && program.education_level_id && program.education_level_id.toString() === selectedLevel;
+    });
+    
+    return filteredPrograms.map(program => (
+      <SelectItem key={program.id} value={program.id.toString()}>{program.name}</SelectItem>
+    ));
   };
 
   const renderClassrooms = () => {
