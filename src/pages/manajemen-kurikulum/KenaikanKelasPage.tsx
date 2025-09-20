@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -13,8 +13,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
@@ -28,6 +27,8 @@ interface PromotionData {
 }
 
 const KenaikanKelasPage: React.FC = () => {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
     { label: 'Kenaikan Kelas', icon: <TrendingUp className="h-4 w-4" /> },
@@ -160,8 +161,7 @@ const KenaikanKelasPage: React.FC = () => {
 
   // Fungsi untuk menambah data kenaikan kelas
   const handleAddData = () => {
-    console.log('Menambah data kenaikan kelas');
-    // Implementasi logika tambah data akan ditambahkan di sini
+    setIsAddModalOpen(true);
   };
 
   // Fungsi untuk proses penugasan
@@ -195,6 +195,7 @@ const KenaikanKelasPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      <TambahKenaikanKelasForm isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
     </DashboardLayout>
   );
 };
