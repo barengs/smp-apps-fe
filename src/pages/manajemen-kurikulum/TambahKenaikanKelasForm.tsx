@@ -47,11 +47,23 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   }, [selectedLevel, programsResponse]);
 
   const unassignedStudents = useMemo(() => {
-    if (!studentsResponse?.data || !studentClassesResponse?.data) {
+    // Validasi data dengan aman
+    if (!studentsResponse?.data || !studentClassesResponse?.data || !Array.isArray(studentClassesResponse.data)) {
+      console.log('Data validation failed:', {
+        hasStudents: !!studentsResponse?.data,
+        hasStudentClasses: !!studentClassesResponse?.data,
+        isStudentClassesArray: Array.isArray(studentClassesResponse?.data)
+      });
       return [];
     }
-    const assignedStudentIds = new Set(studentClassesResponse.data.map(sc => sc.student_id));
-    return studentsResponse.data.filter(student => !assignedStudentIds.has(student.id));
+    
+    try {
+      const assignedStudentIds = new Set(studentClassesResponse.data.map(sc => sc.student_id));
+      return studentsResponse.data.filter(student => !assignedStudentIds.has(student.id));
+    } catch (error) {
+      console.error('Error filtering unassigned students:', error);
+      return [];
+    }
   }, [studentsResponse, studentClassesResponse]);
 
   const handleSelectAll = (checked: boolean) => {
