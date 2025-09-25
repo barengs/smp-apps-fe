@@ -26,6 +26,7 @@ import {
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
@@ -187,12 +188,12 @@ const KenaikanKelasPage: React.FC = () => {
 
         const getStatusBadge = (status: string) => {
           switch (status) {
-            case 'approved':
-              return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Disetujui</span>;
-            case 'rejected':
-              return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Ditolak</span>;
+            case 'disetujui':
+              return <Badge variant="success">Disetujui</Badge>;
+            case 'ditolak':
+              return <Badge variant="destructive">Ditolak</Badge>;
             default:
-              return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{status}</span>;
+              return <Badge variant="secondary">{status}</Badge>;
           }
         };
         return getStatusBadge(status);
