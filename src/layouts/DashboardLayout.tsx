@@ -109,6 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.teacher", href: "/dashboard/manajemen-kurikulum/guru", icon: <User className="h-4 w-4" /> }, // New item
         { titleKey: "sidebar.teacherAssignment", href: "/dashboard/manajemen-kurikulum/penugasan-guru", icon: <UserCheck className="h-4 w-4" /> }, // New submenu item
         { titleKey: "sidebar.teachingHours", href: "/dashboard/manajemen-kurikulum/jam-mengajar", icon: <CalendarClock className="h-4 w-4" /> }, // New submenu item for Teaching Hours
+        { titleKey: "sidebar.presence", href: "/dashboard/manajemen-kurikulum/presensi", icon: <UserCheck className="h-4 w-4" /> }, // New submenu item for Presensi
       ],
     },
     {

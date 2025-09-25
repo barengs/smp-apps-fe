@@ -122,6 +122,7 @@
     "teachingHoursPage.filterBySubject": "Filter berdasarkan mapel...",
     "teachingHoursPage.error": "Gagal memuat data jam mengajar.",
     "sidebar.lessonHours": "Jam Pelajaran",
+    "sidebar.presence": "Presensi",
     "lessonHoursPage.title": "Manajemen Jam Pelajaran",
     "lessonHoursPage.lessonHour": "Jam Ke",
     "lessonHoursPage.startTime": "Waktu Mulai",
