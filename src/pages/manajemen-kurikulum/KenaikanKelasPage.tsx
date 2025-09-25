@@ -24,6 +24,8 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
@@ -41,6 +43,7 @@ const KenaikanKelasPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState<PromotionData | null>(null);
+  const [approvalNote, setApprovalNote] = useState('');
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -110,23 +113,30 @@ const KenaikanKelasPage: React.FC = () => {
 
   const handleOpenApprovalDialog = (data: PromotionData) => {
     setSelectedPromotion(data);
+    setApprovalNote('');
     setIsApprovalDialogOpen(true);
   };
 
-  const handleApprovalAction = async (status: 'approved' | 'rejected') => {
+  const handleApprovalAction = async (action: 'approve' | 'reject') => {
     if (!selectedPromotion) return;
 
     const toastId = showLoading('Memperbarui status...');
     try {
+      // Gunakan endpoint yang sesuai
+      const endpoint = action === 'approve' 
+        ? `main/student-class/${selectedPromotion.id}/approve`
+        : `main/student-class/${selectedPromotion.id}/reject`;
+      
       await updateStudentClass({
         id: selectedPromotion.id,
         data: {
           class_id: selectedPromotion.class_id,
-          approval_status: status,
+          approval_status: action === 'approve' ? 'approved' : 'rejected',
+          approval_note: approvalNote,
         },
       }).unwrap();
       dismissToast(toastId);
-      showSuccess(`Status berhasil diubah menjadi ${status === 'approved' ? 'Disetujui' : 'Ditolak'}.`);
+      showSuccess(`Status berhasil diubah menjadi ${action === 'approve' ? 'Disetujui' : 'Ditolak'}.`);
     } catch (err) {
       dismissToast(toastId);
       showError('Gagal memperbarui status.');
@@ -134,6 +144,7 @@ const KenaikanKelasPage: React.FC = () => {
     } finally {
       setIsApprovalDialogOpen(false);
       setSelectedPromotion(null);
+      setApprovalNote('');
     }
   };
 
@@ -263,18 +274,32 @@ const KenaikanKelasPage: React.FC = () => {
               Anda akan mengubah status untuk siswa "{selectedPromotion?.siswa}". Apakah Anda yakin?
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="approval_note" className="text-right">
+                Catatan
+              </Label>
+              <Textarea
+                id="approval_note"
+                value={approvalNote}
+                onChange={(e) => setApprovalNote(e.target.value)}
+                className="col-span-3"
+                placeholder="Masukkan catatan (opsional)"
+              />
+            </div>
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setSelectedPromotion(null)}>Batal</AlertDialogCancel>
             <Button
               variant="danger"
-              onClick={() => handleApprovalAction('rejected')}
+              onClick={() => handleApprovalAction('reject')}
               disabled={isUpdatingStatus}
             >
               {isUpdatingStatus ? 'Memproses...' : 'Tolak'}
             </Button>
             <Button
               variant="success"
-              onClick={() => handleApprovalAction('approved')}
+              onClick={() => handleApprovalAction('approve')}
               disabled={isUpdatingStatus}
             >
               {isUpdatingStatus ? 'Memproses...' : 'Setujui'}
