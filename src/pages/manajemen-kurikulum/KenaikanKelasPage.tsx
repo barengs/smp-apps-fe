@@ -131,7 +131,7 @@ const KenaikanKelasPage: React.FC = () => {
         id: selectedPromotion.id,
         data: {
           class_id: selectedPromotion.class_id,
-          approval_status: action === 'approve' ? 'approved' : 'rejected',
+          approval_status: action === 'approve' ? 'disetujui' : 'ditolak',
           approval_note: approvalNote,
         },
       }).unwrap();
