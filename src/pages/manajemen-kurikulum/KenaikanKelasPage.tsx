@@ -3,7 +3,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { BookCopy, TrendingUp, PlusCircle, FileText } from 'lucide-react';
-import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
+import { useGetStudentClassesQuery, useUpdateStudentClassMutation } from '@/store/slices/studentClassApi';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
@@ -14,10 +14,21 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight } from 'lucide-react';
 import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
   id: number;
+  class_id: number;
   siswa: string;
   tahunAjaran: string;
   jenjangPendidikan: string;
@@ -28,6 +39,8 @@ interface PromotionData {
 
 const KenaikanKelasPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
+  const [selectedPromotion, setSelectedPromotion] = useState<PromotionData | null>(null);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -45,6 +58,7 @@ const KenaikanKelasPage: React.FC = () => {
   const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery();
   const { data: levelsResponse, isLoading: isLoadingLevels } = useGetEducationLevelsQuery();
   const { data: academicYearsResponse, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
+  const [updateStudentClass, { isLoading: isUpdatingStatus }] = useUpdateStudentClassMutation();
 
   const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingPrograms || isLoadingLevels || isLoadingAcademicYears;
 
@@ -81,6 +95,7 @@ const KenaikanKelasPage: React.FC = () => {
 
       const result = {
         id: studentClass.id,
+        class_id: studentClass.class_id,
         siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
         tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
         jenjangPendidikan: jenjangPendidikan,
@@ -92,6 +107,35 @@ const KenaikanKelasPage: React.FC = () => {
       return result;
     });
   }, [studentClassesResponse, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
+
+  const handleOpenApprovalDialog = (data: PromotionData) => {
+    setSelectedPromotion(data);
+    setIsApprovalDialogOpen(true);
+  };
+
+  const handleApprovalAction = async (status: 'approved' | 'rejected') => {
+    if (!selectedPromotion) return;
+
+    const toastId = showLoading('Memperbarui status...');
+    try {
+      await updateStudentClass({
+        id: selectedPromotion.id,
+        data: {
+          class_id: selectedPromotion.class_id,
+          approval_status: status,
+        },
+      }).unwrap();
+      dismissToast(toastId);
+      showSuccess(`Status berhasil diubah menjadi ${status === 'approved' ? 'Disetujui' : 'Ditolak'}.`);
+    } catch (err) {
+      dismissToast(toastId);
+      showError('Gagal memperbarui status.');
+      console.error(err);
+    } finally {
+      setIsApprovalDialogOpen(false);
+      setSelectedPromotion(null);
+    }
+  };
 
   // Kolom untuk DataTable
   const columns: ColumnDef<PromotionData>[] = [
@@ -115,14 +159,25 @@ const KenaikanKelasPage: React.FC = () => {
       accessorKey: 'statusApproval',
       header: 'Status Approval',
       cell: ({ row }) => {
-        const status = row.getValue('statusApproval') as string;
+        const status = (row.getValue('statusApproval') as string).toLowerCase();
+
+        if (status === 'pending' || status === 'diajukan') {
+          return (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleOpenApprovalDialog(row.original)}
+              className="h-8 text-yellow-800 border-yellow-300 hover:bg-yellow-100"
+            >
+              Diajukan
+            </Button>
+          );
+        }
+
         const getStatusBadge = (status: string) => {
-          switch (status.toLowerCase()) {
+          switch (status) {
             case 'approved':
               return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Disetujui</span>;
-            case 'pending':
-            case 'diajukan':
-              return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Diajukan</span>;
             case 'rejected':
               return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Ditolak</span>;
             default:
@@ -199,6 +254,34 @@ const KenaikanKelasPage: React.FC = () => {
         </Card>
       </div>
       <TambahKenaikanKelasForm isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+
+      <AlertDialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Aksi</AlertDialogTitle>
+            <AlertDialogDescription>
+              Anda akan mengubah status untuk siswa "{selectedPromotion?.siswa}". Apakah Anda yakin?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedPromotion(null)}>Batal</AlertDialogCancel>
+            <Button
+              variant="danger"
+              onClick={() => handleApprovalAction('rejected')}
+              disabled={isUpdatingStatus}
+            >
+              {isUpdatingStatus ? 'Memproses...' : 'Tolak'}
+            </Button>
+            <Button
+              variant="success"
+              onClick={() => handleApprovalAction('approved')}
+              disabled={isUpdatingStatus}
+            >
+              {isUpdatingStatus ? 'Memproses...' : 'Setujui'}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 };
