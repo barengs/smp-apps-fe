@@ -97,7 +97,11 @@ function App() {
 
   return (
     <Provider store={store}>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+        }}
+      >
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <ToastContainer />
           <AuthManager>

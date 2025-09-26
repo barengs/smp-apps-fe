@@ -6,7 +6,7 @@ import { Mutex } from 'async-mutex';
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 // Log untuk debugging
-console.log('VITE_API_BASE_URL yang terbaca:', baseUrl);
+// console.log('VITE_API_BASE_URL yang terbaca:', baseUrl);
 
 if (!baseUrl) {
   console.error(
@@ -21,7 +21,7 @@ const baseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState, endpoint }) => {
     // Ambil token dari state auth
     const token = (getState() as RootState).auth.token;
-    console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada');
+    // console.log('Token di prepareHeaders:', token ? 'Ada' : 'Tidak Ada');
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
