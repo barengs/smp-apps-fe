@@ -10,6 +10,7 @@ interface CreateClassScheduleDetailRequest {
   lesson_hour_id: number;
   teacher_id: number;
   study_id: number;
+  meeting_count: number; // Tambahkan properti meeting_count
 }
 
 // Struktur untuk body request POST

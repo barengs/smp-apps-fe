@@ -25,6 +25,7 @@ interface LessonScheduleDetail {
   lessonHourId: string;
   teacherId: string;
   subjectId: string;
+  meetingCount: number;
 }
 
 interface LessonScheduleFormProps {
@@ -39,7 +40,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   // Form state
   const [educationLevelId, setEducationLevelId] = useState<string>('');
   const [session, setSession] = useState<string>('');
-  const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '' }]);
+  const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
   // Fetch data for selects
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
@@ -53,9 +54,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
 
-  const handleDetailChange = (index: number, field: keyof LessonScheduleDetail, value: string) => {
+  const handleDetailChange = (index: number, field: keyof LessonScheduleDetail, value: string | number) => {
     const newDetails = [...details];
-    newDetails[index][field] = value;
+    (newDetails[index] as any)[field] = value;
     // Reset class group when class changes
     if (field === 'classroomId') {
       newDetails[index].classGroupId = '';
@@ -64,7 +65,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const addDetailRow = () => {
-    setDetails([...details, { day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '' }]);
+    setDetails([...details, { day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
   };
 
   const removeDetailRow = (index: number) => {
@@ -103,6 +104,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         lesson_hour_id: parseInt(detail.lessonHourId),
         teacher_id: parseInt(detail.teacherId),
         study_id: parseInt(detail.subjectId),
+        meeting_count: detail.meetingCount,
       })),
     };
 
@@ -120,7 +122,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     if (isOpen) {
       setEducationLevelId('');
       setSession('');
-      setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '' }]);
+      setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     }
   }, [isOpen]);
 
@@ -146,7 +148,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     // Reset form state before closing
     setEducationLevelId('');
     setSession('');
-    setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '' }]);
+    setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     onClose();
   };
 
@@ -215,6 +217,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                     <TableHead>{t('lessonScheduleForm.lessonHour')}</TableHead>
                     <TableHead>{t('lessonScheduleForm.teacher')}</TableHead>
                     <TableHead>{t('lessonScheduleForm.subject')}</TableHead>
+                    <TableHead>Jumlah Pertemuan</TableHead>
                     <TableHead className="text-right"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -328,6 +331,16 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                               ))}
                             </SelectContent>
                           </Select>
+                        </TableCell>
+                        <TableCell className="py-1 min-w-[120px]">
+                          <input
+                            type="number"
+                            value={detail.meetingCount}
+                            onChange={(e) => handleDetailChange(index, 'meetingCount', parseInt(e.target.value) || 16)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            min="1"
+                            max="50"
+                          />
                         </TableCell>
                         <TableCell className="text-right py-1">
                           <Button variant="ghost" size="icon" onClick={() => removeDetailRow(index)}>
