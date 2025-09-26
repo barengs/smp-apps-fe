@@ -310,7 +310,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                             </SelectTrigger>
                             <SelectContent>
                               {teachersData?.data.map(teacher => (
-                                <SelectItem key={teacher.id} value={String(teacher.id)}>
+                                <SelectItem key={teacher.staff.id} value={String(teacher.staff.id)}>
                                   {getTeacherName(teacher)}
                                 </SelectItem>
                               ))}
