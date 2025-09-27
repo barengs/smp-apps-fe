@@ -54,7 +54,7 @@ const TeacherAssignmentTable: React.FC = () => {
         const studies = staffDetail.studies;
 
         const staffForModal: Staff = {
-          id: staffDetail.user_id,
+          id: staffDetail.id,
           first_name: staffDetail.first_name,
           last_name: staffDetail.last_name,
           nip: staffDetail.nik,
@@ -91,7 +91,7 @@ const TeacherAssignmentTable: React.FC = () => {
       cell: ({ row }) => {
         const staffDetail = row.original;
         const staffForModal: Staff = {
-          id: staffDetail.user_id,
+          id: String(staffDetail.id), // Convert number to string
           first_name: staffDetail.first_name,
           last_name: staffDetail.last_name,
           nip: staffDetail.nik,
@@ -144,7 +144,7 @@ const TeacherAssignmentTable: React.FC = () => {
         isLoading={isLoading}
         exportFileName="penugasan_guru"
         exportTitle="Data Penugasan Guru"
-        getRowId={(row) => row.user_id}
+        getRowId={(row) => String(row.id)}
       />
       <AssignStudyModal
         isOpen={isModalOpen}
