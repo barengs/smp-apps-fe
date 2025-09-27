@@ -91,7 +91,7 @@ const TeacherAssignmentTable: React.FC = () => {
       cell: ({ row }) => {
         const staffDetail = row.original;
         const staffForModal: Staff = {
-          id: String(staffDetail.id), // Convert number to string
+          id: String(staffDetail.id),
           first_name: staffDetail.first_name,
           last_name: staffDetail.last_name,
           nip: staffDetail.nik,

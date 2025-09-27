@@ -12,8 +12,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
-import { useGetStudiesQuery } from '@/store/slices/studyApi';
-import { useGetTeachersQuery } from '@/store/slices/teacherApi';
+import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
 import { useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useCreateClassScheduleMutation, type CreateClassScheduleRequest } from '@/store/slices/classScheduleApi';
@@ -46,8 +45,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: classroomsData } = useGetClassroomsQuery();
   const { data: classGroupsData } = useGetClassGroupsQuery();
-  const { data: studiesData } = useGetStudiesQuery();
-  const { data: teachersData } = useGetTeachersQuery();
+  const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery();
   const { data: lessonHoursData } = useGetLessonHoursQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
 
@@ -60,6 +58,10 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     // Reset class group when class changes
     if (field === 'classroomId') {
       newDetails[index].classGroupId = '';
+    }
+    // Reset subject when teacher changes
+    if (field === 'teacherId') {
+      newDetails[index].subjectId = '';
     }
     setDetails(newDetails);
   };
@@ -133,14 +135,6 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
       return academicYear.year;
     }
     return 'Loading...';
-  };
-
-  // Helper function to get teacher name from staff data
-  const getTeacherName = (teacher: any) => {
-    if (teacher.staff) {
-      return `${teacher.staff.first_name} ${teacher.staff.last_name}`.trim();
-    }
-    return teacher.name || 'Unknown Teacher';
   };
 
   // Handle dialog close with proper cleanup
@@ -228,6 +222,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                       cg => parseInt(cg.classroom_id.toString()) === parseInt(detail.classroomId)
                     ) || [];
 
+                    // Find the selected teacher to get their assigned studies
+                    const selectedTeacher = teacherAssignmentsData?.data.find(
+                      (teacher) => String(teacher.id) === detail.teacherId
+                    );
+                    const teacherStudies = selectedTeacher?.studies || [];
+
                     return (
                       <TableRow key={index}>
                         <TableCell className="py-1">{index + 1}.</TableCell>
@@ -309,9 +309,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                               <SelectValue placeholder={t('lessonScheduleForm.selectTeacher')} />
                             </SelectTrigger>
                             <SelectContent>
-                              {teachersData?.data.map(teacher => (
-                                <SelectItem key={teacher.staff.id} value={String(teacher.staff.id)}>
-                                  {getTeacherName(teacher)}
+                              {teacherAssignmentsData?.data.map(teacher => (
+                                <SelectItem key={teacher.id} value={String(teacher.id)}>
+                                  {`${teacher.first_name} ${teacher.last_name}`.trim()}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -321,14 +321,21 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           <Select
                             value={detail.subjectId}
                             onValueChange={(value) => handleDetailChange(index, 'subjectId', value)}
+                            disabled={!detail.teacherId}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder={t('lessonScheduleForm.selectSubject')} />
                             </SelectTrigger>
                             <SelectContent>
-                              {studiesData?.map(study => (
-                                <SelectItem key={study.id} value={String(study.id)}>{study.name}</SelectItem>
-                              ))}
+                              {teacherStudies.length > 0 ? (
+                                teacherStudies.map(study => (
+                                  <SelectItem key={study.id} value={String(study.id)}>{study.name}</SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="placeholder" disabled>
+                                  {detail.teacherId ? 'Guru ini tidak punya mapel' : 'Pilih guru terlebih dahulu'}
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>
