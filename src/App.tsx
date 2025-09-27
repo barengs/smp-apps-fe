@@ -68,6 +68,7 @@ import PenugasanGuruPage from '@/pages/manajemen-kurikulum/PenugasanGuruPage'; /
 import TeachingHoursPage from '@/pages/manajemen-kurikulum/TeachingHoursPage'; // Import the new TeachingHoursPage
 import JamPelajaranPage from '@/pages/manajemen-kurikulum/JamPelajaranPage';
 import PresensiPage from '@/pages/manajemen-kurikulum/PresensiPage'; // Import the new PresensiPage
+import PresensiDetailPage from '@/pages/manajemen-kurikulum/PresensiDetailPage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -175,6 +176,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kurikulum/penugasan-guru" element={<PenugasanGuruPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/jam-mengajar" element={<TeachingHoursPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/presensi" element={<PresensiPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/presensi/:detailId" element={<PresensiDetailPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />

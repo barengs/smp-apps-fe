@@ -14,6 +14,7 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PresensiData {
   id: number;
@@ -27,6 +28,7 @@ interface PresensiData {
 }
 
 const PresensiPage: React.FC = () => {
+  const navigate = useNavigate();
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/presensi', icon: <BookCopy className="h-4 w-4" /> },
     { label: 'Presensi', icon: <UserCheck className="h-4 w-4" /> },
@@ -147,8 +149,7 @@ const PresensiPage: React.FC = () => {
 
   // Fungsi untuk melihat detail presensi
   const handleViewDetail = (data: PresensiData) => {
-    // Implementasi untuk melihat detail presensi
-    console.log('Melihat detail presensi:', data);
+    navigate(`/dashboard/manajemen-kurikulum/presensi/${data.id}`);
   };
 
   // Fungsi untuk menambah data presensi
