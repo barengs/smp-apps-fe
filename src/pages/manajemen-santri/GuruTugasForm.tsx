@@ -120,7 +120,7 @@ const GuruTugasForm: React.FC<GuruTugasFormProps> = ({ onSuccess, onCancel }) =>
                   <SelectContent>
                     {tahunAjaranResponse?.map((th) => (
                       <SelectItem key={th.id} value={String(th.id)}>
-                        {`${th.year} - ${th.semester}`}
+                        {`${th.year} - ${th.periode || '-'}`}
                       </SelectItem>
                     ))}
                   </SelectContent>

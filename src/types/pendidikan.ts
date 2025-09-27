@@ -1,7 +1,10 @@
 export interface AcademicYear {
   id: number;
   year: string;
-  semester: string;
+  type?: string;
+  periode?: string;
+  start_date?: string;
+  end_date?: string;
   active: boolean;
   description: string;
 }

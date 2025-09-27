@@ -15,10 +15,16 @@ import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 interface TahunAjaran {
   id: number;
   year: string;
+  type?: string;
+  periode?: string;
+  start_date?: string;
+  end_date?: string;
   active: boolean | number | string;
   description: string | null;
 }
@@ -70,6 +76,32 @@ const TahunAjaranTable: React.FC = () => {
         header: 'Tahun Ajaran',
       },
       {
+        accessorKey: 'type',
+        header: 'Tipe',
+        cell: ({ row }) => row.original.type || '-',
+      },
+      {
+        accessorKey: 'periode',
+        header: 'Periode',
+        cell: ({ row }) => row.original.periode || '-',
+      },
+      {
+        accessorKey: 'start_date',
+        header: 'Tanggal Mulai',
+        cell: ({ row }) => {
+          const date = row.original.start_date;
+          return date ? format(new Date(date), 'dd MMMM yyyy', { locale: id }) : '-';
+        },
+      },
+      {
+        accessorKey: 'end_date',
+        header: 'Tanggal Akhir',
+        cell: ({ row }) => {
+          const date = row.original.end_date;
+          return date ? format(new Date(date), 'dd MMMM yyyy', { locale: id }) : '-';
+        },
+      },
+      {
         accessorKey: 'active',
         header: 'Status',
         cell: ({ row }) => {
@@ -107,7 +139,7 @@ const TahunAjaranTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={6} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {

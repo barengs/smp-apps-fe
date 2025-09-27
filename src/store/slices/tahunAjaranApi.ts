@@ -14,6 +14,10 @@ interface GetActiveAcademicYearApiResponse {
 
 export interface CreateUpdateTahunAjaranRequest {
   year: string;
+  type: string;
+  periode: string;
+  start_date: string;
+  end_date: string;
   active: boolean;
   description?: string;
 }

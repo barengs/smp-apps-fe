@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,23 +15,48 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import * as toast from '@/utils/toast';
 import { useCreateTahunAjaranMutation, useUpdateTahunAjaranMutation, type CreateUpdateTahunAjaranRequest } from '@/store/slices/tahunAjaranApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { DatePicker } from '@/components/ui/datepicker';
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}\/\d{4}$/, {
     message: 'Format tahun ajaran harus YYYY/YYYY (contoh: 2023/2024).',
   }),
+  type: z.enum(['Semester', 'Triwulan'], {
+    errorMap: () => ({ message: 'Tipe harus dipilih.' }),
+  }),
+  periode: z.string().min(1, { message: 'Periode harus dipilih.' }),
+  start_date: z.date({
+    required_error: 'Tanggal mulai harus dipilih.',
+  }),
+  end_date: z.date({
+    required_error: 'Tanggal akhir harus dipilih.',
+  }),
   active: z.boolean().default(false),
   description: z.string().optional(),
+}).refine((data) => data.end_date > data.start_date, {
+  message: 'Tanggal akhir harus setelah tanggal mulai.',
+  path: ['end_date'],
 });
 
 interface TahunAjaranFormProps {
   initialData?: {
     id: number;
     year: string;
+    type?: string;
+    periode?: string;
+    start_date?: string;
+    end_date?: string;
     active: boolean;
     description: string | null;
   };
@@ -45,16 +70,42 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData ? { ...initialData, description: initialData.description || '' } : {
+    defaultValues: initialData ? {
+      ...initialData,
+      description: initialData.description || '',
+      type: (initialData.type as 'Semester' | 'Triwulan') || 'Semester',
+      periode: initialData.periode || '',
+      start_date: initialData.start_date ? new Date(initialData.start_date) : undefined,
+      end_date: initialData.end_date ? new Date(initialData.end_date) : undefined,
+    } : {
       year: '',
+      type: 'Semester',
+      periode: '',
+      start_date: undefined,
+      end_date: undefined,
       active: false,
       description: '',
     },
   });
 
+  const typeValue = form.watch('type');
+  const periodeValue = form.watch('periode');
+
+  useEffect(() => {
+    if (typeValue === 'Semester' && periodeValue && !['Ganjil', 'Genap'].includes(periodeValue)) {
+      form.setValue('periode', '');
+    } else if (typeValue === 'Triwulan' && periodeValue && !['Cawu 1', 'Cawu 2', 'Cawu 3'].includes(periodeValue)) {
+      form.setValue('periode', '');
+    }
+  }, [typeValue, form, periodeValue]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateTahunAjaranRequest = {
       year: values.year,
+      type: values.type,
+      periode: values.periode,
+      start_date: values.start_date.toISOString().split('T')[0],
+      end_date: values.end_date.toISOString().split('T')[0],
       active: values.active,
       description: values.description,
     };
@@ -104,6 +155,93 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
             </FormItem>
           )}
         />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipe</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih tipe" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Semester">Semester</SelectItem>
+                    <SelectItem value="Triwulan">Triwulan</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="periode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Periode</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih periode" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {typeValue === 'Semester' && (
+                      <>
+                        <SelectItem value="Ganjil">Ganjil</SelectItem>
+                        <SelectItem value="Genap">Genap</SelectItem>
+                      </>
+                    )}
+                    {typeValue === 'Triwulan' && (
+                      <>
+                        <SelectItem value="Cawu 1">Cawu 1</SelectItem>
+                        <SelectItem value="Cawu 2">Cawu 2</SelectItem>
+                        <SelectItem value="Cawu 3">Cawu 3</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="start_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mulai</FormLabel>
+                <DatePicker
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Pilih tanggal mulai"
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="end_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Akhir</FormLabel>
+                <DatePicker
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Pilih tanggal akhir"
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="active"

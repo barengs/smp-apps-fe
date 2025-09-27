@@ -38,8 +38,12 @@ const PresensiDetailPage: React.FC = () => {
     if (!studentClassesResponse?.data || !detail?.class_group_id) {
       return [];
     }
-    const studentClassGroup = studentClassesResponse.data.find(sc => 'class_group' in sc && sc.class_group && sc.class_group.id === parseInt(detail.class_group_id, 10));
-    return studentClassGroup ? studentClassGroup.students : [];
+    const studentClassGroup = (studentClassesResponse.data as any[]).find(sc => 
+      sc && typeof sc === 'object' && 'class_group' in sc && 
+      sc.class_group && typeof sc.class_group === 'object' && 
+      'id' in sc.class_group && sc.class_group.id === parseInt(detail.class_group_id, 10)
+    );
+    return studentClassGroup && 'students' in studentClassGroup ? studentClassGroup.students : [];
   }, [studentClassesResponse, detail]);
 
   const [attendanceData, setAttendanceData] = useState<Record<string, Record<number, AttendanceStatus>>>({});
