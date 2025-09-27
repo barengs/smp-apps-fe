@@ -287,6 +287,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           <Select
                             value={detail.lessonHourId}
                             onValueChange={(value) => handleDetailChange(index, 'lessonHourId', value)}
+                            disabled={!detail.classGroupId}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder={t('lessonScheduleForm.selectLessonHour')} />
