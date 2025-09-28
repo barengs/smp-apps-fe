@@ -26,7 +26,7 @@ import * as toast from '@/utils/toast';
 import { useCreateTahunAjaranMutation, useUpdateTahunAjaranMutation, type CreateUpdateTahunAjaranRequest } from '@/store/slices/tahunAjaranApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { DatePicker } from '@/components/ui/datepicker';
+import { DatePickerWithYear } from '@/components/ui/datepicker-with-year';
 
 const formSchema = z.object({
   year: z.string().regex(/^\d{4}\/\d{4}$/, {
@@ -217,7 +217,7 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mulai</FormLabel>
-                <DatePicker
+                <DatePickerWithYear
                   value={field.value}
                   onValueChange={field.onChange}
                   placeholder="Pilih tanggal mulai"
@@ -232,7 +232,7 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Akhir</FormLabel>
-                <DatePicker
+                <DatePickerWithYear
                   value={field.value}
                   onValueChange={field.onChange}
                   placeholder="Pilih tanggal akhir"
