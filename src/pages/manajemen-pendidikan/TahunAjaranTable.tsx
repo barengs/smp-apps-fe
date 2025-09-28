@@ -69,6 +69,10 @@ const TahunAjaranTable: React.FC = () => {
     return false;
   };
 
+  const capitalizeFirst = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const columns: ColumnDef<TahunAjaran>[] = useMemo(
     () => [
       {
@@ -78,12 +82,12 @@ const TahunAjaranTable: React.FC = () => {
       {
         accessorKey: 'type',
         header: 'Tipe',
-        cell: ({ row }) => row.original.type || '-',
+        cell: ({ row }) => row.original.type ? capitalizeFirst(row.original.type) : '-',
       },
       {
         accessorKey: 'periode',
         header: 'Periode',
-        cell: ({ row }) => row.original.periode || '-',
+        cell: ({ row }) => row.original.periode ? capitalizeFirst(row.original.periode) : '-',
       },
       {
         accessorKey: 'start_date',

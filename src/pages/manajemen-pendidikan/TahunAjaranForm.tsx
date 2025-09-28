@@ -32,7 +32,7 @@ const formSchema = z.object({
   year: z.string().regex(/^\d{4}\/\d{4}$/, {
     message: 'Format tahun ajaran harus YYYY/YYYY (contoh: 2023/2024).',
   }),
-  type: z.enum(['Semester', 'Triwulan'], {
+  type: z.enum(['semester', 'triwulan'], {
     errorMap: () => ({ message: 'Tipe harus dipilih.' }),
   }),
   periode: z.string().min(1, { message: 'Periode harus dipilih.' }),
@@ -73,13 +73,13 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
     defaultValues: initialData ? {
       ...initialData,
       description: initialData.description || '',
-      type: (initialData.type as 'Semester' | 'Triwulan') || 'Semester',
+      type: (initialData.type as 'semester' | 'triwulan') || 'semester',
       periode: initialData.periode || '',
       start_date: initialData.start_date ? new Date(initialData.start_date) : undefined,
       end_date: initialData.end_date ? new Date(initialData.end_date) : undefined,
     } : {
       year: '',
-      type: 'Semester',
+      type: 'semester',
       periode: '',
       start_date: undefined,
       end_date: undefined,
@@ -92,9 +92,9 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
   const periodeValue = form.watch('periode');
 
   useEffect(() => {
-    if (typeValue === 'Semester' && periodeValue && !['Ganjil', 'Genap'].includes(periodeValue)) {
+    if (typeValue === 'semester' && periodeValue && !['ganjil', 'genap'].includes(periodeValue)) {
       form.setValue('periode', '');
-    } else if (typeValue === 'Triwulan' && periodeValue && !['Cawu 1', 'Cawu 2', 'Cawu 3'].includes(periodeValue)) {
+    } else if (typeValue === 'triwulan' && periodeValue && !['cawu 1', 'cawu 2', 'cawu 3'].includes(periodeValue)) {
       form.setValue('periode', '');
     }
   }, [typeValue, form, periodeValue]);
@@ -169,8 +169,8 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Semester">Semester</SelectItem>
-                    <SelectItem value="Triwulan">Triwulan</SelectItem>
+                    <SelectItem value="semester">Semester</SelectItem>
+                    <SelectItem value="triwulan">Triwulan</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -190,17 +190,17 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {typeValue === 'Semester' && (
+                    {typeValue === 'semester' && (
                       <>
-                        <SelectItem value="Ganjil">Ganjil</SelectItem>
-                        <SelectItem value="Genap">Genap</SelectItem>
+                        <SelectItem value="ganjil">Ganjil</SelectItem>
+                        <SelectItem value="genap">Genap</SelectItem>
                       </>
                     )}
-                    {typeValue === 'Triwulan' && (
+                    {typeValue === 'triwulan' && (
                       <>
-                        <SelectItem value="Cawu 1">Cawu 1</SelectItem>
-                        <SelectItem value="Cawu 2">Cawu 2</SelectItem>
-                        <SelectItem value="Cawu 3">Cawu 3</SelectItem>
+                        <SelectItem value="cawu 1">Cawu 1</SelectItem>
+                        <SelectItem value="cawu 2">Cawu 2</SelectItem>
+                        <SelectItem value="cawu 3">Cawu 3</SelectItem>
                       </>
                     )}
                   </SelectContent>
