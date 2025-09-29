@@ -4,6 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { BookCopy, CalendarClock } from 'lucide-react';
 
+interface ScheduleDetail {
+  id: number;
+  day: string;
+  classroom: { name: string };
+  class_group: { name: string };
+  lesson_hour: { name: string; start_time: string; end_time: string };
+  teacher: { first_name: string; last_name: string };
+  study: { name: string };
+}
+
+interface Schedule {
+  id: number;
+  academic_year: { year: string };
+  education: { id: number; name: string };
+  session: string;
+  details: ScheduleDetail[];
+}
+
 const JadwalPelajaranPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },

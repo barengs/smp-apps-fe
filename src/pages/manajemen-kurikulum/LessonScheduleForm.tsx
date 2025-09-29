@@ -9,7 +9,7 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 
 // Import API hooks
-import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
@@ -37,12 +37,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const [createClassSchedule, { isLoading: isCreating }] = useCreateClassScheduleMutation();
 
   // Form state
-  const [educationLevelId, setEducationLevelId] = useState<string>('');
+  const [educationalInstitutionId, setEducationalInstitutionId] = useState<string>('');
   const [session, setSession] = useState<string>('');
   const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
   // Fetch data for selects
-  const { data: educationLevelsData } = useGetEducationLevelsQuery();
+  const { data: institutionsData } = useGetInstitusiPendidikanQuery();
   const { data: classroomsData } = useGetClassroomsQuery();
   const { data: classGroupsData } = useGetClassGroupsQuery();
   const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery();
@@ -80,7 +80,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const handleSubmit = async () => {
-    if (!activeAcademicYear?.id || !educationLevelId || !session) {
+    if (!activeAcademicYear?.id || !educationalInstitutionId || !session) {
       showError('Harap isi semua bidang yang diperlukan di header.');
       return;
     }
@@ -96,7 +96,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
     const payload: CreateClassScheduleRequest = {
       academic_year_id: activeAcademicYear.id,
-      education_id: parseInt(educationLevelId),
+      education_id: parseInt(educationalInstitutionId),
       session: session.toLowerCase(),
       status: 'active',
       details: details.map((detail) => ({
@@ -122,7 +122,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
   useEffect(() => {
     if (isOpen) {
-      setEducationLevelId('');
+      setEducationalInstitutionId('');
       setSession('');
       setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     }
@@ -140,7 +140,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   // Handle dialog close with proper cleanup
   const handleClose = () => {
     // Reset form state before closing
-    setEducationLevelId('');
+    setEducationalInstitutionId('');
     setSession('');
     setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     onClose();
@@ -172,14 +172,14 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 </Select>
               </div>
               <div>
-                <Label htmlFor="educationLevel">{t('lessonScheduleForm.educationLevel')}</Label>
-                <Select value={educationLevelId} onValueChange={setEducationLevelId}>
-                  <SelectTrigger id="educationLevel" className="w-full">
-                    <SelectValue placeholder={t('lessonScheduleForm.selectEducationLevel')} />
+                <Label htmlFor="educationalInstitution">{t('institusiPendidikanTable.namaInstitusi')}</Label>
+                <Select value={educationalInstitutionId} onValueChange={setEducationalInstitutionId}>
+                  <SelectTrigger id="educationalInstitution" className="w-full">
+                    <SelectValue placeholder="Pilih lembaga pendidikan" />
                   </SelectTrigger>
                   <SelectContent>
-                    {educationLevelsData?.data.map(level => (
-                      <SelectItem key={level.id} value={String(level.id)}>{level.name}</SelectItem>
+                    {institutionsData?.map(institution => (
+                      <SelectItem key={institution.id} value={String(institution.id)}>{institution.institution_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
