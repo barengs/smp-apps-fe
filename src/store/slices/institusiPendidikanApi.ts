@@ -2,25 +2,22 @@ import { smpApi } from '../baseApi';
 import { InstitusiPendidikan, JenjangPendidikan } from '@/types/pendidikan';
 import { Staff } from '@/types/teacher';
 
-// The API response for a single institution, assuming 'education' is nested
 interface InstitusiPendidikanApiResponse extends Omit<InstitusiPendidikan, 'education_id' | 'education' | 'education_class' | 'headmaster'> {
   education_id: number;
   education: JenjangPendidikan;
-  education_class: { code: string; name: string };
+  education_class: { id: number; code: string; name: string };
   headmaster: Staff;
 }
 
-// The API response for GET all institutions
 interface GetInstitusiPendidikanApiResponse {
   message: string;
   data: InstitusiPendidikanApiResponse[];
 }
 
-// The request body for creating or updating an institution
 export interface CreateUpdateInstitusiPendidikanRequest {
   institution_name: string;
   education_id: number;
-  education_class_code: string;
+  education_class_id: number;
   headmaster_id: string;
   registration_number: string;
   institution_status: string;
@@ -31,13 +28,13 @@ export interface CreateUpdateInstitusiPendidikanRequest {
 export const institusiPendidikanApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getInstitusiPendidikan: builder.query<InstitusiPendidikanApiResponse[], void>({
-      query: () => 'main/educational-institution', // New endpoint
+      query: () => 'main/educational-institution',
       transformResponse: (response: GetInstitusiPendidikanApiResponse) => response.data,
       providesTags: ['InstitusiPendidikan'],
     }),
     createInstitusiPendidikan: builder.mutation<InstitusiPendidikan, CreateUpdateInstitusiPendidikanRequest>({
       query: (body) => ({
-        url: 'main/educational-institution', // New endpoint
+        url: 'main/educational-institution',
         method: 'POST',
         body,
       }),
@@ -45,7 +42,7 @@ export const institusiPendidikanApi = smpApi.injectEndpoints({
     }),
     updateInstitusiPendidikan: builder.mutation<InstitusiPendidikan, { id: number; data: CreateUpdateInstitusiPendidikanRequest }>({
       query: ({ id, data }) => ({
-        url: `main/educational-institution/${id}`, // New endpoint
+        url: `main/educational-institution/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -53,7 +50,7 @@ export const institusiPendidikanApi = smpApi.injectEndpoints({
     }),
     deleteInstitusiPendidikan: builder.mutation<{ message: string }, number>({
         query: (id) => ({
-            url: `main/educational-institution/${id}`, // New endpoint
+            url: `main/educational-institution/${id}`,
             method: 'DELETE',
         }),
         invalidatesTags: ['InstitusiPendidikan'],

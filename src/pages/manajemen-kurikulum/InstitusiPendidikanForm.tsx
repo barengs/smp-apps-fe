@@ -13,13 +13,13 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useCreateInstitusiPendidikanMutation, useUpdateInstitusiPendidikanMutation } from '@/store/slices/institusiPendidikanApi';
 import { InstitusiPendidikan } from '@/types/pendidikan';
 import { useGetEducationGroupsQuery } from '@/store/slices/educationGroupApi';
-import { useGetTeachersQuery } from '@/store/slices/teacherApi';
+import { useGetStaffsQuery } from '@/store/slices/teacherApi';
 import { CreateUpdateInstitusiPendidikanRequest } from '@/store/slices/institusiPendidikanApi';
 
 const formSchema = z.object({
   institution_name: z.string().min(1, { message: 'Nama institusi harus diisi.' }),
   education_id: z.preprocess((val) => Number(val), z.number().min(1, { message: 'Jenjang pendidikan harus dipilih.' })),
-  education_class_code: z.string().min(1, { message: 'Kelompok pendidikan harus dipilih.' }),
+  education_class_id: z.preprocess((val) => Number(val), z.number().min(1, { message: 'Kelompok pendidikan harus dipilih.' })),
   headmaster_id: z.string().min(1, { message: 'Kepala sekolah harus dipilih.' }),
   registration_number: z.string().min(1, { message: 'Nomor registrasi harus diisi.' }),
   institution_status: z.string().min(1, { message: 'Status harus dipilih.' }),
@@ -37,7 +37,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const { t } = useTranslation();
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
-  const { data: teachersData } = useGetTeachersQuery();
+  const { data: staffsData } = useGetStaffsQuery();
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();
   const [updateInstitusi, { isLoading: isUpdating }] = useUpdateInstitusiPendidikanMutation();
 
@@ -46,12 +46,12 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
     defaultValues: initialData ? {
       ...initialData,
       education_id: initialData.education_id || 0,
-      education_class_code: initialData.education_class_code || '',
+      education_class_id: initialData.education_class?.id || 0,
       headmaster_id: initialData.headmaster_id || '',
     } : {
       institution_name: '',
       education_id: 0,
-      education_class_code: '',
+      education_class_id: 0,
       headmaster_id: '',
       registration_number: '',
       institution_status: 'active',
@@ -62,11 +62,22 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const requestData: CreateUpdateInstitusiPendidikanRequest = {
+        institution_name: values.institution_name,
+        education_id: values.education_id,
+        education_class_id: values.education_class_id,
+        headmaster_id: values.headmaster_id,
+        registration_number: values.registration_number,
+        institution_status: values.institution_status,
+        institution_address: values.institution_address,
+        institution_description: values.institution_description,
+      };
+
       if (initialData) {
-        await updateInstitusi({ id: initialData.id, data: values }).unwrap();
+        await updateInstitusi({ id: initialData.id, data: requestData }).unwrap();
         toast.showSuccess(t('institusiPendidikanForm.successEdit'));
       } else {
-        await createInstitusi(values).unwrap();
+        await createInstitusi(requestData).unwrap();
         toast.showSuccess(t('institusiPendidikanForm.successAdd'));
       }
       onSuccess();
@@ -78,7 +89,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const isLoading = isCreating || isUpdating;
   const educationLevels = educationLevelsData?.data || [];
   const educationGroups = educationGroupsData?.data || [];
-  const teachers = teachersData?.data || [];
+  const staffs = staffsData || [];
 
   return (
     <Form {...form}>
@@ -123,11 +134,11 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
           />
           <FormField
             control={form.control}
-            name="education_class_code"
+            name="education_class_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t('institusiPendidikanForm.educationGroupLabel')}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder={t('institusiPendidikanForm.selectEducationGroup')} />
@@ -135,7 +146,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
                   </FormControl>
                   <SelectContent>
                     {educationGroups.map((group) => (
-                      <SelectItem key={group.code} value={group.code}>
+                      <SelectItem key={group.id} value={String(group.id)}>
                         {group.name}
                       </SelectItem>
                     ))}
@@ -173,9 +184,9 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {teachers.map((teacher) => (
-                      <SelectItem key={teacher.staff.id} value={teacher.staff.id}>
-                        {teacher.staff.first_name} {teacher.staff.last_name}
+                    {staffs.map((staff) => (
+                      <SelectItem key={staff.id} value={String(staff.id)}>
+                        {staff.first_name} {staff.last_name}
                       </SelectItem>
                     ))}
                   </SelectContent>

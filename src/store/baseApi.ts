@@ -137,11 +137,12 @@ export const smpApi = createApi({
     'Internship',
     'Partner',
     'Supervisor',
-    'Teacher', // Add Teacher tag type here
+    'Teacher',
     'TeacherAssignment',
     'LessonHour',
     'ClassSchedule',
     'InstitusiPendidikan',
+    'Staff',
   ],
   endpoints: () => ({}),
 });

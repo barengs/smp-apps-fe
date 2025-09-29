@@ -1,9 +1,9 @@
 import { smpApi } from '../baseApi';
 
 interface EducationGroupApiData {
-  code: string; // Mengganti 'id' dengan 'code'
+  id: number;
+  code: string;
   name: string;
-  // 'description' dihapus
 }
 
 interface GetEducationGroupsResponse {
@@ -12,20 +12,19 @@ interface GetEducationGroupsResponse {
 }
 
 export interface CreateUpdateEducationGroupRequest {
-  code: string; // Menambahkan 'code'
+  code: string;
   name: string;
-  // 'description' dihapus
 }
 
 export const educationGroupApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getEducationGroups: builder.query<GetEducationGroupsResponse, void>({
-      query: () => 'master/education-class', // Mengubah endpoint
+      query: () => 'master/education-class',
       providesTags: ['EducationGroup'],
     }),
     createEducationGroup: builder.mutation<EducationGroupApiData, CreateUpdateEducationGroupRequest>({
       query: (newEducationGroup) => ({
-        url: 'master/education-class', // Mengubah endpoint
+        url: 'master/education-class',
         method: 'POST',
         body: newEducationGroup,
       }),
@@ -33,15 +32,15 @@ export const educationGroupApi = smpApi.injectEndpoints({
     }),
     updateEducationGroup: builder.mutation<EducationGroupApiData, { code: string; data: CreateUpdateEducationGroupRequest }>({
       query: ({ code, data }) => ({
-        url: `master/education-class/${code}`, // Mengubah endpoint dan parameter
+        url: `master/education-class/${code}`,
         method: 'PUT',
         body: data,
       }),
       invalidatesTags: ['EducationGroup'],
     }),
-    deleteEducationGroup: builder.mutation<void, string>({ // Mengubah tipe parameter
+    deleteEducationGroup: builder.mutation<void, string>({
       query: (code) => ({
-        url: `master/education-class/${code}`, // Mengubah endpoint dan parameter
+        url: `master/education-class/${code}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['EducationGroup'],

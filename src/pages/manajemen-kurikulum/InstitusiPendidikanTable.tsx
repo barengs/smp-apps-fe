@@ -125,7 +125,7 @@ const InstitusiPendidikanTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={tableData}
+        data={data || []}
         exportFileName="data_institusi_pendidikan"
         exportTitle="Data Institusi Pendidikan"
         onAddData={handleAdd}

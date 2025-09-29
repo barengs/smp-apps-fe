@@ -24,7 +24,8 @@ export interface JenjangPendidikan {
 }
 
 export interface KelompokPendidikan {
-  code: string; // Diubah dari id: number
+  id: number;
+  code: string;
   name: string;
   education_level_id: number;
 }
@@ -52,7 +53,7 @@ export interface Rombel {
 export interface InstitusiPendidikan {
   id: number;
   education_id: number;
-  education_class_code: string; // Diubah dari education_class_id: number
+  education_class_code: string;
   registration_number: string;
   institution_name: string;
   institution_address: string;
@@ -63,8 +64,8 @@ export interface InstitusiPendidikan {
   institution_banner: string;
   institution_status: string;
   institution_description: string;
-  headmaster_id: string; // Diubah dari number
+  headmaster_id: string;
   education?: JenjangPendidikan;
-  education_class?: { code: string; name: string };
+  education_class?: { id: number; code: string; name: string };
   headmaster?: Staff;
 }
