@@ -38,7 +38,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const { t } = useTranslation();
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
-  const { data: staffsData } = useGetStaffsQuery(); // Menggunakan useGetStaffsQuery untuk main/staff
+  const { data: usersData } = useGetStaffsQuery(); // Menggunakan useGetStaffsQuery untuk main/staff
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();
   const [updateInstitusi, { isLoading: isUpdating }] = useUpdateInstitusiPendidikanMutation();
 
@@ -90,7 +90,14 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const isLoading = isCreating || isUpdating;
   const educationLevels = educationLevelsData?.data || [];
   const educationGroups = educationGroupsData?.data || [];
-  const staffs = staffsData || []; // Data staf langsung dari main/staff
+  
+  // Ekstrak data staf dari usersData yang memiliki properti staff
+  const staffs = useMemo(() => {
+    if (!usersData) return [];
+    return usersData
+      .filter((user: any) => user.staff) // Hanya user yang memiliki staff
+      .map((user: any) => user.staff) as Staff[]; // Ekstrak properti staff
+  }, [usersData]);
 
   return (
     <Form {...form}>
