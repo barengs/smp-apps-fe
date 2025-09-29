@@ -13,7 +13,7 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useCreateInstitusiPendidikanMutation, useUpdateInstitusiPendidikanMutation } from '@/store/slices/institusiPendidikanApi';
 import { InstitusiPendidikan } from '@/types/pendidikan';
 import { useGetEducationGroupsQuery } from '@/store/slices/educationGroupApi';
-import { useGetTeachersQuery } from '@/store/slices/teacherApi';
+import { useGetStaffsQuery } from '@/store/slices/teacherApi';
 import { CreateUpdateInstitusiPendidikanRequest } from '@/store/slices/institusiPendidikanApi';
 import { Staff } from '@/types/teacher';
 
@@ -38,7 +38,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const { t } = useTranslation();
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
-  const { data: usersData } = useGetTeachersQuery();
+  const { data: staffsData } = useGetStaffsQuery(); // Menggunakan useGetStaffsQuery untuk main/staff
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();
   const [updateInstitusi, { isLoading: isUpdating }] = useUpdateInstitusiPendidikanMutation();
 
@@ -90,13 +90,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const isLoading = isCreating || isUpdating;
   const educationLevels = educationLevelsData?.data || [];
   const educationGroups = educationGroupsData?.data || [];
-  
-  const staffs = useMemo(() => {
-    if (!usersData?.data) return [];
-    return usersData.data
-      .filter(user => user.staff)
-      .map(user => user.staff) as Staff[];
-  }, [usersData]);
+  const staffs = staffsData || []; // Data staf langsung dari main/staff
 
   return (
     <Form {...form}>
