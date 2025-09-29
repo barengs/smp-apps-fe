@@ -49,9 +49,18 @@ export interface Rombel {
 
 export interface InstitusiPendidikan {
   id: number;
-  name: string;
-  education_level_id: number;
-  education_level?: JenjangPendidikan;
-  category: string;
-  number_of_classes: number;
+  education_id: number;
+  education_class_id: number;
+  registration_number: string;
+  institution_name: string;
+  institution_address: string;
+  institution_phone: string;
+  institution_email: string;
+  institution_website: string;
+  institution_logo: string;
+  institution_banner: string;
+  institution_status: string;
+  institution_description: string;
+  headmaster_id: number;
+  education?: JenjangPendidikan;
 }

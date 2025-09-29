@@ -5,6 +5,7 @@ import * as z from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as toast from '@/utils/toast';
@@ -13,10 +14,12 @@ import { useCreateInstitusiPendidikanMutation, useUpdateInstitusiPendidikanMutat
 import { InstitusiPendidikan } from '@/types/pendidikan';
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: 'Nama institusi harus diisi.' }),
-  education_level_id: z.preprocess((val) => Number(val), z.number().min(1, { message: 'Jenjang pendidikan harus dipilih.' })),
-  category: z.string().min(1, { message: 'Kategori pendidikan harus diisi.' }),
-  number_of_classes: z.preprocess((val) => Number(val), z.number().min(1, { message: 'Jumlah kelas harus diisi.' })),
+  institution_name: z.string().min(1, { message: 'Nama institusi harus diisi.' }),
+  education_id: z.preprocess((val) => Number(val), z.number().min(1, { message: 'Jenjang pendidikan harus dipilih.' })),
+  registration_number: z.string().min(1, { message: 'Nomor registrasi harus diisi.' }),
+  institution_status: z.string().min(1, { message: 'Status harus dipilih.' }),
+  institution_address: z.string().optional(),
+  institution_description: z.string().optional(),
 });
 
 interface InstitusiPendidikanFormProps {
@@ -33,21 +36,35 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      name: '',
-      education_level_id: 0,
-      category: '',
-      number_of_classes: 0,
+    defaultValues: initialData ? {
+      ...initialData,
+      education_id: initialData.education_id || 0,
+    } : {
+      institution_name: '',
+      education_id: 0,
+      registration_number: '',
+      institution_status: 'active',
+      institution_address: '',
+      institution_description: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const payload = {
+      institution_name: values.institution_name,
+      education_id: values.education_id,
+      registration_number: values.registration_number,
+      institution_status: values.institution_status,
+      institution_address: values.institution_address,
+      institution_description: values.institution_description,
+    };
+
     try {
       if (initialData) {
-        await updateInstitusi({ id: initialData.id, data: values }).unwrap();
+        await updateInstitusi({ id: initialData.id, data: payload }).unwrap();
         toast.showSuccess(t('institusiPendidikanForm.successEdit'));
       } else {
-        await createInstitusi(values).unwrap();
+        await createInstitusi(payload).unwrap();
         toast.showSuccess(t('institusiPendidikanForm.successAdd'));
       }
       onSuccess();
@@ -64,7 +81,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
+          name="institution_name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('institusiPendidikanForm.nameLabel')}</FormLabel>
@@ -75,24 +92,60 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
             </FormItem>
           )}
         />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="education_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('institusiPendidikanForm.educationLevelLabel')}</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('institusiPendidikanForm.selectEducationLevel')} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {educationLevels.map((level) => (
+                      <SelectItem key={level.id} value={String(level.id)}>
+                        {level.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="registration_number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('institusiPendidikanForm.registrationNumberLabel')}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t('institusiPendidikanForm.registrationNumberPlaceholder')} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
-          name="education_level_id"
+          name="institution_status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.educationLevelLabel')}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+              <FormLabel>{t('institusiPendidikanForm.statusLabel')}</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={t('institusiPendidikanForm.selectEducationLevel')} />
+                    <SelectValue placeholder={t('institusiPendidikanForm.selectStatus')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {educationLevels.map((level) => (
-                    <SelectItem key={level.id} value={String(level.id)}>
-                      {level.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="active">Aktif</SelectItem>
+                  <SelectItem value="inactive">Tidak Aktif</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -101,12 +154,12 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
         />
         <FormField
           control={form.control}
-          name="category"
+          name="institution_address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.categoryLabel')}</FormLabel>
+              <FormLabel>{t('institusiPendidikanForm.addressLabel')}</FormLabel>
               <FormControl>
-                <Input placeholder={t('institusiPendidikanForm.categoryPlaceholder')} {...field} />
+                <Textarea placeholder={t('institusiPendidikanForm.addressPlaceholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -114,12 +167,12 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
         />
         <FormField
           control={form.control}
-          name="number_of_classes"
+          name="institution_description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.classCountLabel')}</FormLabel>
+              <FormLabel>{t('institusiPendidikanForm.descriptionLabel')}</FormLabel>
               <FormControl>
-                <Input type="number" placeholder={t('institusiPendidikanForm.classCountPlaceholder')} {...field} />
+                <Textarea placeholder={t('institusiPendidikanForm.descriptionPlaceholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

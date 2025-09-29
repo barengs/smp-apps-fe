@@ -10,6 +10,7 @@ import InstitusiPendidikanForm from './InstitusiPendidikanForm';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const InstitusiPendidikanTable: React.FC = () => {
   const { t } = useTranslation();
@@ -47,27 +48,35 @@ const InstitusiPendidikanTable: React.FC = () => {
   const tableData = useMemo(() => {
     return (data || []).map(item => ({
       ...item,
-      education_level_id: item.education_level?.id || 0,
+      education_id: item.education?.id || 0,
     }));
   }, [data]);
 
   const columns: ColumnDef<InstitusiPendidikan>[] = useMemo(
     () => [
       {
-        accessorKey: 'name',
+        accessorKey: 'institution_name',
         header: t('institusiPendidikanTable.namaInstitusi'),
       },
       {
-        accessorKey: 'education_level.name',
+        accessorKey: 'education.name',
         header: t('institusiPendidikanTable.jenjangPendidikan'),
       },
       {
-        accessorKey: 'category',
-        header: t('institusiPendidikanTable.kategoriPendidikan'),
+        accessorKey: 'registration_number',
+        header: t('institusiPendidikanTable.nomorRegistrasi'),
       },
       {
-        accessorKey: 'number_of_classes',
-        header: t('institusiPendidikanTable.jumlahKelas'),
+        accessorKey: 'institution_status',
+        header: t('institusiPendidikanTable.status'),
+        cell: ({ row }) => {
+          const status = row.original.institution_status;
+          return (
+            <Badge variant={status === 'active' ? 'success' : 'destructive'}>
+              {status === 'active' ? 'Aktif' : 'Tidak Aktif'}
+            </Badge>
+          );
+        },
       },
       {
         id: 'actions',
