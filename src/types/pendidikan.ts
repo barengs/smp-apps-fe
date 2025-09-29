@@ -41,6 +41,7 @@ export interface Kelas {
   name: string;
   program_id: number;
   level: number;
+  educational_institution_id?: number | null;
 }
 
 export interface Rombel {

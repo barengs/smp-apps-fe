@@ -28,6 +28,7 @@ export interface CreateUpdateClassroomRequest {
   name:string;
   parent_id?: number | null;
   description?: string;
+  educational_institution_id?: number | null;
 }
 
 export const classroomApi = smpApi.injectEndpoints({

@@ -36,6 +36,17 @@ interface Kelas {
   class_groups: { name: string }[];
 }
 
+interface KelasFormProps {
+  initialData?: {
+    id: number;
+    name: string;
+    educational_institution_id: number | null;
+    description: string;
+  };
+  onSuccess: () => void;
+  onCancel: () => void;
+}
+
 const KelasTable: React.FC = () => {
   const { data: classroomsData, error, isLoading } = useGetClassroomsQuery();
   const [deleteClassroom] = useDeleteClassroomMutation();

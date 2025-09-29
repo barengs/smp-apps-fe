@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,16 +20,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import { showSuccess, showError } from '@/utils/toast';
 import { useCreateClassroomMutation, useUpdateClassroomMutation, useGetClassroomsQuery, type CreateUpdateClassroomRequest } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 
 const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Nama Kelas harus diisi.',
   }),
-  parent_id: z.number().nullable().optional(),
+  educational_institution_id: z.number().nullable().optional(),
   description: z.string().optional(),
 });
 
@@ -37,7 +38,7 @@ interface KelasFormProps {
   initialData?: {
     id: number;
     name: string;
-    parent_id: number | null;
+    educational_institution_id: number | null;
     description: string;
   };
   onSuccess: () => void;
@@ -47,18 +48,18 @@ interface KelasFormProps {
 const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createClassroom, { isLoading: isCreating }] = useCreateClassroomMutation();
   const [updateClassroom, { isLoading: isUpdating }] = useUpdateClassroomMutation();
-  const { data: classroomsData, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
+  const { data: institutionsData, isLoading: isLoadingInstitutions } = useGetInstitusiPendidikanQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
       name: initialData.name,
       description: initialData.description,
-      parent_id: initialData.parent_id,
+      educational_institution_id: initialData.educational_institution_id,
     } : {
       name: '',
       description: '',
-      parent_id: null,
+      educational_institution_id: null,
     },
   });
 
@@ -66,16 +67,16 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
     const payload: CreateUpdateClassroomRequest = {
       name: values.name,
       description: values.description,
-      parent_id: values.parent_id,
+      educational_institution_id: values.educational_institution_id,
     };
 
     try {
       if (initialData) {
         await updateClassroom({ id: initialData.id, data: payload }).unwrap();
-        showSuccess(`Kelas "${values.name}" berhasil diperbarui.`); // Updated call
+        showSuccess(`Kelas "${values.name}" berhasil diperbarui.`);
       } else {
         await createClassroom(payload).unwrap();
-        showSuccess(`Kelas "${values.name}" berhasil ditambahkan.`); // Updated call
+        showSuccess(`Kelas "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
     } catch (err: unknown) {
@@ -92,11 +93,12 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
           errorMessage = (err as SerializedError).message ?? 'Error tidak diketahui';
         }
       }
-      showError(`Gagal menyimpan kelas: ${errorMessage}`); // Updated call
+      showError(`Gagal menyimpan kelas: ${errorMessage}`);
     }
   };
 
   const isSubmitting = isCreating || isUpdating;
+  const institutions = institutionsData || [];
 
   return (
     <Form {...form}>
@@ -116,32 +118,30 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
         />
         <FormField
           control={form.control}
-          name="parent_id"
+          name="educational_institution_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Induk Kelas (Opsional)</FormLabel>
+              <FormLabel>Lembaga Pendidikan (Opsional)</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value === 'none' ? null : parseInt(value, 10))}
                 value={field.value ? String(field.value) : 'none'}
-                disabled={isLoadingClassrooms}
+                disabled={isLoadingInstitutions}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Pilih induk kelas..." />
+                    <SelectValue placeholder="Pilih lembaga pendidikan..." />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="none">Tidak ada induk</SelectItem>
-                  {isLoadingClassrooms ? (
-                    <div className="p-2">Memuat kelas...</div>
+                  <SelectItem value="none">Tidak ada lembaga</SelectItem>
+                  {isLoadingInstitutions ? (
+                    <div className="p-2">Memuat lembaga...</div>
                   ) : (
-                    classroomsData?.data
-                      ?.filter(c => !initialData || c.id !== initialData.id)
-                      .map((classroom) => (
-                        <SelectItem key={classroom.id} value={String(classroom.id)}>
-                          {classroom.name}
-                        </SelectItem>
-                      ))
+                    institutions.map((institution) => (
+                      <SelectItem key={institution.id} value={String(institution.id)}>
+                        {institution.institution_name}
+                      </SelectItem>
+                    ))
                   )}
                 </SelectContent>
               </Select>
