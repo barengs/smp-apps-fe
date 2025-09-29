@@ -210,7 +210,12 @@ const KelasTable: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <KelasForm
-            initialData={editingKelas}
+            initialData={editingKelas ? {
+              id: editingKelas.id,
+              name: editingKelas.name,
+              educational_institution_id: editingKelas.educational_institution_id || null,
+              description: editingKelas.description
+            } : undefined}
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}
           />

@@ -16,7 +16,7 @@ interface CreateClassScheduleDetailRequest {
 // Struktur untuk body request POST
 export interface CreateClassScheduleRequest {
   academic_year_id: number;
-  education_id: number;
+  educational_institution_id: number;
   session: string;
   status: string;
   details: CreateClassScheduleDetailRequest[];

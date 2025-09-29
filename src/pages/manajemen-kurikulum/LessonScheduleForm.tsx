@@ -96,7 +96,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
     const payload: CreateClassScheduleRequest = {
       academic_year_id: activeAcademicYear.id,
-      education_id: parseInt(educationalInstitutionId),
+      educational_institution_id: parseInt(educationalInstitutionId),
       session: session.toLowerCase(),
       status: 'active',
       details: details.map((detail) => ({
