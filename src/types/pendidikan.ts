@@ -29,7 +29,7 @@ export interface KelompokPendidikan {
 
 export interface ProgramPendidikan {
   id: number;
-  name: string;
+  name:string;
   education_group_id: number;
 }
 
@@ -45,4 +45,13 @@ export interface Rombel {
   name: string;
   class_id: number;
   academic_year_id: number;
+}
+
+export interface InstitusiPendidikan {
+  id: number;
+  name: string;
+  education_level_id: number;
+  education_level?: JenjangPendidikan;
+  category: string;
+  number_of_classes: number;
 }

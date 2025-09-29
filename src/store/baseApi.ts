@@ -141,6 +141,7 @@ export const smpApi = createApi({
     'TeacherAssignment',
     'LessonHour',
     'ClassSchedule',
+    'InstitusiPendidikan',
   ],
   endpoints: () => ({}),
 });
