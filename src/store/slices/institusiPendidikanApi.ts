@@ -1,10 +1,13 @@
 import { smpApi } from '../baseApi';
 import { InstitusiPendidikan, JenjangPendidikan } from '@/types/pendidikan';
+import { Staff } from '@/types/teacher';
 
 // The API response for a single institution, assuming 'education' is nested
-interface InstitusiPendidikanApiResponse extends Omit<InstitusiPendidikan, 'education_id' | 'education'> {
+interface InstitusiPendidikanApiResponse extends Omit<InstitusiPendidikan, 'education_id' | 'education' | 'education_class' | 'headmaster'> {
   education_id: number;
   education: JenjangPendidikan;
+  education_class: { code: string; name: string };
+  headmaster: Staff;
 }
 
 // The API response for GET all institutions
@@ -17,6 +20,8 @@ interface GetInstitusiPendidikanApiResponse {
 export interface CreateUpdateInstitusiPendidikanRequest {
   institution_name: string;
   education_id: number;
+  education_class_code: string;
+  headmaster_id: string;
   registration_number: string;
   institution_status: string;
   institution_address?: string;

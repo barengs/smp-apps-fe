@@ -49,6 +49,8 @@ const InstitusiPendidikanTable: React.FC = () => {
     return (data || []).map(item => ({
       ...item,
       education_id: item.education?.id || 0,
+      education_class_code: item.education_class?.code || '',
+      headmaster_id: item.headmaster?.id || '',
     }));
   }, [data]);
 
@@ -61,6 +63,18 @@ const InstitusiPendidikanTable: React.FC = () => {
       {
         accessorKey: 'education.name',
         header: t('institusiPendidikanTable.jenjangPendidikan'),
+      },
+      {
+        accessorKey: 'education_class.name',
+        header: t('institusiPendidikanTable.kelompokPendidikan'),
+      },
+      {
+        accessorKey: 'headmaster',
+        header: t('institusiPendidikanTable.kepalaSekolah'),
+        cell: ({ row }) => {
+          const headmaster = row.original.headmaster;
+          return headmaster ? `${headmaster.first_name} ${headmaster.last_name}` : '-';
+        },
       },
       {
         accessorKey: 'registration_number',
@@ -104,7 +118,7 @@ const InstitusiPendidikanTable: React.FC = () => {
     [t]
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={5} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={7} />;
   if (error) return <div>Error memuat data.</div>;
 
   return (

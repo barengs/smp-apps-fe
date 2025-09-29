@@ -1,3 +1,5 @@
+import { Staff } from './teacher';
+
 export interface AcademicYear {
   id: number;
   year: string;
@@ -22,7 +24,7 @@ export interface JenjangPendidikan {
 }
 
 export interface KelompokPendidikan {
-  id: number;
+  code: string; // Diubah dari id: number
   name: string;
   education_level_id: number;
 }
@@ -50,7 +52,7 @@ export interface Rombel {
 export interface InstitusiPendidikan {
   id: number;
   education_id: number;
-  education_class_id: number;
+  education_class_code: string; // Diubah dari education_class_id: number
   registration_number: string;
   institution_name: string;
   institution_address: string;
@@ -61,6 +63,8 @@ export interface InstitusiPendidikan {
   institution_banner: string;
   institution_status: string;
   institution_description: string;
-  headmaster_id: number;
+  headmaster_id: string; // Diubah dari number
   education?: JenjangPendidikan;
+  education_class?: { code: string; name: string };
+  headmaster?: Staff;
 }
