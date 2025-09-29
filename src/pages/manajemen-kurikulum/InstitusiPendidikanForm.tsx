@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,8 +13,9 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useCreateInstitusiPendidikanMutation, useUpdateInstitusiPendidikanMutation } from '@/store/slices/institusiPendidikanApi';
 import { InstitusiPendidikan } from '@/types/pendidikan';
 import { useGetEducationGroupsQuery } from '@/store/slices/educationGroupApi';
-import { useGetStaffsQuery } from '@/store/slices/teacherApi';
+import { useGetTeachersQuery } from '@/store/slices/teacherApi';
 import { CreateUpdateInstitusiPendidikanRequest } from '@/store/slices/institusiPendidikanApi';
+import { Staff } from '@/types/teacher';
 
 const formSchema = z.object({
   institution_name: z.string().min(1, { message: 'Nama institusi harus diisi.' }),
@@ -37,7 +38,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const { t } = useTranslation();
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
-  const { data: staffsData } = useGetStaffsQuery();
+  const { data: usersData } = useGetTeachersQuery();
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();
   const [updateInstitusi, { isLoading: isUpdating }] = useUpdateInstitusiPendidikanMutation();
 
@@ -89,7 +90,13 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const isLoading = isCreating || isUpdating;
   const educationLevels = educationLevelsData?.data || [];
   const educationGroups = educationGroupsData?.data || [];
-  const staffs = staffsData || [];
+  
+  const staffs = useMemo(() => {
+    if (!usersData?.data) return [];
+    return usersData.data
+      .filter(user => user.staff)
+      .map(user => user.staff) as Staff[];
+  }, [usersData]);
 
   return (
     <Form {...form}>
