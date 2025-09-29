@@ -49,7 +49,7 @@ const InstitusiPendidikanTable: React.FC = () => {
     return (data || []).map(item => ({
       ...item,
       education_id: item.education?.id || 0,
-      education_class_code: item.education_class?.code || '',
+      education_class_id: item.education_class?.id || 0,
       headmaster_id: item.headmaster?.id || '',
     }));
   }, [data]);

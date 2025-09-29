@@ -184,7 +184,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {staffs.map((staff) => (
+                    {staffs.map((staff: Staff) => (
                       <SelectItem key={staff.id} value={String(staff.id)}>
                         {staff.first_name} {staff.last_name}
                       </SelectItem>
