@@ -34,6 +34,7 @@ interface Kelas {
   parent_id: number | null;
   description: string;
   class_groups: { name: string }[];
+  educational_institution_id?: number | null;
 }
 
 interface KelasFormProps {

@@ -27,10 +27,12 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 
 const formSchema = z.object({
+  educational_institution_id: z.number().min(1, {
+    message: 'Lembaga Pendidikan harus dipilih.',
+  }),
   name: z.string().min(1, {
     message: 'Nama Kelas harus diisi.',
   }),
-  educational_institution_id: z.number().nullable().optional(),
   description: z.string().optional(),
 });
 
@@ -55,11 +57,11 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
     defaultValues: initialData ? {
       name: initialData.name,
       description: initialData.description,
-      educational_institution_id: initialData.educational_institution_id,
+      educational_institution_id: initialData.educational_institution_id || 0,
     } : {
       name: '',
       description: '',
-      educational_institution_id: null,
+      educational_institution_id: 0,
     },
   });
 
@@ -105,26 +107,13 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Kelas</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: Kelas 7A" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
           name="educational_institution_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Lembaga Pendidikan (Opsional)</FormLabel>
+              <FormLabel>Lembaga Pendidikan <span className="text-red-500">*</span></FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(value === 'none' ? null : parseInt(value, 10))}
-                value={field.value ? String(field.value) : 'none'}
+                onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                value={String(field.value)}
                 disabled={isLoadingInstitutions}
               >
                 <FormControl>
@@ -133,7 +122,6 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="none">Tidak ada lembaga</SelectItem>
                   {isLoadingInstitutions ? (
                     <div className="p-2">Memuat lembaga...</div>
                   ) : (
@@ -145,6 +133,19 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
                   )}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nama Kelas <span className="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <Input placeholder="Contoh: Kelas 7A" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
