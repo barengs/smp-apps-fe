@@ -50,18 +50,20 @@ interface StudentClassData {
 // Interface untuk request body
 interface CreateStudentClassRequest {
   academic_year_id: number;
-  education_id: number;
+  educational_institution_id: number; // Ganti dari education_id
   student_id: number | number[]; // Support both single student and array
-  class_group_id: number; // Change from class_id to class_group_id
+  classroom_id: number; // Tambahkan untuk data kelas
+  class_group_id: number; // Tambahkan untuk data rombel
   approval_status?: string;
   approval_note?: string;
 }
 
 interface UpdateStudentClassRequest {
   academic_year_id?: number;
-  education_id?: number;
+  educational_institution_id?: number; // Ganti dari education_id
   student_id?: number;
-  class_group_id: number; // Change from class_id to class_group_id
+  classroom_id?: number; // Tambahkan untuk data kelas
+  class_group_id: number; // Tambahkan untuk data rombel
   approval_status?: string;
   approval_note?: string;
   approved_by?: number;

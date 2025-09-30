@@ -119,14 +119,15 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
 
     const toastId = showLoading('Menambahkan siswa ke kelas...');
     try {
-      // Kirim data dengan class_group_id sebagai nama field
+      // Kirim data dengan field yang sesuai untuk backend
       await Promise.all(
         selectedStudents.map(studentId =>
           createStudentClass({
             academic_year_id: parseInt(selectedAcademicYear),
-            education_id: parseInt(selectedLevel),
+            educational_institution_id: parseInt(selectedLevel), // Ganti dari education_id
             student_id: studentId,
-            class_group_id: parseInt(selectedClassGroup), // Menggunakan class_group_id sebagai nama field
+            classroom_id: parseInt(selectedClassroom), // Tambahkan classroom_id untuk data kelas
+            class_group_id: parseInt(selectedClassGroup), // Tambahkan class_group_id untuk data rombel
             approval_status: 'diajukan',
           }).unwrap()
         )

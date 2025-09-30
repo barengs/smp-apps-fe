@@ -42,6 +42,7 @@ interface PromotionData {
   kelas: string;
   statusApproval: string;
   tanggalPembuatan: string;
+  education_id: number; // Tambahkan properti education_id
 }
 
 export default function KenaikanKelasPage() {
@@ -108,6 +109,7 @@ export default function KenaikanKelasPage() {
         kelas: classroom ? classroom.name : 'Tidak diketahui',
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
+        education_id: studentClass.education_id,
       };
       
       return result;
@@ -134,7 +136,9 @@ export default function KenaikanKelasPage() {
       await updateStudentClass({
         id: selectedPromotion.id,
         data: {
-          class_group_id: selectedPromotion.class_id, // Change from class_id to class_group_id
+          classroom_id: selectedPromotion.class_id, // Tambahkan classroom_id
+          class_group_id: selectedPromotion.class_id, // Tambahkan class_group_id
+          educational_institution_id: selectedPromotion.education_id, // Ganti dari education_id
           approval_status: action === 'approve' ? 'disetujui' : 'ditolak',
           approval_note: approvalNote,
         },
