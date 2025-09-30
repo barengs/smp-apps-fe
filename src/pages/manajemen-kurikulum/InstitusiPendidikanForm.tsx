@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,10 +34,9 @@ interface InstitusiPendidikanFormProps {
 }
 
 const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initialData, onSuccess, onCancel }) => {
-  const { t } = useTranslation();
   const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
-  const { data: usersData } = useGetStaffsQuery(); // Menggunakan useGetStaffsQuery untuk main/staff
+  const { data: usersData } = useGetStaffsQuery();
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();
   const [updateInstitusi, { isLoading: isUpdating }] = useUpdateInstitusiPendidikanMutation();
 
@@ -76,10 +74,10 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
 
       if (initialData) {
         await updateInstitusi({ id: initialData.id, data: requestData }).unwrap();
-        toast.showSuccess(t('institusiPendidikanForm.successEdit'));
+        toast.showSuccess('Data berhasil diperbarui.');
       } else {
         await createInstitusi(requestData).unwrap();
-        toast.showSuccess(t('institusiPendidikanForm.successAdd'));
+        toast.showSuccess('Data berhasil ditambahkan.');
       }
       onSuccess();
     } catch (error) {
@@ -95,8 +93,8 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   const staffs = useMemo(() => {
     if (!usersData) return [];
     return usersData
-      .filter((user: any) => user.staff) // Hanya user yang memiliki staff
-      .map((user: any) => user.staff) as Staff[]; // Ekstrak properti staff
+      .filter((user: any) => user.staff)
+      .map((user: any) => user.staff) as Staff[];
   }, [usersData]);
 
   return (
@@ -107,9 +105,9 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
           name="institution_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.nameLabel')}</FormLabel>
+              <FormLabel>Nama Institusi</FormLabel>
               <FormControl>
-                <Input placeholder={t('institusiPendidikanForm.namePlaceholder')} {...field} />
+                <Input placeholder="Masukkan nama institusi" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -121,11 +119,11 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
             name="education_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('institusiPendidikanForm.educationLevelLabel')}</FormLabel>
+                <FormLabel>Jenjang Pendidikan</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('institusiPendidikanForm.selectEducationLevel')} />
+                      <SelectValue placeholder="Pilih jenjang pendidikan" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -145,11 +143,11 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
             name="education_class_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('institusiPendidikanForm.educationGroupLabel')}</FormLabel>
+                <FormLabel>Kelompok Pendidikan</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('institusiPendidikanForm.selectEducationGroup')} />
+                      <SelectValue placeholder="Pilih kelompok pendidikan" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -171,9 +169,9 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
             name="registration_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('institusiPendidikanForm.registrationNumberLabel')}</FormLabel>
+                <FormLabel>Nomor Registrasi</FormLabel>
                 <FormControl>
-                  <Input placeholder={t('institusiPendidikanForm.registrationNumberPlaceholder')} {...field} />
+                  <Input placeholder="Masukkan nomor registrasi" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -184,11 +182,11 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
             name="headmaster_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('institusiPendidikanForm.headmasterLabel')}</FormLabel>
+                <FormLabel>Kepala Sekolah</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('institusiPendidikanForm.selectHeadmaster')} />
+                      <SelectValue placeholder="Pilih kepala sekolah" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -209,11 +207,11 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
           name="institution_status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.statusLabel')}</FormLabel>
+              <FormLabel>Status</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={t('institusiPendidikanForm.selectStatus')} />
+                    <SelectValue placeholder="Pilih status" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -230,9 +228,9 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
           name="institution_address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.addressLabel')}</FormLabel>
+              <FormLabel>Alamat Institusi</FormLabel>
               <FormControl>
-                <Textarea placeholder={t('institusiPendidikanForm.addressPlaceholder')} {...field} />
+                <Textarea placeholder="Masukkan alamat institusi" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -243,9 +241,9 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
           name="institution_description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('institusiPendidikanForm.descriptionLabel')}</FormLabel>
+              <FormLabel>Deskripsi Institusi</FormLabel>
               <FormControl>
-                <Textarea placeholder={t('institusiPendidikanForm.descriptionPlaceholder')} {...field} />
+                <Textarea placeholder="Masukkan deskripsi institusi" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -253,10 +251,10 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
         />
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
-            {t('cancelButton')}
+            Batal
           </Button>
           <Button type="submit" variant="success" disabled={isLoading}>
-            {isLoading ? 'Menyimpan...' : t('lessonHoursForm.saveButton')}
+            {isLoading ? 'Menyimpan...' : 'Simpan'}
           </Button>
         </div>
       </form>

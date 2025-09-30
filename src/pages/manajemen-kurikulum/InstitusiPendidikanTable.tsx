@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { useTranslation } from 'react-i18next';
 import { DataTable } from '@/components/DataTable';
 import { useGetInstitusiPendidikanQuery, useDeleteInstitusiPendidikanMutation } from '@/store/slices/institusiPendidikanApi';
 import { InstitusiPendidikan } from '@/types/pendidikan';
@@ -13,7 +12,6 @@ import { Edit, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const InstitusiPendidikanTable: React.FC = () => {
-  const { t } = useTranslation();
   const { data, error, isLoading } = useGetInstitusiPendidikanQuery();
   const [deleteInstitusi] = useDeleteInstitusiPendidikanMutation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,7 +48,7 @@ const InstitusiPendidikanTable: React.FC = () => {
       ...item,
       education_id: item.education?.id || 0,
       education_class_id: item.education_class?.id || 0,
-      headmaster_id: item.headmaster?.id || '',
+      headmaster_id: item.headmaster_id || '',
     }));
   }, [data]);
 
@@ -58,19 +56,19 @@ const InstitusiPendidikanTable: React.FC = () => {
     () => [
       {
         accessorKey: 'institution_name',
-        header: t('institusiPendidikanTable.namaInstitusi'),
+        header: 'Nama Institusi',
       },
       {
         accessorKey: 'education.name',
-        header: t('institusiPendidikanTable.jenjangPendidikan'),
+        header: 'Jenjang Pendidikan',
       },
       {
         accessorKey: 'education_class.name',
-        header: t('institusiPendidikanTable.kelompokPendidikan'),
+        header: 'Kelompok Pendidikan',
       },
       {
         accessorKey: 'headmaster',
-        header: t('institusiPendidikanTable.kepalaSekolah'),
+        header: 'Kepala Sekolah',
         cell: ({ row }) => {
           const headmaster = row.original.headmaster;
           return headmaster ? `${headmaster.first_name} ${headmaster.last_name}` : '-';
@@ -78,11 +76,11 @@ const InstitusiPendidikanTable: React.FC = () => {
       },
       {
         accessorKey: 'registration_number',
-        header: t('institusiPendidikanTable.nomorRegistrasi'),
+        header: 'Nomor Registrasi',
       },
       {
         accessorKey: 'institution_status',
-        header: t('institusiPendidikanTable.status'),
+        header: 'Status',
         cell: ({ row }) => {
           const status = row.original.institution_status;
           return (
@@ -94,7 +92,7 @@ const InstitusiPendidikanTable: React.FC = () => {
       },
       {
         id: 'actions',
-        header: t('actions.title'),
+        header: 'Aksi',
         cell: ({ row }) => (
           <div className="flex space-x-2">
             <Button
@@ -115,7 +113,7 @@ const InstitusiPendidikanTable: React.FC = () => {
         ),
       },
     ],
-    [t]
+    []
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={7} />;
@@ -134,7 +132,7 @@ const InstitusiPendidikanTable: React.FC = () => {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {editingData ? t('institusiPendidikanForm.editTitle') : t('institusiPendidikanForm.addTitle')}
+              {editingData ? 'Edit Institusi Pendidikan' : 'Tambah Institusi Pendidikan'}
             </DialogTitle>
             <DialogDescription>
               {editingData ? 'Ubah detail institusi.' : 'Isi detail untuk institusi baru.'}
