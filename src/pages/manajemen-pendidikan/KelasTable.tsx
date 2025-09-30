@@ -27,6 +27,7 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 
 interface Kelas {
   id: number;
@@ -51,6 +52,7 @@ interface KelasFormProps {
 const KelasTable: React.FC = () => {
   const { data: classroomsData, error, isLoading } = useGetClassroomsQuery();
   const [deleteClassroom] = useDeleteClassroomMutation();
+  const { data: institutionsData } = useGetInstitusiPendidikanQuery();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKelas, setEditingKelas] = useState<Kelas | undefined>(undefined);
@@ -65,6 +67,7 @@ const KelasTable: React.FC = () => {
         parent_id: c.parent_id,
         description: c.description || 'Tidak ada deskripsi',
         class_groups: c.class_groups || [],
+        educational_institution_id: (c as any).educational_institution_id,
       }));
     }
     return [];
@@ -113,6 +116,17 @@ const KelasTable: React.FC = () => {
 
   const columns: ColumnDef<Kelas>[] = useMemo(
     () => [
+      {
+        accessorKey: 'educational_institution_id',
+        header: 'Pendidikan',
+        cell: ({ getValue }) => {
+          const institutionId = getValue<number | null>();
+          if (!institutionId) return <span className="text-muted-foreground">-</span>;
+          
+          const institution = institutionsData?.find(inst => inst.id === institutionId);
+          return institution ? institution.institution_name : <span className="text-muted-foreground">-</span>;
+        },
+      },
       {
         accessorKey: 'name',
         header: 'Nama Kelas',
@@ -181,10 +195,10 @@ const KelasTable: React.FC = () => {
         },
       },
     ],
-    []
+    [institutionsData]
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={5} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
