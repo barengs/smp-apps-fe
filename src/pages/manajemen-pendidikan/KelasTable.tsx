@@ -36,6 +36,9 @@ interface Kelas {
   description: string;
   class_groups: { name: string }[];
   educational_institution_id?: number | null;
+  school?: {
+    institution_name: string;
+  };
 }
 
 interface KelasFormProps {
