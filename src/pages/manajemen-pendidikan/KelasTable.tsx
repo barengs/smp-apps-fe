@@ -71,7 +71,7 @@ const KelasTable: React.FC = () => {
         description: c.description || 'Tidak ada deskripsi',
         class_groups: c.class_groups || [],
         educational_institution_id: c.educational_institution_id,
-        school: (c as any).school,
+        school: c.school,
       }));
     }
     return [];
