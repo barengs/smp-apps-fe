@@ -119,25 +119,15 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
 
     const toastId = showLoading('Menambahkan siswa ke kelas...');
     try {
-      // Kirim data sebagai array student_id sesuai permintaan
-      const payload = {
-        academic_year_id: parseInt(selectedAcademicYear),
-        education_id: parseInt(selectedLevel),
-        student_id: selectedStudents, // Array of student IDs
-        class_id: parseInt(selectedClassroom), // Using classroom ID instead of class group ID
-        approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
-      };
-
-      // Note: You may need to update the API endpoint to handle array of student_ids
-      // For now, we'll keep the individual calls as the mutation might not support bulk operations
+      // Kirim data dengan class_group_id sebagai payload
       await Promise.all(
         selectedStudents.map(studentId =>
           createStudentClass({
             academic_year_id: parseInt(selectedAcademicYear),
             education_id: parseInt(selectedLevel),
             student_id: studentId,
-            class_id: parseInt(selectedClassroom), // Using classroom ID instead of class group ID
-            approval_status: 'diajukan', // Changed from 'pending' to 'diajukan'
+            class_id: parseInt(selectedClassGroup), // Menggunakan class_group_id (rombel) sebagai class_id
+            approval_status: 'diajukan',
           }).unwrap()
         )
       );
