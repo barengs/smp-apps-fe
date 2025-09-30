@@ -44,9 +44,13 @@ const JadwalPelajaranPage: React.FC = () => {
 
   const columns: ColumnDef<any>[] = [
     {
-      accessorKey: 'education.name',
+      accessorKey: 'education',
       header: t('lessonSchedulePage.educationLevel'),
-      cell: ({ row }) => <div className="capitalize">{row.original.education.name}</div>,
+      cell: ({ row }) => {
+        const education = row.original.education;
+        if (!education || !education.institution_name) return <div className="text-gray-400">-</div>;
+        return <div className="capitalize">{education.institution_name}</div>;
+      },
     },
     {
       accessorKey: 'classroom.name',
