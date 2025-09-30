@@ -121,14 +121,12 @@ const KelasTable: React.FC = () => {
   const columns: ColumnDef<Kelas>[] = useMemo(
     () => [
       {
-        accessorKey: 'educational_institution_id',
+        accessorKey: 'school',
         header: 'Pendidikan',
-        cell: ({ getValue }) => {
-          const institutionId = getValue<number | null>();
-          if (!institutionId) return <span className="text-muted-foreground">-</span>;
-          
-          const institution = institutionsData?.find(inst => inst.id === institutionId);
-          return institution ? institution.institution_name : <span className="text-muted-foreground">-</span>;
+        cell: ({ row }) => {
+          const school = row.original.school;
+          if (!school || !school.institution_name) return <span className="text-muted-foreground">-</span>;
+          return <span>{school.institution_name}</span>;
         },
       },
       {
