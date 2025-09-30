@@ -27,6 +27,13 @@ interface PresensiData {
   status: string;
 }
 
+// Tambahkan interface untuk Education yang benar
+interface EducationInstitution {
+  id: number;
+  institution_name: string;
+  [key: string]: any;
+}
+
 const PresensiPage: React.FC = () => {
   const navigate = useNavigate();
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -70,13 +77,13 @@ const PresensiPage: React.FC = () => {
           const classGroup = detail.class_group;
           const study = detail.study;
           const academicYear = schedule.academic_year;
-          const education = schedule.education;
+          const education = schedule.education; // Ambil data education dari schedule
 
           processedData.push({
             id: detail.id,
             mataPelajaran: study ? study.name : 'Tidak diketahui',
             guruPengampu: teacher ? `${teacher.first_name} ${teacher.last_name || ''}`.trim() : 'Tidak diketahui',
-            jenjangPendidikan: education ? education.name : 'Tidak diketahui',
+            jenjangPendidikan: education ? (education as EducationInstitution).institution_name : 'Tidak diketahui', // Gunakan type assertion dengan interface baru
             kelas: classroom ? classroom.name : 'Tidak diketahui',
             rombel: classGroup ? classGroup.name : 'Tidak diketahui',
             tahunAjaran: academicYear ? (academicYear.year || (academicYear as any).name) : 'Tidak diketahui',
