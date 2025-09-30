@@ -134,7 +134,7 @@ export default function KenaikanKelasPage() {
       await updateStudentClass({
         id: selectedPromotion.id,
         data: {
-          class_id: selectedPromotion.class_id,
+          class_group_id: selectedPromotion.class_id, // Change from class_id to class_group_id
           approval_status: action === 'approve' ? 'disetujui' : 'ditolak',
           approval_note: approvalNote,
         },
