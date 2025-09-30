@@ -54,7 +54,7 @@ const TeacherAssignmentTable: React.FC = () => {
         const studies = staffDetail.studies;
 
         const staffForModal: Staff = {
-          id: staffDetail.id,
+          id: String(staffDetail.id),
           first_name: staffDetail.first_name,
           last_name: staffDetail.last_name,
           nip: staffDetail.nik,
