@@ -15,6 +15,8 @@ interface ClassroomApiData {
   parent_id: number | null;
   description: string;
   class_groups: ClassGroupNested[]; // Menambahkan field ini
+  educational_institution_id?: number | null; // Add this field
+  school?: any; // Add this field for school data
 }
 
 // Respons GET adalah objek dengan properti 'data'
