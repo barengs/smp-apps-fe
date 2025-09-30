@@ -98,7 +98,7 @@ export default function KenaikanKelasPage() {
       const education = studentClass.educations; // Data education/jenjang pendidikan sudah tersedia di response
       
       // Untuk jenjang pendidikan, gunakan langsung dari properti educations.name
-      const jenjangPendidikan = institusiPendidikanMap.get(studentClass.education_id)?.institution_name || 'Tidak diketahui';
+      const jenjangPendidikan = education?.institution_name || 'Tidak diketahui';
 
       const result = {
         id: studentClass.id,
