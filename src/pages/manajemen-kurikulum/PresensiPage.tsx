@@ -83,7 +83,7 @@ const PresensiPage: React.FC = () => {
             id: detail.id,
             mataPelajaran: study ? study.name : 'Tidak diketahui',
             guruPengampu: teacher ? `${teacher.first_name} ${teacher.last_name || ''}`.trim() : 'Tidak diketahui',
-            jenjangPendidikan: education ? (education as EducationInstitution).institution_name : 'Tidak diketahui', // Gunakan type assertion dengan interface baru
+            jenjangPendidikan: education ? (education as any).institution_name : 'Tidak diketahui', // Gunakan any untuk menghindari konflik tipe
             kelas: classroom ? classroom.name : 'Tidak diketahui',
             rombel: classGroup ? classGroup.name : 'Tidak diketahui',
             tahunAjaran: academicYear ? (academicYear.year || (academicYear as any).name) : 'Tidak diketahui',
