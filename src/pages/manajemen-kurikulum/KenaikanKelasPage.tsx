@@ -40,6 +40,7 @@ interface PromotionData {
   tahunAjaran: string;
   jenjangPendidikan: string;
   kelas: string;
+  rombel: string;
   statusApproval: string;
   tanggalPembuatan: string;
   education_id: number; // Tambahkan properti education_id
@@ -96,6 +97,7 @@ export default function KenaikanKelasPage() {
       const academicYear = studentClass.academic_years || academicYearMap.get(studentClass.academic_year_id);
       const classroom = studentClass.classrooms; // Data classroom sudah tersedia di response
       const education = studentClass.educations; // Data education/jenjang pendidikan sudah tersedia di response
+      const classGroup = studentClass.class_group; // Data rombel sudah tersedia di response
       
       // Untuk jenjang pendidikan, gunakan langsung dari properti educations.name
       const jenjangPendidikan = education?.institution_name || 'Tidak diketahui';
@@ -107,6 +109,7 @@ export default function KenaikanKelasPage() {
         tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
         jenjangPendidikan: jenjangPendidikan,
         kelas: classroom ? classroom.name : 'Tidak diketahui',
+        rombel: classGroup ? classGroup.name : 'Tidak diketahui', // Tambahkan data rombel
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
         education_id: studentClass.education_id,
