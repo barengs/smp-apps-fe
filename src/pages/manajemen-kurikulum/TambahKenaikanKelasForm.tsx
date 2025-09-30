@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { Label } from '@/components/ui/label';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 
 interface TambahKenaikanKelasFormProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   // Data fetching
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
   const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
-  const { data: levelsResponse, isLoading: isLoadingLevels } = useGetEducationLevelsQuery();
+  const { data: institusiPendidikan, isLoading: isLoadingInstitusiPendidikan } = useGetInstitusiPendidikanQuery();
   const { data: classroomsResponse, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
   const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
   const [createStudentClass, { isLoading: isCreating }] = useCreateStudentClassMutation();
@@ -55,7 +56,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const [selectedClassGroup, setSelectedClassGroup] = useState<string>('');
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
 
-  const isLoading = isLoadingStudents || isLoadingAcademicYears || isLoadingLevels || isLoadingClassrooms || isLoadingStudentClasses;
+  const isLoading = isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms || isLoadingStudentClasses;
 
   useEffect(() => {
     if (selectedClassroom) {
@@ -158,9 +159,9 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   };
 
   const renderLevels = () => {
-    if (!levelsResponse?.data || !Array.isArray(levelsResponse.data)) return null;
-    return levelsResponse.data.map(level => (
-      <SelectItem key={level.id} value={level.id.toString()}>{level.name}</SelectItem>
+    if (!institusiPendidikan || !Array.isArray(institusiPendidikan)) return null;
+    return institusiPendidikan.map(level => (
+      <SelectItem key={level.id} value={level.id.toString()}>{level.institution_name}</SelectItem>
     ));
   };
 
@@ -212,9 +213,9 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                 </Select>
               </div>
               <div>
-                <Label htmlFor="education-level">Jenjang Pendidikan</Label>
+                <Label htmlFor="education-level">Pendidikan</Label>
                 <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                  <SelectTrigger id="education-level"><SelectValue placeholder="Pilih Jenjang" /></SelectTrigger>
+                  <SelectTrigger id="education-level"><SelectValue placeholder="Pilih Pendidikan" /></SelectTrigger>
                   <SelectContent>
                     {renderLevels()}
                   </SelectContent>

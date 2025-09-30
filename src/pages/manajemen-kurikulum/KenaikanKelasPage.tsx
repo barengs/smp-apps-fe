@@ -5,28 +5,32 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { BookCopy, TrendingUp, PlusCircle, FileText } from 'lucide-react';
 import { useGetStudentClassesQuery, useUpdateStudentClassMutation } from '@/store/slices/studentClassApi';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
-import { useGetProgramsQuery } from '@/store/slices/programApi';
-import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
-import { DataTable } from '@/components/DataTable';
-import { ColumnDef } from '@tanstack/react-table';
-import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit, Trash2, Eye, ArrowUpRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
+import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
+import { useDeleteStudentClassMutation } from '@/store/slices/studentClassApi';
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
+  AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
-import { Textarea } from '@/components/ui/textarea';
+import { DataTable } from '@/components/DataTable';
+import { ColumnDef } from '@tanstack/react-table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
@@ -40,11 +44,13 @@ interface PromotionData {
   tanggalPembuatan: string;
 }
 
-const KenaikanKelasPage: React.FC = () => {
+export default function KenaikanKelasPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState<PromotionData | null>(null);
   const [approvalNote, setApprovalNote] = useState('');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const navigate = useNavigate();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -52,23 +58,19 @@ const KenaikanKelasPage: React.FC = () => {
   ];
 
   // Mengambil data dari endpoint main/student-class dengan pagination
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({
-    page: 1,
-    per_page: 50 // Ambil 50 data per halaman
-  });
-  
-  // Mengambil data pendukung
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
-  const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery();
-  const { data: levelsResponse, isLoading: isLoadingLevels } = useGetEducationLevelsQuery();
-  const { data: academicYearsResponse, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
-  const [updateStudentClass, { isLoading: isUpdatingStatus }] = useUpdateStudentClassMutation();
+  const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
+  const { data: institusiPendidikan, isLoading: isLoadingInstitusiPendidikan } = useGetInstitusiPendidikanQuery();
+  const { data: classroomsResponse, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
+  const [deleteStudentClass] = useDeleteStudentClassMutation();
+  const [updateStudentClass] = useUpdateStudentClassMutation();
 
-  const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingPrograms || isLoadingLevels || isLoadingAcademicYears;
+  const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms;
 
   // Memproses dan menggabungkan data dengan validasi yang lebih baik
   const promotionData = React.useMemo(() => {
-    if (isLoading || !studentClassesResponse || !studentsResponse || !programsResponse || !levelsResponse || !academicYearsResponse) {
+    if (isLoading || !studentClassesResponse || !studentsResponse || !academicYears || !institusiPendidikan || !classroomsResponse) {
       return [];
     }
 
@@ -82,10 +84,10 @@ const KenaikanKelasPage: React.FC = () => {
     }
 
     // Membuat peta untuk pencarian cepat
-    const studentMap = new Map(studentsResponse.data.map((s: any) => [s.id, s]));
-    const programMap = new Map(programsResponse.map((p: any) => [p.id, p]));
-    const levelMap = new Map((levelsResponse as any).data.map((l: any) => [l.id, l]));
-    const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
+    const studentMap = new Map(studentsResponse?.data?.map((s: any) => [s.id, s]) || []);
+    const academicYearMap = new Map(academicYears?.map((ay: any) => [ay.id, ay]) || []);
+    const institusiPendidikanMap = new Map(institusiPendidikan?.map((ip: any) => [ip.id, ip]) || []);
+    const classroomMap = new Map(classroomsResponse?.data?.map((c: any) => [c.id, c]) || []);
 
     return studentClassesResponse.data.map((studentClass): PromotionData => {
       // Gunakan data yang sudah tersedia di response (jika ada)
@@ -95,7 +97,7 @@ const KenaikanKelasPage: React.FC = () => {
       const education = studentClass.educations; // Data education/jenjang pendidikan sudah tersedia di response
       
       // Untuk jenjang pendidikan, gunakan langsung dari properti educations.name
-      const jenjangPendidikan = education ? education.name : 'Tidak diketahui';
+      const jenjangPendidikan = institusiPendidikanMap.get(studentClass.education_id)?.institution_name || 'Tidak diketahui';
 
       const result = {
         id: studentClass.id,
@@ -110,7 +112,7 @@ const KenaikanKelasPage: React.FC = () => {
       
       return result;
     });
-  }, [studentClassesResponse, studentsResponse, programsResponse, levelsResponse, academicYearsResponse, isLoading]);
+  }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading]);
 
   const handleOpenApprovalDialog = (data: PromotionData) => {
     setSelectedPromotion(data);
@@ -122,6 +124,7 @@ const KenaikanKelasPage: React.FC = () => {
     if (!selectedPromotion) return;
 
     const toastId = showLoading('Memperbarui status...');
+    setIsUpdatingStatus(true);
     try {
       // Gunakan endpoint yang sesuai
       const endpoint = action === 'approve' 
@@ -143,6 +146,7 @@ const KenaikanKelasPage: React.FC = () => {
       showError('Gagal memperbarui status.');
       console.error(err);
     } finally {
+      setIsUpdatingStatus(false);
       setIsApprovalDialogOpen(false);
       setSelectedPromotion(null);
       setApprovalNote('');
@@ -157,7 +161,7 @@ const KenaikanKelasPage: React.FC = () => {
     },
     {
       accessorKey: 'jenjangPendidikan',
-      header: 'Jenjang Pendidikan',
+      header: 'Pendidikan',
     },
     {
       accessorKey: 'kelas',
@@ -310,6 +314,4 @@ const KenaikanKelasPage: React.FC = () => {
       </AlertDialog>
     </DashboardLayout>
   );
-};
-
-export default KenaikanKelasPage;
+}
