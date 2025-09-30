@@ -172,6 +172,10 @@ export default function KenaikanKelasPage() {
       header: 'Kelas',
     },
     {
+      accessorKey: 'rombel',
+      header: 'Rombel',
+    },
+    {
       accessorKey: 'siswa',
       header: 'Siswa',
     },
@@ -206,10 +210,6 @@ export default function KenaikanKelasPage() {
         };
         return getStatusBadge(status);
       },
-    },
-    {
-      accessorKey: 'tanggalPembuatan',
-      header: 'Tanggal Pembuatan',
     },
     {
       id: 'actions',
