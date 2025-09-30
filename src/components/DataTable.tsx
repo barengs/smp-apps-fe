@@ -234,12 +234,12 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center space-x-2">
           {onAddData && (
             <Button variant="success" onClick={onAddData}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Tambah Data
+              <PlusCircle className="mr-2 h-4 w-4" /> Tentukan Kelas
             </Button>
           )}
           {onAssignment && (
             <Button onClick={onAssignment}>
-              <FileText className="mr-2 h-4 w-4" /> Penugasan
+              <FileText className="mr-2 h-4 w-4" /> Kenaikan Kelas
             </Button>
           )}
           <div className="relative max-w-sm">
