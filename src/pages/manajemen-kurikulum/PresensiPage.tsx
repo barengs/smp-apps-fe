@@ -108,7 +108,7 @@ const PresensiPage: React.FC = () => {
     },
     {
       accessorKey: 'jenjangPendidikan',
-      header: 'Jenjang Pendidikan',
+      header: 'Tingkat Pendidikan',
     },
     {
       accessorKey: 'kelas',

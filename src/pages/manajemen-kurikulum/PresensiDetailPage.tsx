@@ -111,6 +111,10 @@ const PresensiDetailPage: React.FC = () => {
                 <p>{schedule.academic_year?.year || '-'}</p>
               </div>
               <div>
+                <p className="font-semibold text-muted-foreground">Tingkat Pendidikan</p>
+                <p>{schedule.education?.name || '-'}</p>
+              </div>
+              <div>
                 <p className="font-semibold text-muted-foreground">Jenjang Pendidikan</p>
                 <p>{schedule.education?.name || '-'}</p>
               </div>
