@@ -215,6 +215,7 @@ const KelasTable: React.FC = () => {
         exportFileName="data_kelas"
         exportTitle="Data Kelas"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Kelas"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

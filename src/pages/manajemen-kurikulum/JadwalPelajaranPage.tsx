@@ -122,6 +122,7 @@ const JadwalPelajaranPage: React.FC = () => {
                 exportFileName="JadwalPelajaran"
                 exportTitle={t('sidebar.lessonSchedule')}
                 onAddData={handleAddSchedule}
+                addButtonLabel="Tambah Jadwal Pelajaran"
               />
             )}
           </CardContent>

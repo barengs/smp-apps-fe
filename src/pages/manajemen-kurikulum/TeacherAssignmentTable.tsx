@@ -22,6 +22,11 @@ const TeacherAssignmentTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
 
+  const handleAddData = () => {
+    // Logic for adding teacher assignment
+    console.log('Add teacher assignment');
+  };
+
   const handleOpenModal = (staff: Staff) => {
     setSelectedStaff(staff);
     setIsModalOpen(true);
@@ -132,7 +137,7 @@ const TeacherAssignmentTable: React.FC = () => {
     console.error('Error fetching teacher assignments:', error);
   }
 
-  const tableData: StaffDetailFromApi[] = React.useMemo(() => {
+  const assignments = React.useMemo(() => {
     return data?.data || [];
   }, [data]);
 
@@ -140,11 +145,11 @@ const TeacherAssignmentTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={tableData}
-        isLoading={isLoading}
-        exportFileName="penugasan_guru"
+        data={assignments}
+        exportFileName="data_penugasan_guru"
         exportTitle="Data Penugasan Guru"
-        getRowId={(row) => String(row.id)}
+        onAddData={handleAddData}
+        addButtonLabel="Tambah Penugasan Guru"
       />
       <AssignStudyModal
         isOpen={isModalOpen}

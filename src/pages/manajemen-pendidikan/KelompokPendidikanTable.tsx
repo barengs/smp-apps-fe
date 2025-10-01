@@ -134,6 +134,7 @@ const KelompokPendidikanTable: React.FC = () => {
         exportFileName="data_kelompok_pendidikan"
         exportTitle="Data Kelompok Pendidikan"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Kelompok Pendidikan"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

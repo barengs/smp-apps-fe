@@ -172,6 +172,7 @@ const JenjangPendidikanTable: React.FC = () => {
         exportTitle="Data Jenjang Pendidikan"
         onAddData={handleAddData}
         onImportData={handleImportData}
+        addButtonLabel="Tambah Jenjang Pendidikan"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

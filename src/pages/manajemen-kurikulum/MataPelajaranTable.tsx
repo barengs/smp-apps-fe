@@ -153,8 +153,9 @@ const MataPelajaranTable: React.FC = () => {
         data={studies || []}
         exportFileName="DaftarMataPelajaran"
         exportTitle="Daftar Mata Pelajaran"
-        onAddData={handleAddDataClick} // Meneruskan fungsi untuk tombol 'Tambah Data'
-        onImportData={handleImportData} // Meneruskan prop onImportData
+        onAddData={handleAddDataClick}
+        onImportData={handleImportData}
+        addButtonLabel="Tambah Mata Pelajaran"
       />
 
       <MataPelajaranImportDialog

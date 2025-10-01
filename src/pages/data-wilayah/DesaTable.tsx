@@ -126,12 +126,7 @@ const DesaTable: React.FC = () => {
         exportFileName="data_desa"
         exportTitle="Data Desa"
         onAddData={handleAddData}
-        // Pagination props
-        manualPagination
-        pageCount={pageCount}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        isLoading={isFetching}
+        addButtonLabel="Tambah Desa"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

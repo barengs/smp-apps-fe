@@ -167,11 +167,12 @@ const GuruPage: React.FC = () => {
               <>
                 <DataTable
                   columns={columns}
-                  data={teachersData} // Menggunakan data dari API
+                  data={teachersData}
                   exportFileName="data_guru"
                   exportTitle="Data Guru"
                   onAddData={handleAddData}
                   onRowClick={handleRowClick}
+                  addButtonLabel="Tambah Guru"
                 />
               </>
             )}

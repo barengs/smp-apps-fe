@@ -144,12 +144,13 @@ const ProdukTable: React.FC = () => {
 
   return (
     <div>
-      <DataTable 
-        columns={columns} 
-        data={data?.data || []} 
-        exportFileName="produk_bank"
-        exportTitle="Daftar Produk Bank"
-        onAddData={handleAdd} // Tombol "Tambah Produk" dipindahkan ke sini
+      <DataTable
+        columns={columns}
+        data={data?.data || []}
+        exportFileName="data_produk"
+        exportTitle="Data Produk"
+        onAddData={handleAdd}
+        addButtonLabel="Tambah Produk"
       />
       <ProdukForm
         isOpen={isFormOpen}

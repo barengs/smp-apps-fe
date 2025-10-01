@@ -1,18 +1,13 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { DataTable } from '@/components/DataTable';
 import { TransactionType } from '@/types/keuangan';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
+import { useNavigate } from 'react-router-dom';
 
 interface JenisTransaksiTableProps {
   data: TransactionType[];
@@ -21,44 +16,32 @@ interface JenisTransaksiTableProps {
 }
 
 export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, onEdit, onDelete }) => {
+  const navigate = useNavigate();
+
+  const handleAddData = () => {
+    navigate('/dashboard/keuangan/jenis-transaksi/tambah');
+  };
+
   const columns: ColumnDef<TransactionType>[] = [
     {
-      accessorKey: 'code',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Kode
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-    },
-    {
       accessorKey: 'name',
-      header: 'Nama',
+      header: 'Nama Jenis Transaksi',
     },
     {
-      accessorKey: 'category',
-      header: 'Kategori',
+      accessorKey: 'description',
+      header: 'Deskripsi',
     },
     {
-      accessorKey: 'is_debit',
-      header: 'Debit',
-      cell: ({ row }) => (
-        <div className="flex justify-center">
-          <Checkbox checked={row.original.is_debit} disabled />
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'is_credit',
-      header: 'Kredit',
-      cell: ({ row }) => (
-        <div className="flex justify-center">
-          <Checkbox checked={row.original.is_credit} disabled />
-        </div>
-      ),
+      accessorKey: 'is_active',
+      header: 'Status',
+      cell: ({ row }) => {
+        const isActive = row.original.is_active;
+        return (
+          <Badge variant={isActive ? 'default' : 'destructive'}>
+            {isActive ? 'Aktif' : 'Tidak Aktif'}
+          </Badge>
+        );
+      },
     },
     {
       id: 'actions',
@@ -68,7 +51,7 @@ export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Buka menu</span>
+                <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -88,5 +71,14 @@ export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, 
     },
   ];
 
-  return <DataTable columns={columns} data={data} exportFileName="JenisTransaksi" exportTitle="Daftar Jenis Transaksi" />;
+  return (
+    <DataTable
+      columns={columns}
+      data={data}
+      exportFileName="data_jenis_transaksi"
+      exportTitle="Data Jenis Transaksi"
+      onAddData={handleAddData}
+      addButtonLabel="Tambah Jenis Transaksi"
+    />
+  );
 };

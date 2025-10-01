@@ -166,15 +166,13 @@ const CoaTable: React.FC = () => {
 
   return (
     <div>
-      <DataTable 
-        columns={columns} 
+      <DataTable
+        columns={columns}
         data={tableData}
-        exportFileName="chart_of_accounts"
-        exportTitle="Bagan Akun Standar"
+        exportFileName="data_coa"
+        exportTitle="Data Chart of Accounts"
         onAddData={handleAdd}
-        expanded={expanded}
-        onExpandedChange={setExpanded}
-        getRowId={(row) => row.coa_code}
+        addButtonLabel="Tambah COA"
       />
       <CoaForm
         isOpen={isFormOpen}

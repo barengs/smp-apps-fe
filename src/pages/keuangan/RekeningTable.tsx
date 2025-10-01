@@ -1,18 +1,13 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { DataTable } from '@/components/DataTable';
-import { Account } from '@/types/keuangan';
+import { Account, AccountApiResponse } from '@/types/keuangan';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import { useGetAccountsQuery } from '@/store/slices/accountApi';
+import { useNavigate } from 'react-router-dom';
 
 interface RekeningTableProps {
   data: Account[];
@@ -21,84 +16,47 @@ interface RekeningTableProps {
   onViewDetails: (account: Account) => void;
 }
 
-const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-  switch (status.toUpperCase()) {
-    case 'AKTIF':
-    case 'ACTIVE':
-      return 'default';
-    case 'TIDAK AKTIF':
-    case 'INACTIVE':
-      return 'secondary';
-    case 'DIBEKUKAN':
-    case 'FROZEN':
-      return 'destructive';
-    case 'DITUTUP':
-    case 'CLOSED':
-      return 'outline';
-    default:
-      return 'outline';
-  }
-};
-
 export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails }) => {
+  const navigate = useNavigate();
+
+  const handleAddData = () => {
+    navigate('/dashboard/keuangan/rekening/tambah');
+  };
+
   const columns: ColumnDef<Account>[] = [
     {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: 'account_number',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          No. Rekening
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: 'Nomor Rekening',
     },
     {
-      accessorFn: (row) => `${row.customer.first_name} ${row.customer.last_name || ''}`.trim(),
-      header: 'Pemilik Rekening',
+      accessorKey: 'account_name',
+      header: 'Nama Rekening',
     },
     {
-      accessorFn: (row) => row.product.product_name,
-      header: 'Produk',
+      accessorKey: 'account_type',
+      header: 'Jenis Rekening',
     },
     {
       accessorKey: 'balance',
-      header: () => <div className="text-right">Saldo</div>,
+      header: 'Saldo',
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('balance'));
-        const formatted = new Intl.NumberFormat('id-ID', {
+        const balance = row.original.balance;
+        return new Intl.NumberFormat('id-ID', {
           style: 'currency',
           currency: 'IDR',
-        }).format(amount);
-        return <div className="text-right font-medium">{formatted}</div>;
+        }).format(balance);
       },
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'is_active',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.getValue('status') as string;
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+        const isActive = row.original.is_active;
+        return (
+          <Badge variant={isActive ? 'default' : 'destructive'}>
+            {isActive ? 'Aktif' : 'Tidak Aktif'}
+          </Badge>
+        );
       },
     },
     {
@@ -109,7 +67,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Buka menu</span>
+                <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -117,6 +75,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => onViewDetails(account)}>Lihat Detail</DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit(account)}>Edit</DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onDelete(account)} className="text-destructive">
                 Hapus
               </DropdownMenuItem>
@@ -132,8 +91,9 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       columns={columns}
       data={data}
       exportFileName="data_rekening"
-      exportTitle="Data Rekening Santri"
-      onRowClick={onViewDetails}
+      exportTitle="Data Rekening"
+      onAddData={handleAddData}
+      addButtonLabel="Tambah Rekening"
     />
   );
 };

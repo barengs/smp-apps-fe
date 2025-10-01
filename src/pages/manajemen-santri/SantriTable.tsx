@@ -138,8 +138,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         },
       }}
       onAddData={onAddData}
-      sorting={sorting} // Teruskan state sorting
-      onSortingChange={setSorting} // Teruskan handler perubahan sorting
+      sorting={sorting}
+      onSortingChange={setSorting}
+      addButtonLabel="Tambah Santri"
     />
   );
 };

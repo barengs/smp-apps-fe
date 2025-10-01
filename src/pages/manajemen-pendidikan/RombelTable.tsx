@@ -144,6 +144,7 @@ const RombelTable: React.FC = () => {
         exportFileName="data_rombel"
         exportTitle="Data Rombongan Belajar"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Rombel"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

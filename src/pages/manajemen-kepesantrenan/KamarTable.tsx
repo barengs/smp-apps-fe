@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface KamarTableProps {
   data: Room[];
@@ -14,6 +15,12 @@ interface KamarTableProps {
 }
 
 export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete }) => {
+  const navigate = useNavigate();
+
+  const handleAddData = () => {
+    navigate('/dashboard/manajemen-kepesantrenan/kamar/tambah');
+  };
+
   const columns: ColumnDef<Room>[] = [
     {
       accessorKey: 'name',
@@ -58,5 +65,12 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete }
     },
   ];
 
-  return <DataTable columns={columns} data={data} exportFileName="data_kamar" exportTitle="Data Kamar" />;
+  return <DataTable
+    columns={columns}
+    data={data}
+    exportFileName="data_kamar"
+    exportTitle="Data Kamar"
+    onAddData={handleAddData}
+    addButtonLabel="Tambah Kamar"
+  />;
 };

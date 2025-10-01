@@ -35,7 +35,7 @@ const TahunAjaranTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTahunAjaran, setEditingTahunAjaran] = useState<TahunAjaran | undefined>(undefined);
 
-  const tahunAjaranList: TahunAjaran[] = useMemo(() => {
+  const academicYears: TahunAjaran[] = useMemo(() => {
     return (tahunAjaranData || []).map(p => ({
       ...p,
       description: p.description || 'Tidak ada deskripsi',
@@ -154,10 +154,11 @@ const TahunAjaranTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={tahunAjaranList}
+        data={academicYears}
         exportFileName="data_tahun_ajaran"
         exportTitle="Data Tahun Ajaran"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Tahun Ajaran"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

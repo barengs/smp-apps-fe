@@ -184,6 +184,7 @@ const PresensiPage: React.FC = () => {
                 exportFileName="data-presensi" 
                 exportTitle="Data Presensi"
                 onAddData={handleAddData}
+                addButtonLabel="Tambah Presensi"
               />
             )}
           </CardContent>

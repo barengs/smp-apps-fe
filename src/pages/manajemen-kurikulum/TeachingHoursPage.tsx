@@ -72,6 +72,11 @@ const TeachingHoursPage: React.FC = () => {
     { label: t('sidebar.teachingHours') },
   ];
 
+  const handleAddData = () => {
+    // Logic for adding teaching hours
+    console.log('Add teaching hours');
+  };
+
   const columns: ColumnDef<TeachingHour>[] = useMemo(() => [
     {
       id: 'no',
@@ -177,13 +182,10 @@ const TeachingHoursPage: React.FC = () => {
             <DataTable
               columns={columns}
               data={data || []}
-              isLoading={isLoading}
-              exportFileName="jam_mengajar"
-              exportTitle={t('sidebar.teachingHours')}
-              filterableColumns={{
-                teacherName: { placeholder: t('teachingHoursPage.filterByTeacher') },
-                subjectName: { placeholder: t('teachingHoursPage.filterBySubject') },
-              }}
+              exportFileName="data_jam_pelajaran"
+              exportTitle="Data Jam Pelajaran"
+              onAddData={handleAddData}
+              addButtonLabel="Tambah Jam Pelajaran"
             />
           </CardContent>
         </Card>

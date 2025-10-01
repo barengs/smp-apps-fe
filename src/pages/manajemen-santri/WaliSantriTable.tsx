@@ -114,6 +114,7 @@ const WaliSantriTable: React.FC = () => {
       exportTitle="Data Wali Santri Pesantren"
       onAddData={handleAddData}
       onRowClick={handleRowClick}
+      addButtonLabel="Tambah Wali Santri"
     />
   );
 };

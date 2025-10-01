@@ -100,6 +100,7 @@ const ProvinsiTable: React.FC = () => {
         exportFileName="data_provinsi"
         exportTitle="Data Provinsi"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Provinsi"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

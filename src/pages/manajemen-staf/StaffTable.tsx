@@ -63,7 +63,7 @@ const StaffTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
 
-  const employees: Staff[] = useMemo(() => {
+  const staffData: Staff[] = useMemo(() => {
     if (employeesData?.data) {
       return employeesData.data.map(apiEmployee => {
         // Data is in apiEmployee.staff property
@@ -232,12 +232,12 @@ const StaffTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={employees}
+        data={staffData}
         exportFileName="data_staf"
-        exportTitle="Data Staf Pesantren"
+        exportTitle="Data Staf"
         onAddData={handleAddData}
         onImportData={handleImportData}
-        onRowClick={handleRowClick}
+        addButtonLabel="Tambah Staf"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

@@ -107,6 +107,7 @@ const KotaTable: React.FC = () => {
         exportFileName="data_kota"
         exportTitle="Data Kota"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Kota"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

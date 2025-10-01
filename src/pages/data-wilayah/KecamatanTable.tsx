@@ -107,6 +107,7 @@ const KecamatanTable: React.FC = () => {
         exportFileName="data_kecamatan"
         exportTitle="Data Kecamatan"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Kecamatan"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

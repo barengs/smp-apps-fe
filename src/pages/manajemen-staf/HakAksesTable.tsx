@@ -151,8 +151,9 @@ const HakAksesTable: React.FC = () => {
         columns={columns}
         data={permissions}
         exportFileName="data_hak_akses"
-        exportTitle="Data Hak Akses Pengguna"
+        exportTitle="Data Hak Akses"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Hak Akses"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

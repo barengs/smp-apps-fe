@@ -250,8 +250,9 @@ const PeranTable: React.FC = () => {
         columns={columns}
         data={roles}
         exportFileName="data_peran"
-        exportTitle="Data Peran Pengguna"
+        exportTitle="Data Peran"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Peran"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

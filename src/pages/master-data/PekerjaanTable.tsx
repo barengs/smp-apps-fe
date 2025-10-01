@@ -97,6 +97,7 @@ const PekerjaanTable: React.FC = () => {
         exportFileName="data_pekerjaan"
         exportTitle="Data Pekerjaan"
         onAddData={handleAddData}
+        addButtonLabel="Tambah Pekerjaan"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

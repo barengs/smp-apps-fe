@@ -172,12 +172,9 @@ const ProgramTable: React.FC = () => {
         columns={columns}
         data={programs}
         exportFileName="data_program"
-        exportTitle="Data Program Pendidikan"
+        exportTitle="Data Program"
         onAddData={handleAddData}
-        renderSubComponent={renderSubComponent}
-        getRowId={(row) => String(row.id)}
-        expanded={expanded}
-        onExpandedChange={setExpanded}
+        addButtonLabel="Tambah Program"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

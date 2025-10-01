@@ -72,8 +72,9 @@ export interface DataTableProps<TData, TValue> {
   getRowId?: (originalRow: TData) => string;
   expanded?: ExpandedState;
   onExpandedChange?: (updater: React.SetStateAction<ExpandedState>) => void;
-  sorting?: SortingState; // Tambahkan prop sorting
-  onSortingChange?: (updater: React.SetStateAction<SortingState>) => void; // Tambahkan prop onSortingChange
+  sorting?: SortingState;
+  onSortingChange?: (updater: React.SetStateAction<SortingState>) => void;
+  addButtonLabel?: string;
 }
 
 function hasAccessorKey<TData>(
@@ -101,8 +102,9 @@ export function DataTable<TData, TValue>({
   getRowId,
   expanded,
   onExpandedChange,
-  sorting, // Destructure prop sorting
-  onSortingChange, // Destructure prop onSortingChange
+  sorting,
+  onSortingChange,
+  addButtonLabel = 'Tambah Data',
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -234,7 +236,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center space-x-2">
           {onAddData && (
             <Button variant="success" onClick={onAddData}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Tentukan Kelas
+              <PlusCircle className="mr-2 h-4 w-4" /> {addButtonLabel}
             </Button>
           )}
           {onAssignment && (

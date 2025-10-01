@@ -174,7 +174,7 @@ const AsramaTable: React.FC = () => {
         exportFileName="data_asrama"
         exportTitle="Data Asrama"
         onAddData={handleAddData}
-        onImportData={handleImportData}
+        addButtonLabel="Tambah Asrama"
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
