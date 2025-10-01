@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery } from '@/store/slices/classScheduleApi';
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
