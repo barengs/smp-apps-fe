@@ -4,12 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import DesaTable from './DesaTable.tsx';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Map, Home } from 'lucide-react';
+import { useLazyGetVillagesQuery } from '@/store/slices/villageApi';
 
 const DesaPage: React.FC = () => {
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  
+  const [triggerGetVillages, { data, isLoading, isError }] = useLazyGetVillagesQuery();
+
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Data Wilayah', href: '/dashboard/wilayah/provinsi', icon: <Map className="h-4 w-4" /> },
     { label: 'Desa', icon: <Home className="h-4 w-4" /> },
   ];
+
+  React.useEffect(() => {
+    triggerGetVillages({
+      page: pagination.pageIndex + 1,
+      per_page: pagination.pageSize,
+    });
+  }, [pagination, triggerGetVillages]);
 
   return (
     <DashboardLayout title="Manajemen Desa" role="administrasi">

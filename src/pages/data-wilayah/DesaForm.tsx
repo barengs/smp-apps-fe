@@ -68,7 +68,11 @@ const DesaForm: React.FC<DesaFormProps> = ({ initialData, onSuccess, onCancel })
         await updateVillage({ id: initialData.id, data: values as CreateUpdateVillageRequest }).unwrap();
         showSuccess(`Desa "${values.name}" berhasil diperbarui.`);
       } else {
-        await createVillage(values as CreateUpdateVillageRequest).unwrap();
+        const result = await createVillage({
+          code: values.code,
+          name: values.name,
+          district_code: values.district_code,
+        }).unwrap();
         showSuccess(`Desa "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
