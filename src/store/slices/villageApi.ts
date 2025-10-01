@@ -50,7 +50,7 @@ interface GetVillagesByDistrictResponse {
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
-      query: ({ page, per_page }) => `region/village?page=${page}&per_page=${per_page}`,
+      query: ({ page, per_page }) => `master/village?page=${page}&per_page=${per_page}`,
       providesTags: (result) =>
         result
           ? [
@@ -70,7 +70,7 @@ export const villageApi = smpApi.injectEndpoints({
         return response.data;
       },
       providesTags: (result) =>
-        result
+        result && Array.isArray(result)
           ? [
               ...result.map(({ id }) => ({ type: 'Village' as const, id })),
               { type: 'Village', id: 'LIST' },
