@@ -39,7 +39,7 @@ const formSchema = z.object({
 
 interface DesaFormProps {
   initialData?: {
-    id: number;
+    id: string;
     code: string;
     name: string;
     district_code: string;
@@ -65,7 +65,7 @@ const DesaForm: React.FC<DesaFormProps> = ({ initialData, onSuccess, onCancel })
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (initialData) {
-        await updateVillage({ id: initialData.id, data: values as CreateUpdateVillageRequest }).unwrap();
+        await updateVillage({ id: Number(initialData.id), data: values as CreateUpdateVillageRequest }).unwrap();
         showSuccess(`Desa "${values.name}" berhasil diperbarui.`);
       } else {
         const result = await createVillage({

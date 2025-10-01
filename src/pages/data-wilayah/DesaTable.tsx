@@ -17,7 +17,7 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { showSuccess, showError } from '@/utils/toast';
 
 interface Desa {
-  id: number;
+  id: string; // Ubah dari number menjadi string
   code: string;
   name: string;
   district_code: string;
@@ -47,7 +47,13 @@ const DesaTable: React.FC = () => {
   const [editingDesa, setEditingDesa] = useState<Desa | undefined>(undefined);
 
   const villages: Desa[] = useMemo(() => {
-    return villagesResponse?.data || [];
+    return villagesResponse?.data?.map(village => ({
+      id: village.id,
+      code: village.code,
+      name: village.name,
+      district_code: village.district_code,
+      district: village.district || { name: '' }
+    })) || [];
   }, [villagesResponse]);
 
   const pageCount = useMemo(() => {

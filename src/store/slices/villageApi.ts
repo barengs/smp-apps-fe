@@ -8,12 +8,19 @@ interface NestedDistrictData {
   name: string;
 }
 
-export interface VillageApiData { // Exported for use in other files if needed
-  id: number;
+export interface VillageApiData {
+  id: string; // Ubah dari number menjadi string karena response menggunakan string
   code: string;
   district_code: string;
   name: string;
-  district: NestedDistrictData;
+  meta?: {
+    lat: string;
+    long: string;
+    pos: string;
+  };
+  created_at?: string;
+  updated_at?: string;
+  district?: NestedDistrictData; // Jadikan optional karena tidak selalu ada di response
 }
 
 // Updated response structure for pagination
