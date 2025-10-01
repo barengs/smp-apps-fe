@@ -40,7 +40,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       accessorKey: 'balance',
       header: 'Saldo',
       cell: ({ row }) => {
-        const balance = row.original.balance;
+        const balance = parseFloat(row.original.balance); // Convert string to number
         return new Intl.NumberFormat('id-ID', {
           style: 'currency',
           currency: 'IDR',
@@ -48,13 +48,14 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       },
     },
     {
-      accessorKey: 'is_active',
+      accessorKey: 'status', // Change accessorKey from 'is_active' to 'status'
       header: 'Status',
       cell: ({ row }) => {
-        const isActive = row.original.is_active;
+        const status = row.original.status; // Get the string status
+        const isActive = status === 'ACTIVE'; // Determine if active based on status string
         return (
           <Badge variant={isActive ? 'default' : 'destructive'}>
-            {isActive ? 'Aktif' : 'Tidak Aktif'}
+            {status} {/* Display the actual status string */}
           </Badge>
         );
       },

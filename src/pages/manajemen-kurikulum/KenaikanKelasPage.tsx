@@ -271,7 +271,7 @@ export default function KenaikanKelasPage() {
                 exportTitle="Data Kenaikan Kelas"
                 onAddData={handleAddData}
                 onAssignment={handleAssignment}
-                addButtonLabel="Tambah Kenaikan Kelas"
+                addButtonLabel="Atur Kelas"
               />
             )}
           </CardContent>

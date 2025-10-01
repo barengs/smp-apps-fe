@@ -36,6 +36,8 @@ export interface TransactionType {
   is_credit: boolean;
   default_debit_coa: string | null; // Renamed from coa_debit_code
   default_credit_coa: string | null; // Renamed from coa_credit_code
+  description?: string; // Added for table display
+  is_active?: boolean; // Added for table display
 }
 
 export interface TransactionTypeApiResponse {
