@@ -79,7 +79,7 @@ export const villageApi = smpApi.injectEndpoints({
     }),
     // Alternative: Get all villages and filter by district_code
     getAllVillages: builder.query<VillageApiData[], void>({
-      query: () => 'region/village?per_page=2000', // Get all villages with large page size
+      query: () => 'master/village?per_page=2000', // Get all villages with large page size
       transformResponse: (response: GetVillagesResponse) => {
         console.log('Response from getAllVillages:', response);
         return response.data;
