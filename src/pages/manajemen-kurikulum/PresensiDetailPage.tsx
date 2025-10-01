@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery } from '@/store/slices/classScheduleApi';
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
@@ -149,21 +150,24 @@ const PresensiDetailPage: React.FC = () => {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[250px]">Nama Siswa</TableHead>
+                  <TableRow className="h-10">
+                    <TableHead className="w-[250px] py-1">Nama Siswa</TableHead>
                     {Array.from({ length: meetingCount }, (_, i) => {
                       const meetingNumber = i + 1;
                       const isFilled = filledMeetings.has(meetingNumber);
                       return (
-                        <TableHead key={i} className="text-center">
-                          <Button
-                            variant={isFilled ? 'success' : 'danger'}
-                            size="sm"
+                        <TableHead key={i} className="text-center py-1 px-1">
+                          <div
                             onClick={() => handleHeaderClick(meetingNumber)}
-                            className="w-16"
+                            className={cn(
+                              "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded cursor-pointer transition-colors",
+                              isFilled 
+                                ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50" 
+                                : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                            )}
                           >
                             P {meetingNumber}
-                          </Button>
+                          </div>
                         </TableHead>
                       );
                     })}
@@ -172,20 +176,20 @@ const PresensiDetailPage: React.FC = () => {
                 <TableBody>
                   {students.length > 0 ? (
                     students.map((student) => (
-                      <TableRow key={student.id}>
-                        <TableCell className="font-medium whitespace-nowrap">
+                      <TableRow key={student.id} className="h-8">
+                        <TableCell className="font-medium py-1 px-2 text-sm">
                           {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
                         </TableCell>
                         {Array.from({ length: meetingCount }, (_, i) => (
-                          <TableCell key={i} className="text-center">
-                            -
+                          <TableCell key={i} className="text-center py-1 px-1">
+                            <span className="text-sm">-</span>
                           </TableCell>
                         ))}
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={meetingCount + 1} className="text-center">
+                      <TableCell colSpan={meetingCount + 1} className="text-center py-2">
                         Tidak ada data siswa untuk rombel ini.
                       </TableCell>
                     </TableRow>
