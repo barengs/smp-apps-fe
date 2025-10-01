@@ -159,6 +159,11 @@ const PresensiPage: React.FC = () => {
     navigate(`/dashboard/manajemen-kurikulum/presensi/${data.id}`);
   };
 
+  // Fungsi untuk menangani klik pada baris tabel
+  const handleRowClick = (rowData: PresensiData) => {
+    navigate(`/dashboard/manajemen-kurikulum/presensi/${rowData.id}`);
+  };
+
   // Fungsi untuk menambah data presensi
   const handleAddData = () => {
     // Implementasi untuk menambah data presensi
@@ -185,6 +190,7 @@ const PresensiPage: React.FC = () => {
                 exportTitle="Data Presensi"
                 onAddData={handleAddData}
                 addButtonLabel="Tambah Presensi"
+                onRowClick={handleRowClick}
               />
             )}
           </CardContent>
