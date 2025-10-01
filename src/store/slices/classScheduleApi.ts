@@ -109,6 +109,7 @@ interface ClassScheduleDetail {
     first_name: string;
     last_name: string;
   }>;
+  meeting_count?: number; // Tambahkan properti meeting_count
 }
 
 // Struktur utama untuk satu item dalam array 'data' dari respons GET
@@ -139,6 +140,24 @@ interface CreateClassScheduleResponse {
     data: any; // Data jadwal yang dibuat
 }
 
+// --- Tipe untuk menyimpan presensi ---
+interface AttendanceRecord {
+  student_id: number;
+  status: 'Hadir' | 'Sakit' | 'Izin' | 'Alfa';
+}
+
+export interface SaveAttendanceRequest {
+  schedule_detail_id: number;
+  meeting_number: number;
+  attendances: AttendanceRecord[];
+}
+
+interface SaveAttendanceResponse {
+  message: string;
+  status: number;
+  data: any;
+}
+
 
 export const classScheduleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -154,10 +173,19 @@ export const classScheduleApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['ClassSchedule'],
     }),
+    saveAttendance: builder.mutation<SaveAttendanceResponse, SaveAttendanceRequest>({
+      query: (attendanceData) => ({
+        url: 'main/attendance', // Asumsi endpoint baru
+        method: 'POST',
+        body: attendanceData,
+      }),
+      invalidatesTags: ['Attendance', 'ClassSchedule'], // Invalidate untuk memuat ulang data
+    }),
   }),
 });
 
 export const {
   useGetClassSchedulesQuery,
   useCreateClassScheduleMutation,
+  useSaveAttendanceMutation, // Ekspor hook baru
 } = classScheduleApi;

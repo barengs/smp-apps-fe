@@ -4,20 +4,20 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery } from '@/store/slices/classScheduleApi';
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type AttendanceStatus = 'Hadir' | 'Sakit' | 'Izin' | 'Alfa' | 'Belum Diisi';
-
 const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
   const navigate = useNavigate();
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
+
+  // TODO: Ganti state lokal ini dengan data dari API
+  const [filledMeetings, setFilledMeetings] = useState<Set<number>>(new Set());
 
   const { schedule, detail } = useMemo(() => {
     if (!schedulesResponse?.data || !detailId) {
@@ -26,34 +26,21 @@ const PresensiDetailPage: React.FC = () => {
     for (const s of schedulesResponse.data) {
       const d = s.details.find((d) => d.id === parseInt(detailId, 10));
       if (d) {
+        // TODO: Saat API mengembalikan data presensi, proses di sini untuk mengisi `filledMeetings`
         return { schedule: s, detail: d };
       }
     }
     return { schedule: null, detail: null };
   }, [schedulesResponse, detailId]);
 
-  // Ambil data siswa langsung dari detail.students
-  const students = useMemo(() => {
-    if (!detail?.students) {
-      return [];
-    }
-    return detail.students;
-  }, [detail]);
-
-  const [attendanceData, setAttendanceData] = useState<Record<string, Record<number, AttendanceStatus>>>({});
-
-  const handleStatusChange = (studentId: number, meetingNumber: number, status: AttendanceStatus) => {
-    setAttendanceData(prev => ({
-      ...prev,
-      [studentId]: {
-        ...(prev[studentId] || {}),
-        [meetingNumber]: status,
-      },
-    }));
-  };
+  const students = useMemo(() => detail?.students || [], [detail]);
 
   const isLoading = isLoadingSchedules;
-  const meetingCount = 16; // Placeholder for number of meetings
+  const meetingCount = detail?.meeting_count || 16;
+
+  const handleHeaderClick = (meetingNumber: number) => {
+    navigate(`/dashboard/manajemen-kurikulum/presensi/${detailId}/pertemuan/${meetingNumber}`);
+  };
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', icon: <BookCopy className="h-4 w-4" /> },
@@ -100,16 +87,6 @@ const PresensiDetailPage: React.FC = () => {
       </DashboardLayout>
     );
   }
-
-  const getStatusColorClass = (status: AttendanceStatus) => {
-    switch (status) {
-      case 'Hadir': return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
-      case 'Sakit': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
-      case 'Izin': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
-      case 'Alfa': return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
-    }
-  };
 
   return (
     <DashboardLayout title="Detail Presensi" role="administrasi">
@@ -167,7 +144,7 @@ const PresensiDetailPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Lembar Presensi</CardTitle>
-            <CardDescription>Kelola kehadiran siswa untuk mata pelajaran ini.</CardDescription>
+            <CardDescription>Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="relative overflow-x-auto">
@@ -175,9 +152,22 @@ const PresensiDetailPage: React.FC = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="sticky left-0 bg-background z-10 w-[250px] border-r">Nama Siswa</TableHead>
-                    {Array.from({ length: meetingCount }, (_, i) => (
-                      <TableHead key={i} className="text-center">P {i + 1}</TableHead>
-                    ))}
+                    {Array.from({ length: meetingCount }, (_, i) => {
+                      const meetingNumber = i + 1;
+                      const isFilled = filledMeetings.has(meetingNumber);
+                      return (
+                        <TableHead key={i} className="p-1 text-center">
+                          <Button
+                            variant={isFilled ? 'success' : 'danger'}
+                            size="sm"
+                            onClick={() => handleHeaderClick(meetingNumber)}
+                            className="w-16"
+                          >
+                            P {meetingNumber}
+                          </Button>
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -187,29 +177,11 @@ const PresensiDetailPage: React.FC = () => {
                         <TableCell className="sticky left-0 bg-background z-10 font-medium border-r whitespace-nowrap">
                           {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
                         </TableCell>
-                        {Array.from({ length: meetingCount }, (_, i) => {
-                          const meetingNumber = i + 1;
-                          const status = attendanceData[student.id]?.[meetingNumber] || 'Belum Diisi';
-                          return (
-                            <TableCell key={i} className="p-1">
-                              <Select
-                                value={status}
-                                onValueChange={(value: AttendanceStatus) => handleStatusChange(student.id, meetingNumber, value)}
-                              >
-                                <SelectTrigger className={cn("w-28 h-8 text-xs", getStatusColorClass(status))}>
-                                  <SelectValue placeholder="Pilih Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Belum Diisi">Belum Diisi</SelectItem>
-                                  <SelectItem value="Hadir">Hadir</SelectItem>
-                                  <SelectItem value="Sakit">Sakit</SelectItem>
-                                  <SelectItem value="Izin">Izin</SelectItem>
-                                  <SelectItem value="Alfa">Alfa</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </TableCell>
-                          );
-                        })}
+                        {Array.from({ length: meetingCount }, (_, i) => (
+                          <TableCell key={i} className="text-center">
+                            -
+                          </TableCell>
+                        ))}
                       </TableRow>
                     ))
                   ) : (
