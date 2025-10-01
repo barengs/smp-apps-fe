@@ -139,64 +139,62 @@ const PresensiDetailPage: React.FC = () => {
                 <p>{`${detail.lesson_hour?.start_time ? detail.lesson_hour.start_time.substring(0, 5) : ''} - ${detail.lesson_hour?.end_time ? detail.lesson_hour.end_time.substring(0, 5) : ''}`}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Lembar Presensi</CardTitle>
-            <CardDescription>Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="h-10">
-                    <TableHead className="w-[250px] py-1">Nama Siswa</TableHead>
-                    {Array.from({ length: meetingCount }, (_, i) => {
-                      const meetingNumber = i + 1;
-                      const isFilled = filledMeetings.has(meetingNumber);
-                      return (
-                        <TableHead key={i} className="text-center py-1 px-1">
-                          <div
-                            onClick={() => handleHeaderClick(meetingNumber)}
-                            className={cn(
-                              "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded cursor-pointer transition-colors",
-                              isFilled 
-                                ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50" 
-                                : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
-                            )}
-                          >
-                            P {meetingNumber}
-                          </div>
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {students.length > 0 ? (
-                    students.map((student) => (
-                      <TableRow key={student.id} className="h-8">
-                        <TableCell className="font-medium py-1 px-2 text-sm">
-                          {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
-                        </TableCell>
-                        {Array.from({ length: meetingCount }, (_, i) => (
-                          <TableCell key={i} className="text-center py-1 px-1">
-                            <span className="text-sm">-</span>
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={meetingCount + 1} className="text-center py-2">
-                        Tidak ada data siswa untuk rombel ini.
-                      </TableCell>
+            
+            <Separator className="my-6" />
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Lembar Presensi</h3>
+              <p className="text-sm text-muted-foreground mb-4">Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</p>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="h-10">
+                      <TableHead className="w-[250px] py-1">Nama Siswa</TableHead>
+                      {Array.from({ length: meetingCount }, (_, i) => {
+                        const meetingNumber = i + 1;
+                        const isFilled = filledMeetings.has(meetingNumber);
+                        return (
+                          <TableHead key={i} className="text-center py-1 px-1">
+                            <div
+                              onClick={() => handleHeaderClick(meetingNumber)}
+                              className={cn(
+                                "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded cursor-pointer transition-colors",
+                                isFilled 
+                                  ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50" 
+                                  : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                              )}
+                            >
+                              P {meetingNumber}
+                            </div>
+                          </TableHead>
+                        );
+                      })}
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {students.length > 0 ? (
+                      students.map((student) => (
+                        <TableRow key={student.id} className="h-8">
+                          <TableCell className="font-medium py-1 px-2 text-sm">
+                            {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
+                          </TableCell>
+                          {Array.from({ length: meetingCount }, (_, i) => (
+                            <TableCell key={i} className="text-center py-1 px-1">
+                              <span className="text-sm">-</span>
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={meetingCount + 1} className="text-center py-2">
+                          Tidak ada data siswa untuk rombel ini.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </CardContent>
         </Card>
