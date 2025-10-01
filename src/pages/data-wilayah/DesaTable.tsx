@@ -14,7 +14,7 @@ import DesaForm from './DesaForm.tsx';
 import { useLazyGetVillagesQuery } from '@/store/slices/villageApi'; // Mengubah import menjadi useLazyGetVillagesQuery
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import { toast } from '@/components/ui/toast';
+import { showSuccess, showError } from '@/utils/toast';
 
 interface Desa {
   id: number;
