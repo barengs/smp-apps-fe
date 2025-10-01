@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery } from '@/store/slices/classScheduleApi';
-import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,7 +18,6 @@ const PresensiDetailPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
 
   const { schedule, detail } = useMemo(() => {
     if (!schedulesResponse?.data || !detailId) {
@@ -34,17 +32,13 @@ const PresensiDetailPage: React.FC = () => {
     return { schedule: null, detail: null };
   }, [schedulesResponse, detailId]);
 
+  // Ambil data siswa langsung dari detail.students
   const students = useMemo(() => {
-    if (!studentClassesResponse?.data || !detail?.class_group_id) {
+    if (!detail?.students) {
       return [];
     }
-    const studentClassGroup = (studentClassesResponse.data as any[]).find(sc => 
-      sc && typeof sc === 'object' && 'class_group' in sc && 
-      sc.class_group && typeof sc.class_group === 'object' && 
-      'id' in sc.class_group && sc.class_group.id === parseInt(detail.class_group_id, 10)
-    );
-    return studentClassGroup && 'students' in studentClassGroup ? studentClassGroup.students : [];
-  }, [studentClassesResponse, detail]);
+    return detail.students;
+  }, [detail]);
 
   const [attendanceData, setAttendanceData] = useState<Record<string, Record<number, AttendanceStatus>>>({});
 
@@ -58,7 +52,7 @@ const PresensiDetailPage: React.FC = () => {
     }));
   };
 
-  const isLoading = isLoadingSchedules || isLoadingStudentClasses;
+  const isLoading = isLoadingSchedules;
   const meetingCount = 16; // Placeholder for number of meetings
 
   const breadcrumbItems: BreadcrumbItemData[] = [

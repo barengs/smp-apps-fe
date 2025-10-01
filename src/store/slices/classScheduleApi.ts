@@ -104,6 +104,11 @@ interface ClassScheduleDetail {
   lesson_hour: LessonHour;
   teacher: Teacher;
   study: Study;
+  students?: Array<{
+    id: number;
+    first_name: string;
+    last_name: string;
+  }>;
 }
 
 // Struktur utama untuk satu item dalam array 'data' dari respons GET
