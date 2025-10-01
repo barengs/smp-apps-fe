@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery } from '@/store/slices/classScheduleApi';
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
@@ -147,16 +146,16 @@ const PresensiDetailPage: React.FC = () => {
             <CardDescription>Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="relative overflow-x-auto">
-              <Table className="min-w-full border-collapse">
+            <div className="overflow-x-auto">
+              <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="sticky left-0 bg-background z-10 w-[250px] border-r">Nama Siswa</TableHead>
+                    <TableHead className="w-[250px]">Nama Siswa</TableHead>
                     {Array.from({ length: meetingCount }, (_, i) => {
                       const meetingNumber = i + 1;
                       const isFilled = filledMeetings.has(meetingNumber);
                       return (
-                        <TableHead key={i} className="p-1 text-center">
+                        <TableHead key={i} className="text-center">
                           <Button
                             variant={isFilled ? 'success' : 'danger'}
                             size="sm"
@@ -174,7 +173,7 @@ const PresensiDetailPage: React.FC = () => {
                   {students.length > 0 ? (
                     students.map((student) => (
                       <TableRow key={student.id}>
-                        <TableCell className="sticky left-0 bg-background z-10 font-medium border-r whitespace-nowrap">
+                        <TableCell className="font-medium whitespace-nowrap">
                           {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
                         </TableCell>
                         {Array.from({ length: meetingCount }, (_, i) => (

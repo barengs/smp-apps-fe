@@ -116,7 +116,7 @@ const PresensiFormPage: React.FC = () => {
               <CardDescription>{t('presenceForm.description', { subject: detail.study?.name, class: detail.classroom?.name })}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="relative overflow-x-auto">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
