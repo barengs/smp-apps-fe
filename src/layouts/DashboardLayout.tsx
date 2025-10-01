@@ -396,7 +396,7 @@ const DashboardHeader: React.FC<{ title: string; role: 'wali-santri' | 'administ
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm h-16 px-6 flex justify-between items-center border-b border-border">
+    <header className="bg-header text-header-foreground shadow-sm h-16 px-6 flex justify-between items-center border-b border-border">
       <div className="flex items-center">
         {isMobile ? (
           <Sheet>

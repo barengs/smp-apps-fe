@@ -24,7 +24,7 @@ const DynamicAppConfig = () => {
       }
 
       // Set Theme and Language
-      setTheme(settings.app_theme);
+      // setTheme(settings.app_theme); // Sementara dinonaktifkan untuk memungkinkan pengalihan manual
       const i18nCode = languageMapping[settings.app_language];
       if (i18nCode) {
         i18n.changeLanguage(i18nCode);

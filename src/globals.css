@@ -62,6 +62,9 @@
 
     --sidebar-ring: 217.2 91.2% 59.8%;
     --sidebar-menu-hover-background: 217.2 91.2% 90%; /* Light blue for light theme hover */
+
+    --header-background: 0 0% 100%;
+    --header-foreground: 222.2 84% 4.9%;
   }
 
   .dark {
@@ -110,6 +113,9 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     --sidebar-menu-hover-background: 217.2 91.2% 30%; /* Dark blue for dark theme hover */
+
+    --header-background: 240 5.9% 10%;
+    --header-foreground: 210 40% 98%;
   }
 }
 
