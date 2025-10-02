@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import KotaForm from './KotaForm.tsx';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
+import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 
@@ -27,9 +28,19 @@ interface Kota {
 
 const KotaTable: React.FC = () => {
   const { data: citiesData, error, isLoading } = useGetCitiesQuery();
+  const { data: provincesData } = useGetProvincesQuery();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKota, setEditingKota] = useState<Kota | undefined>(undefined);
+
+  // Mapping provinces untuk lookup
+  const provincesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    provincesData?.forEach(province => {
+      map.set(province.code, province.name);
+    });
+    return map;
+  }, [provincesData]);
 
   const cities: Kota[] = useMemo(() => {
     return citiesData || [];
@@ -66,7 +77,10 @@ const KotaTable: React.FC = () => {
         header: 'Nama Kota',
       },
       {
-        accessorFn: row => row.province.name,
+        accessorFn: row => {
+          // Gunakan Map untuk lookup nama provinsi
+          return provincesMap.get(row.province_code) || row.province_code || '-';
+        },
         id: 'provinceName',
         header: 'Provinsi',
       },
@@ -89,7 +103,7 @@ const KotaTable: React.FC = () => {
         },
       },
     ],
-    []
+    [provincesMap]
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={4} />;
