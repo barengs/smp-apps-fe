@@ -41,10 +41,7 @@ const KotaTable: React.FC = () => {
   };
 
   const handleEditData = (kota: Kota) => {
-    setEditingKota({
-      ...kota,
-      province: kota.province || { name: '' }
-    });
+    setEditingKota(kota);
     setIsModalOpen(true);
   };
 
