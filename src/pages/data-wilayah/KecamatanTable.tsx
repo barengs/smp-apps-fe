@@ -14,22 +14,29 @@ import KecamatanForm from './KecamatanForm.tsx';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useGetCitiesQuery } from '@/store/slices/cityApi';
 
 interface Kecamatan {
   id: number;
   code: string;
   name: string;
   city_code: string;
-  city: {
-    name: string;
-  };
 }
 
 const KecamatanTable: React.FC = () => {
   const { data: districtsData, error, isLoading } = useGetDistrictsQuery();
+  const { data: citiesData } = useGetCitiesQuery();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKecamatan, setEditingKecamatan] = useState<Kecamatan | undefined>(undefined);
+
+  const citiesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    citiesData?.forEach(city => {
+      map.set(city.code, city.name);
+    });
+    return map;
+  }, [citiesData]);
 
   const districts: Kecamatan[] = useMemo(() => {
     return districtsData || [];
@@ -66,7 +73,7 @@ const KecamatanTable: React.FC = () => {
         header: 'Nama Kecamatan',
       },
       {
-        accessorFn: row => row.city.name,
+        accessorFn: row => citiesMap.get(row.city_code) || row.city_code || '-',
         id: 'cityName',
         header: 'Kota',
       },
@@ -89,7 +96,7 @@ const KecamatanTable: React.FC = () => {
         },
       },
     ],
-    []
+    [citiesMap]
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={4} />;
