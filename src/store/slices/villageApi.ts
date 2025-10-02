@@ -30,6 +30,7 @@ interface GetVillagesResponse {
   next_page_url: string | null;
   per_page: number;
   total: number;
+  last_page?: number; // Tambahkan properti last_page yang mungkin ada
 }
 
 // Params for the paginated query
@@ -54,12 +55,21 @@ interface GetVillagesByDistrictResponse {
   data: VillageApiData[];
 }
 
+// Raw response for paginated villages
+interface GetVillagesRawResponse {
+  data: GetVillagesResponse;
+}
+
 export const villageApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getVillages: builder.query<GetVillagesResponse, GetVillagesParams>({
       query: ({ page, per_page }) => `master/village?page=${page}&per_page=${per_page}`,
+      transformResponse: (response: GetVillagesRawResponse) => {
+        // Ekstrak data paginasi dari dalam properti 'data'
+        return response.data;
+      },
       providesTags: (result) =>
-        result
+        result && result.data
           ? [
               ...result.data.map(({ id }) => ({ type: 'Village' as const, id })),
               { type: 'Village', id: 'LIST' },

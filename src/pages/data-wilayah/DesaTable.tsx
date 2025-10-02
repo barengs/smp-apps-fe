@@ -58,7 +58,8 @@ const DesaTable: React.FC = () => {
 
   const pageCount = useMemo(() => {
     if (!villagesResponse) return -1;
-    return Math.ceil(villagesResponse.total / villagesResponse.per_page);
+    // Gunakan last_page jika ada, jika tidak hitung manual
+    return villagesResponse.last_page ?? Math.ceil(villagesResponse.total / villagesResponse.per_page);
   }, [villagesResponse]);
 
   const handleAddData = () => {
@@ -130,6 +131,9 @@ const DesaTable: React.FC = () => {
       <DataTable
         columns={columns}
         data={villages}
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
         exportFileName="data_desa"
         exportTitle="Data Desa"
         onAddData={handleAddData}
