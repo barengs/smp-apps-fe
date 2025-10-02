@@ -25,8 +25,8 @@ const GuruTugasPage: React.FC = () => {
   const { data: internshipResponse, isLoading, isError, error } = useGetInternshipsQuery();
 
   const breadcrumbItems = [
-    { label: t('sidebar.santriManagement'), href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> },
-    { label: t('sidebar.teacherAssignment'), icon: <User className="h-4 w-4" /> },
+    { label: 'Manajemen Santri', href: "/dashboard/santri", icon: <Users className="h-4 w-4" /> },
+    { label: 'Guru Tugas', icon: <User className="h-4 w-4" /> },
   ];
 
   const columns: ColumnDef<InternshipListItem>[] = [
@@ -102,12 +102,12 @@ const GuruTugasPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout title={t('sidebar.teacherAssignment')} role="administrasi">
+    <DashboardLayout title="Guru Tugas" role="administrasi">
       <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
-            <CardTitle>{t('teacherAssignment.title')}</CardTitle>
+            <CardTitle>Data Guru Tugas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col lg:flex-row gap-4">

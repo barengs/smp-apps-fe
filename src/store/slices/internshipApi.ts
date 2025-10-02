@@ -14,12 +14,12 @@ export interface CreateInternshipResponse {
 export const internshipApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getInternships: builder.query<GetInternshipsResponse, void>({
-      query: () => 'internship',
+      query: () => 'master/supervisor',
       providesTags: ['Internship'],
     }),
     createInternship: builder.mutation<CreateInternshipResponse, Partial<InternshipPayload>>({
       query: (body) => ({
-        url: 'internship',
+        url: 'master/supervisor',
         method: 'POST',
         body,
       }),
