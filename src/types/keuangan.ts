@@ -40,11 +40,30 @@ export interface TransactionType {
   is_active?: boolean; // Added for table display
 }
 
+// New interface for the paginated response data
+export interface PaginatedTransactionTypes {
+    current_page: number;
+    data: TransactionType[];
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: any[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+}
+
+// Updated top-level API response for transaction types list
 export interface TransactionTypeApiResponse {
     message: string;
-    status: number;
-    data: TransactionType[];
+    status: string;
+    data: PaginatedTransactionTypes;
 }
+
 
 export interface CreateUpdateTransactionTypeRequest {
   code: string;

@@ -1,11 +1,28 @@
 import { smpApi } from '../baseApi';
-import { TransactionType, TransactionTypeApiResponse, CreateUpdateTransactionTypeRequest } from '@/types/keuangan';
+import { TransactionType, CreateUpdateTransactionTypeRequest, PaginatedTransactionTypes, TransactionTypeApiResponse } from '@/types/keuangan';
 
 export const transactionTypeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTransactionTypes: builder.query<TransactionTypeApiResponse, void>({
+    getTransactionTypes: builder.query<PaginatedTransactionTypes, void>({
       query: () => 'main/transaction-type',
-      providesTags: ['TransactionType'],
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'TransactionType' as const, id })),
+              { type: 'TransactionType', id: 'LIST' },
+            ]
+          : [{ type: 'TransactionType', id: 'LIST' }],
+      transformResponse: (response: TransactionTypeApiResponse) => {
+        const paginatedData = response.data;
+        // Konversi nilai string '1'/'0' menjadi boolean
+        const transformedData = paginatedData.data.map((item: any) => ({
+          ...item,
+          is_debit: item.is_debit == '1' || item.is_debit === true,
+          is_credit: item.is_credit == '1' || item.is_credit === true,
+          is_active: item.is_active == '1' || item.is_active === true,
+        }));
+        return { ...paginatedData, data: transformedData };
+      },
     }),
     createTransactionType: builder.mutation<TransactionType, CreateUpdateTransactionTypeRequest>({
       query: (newType) => ({

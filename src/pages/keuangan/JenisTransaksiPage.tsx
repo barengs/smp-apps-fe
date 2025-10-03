@@ -33,7 +33,7 @@ const JenisTransaksiPage: React.FC = () => {
   const [selectedTransactionType, setSelectedTransactionType] = useState<TransactionType | null>(null);
   const [transactionTypeIdToDelete, setTransactionTypeIdToDelete] = useState<number | null>(null);
 
-  const { data: apiResponse, isLoading, isError, error } = useGetTransactionTypesQuery();
+  const { data: paginatedResponse, isLoading, isError, error } = useGetTransactionTypesQuery();
   const [deleteTransactionType, { isLoading: isDeleting }] = useDeleteTransactionTypeMutation();
 
   const handleAdd = () => {
@@ -65,7 +65,7 @@ const JenisTransaksiPage: React.FC = () => {
     }
   };
 
-  const transactionTypes = apiResponse?.data || [];
+  const transactionTypes = paginatedResponse?.data || [];
 
   return (
     <DashboardLayout title="Jenis Transaksi" role="administrasi">

@@ -6,8 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
-import { useNavigate } from 'react-router-dom';
 
 interface JenisTransaksiTableProps {
   data: TransactionType[];
@@ -16,11 +14,6 @@ interface JenisTransaksiTableProps {
 }
 
 export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, onEdit, onDelete }) => {
-  const navigate = useNavigate();
-
-  const handleAddData = () => {
-    navigate('/dashboard/keuangan/jenis-transaksi/tambah');
-  };
 
   const columns: ColumnDef<TransactionType>[] = [
     {
@@ -30,6 +23,7 @@ export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, 
     {
       accessorKey: 'description',
       header: 'Deskripsi',
+      cell: ({ row }) => row.original.description || '-',
     },
     {
       accessorKey: 'is_active',
@@ -37,7 +31,7 @@ export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, 
       cell: ({ row }) => {
         const isActive = row.original.is_active;
         return (
-          <Badge variant={isActive ? 'default' : 'destructive'}>
+          <Badge variant={isActive ? 'success' : 'destructive'}>
             {isActive ? 'Aktif' : 'Tidak Aktif'}
           </Badge>
         );
@@ -77,8 +71,6 @@ export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, 
       data={data}
       exportFileName="data_jenis_transaksi"
       exportTitle="Data Jenis Transaksi"
-      onAddData={handleAddData}
-      addButtonLabel="Tambah Jenis Transaksi"
     />
   );
 };
