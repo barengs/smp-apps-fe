@@ -55,7 +55,8 @@ function buildTreeFromApi(items: import('@/store/slices/menuApi').MenuItem[]): M
             ...item, 
             child: [], 
             title: item.id_title,
-            order: typeof item.order === 'string' ? parseInt(item.order) : item.order
+            order: typeof item.order === 'string' ? parseInt(item.order) : item.order,
+            parent_id: item.parent_id ? (typeof item.parent_id === 'string' ? parseInt(item.parent_id) : item.parent_id) : null
         };
     });
 
