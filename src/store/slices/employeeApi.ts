@@ -99,6 +99,7 @@ export interface CreateUpdateEmployeeRequest {
   zip_code?: string;
   username: string;
   password?: string;
+  password_confirmation?: string;
   photo?: string;
 }
 

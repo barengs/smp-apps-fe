@@ -32,12 +32,12 @@ const formSchema = z.object({
   first_name: z.string().min(2, { message: 'Nama depan harus minimal 2 karakter.' }),
   last_name: z.string().nullable().optional(),
   email: z.string().email({ message: 'Email tidak valid.' }),
-  code: z.string().optional(), // Removed min(1) validation
+  code: z.string().optional(),
   nik: z.string().min(16, { message: 'NIK harus 16 digit.' }).max(16, { message: 'NIK harus 16 digit.' }).optional().or(z.literal('')),
   phone: z.string().min(10, { message: 'Nomor telepon minimal 10 digit.' }).optional().or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
-  role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }), // Tetap role_ids untuk internal form
+  role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
   username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }),
   password: z.string()
     .min(6, { message: 'Password harus minimal 6 karakter.' })
@@ -45,6 +45,15 @@ const formSchema = z.object({
     .regex(/(?=.*\d)/, { message: 'Password harus mengandung setidaknya 1 angka.' })
     .optional()
     .or(z.literal('')),
+  password_confirmation: z.string().optional().or(z.literal('')),
+}).refine(data => {
+  if (data.password && data.password !== data.password_confirmation) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Konfirmasi password tidak cocok',
+  path: ['password_confirmation'],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -102,6 +111,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       role_ids: initialData.roles.map(initialRole => availableRoles.find(ar => ar.name === initialRole.name)?.id).filter(Boolean) as number[] || [],
       username: initialData.username || '',
       password: '',
+      password_confirmation: '',
     } : {
       first_name: '',
       last_name: '',
@@ -114,6 +124,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       role_ids: [],
       username: '',
       password: '',
+      password_confirmation: '',
     },
   });
 
@@ -133,6 +144,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: values.address || undefined,
       zip_code: values.zip_code || undefined,
       password: values.password || undefined,
+      password_confirmation: values.password_confirmation || undefined,
     };
 
     try {
@@ -311,7 +323,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                 )}
               />
               <FormField control={form.control} name="password" render={({ field }) => { const passwordValue = form.watch('password') as string; const hasMinLength = passwordValue.length >= 6; const hasUppercase = /[A-Z]/.test(passwordValue); const hasNumber = /\d/.test(passwordValue); const isPasswordValid = hasMinLength && hasUppercase && hasNumber; return (<FormItem><FormLabel>Password (Opsional)</FormLabel><FormControl><div className="relative"><Input type={showPassword ? "text" : "password"} placeholder="********" {...field} value={field.value as string || ''} className="pr-10" /><Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? (<EyeOff className="h-4 w-4 text-muted-foreground" />) : (<Eye className="h-4 w-4 text-muted-foreground" />)}</Button></div></FormControl><FormDescription className="text-xs mt-1">Min. 6 karakter, 1 huruf kapital, 1 angka. {passwordValue && (<span className={cn("ml-1", isPasswordValid ? "text-green-500" : "text-red-500")}>({hasMinLength ? '✓' : '✗'} 6+, {hasUppercase ? '✓' : '✗'} A-Z, {hasNumber ? '✓' : '✗'} 0-9)</span>)}</FormDescription><FormMessage /></FormItem>); }} />
-              <FormField control={form.control} name="password_confirmation" render={({ field }) => (<FormItem><FormLabel>Konfirmasi Password (Opsional)</FormLabel><FormControl><div className="relative"><Input type={showPassword ? "text" : "password"} placeholder="********" {...field} className="pr-10" /><Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? (<EyeOff className="h-4 w-4 text-muted-foreground" />) : (<Eye className="h-4 w-4 text-muted-foreground" />)}</Button></div></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="password_confirmation" render={({ field }) => (<FormItem><FormLabel>Konfirmasi Password (Opsional)</FormLabel><FormControl><div className="relative"><Input type={showPassword ? "text" : "password"} placeholder="********" {...field} value={field.value as string || ''} className="pr-10" /><Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? (<EyeOff className="h-4 w-4 text-muted-foreground" />) : (<Eye className="h-4 w-4 text-muted-foreground" />)}</Button></div></FormControl><FormMessage /></FormItem>)} />
             </div>
           )}
         </div>
