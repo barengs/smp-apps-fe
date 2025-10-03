@@ -45,13 +45,18 @@ type FlattenedItem = Omit<MenuItem, 'child'> & {
  * Membangun struktur pohon dari daftar item datar yang diterima dari API.
  * Ini memastikan item dengan parent_id ditempatkan di dalam array 'child' dari induknya.
  */
-function buildTreeFromApi(items: MenuItem[]): MenuItem[] {
+function buildTreeFromApi(items: import('@/store/slices/menuApi').MenuItem[]): MenuItem[] {
     const itemsById: { [key: number]: MenuItem } = {};
     const rootItems: MenuItem[] = [];
 
     // Pass 1: Buat map dari semua item berdasarkan ID dan inisialisasi array child.
     items.forEach(item => {
-        itemsById[item.id] = { ...item, child: [] };
+        itemsById[item.id] = { 
+            ...item, 
+            child: [], 
+            title: item.id_title,
+            order: typeof item.order === 'string' ? parseInt(item.order) : item.order
+        };
     });
 
     // Pass 2: Hubungkan anak ke induknya.
@@ -70,10 +75,10 @@ function buildTreeFromApi(items: MenuItem[]): MenuItem[] {
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
   return items.reduce<FlattenedItem[]>((acc, item, index) => {
     const children = item.child ?? [];
-    const { child, ...rest } = item;
+    const { child, title, ...rest } = item;
     return [
       ...acc,
-      { ...rest, parentId, depth, index, title: item.id_title },
+      { ...rest, parentId, depth, index, title: title },
       ...flattenTree(children, item.id, depth + 1),
     ];
   }, []);
