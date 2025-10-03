@@ -1,13 +1,11 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
-import { Account, AccountApiResponse } from '@/types/keuangan';
+import { Account } from '@/types/keuangan';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
-import { useGetAccountsQuery } from '@/store/slices/accountApi';
-import { useNavigate } from 'react-router-dom';
+import { MoreHorizontal, Eye } from 'lucide-react';
 
 interface RekeningTableProps {
   data: Account[];
@@ -17,11 +15,6 @@ interface RekeningTableProps {
 }
 
 export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails }) => {
-  const navigate = useNavigate();
-
-  const handleAddData = () => {
-    navigate('/dashboard/keuangan/rekening/tambah');
-  };
 
   const columns: ColumnDef<Account>[] = [
     {
@@ -29,18 +22,26 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       header: 'Nomor Rekening',
     },
     {
-      accessorKey: 'account_name',
-      header: 'Nama Rekening',
+      accessorKey: 'customer',
+      header: 'Nama Santri',
+      cell: ({ row }) => {
+        const customer = row.original.customer;
+        return customer ? `${customer.first_name} ${customer.last_name || ''}` : '-';
+      },
     },
     {
-      accessorKey: 'account_type',
-      header: 'Jenis Rekening',
+      accessorKey: 'product',
+      header: 'Produk',
+      cell: ({ row }) => {
+        const product = row.original.product;
+        return product ? product.product_name : '-';
+      },
     },
     {
       accessorKey: 'balance',
       header: 'Saldo',
       cell: ({ row }) => {
-        const balance = parseFloat(row.original.balance); // Convert string to number
+        const balance = parseFloat(row.original.balance);
         return new Intl.NumberFormat('id-ID', {
           style: 'currency',
           currency: 'IDR',
@@ -48,14 +49,13 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       },
     },
     {
-      accessorKey: 'status', // Change accessorKey from 'is_active' to 'status'
+      accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.status; // Get the string status
-        const isActive = status === 'ACTIVE'; // Determine if active based on status string
+        const status = row.original.status;
         return (
-          <Badge variant={isActive ? 'default' : 'destructive'}>
-            {status} {/* Display the actual status string */}
+          <Badge variant={status === 'ACTIVE' ? 'success' : 'destructive'}>
+            {status}
           </Badge>
         );
       },
@@ -74,10 +74,15 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onViewDetails(account)}>Lihat Detail</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(account)}>Edit</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onViewDetails(account)}>
+                <Eye className="mr-2 h-4 w-4" />
+                Lihat Detail
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(account)}>
+                Edit
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(account)} className="text-destructive">
+              <DropdownMenuItem onClick={() => onDelete(account)} className="text-red-600">
                 Hapus
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -93,8 +98,6 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       data={data}
       exportFileName="data_rekening"
       exportTitle="Data Rekening"
-      onAddData={handleAddData}
-      addButtonLabel="Tambah Rekening"
     />
   );
 };
