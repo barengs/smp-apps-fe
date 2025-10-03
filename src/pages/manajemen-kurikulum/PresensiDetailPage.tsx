@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetClassSchedulesQuery } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery } from '@/store/slices/classScheduleApi';
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -17,26 +17,65 @@ const PresensiDetailPage: React.FC = () => {
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
 
-  // TODO: Ganti state lokal ini dengan data dari API
-  const [filledMeetings, setFilledMeetings] = useState<Set<number>>(new Set());
-
-  const { schedule, detail } = useMemo(() => {
-    if (!schedulesResponse?.data || !detailId) {
-      return { schedule: null, detail: null };
-    }
+  const parentSchedule = useMemo(() => {
+    if (!schedulesResponse?.data || !detailId) return null;
     for (const s of schedulesResponse.data) {
-      const d = s.details.find((d) => d.id === parseInt(detailId, 10));
-      if (d) {
-        // TODO: Saat API mengembalikan data presensi, proses di sini untuk mengisi `filledMeetings`
-        return { schedule: s, detail: d };
+      if (s.details.some((d) => d.id === parseInt(detailId, 10))) {
+        return s;
       }
     }
-    return { schedule: null, detail: null };
+    return null;
   }, [schedulesResponse, detailId]);
 
-  const students = useMemo(() => detail?.students || [], [detail]);
+  const { data: presenceResponse, isLoading: isLoadingPresence } = useGetPresenceByScheduleIdQuery(parentSchedule?.id, {
+    skip: !parentSchedule?.id,
+  });
 
-  const isLoading = isLoadingSchedules;
+  const { schedule, detail, students, presenceData, filledMeetings } = useMemo(() => {
+    const emptyResult = { schedule: null, detail: null, students: [], presenceData: {}, filledMeetings: new Set() };
+    if (!presenceResponse?.data || !detailId) {
+      return emptyResult;
+    }
+
+    const scheduleData = presenceResponse.data;
+    const currentDetail = scheduleData.details.find(d => d.id === parseInt(detailId, 10));
+
+    if (!currentDetail) {
+      return emptyResult;
+    }
+
+    const studentList = currentDetail.students || [];
+    const newPresenceData: Record<number, Record<number, string>> = {};
+    const newFilledMeetings = new Set<number>();
+    const statusMap: Record<string, string> = { 'Hadir': 'H', 'Sakit': 'S', 'Izin': 'I', 'Alfa': 'A' };
+
+    studentList.forEach(student => {
+      newPresenceData[student.id] = {};
+    });
+
+    currentDetail.meeting_schedules?.forEach(meeting => {
+      const meetingNum = parseInt(meeting.meeting_sequence, 10);
+      if (meeting.presences && meeting.presences.length > 0) {
+        newFilledMeetings.add(meetingNum);
+        meeting.presences.forEach(p => {
+          const studentId = parseInt(p.student_id, 10);
+          if (newPresenceData[studentId]) {
+            newPresenceData[studentId][meetingNum] = statusMap[p.status] || '-';
+          }
+        });
+      }
+    });
+
+    return {
+      schedule: scheduleData,
+      detail: currentDetail,
+      students: studentList,
+      presenceData: newPresenceData,
+      filledMeetings: newFilledMeetings,
+    };
+  }, [presenceResponse, detailId]);
+
+  const isLoading = isLoadingSchedules || isLoadingPresence;
   const meetingCount = detail?.meeting_count || 16;
 
   const handleHeaderClick = (meetingNumber: number) => {
@@ -112,11 +151,11 @@ const PresensiDetailPage: React.FC = () => {
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Tingkat Pendidikan</p>
-                <p>{schedule.education?.name || '-'}</p>
+                <p>{schedule.education?.institution_name || '-'}</p>
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Jenjang Pendidikan</p>
-                <p>{schedule.education?.name || '-'}</p>
+                <p>{schedule.education?.institution_name || '-'}</p>
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Sesi</p>
@@ -182,11 +221,22 @@ const PresensiDetailPage: React.FC = () => {
                           <TableCell className="font-medium py-1 px-2 text-sm">
                             {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
                           </TableCell>
-                          {Array.from({ length: meetingCount }, (_, i) => (
-                            <TableCell key={i} className="text-center py-1 px-1">
-                              <span className="text-sm">-</span>
-                            </TableCell>
-                          ))}
+                          {Array.from({ length: meetingCount }, (_, i) => {
+                            const meetingNumber = i + 1;
+                            const status = presenceData[student.id]?.[meetingNumber] || '-';
+                            return (
+                              <TableCell key={i} className="text-center py-1 px-1">
+                                <span className={cn("text-sm font-semibold", {
+                                  "text-green-600": status === 'H',
+                                  "text-yellow-600": status === 'S',
+                                  "text-blue-600": status === 'I',
+                                  "text-red-600": status === 'A',
+                                })}>
+                                  {status}
+                                </span>
+                              </TableCell>
+                            );
+                          })}
                         </TableRow>
                       ))
                     ) : (

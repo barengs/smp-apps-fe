@@ -1,4 +1,23 @@
 import { smpApi } from '../baseApi';
+import { InstitusiPendidikan } from '@/types/pendidikan';
+
+// --- New Types for Presence ---
+interface Presence {
+  id: number;
+  meeting_schedule_id: string;
+  student_id: string;
+  status: 'Hadir' | 'Sakit' | 'Izin' | 'Alfa';
+  description: string | null;
+}
+
+interface MeetingSchedule {
+  id: number;
+  class_schedule_detail_id: string;
+  meeting_sequence: string;
+  meeting_date: string;
+  topic: string;
+  presences: Presence[];
+}
 
 // --- API Response and Request Types ---
 
@@ -23,11 +42,6 @@ export interface CreateClassScheduleRequest {
 }
 
 // --- Tipe respons untuk GET ---
-interface SimpleObject {
-    id: number;
-    name: string;
-}
-
 interface Teacher {
     id: number;
     first_name: string;
@@ -77,14 +91,8 @@ interface Study {
 interface AcademicYear {
     id: number;
     year: string;
-    active: string;
+    active: boolean;
     description: string | null;
-}
-
-interface Education {
-    id: number;
-    name: string;
-    description: string;
 }
 
 // Struktur untuk satu item dalam array 'details'
@@ -109,20 +117,21 @@ interface ClassScheduleDetail {
     first_name: string;
     last_name: string;
   }>;
-  meeting_count?: number; // Tambahkan properti meeting_count
+  meeting_count?: number;
+  meeting_schedules?: MeetingSchedule[];
 }
 
 // Struktur utama untuk satu item dalam array 'data' dari respons GET
 export interface ClassScheduleData {
   id: number;
   academic_year_id: string;
-  education_id: string;
+  educational_institution_id: string;
   session: string;
   status: string;
   created_at: string;
   updated_at: string;
   academic_year: AcademicYear;
-  education: Education;
+  education: InstitusiPendidikan;
   details: ClassScheduleDetail[];
 }
 
@@ -138,6 +147,13 @@ interface CreateClassScheduleResponse {
     message: string;
     status: number;
     data: any; // Data jadwal yang dibuat
+}
+
+// Respons untuk endpoint presensi baru
+interface GetPresenceResponse {
+  success: boolean;
+  message: string;
+  data: ClassScheduleData;
 }
 
 // --- Tipe untuk menyimpan presensi ---
@@ -165,6 +181,10 @@ export const classScheduleApi = smpApi.injectEndpoints({
       query: () => 'main/class-schedule',
       providesTags: ['ClassSchedule'],
     }),
+    getPresenceByScheduleId: builder.query<GetPresenceResponse, number>({
+      query: (classScheduleId) => `main/presence?class_schedule_id=${classScheduleId}`,
+      providesTags: (result, error, id) => [{ type: 'Presence', id: id }, { type: 'ClassSchedule', id: id }],
+    }),
     createClassSchedule: builder.mutation<CreateClassScheduleResponse, CreateClassScheduleRequest>({
       query: (newSchedule) => ({
         url: 'main/class-schedule',
@@ -175,17 +195,18 @@ export const classScheduleApi = smpApi.injectEndpoints({
     }),
     saveAttendance: builder.mutation<SaveAttendanceResponse, SaveAttendanceRequest>({
       query: (attendanceData) => ({
-        url: 'main/attendance', // Asumsi endpoint baru
+        url: 'main/attendance',
         method: 'POST',
         body: attendanceData,
       }),
-      invalidatesTags: ['Attendance', 'ClassSchedule'], // Invalidate untuk memuat ulang data
+      invalidatesTags: ['Attendance', 'ClassSchedule', 'Presence'],
     }),
   }),
 });
 
 export const {
   useGetClassSchedulesQuery,
+  useGetPresenceByScheduleIdQuery,
   useCreateClassScheduleMutation,
-  useSaveAttendanceMutation, // Ekspor hook baru
+  useSaveAttendanceMutation,
 } = classScheduleApi;

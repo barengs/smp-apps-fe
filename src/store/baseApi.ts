@@ -143,7 +143,8 @@ export const smpApi = createApi({
     'ClassSchedule',
     'InstitusiPendidikan',
     'Staff',
-    'Attendance', // Tambahkan tag baru
+    'Attendance',
+    'Presence', // Tambahkan tag baru
   ],
   endpoints: () => ({}),
 });
