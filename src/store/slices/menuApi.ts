@@ -4,16 +4,20 @@ import { smpApi } from '../baseApi';
 
 export interface MenuItem {
   id: number;
-  title: string;
+  id_title: string;
+  en_title: string | null;
+  ar_title: string | null;
   description: string | null;
   icon: string;
-  route: string;
+  route: string | null;
   type: string;
   position: string;
   status: string;
-  order: number | null;
+  order: string | number | null;
   child: MenuItem[]; // Nested children
-  parent_id: number | null;
+  parent_id: number | string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface GetMenuResponse {

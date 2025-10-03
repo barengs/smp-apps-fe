@@ -63,14 +63,14 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   // Effect to split initialData.accessRights into menu access and explicit permissions once data is loaded
   useEffect(() => {
     if (initialData && menuData?.data && permissionsData?.data) {
-      const allMenuTitles = new Set<string>();
-      const collectTitles = (menus: MenuItem[]) => {
+      const allMenuIdTitles = new Set<string>();
+      const collectIdTitles = (menus: MenuItem[]) => {
         menus.forEach(menu => {
-          allMenuTitles.add(menu.title);
-          if (menu.child) collectTitles(menu.child);
+          allMenuIdTitles.add(menu.id_title);
+          if (menu.child) collectIdTitles(menu.child);
         });
       };
-      collectTitles(menuData.data);
+      collectIdTitles(menuData.data);
 
       const allPermissionNames = new Set(permissionsData.data.map(p => p.name));
 
@@ -78,13 +78,30 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
       const initialPerms: string[] = [];
 
       initialData.accessRights.forEach(right => {
-        if (allMenuTitles.has(right)) {
+        if (allMenuIdTitles.has(right)) {
           initialMenus.push(right);
         } else if (allPermissionNames.has(right)) {
           initialPerms.push(right);
         } else {
           // Fallback for rights that are neither a menu nor a known permission
-          initialPerms.push(right);
+          // This could be an old title-based permission, try to find its id_title
+          let found = false;
+          const findAndAdd = (menus: MenuItem[]) => {
+            for (const menu of menus) {
+              if (menu.en_title === right || menu.ar_title === right) {
+                initialMenus.push(menu.id_title);
+                found = true;
+                return;
+              }
+              if (menu.child) findAndAdd(menu.child);
+              if (found) return;
+            }
+          };
+          findAndAdd(menuData.data);
+          
+          if (!found) {
+            initialPerms.push(right);
+          }
         }
       });
 
@@ -94,13 +111,13 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   }, [initialData, menuData, permissionsData, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const getMenuIdsFromTitles = (titles: string[], menuItems: MenuItem[]): number[] => {
+    const getMenuIdsFromIdTitles = (idTitles: string[], menuItems: MenuItem[]): number[] => {
       const ids: number[] = [];
-      const titleSet = new Set(titles);
+      const idTitleSet = new Set(idTitles);
 
       const traverse = (items: MenuItem[]) => {
         for (const item of items) {
-          if (titleSet.has(item.title)) {
+          if (idTitleSet.has(item.id_title)) {
             ids.push(item.id);
           }
           if (item.child && item.child.length > 0) {
@@ -115,7 +132,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
       return ids;
     };
 
-    const selectedMenuIds = getMenuIdsFromTitles(values.menuAccess || [], menuData?.data || []);
+    const selectedMenuIds = getMenuIdsFromIdTitles(values.menuAccess || [], menuData?.data || []);
 
     const payload = {
       name: values.name,

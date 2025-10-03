@@ -73,7 +73,7 @@ function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 
     const { child, ...rest } = item;
     return [
       ...acc,
-      { ...rest, parentId, depth, index },
+      { ...rest, parentId, depth, index, title: item.id_title },
       ...flattenTree(children, item.id, depth + 1),
     ];
   }, []);

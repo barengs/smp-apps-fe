@@ -1,13 +1,16 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { MinusSquare, PlusSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { MenuItem as ApiMenuItem } from '@/store/slices/menuApi';
 
-interface MenuItem {
+// Menggunakan tipe dari menuApi dan menambahkan properti yang mungkin tidak ada di semua level
+type MenuItem = Partial<ApiMenuItem> & {
   id: number;
-  title: string;
+  id_title: string;
   child: MenuItem[];
-}
+};
 
 interface MenuTreeViewProps {
   menus: MenuItem[];
@@ -21,9 +24,10 @@ interface MenuNodeProps {
   isParentLast: boolean;
   selectedPermissions: string[];
   onSelectionChange: (newSelection: string[]) => void;
-  getDescendantTitles: (menuItem: MenuItem) => string[];
+  getDescendantIdTitles: (menuItem: MenuItem) => string[];
   expandedNodes: Set<number>;
   toggleNode: (nodeId: number) => void;
+  getTitle: (menuItem: MenuItem) => string;
 }
 
 const MenuNode: React.FC<MenuNodeProps> = ({
@@ -32,16 +36,17 @@ const MenuNode: React.FC<MenuNodeProps> = ({
   isParentLast,
   selectedPermissions,
   onSelectionChange,
-  getDescendantTitles,
+  getDescendantIdTitles,
   expandedNodes,
   toggleNode,
+  getTitle,
 }) => {
   const hasChildren = menuItem.child && menuItem.child.length > 0;
   const isExpanded = expandedNodes.has(menuItem.id);
 
   const getCheckedState = useMemo((): boolean | 'indeterminate' => {
-    const descendantTitles = getDescendantTitles(menuItem);
-    const isSelfSelected = selectedPermissions.includes(menuItem.title);
+    const descendantIdTitles = getDescendantIdTitles(menuItem);
+    const isSelfSelected = selectedPermissions.includes(menuItem.id_title);
 
     if (!hasChildren) {
       return isSelfSelected;
@@ -51,7 +56,7 @@ const MenuNode: React.FC<MenuNodeProps> = ({
       return true;
     }
 
-    const selectedDescendantsCount = descendantTitles.filter(title =>
+    const selectedDescendantsCount = descendantIdTitles.filter(title =>
       selectedPermissions.includes(title)
     ).length;
 
@@ -64,13 +69,13 @@ const MenuNode: React.FC<MenuNodeProps> = ({
     }
 
     return false;
-  }, [menuItem, selectedPermissions, getDescendantTitles, hasChildren]);
+  }, [menuItem, selectedPermissions, getDescendantIdTitles, hasChildren]);
 
   const handleSelect = (isChecked: boolean) => {
     const currentSelection = new Set(selectedPermissions);
-    const itemTitle = menuItem.title;
-    const descendantTitles = getDescendantTitles(menuItem);
-    const allTitles = [itemTitle, ...descendantTitles];
+    const itemTitle = menuItem.id_title;
+    const descendantIdTitles = getDescendantIdTitles(menuItem);
+    const allTitles = [itemTitle, ...descendantIdTitles];
 
     if (isChecked) {
       allTitles.forEach(title => currentSelection.add(title));
@@ -120,7 +125,7 @@ const MenuNode: React.FC<MenuNodeProps> = ({
           htmlFor={`menu-${menuItem.id}`}
           className="flex-grow cursor-pointer select-none text-sm font-medium"
         >
-          {menuItem.title}
+          {getTitle(menuItem)}
         </label>
       </div>
 
@@ -135,9 +140,10 @@ const MenuNode: React.FC<MenuNodeProps> = ({
               isParentLast={isLast}
               selectedPermissions={selectedPermissions}
               onSelectionChange={onSelectionChange}
-              getDescendantTitles={getDescendantTitles}
+              getDescendantIdTitles={getDescendantIdTitles}
               expandedNodes={expandedNodes}
               toggleNode={toggleNode}
+              getTitle={getTitle}
             />
           ))}
         </div>
@@ -148,13 +154,21 @@ const MenuNode: React.FC<MenuNodeProps> = ({
 
 const MenuTreeView: React.FC<MenuTreeViewProps> = ({ menus, selectedPermissions, onSelectionChange }) => {
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(new Set());
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language;
 
-  const getDescendantTitles = (menuItem: MenuItem): string[] => {
+  const getTitle = (menuItem: MenuItem): string => {
+    if (currentLang === 'en' && menuItem.en_title) return menuItem.en_title;
+    if (currentLang === 'ar' && menuItem.ar_title) return menuItem.ar_title;
+    return menuItem.id_title;
+  };
+
+  const getDescendantIdTitles = (menuItem: MenuItem): string[] => {
     let titles: string[] = [];
     if (menuItem.child && menuItem.child.length > 0) {
       menuItem.child.forEach(child => {
-        titles.push(child.title);
-        titles = titles.concat(getDescendantTitles(child));
+        titles.push(child.id_title);
+        titles = titles.concat(getDescendantIdTitles(child));
       });
     }
     return titles;
@@ -182,9 +196,10 @@ const MenuTreeView: React.FC<MenuTreeViewProps> = ({ menus, selectedPermissions,
           isParentLast={true} // Top-level items don't have a parent line
           selectedPermissions={selectedPermissions}
           onSelectionChange={onSelectionChange}
-          getDescendantTitles={getDescendantTitles}
+          getDescendantIdTitles={getDescendantIdTitles}
           expandedNodes={expandedNodes}
           toggleNode={toggleNode}
+          getTitle={getTitle}
         />
       ))}
     </div>
