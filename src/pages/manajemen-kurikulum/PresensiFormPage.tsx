@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetClassSchedulesQuery, useSaveAttendanceMutation } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery, useUpdatePresenceMutation } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
 
@@ -20,36 +20,64 @@ type FormData = {
 const PresensiFormPage: React.FC = () => {
   const { detailId, meetingNumber } = useParams<{ detailId: string; meetingNumber: string }>();
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue, watch } = useForm<FormData>();
+  const { register, handleSubmit, setValue, watch, reset } = useForm<FormData>();
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
-  const [saveAttendance, { isLoading: isSaving }] = useSaveAttendanceMutation();
+  const [updatePresence, { isLoading: isSaving }] = useUpdatePresenceMutation();
 
-  const { schedule, detail } = useMemo(() => {
-    if (!schedulesResponse?.data || !detailId) return { schedule: null, detail: null };
+  const parentSchedule = useMemo(() => {
+    if (!schedulesResponse?.data || !detailId) return null;
     for (const s of schedulesResponse.data) {
-      const d = s.details.find((d) => d.id === parseInt(detailId, 10));
-      if (d) return { schedule: s, detail: d };
+      if (s.details.some((d) => d.id === parseInt(detailId, 10))) {
+        return s;
+      }
     }
-    return { schedule: null, detail: null };
+    return null;
   }, [schedulesResponse, detailId]);
 
-  const students = useMemo(() => detail?.students || [], [detail]);
+  const { data: presenceResponse, isLoading: isLoadingPresence } = useGetPresenceByScheduleIdQuery(parentSchedule?.id, {
+    skip: !parentSchedule?.id,
+  });
+
+  const { detail, students, currentMeetingSchedule } = useMemo(() => {
+    const emptyResult = { detail: null, students: [], currentMeetingSchedule: null };
+    if (!presenceResponse?.data || !detailId || !meetingNumber) {
+      return emptyResult;
+    }
+
+    const scheduleData = presenceResponse.data;
+    const currentDetail = scheduleData.details.find(d => d.id === parseInt(detailId, 10));
+
+    if (!currentDetail) {
+      return emptyResult;
+    }
+
+    const studentList = currentDetail.students || [];
+    const meetingNum = parseInt(meetingNumber, 10);
+    const currentMeeting = currentDetail.meeting_schedules?.find(ms => parseInt(ms.meeting_sequence, 10) === meetingNum);
+
+    return {
+      detail: currentDetail,
+      students: studentList,
+      currentMeetingSchedule: currentMeeting,
+    };
+  }, [presenceResponse, detailId, meetingNumber]);
 
   useEffect(() => {
-    if (students.length > 0) {
+    if (students.length > 0 && currentMeetingSchedule) {
+      const defaultValues: Record<string, AttendanceStatus> = {};
       students.forEach(student => {
-        register(`attendances.${student.id}`);
-        // TODO: Fetch existing attendance data and set default value here
-        setValue(`attendances.${student.id}`, 'Hadir');
+        const existingPresence = currentMeetingSchedule.presences?.find(p => parseInt(p.student_id, 10) === student.id);
+        defaultValues[student.id] = existingPresence?.status || 'Hadir';
       });
+      reset({ attendances: defaultValues });
     }
-  }, [students, register, setValue]);
+  }, [students, currentMeetingSchedule, reset]);
 
   const watchedAttendances = watch('attendances');
 
   const onSubmit = async (data: FormData) => {
-    if (!detailId || !meetingNumber) return;
+    if (!currentMeetingSchedule) return;
 
     const attendancePayload = Object.entries(data.attendances).map(([student_id, status]) => ({
       student_id: parseInt(student_id, 10),
@@ -58,9 +86,8 @@ const PresensiFormPage: React.FC = () => {
 
     const toastId = showLoading('Menyimpan presensi...');
     try {
-      await saveAttendance({
-        schedule_detail_id: parseInt(detailId, 10),
-        meeting_number: parseInt(meetingNumber, 10),
+      await updatePresence({
+        meeting_schedule_id: currentMeetingSchedule.id,
         attendances: attendancePayload,
       }).unwrap();
       dismissToast(toastId);
@@ -80,15 +107,17 @@ const PresensiFormPage: React.FC = () => {
     { label: `Presensi Pertemuan ke-${meetingNumber}` },
   ];
 
-  if (isLoadingSchedules) {
+  const isLoading = isLoadingSchedules || isLoadingPresence;
+
+  if (isLoading) {
     return <DashboardLayout title="Formulir Presensi" role="administrasi"><Skeleton className="h-96 w-full" /></DashboardLayout>;
   }
 
-  if (!detail || !schedule) {
+  if (!detail || !currentMeetingSchedule) {
     return (
       <DashboardLayout title="Error" role="administrasi">
         <div className="p-4 text-center">
-          <p>Data jadwal tidak ditemukan.</p>
+          <p>Data jadwal atau pertemuan tidak ditemukan.</p>
           <Button onClick={() => navigate(-1)} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
           </Button>

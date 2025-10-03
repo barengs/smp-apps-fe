@@ -174,6 +174,18 @@ interface SaveAttendanceResponse {
   data: any;
 }
 
+// --- Tipe untuk memperbarui presensi ---
+export interface UpdatePresenceRequest {
+  meeting_schedule_id: number;
+  attendances: AttendanceRecord[];
+}
+
+interface UpdatePresenceResponse {
+  message: string;
+  status: number;
+  data: any;
+}
+
 
 export const classScheduleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -201,6 +213,14 @@ export const classScheduleApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Attendance', 'ClassSchedule', 'Presence'],
     }),
+    updatePresence: builder.mutation<UpdatePresenceResponse, UpdatePresenceRequest>({
+      query: (presenceData) => ({
+        url: 'main/presence',
+        method: 'PUT',
+        body: presenceData,
+      }),
+      invalidatesTags: ['Presence', 'ClassSchedule', 'Attendance'],
+    }),
   }),
 });
 
@@ -209,4 +229,5 @@ export const {
   useGetPresenceByScheduleIdQuery,
   useCreateClassScheduleMutation,
   useSaveAttendanceMutation,
+  useUpdatePresenceMutation,
 } = classScheduleApi;
