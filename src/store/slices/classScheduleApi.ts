@@ -216,7 +216,7 @@ export const classScheduleApi = smpApi.injectEndpoints({
     updatePresence: builder.mutation<UpdatePresenceResponse, UpdatePresenceRequest>({
       query: (presenceData) => ({
         url: 'main/presence',
-        method: 'PUT',
+        method: 'POST',
         body: presenceData,
       }),
       invalidatesTags: ['Presence', 'ClassSchedule', 'Attendance'],
