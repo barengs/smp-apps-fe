@@ -24,7 +24,7 @@ const WaliSantriDashboard: React.FC = () => {
   return (
     <DashboardLayout title={t('waliSantriDashboard.title')} role="wali-santri">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card>
+        <Card className="border-l-4 border-l-blue-500">
           <CardHeader>
             <CardTitle>{t('waliSantriDashboard.santriInfo.title')}</CardTitle>
           </CardHeader>
@@ -34,7 +34,7 @@ const WaliSantriDashboard: React.FC = () => {
             <p>{t('waliSantriDashboard.santriInfo.status')}: {t('waliSantriDashboard.santriInfo.statusValue')}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-green-500">
           <CardHeader>
             <CardTitle>{t('waliSantriDashboard.latestGrades.title')}</CardTitle>
           </CardHeader>
@@ -44,7 +44,7 @@ const WaliSantriDashboard: React.FC = () => {
             <p>{t('waliSantriDashboard.latestGrades.fiqh')}: 92</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-orange-500">
           <CardHeader>
             <CardTitle>{t('waliSantriDashboard.attendance.title')}</CardTitle>
           </CardHeader>
@@ -54,7 +54,7 @@ const WaliSantriDashboard: React.FC = () => {
             <p>{t('waliSantriDashboard.attendance.sick', { count: 0 })}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-purple-500">
           <CardHeader>
             <CardTitle>{t('waliSantriDashboard.announcements.title')}</CardTitle>
           </CardHeader>

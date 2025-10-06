@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux'; // Import useSelector
 import { selectIsAuthenticated } from '@/store/slices/authSlice'; // Import selectIsAuthenticated
 import SantriGrowthChart from '@/components/SantriGrowthChart'; // Import SantriGrowthChart
 
-const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string }> = ({ title, value, icon, description }) => (
+const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string; color?: string }> = ({ title, value, icon, description, color }) => (
   <Card className="transition-all hover:shadow-md">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -105,17 +105,19 @@ const AdministrasiDashboard: React.FC = () => {
             <Link to="/dashboard/santri">
               <StatCard
                 title="Total Santri"
-                value={dashboardData?.data?.santri ?? 0} // Mengakses melalui .data
-                icon={<Users className="h-6 w-6 text-muted-foreground" />}
+                value={dashboardData?.data?.santri ?? 0}
+                icon={<Users className="h-6 w-6" />}
                 description="Jumlah santri aktif saat ini"
+                color="text-blue-600"
               />
             </Link>
             <Link to="/dashboard/staf">
               <StatCard
                 title="Total Asatidz"
-                value={dashboardData?.data?.asatidz ?? 0} // Mengakses melalui .data
-                icon={<Briefcase className="h-6 w-6 text-muted-foreground" />}
+                value={dashboardData?.data?.asatidz ?? 0}
+                icon={<Briefcase className="h-6 w-6" />}
                 description="Jumlah staf pengajar"
+                color="text-green-600"
               />
             </Link>
             {isLoadingCalonSantri ? (
@@ -126,18 +128,20 @@ const AdministrasiDashboard: React.FC = () => {
               <Link to="/dashboard/pendaftaran-santri">
                 <StatCard
                   title="Total Santri Baru"
-                  value={calonSantriData?.data?.total ?? 0} // Mengakses total dari data paginasi
-                  icon={<UserPlus className="h-6 w-6 text-muted-foreground" />}
+                  value={calonSantriData?.data?.total ?? 0}
+                  icon={<UserPlus className="h-6 w-6" />}
                   description="Jumlah pendaftar santri baru"
+                  color="text-orange-600"
                 />
               </Link>
             )}
             <Link to="/dashboard/guru-tugas">
               <StatCard
                 title="Guru Tugas"
-                value={dashboardData?.data?.tugasan ?? 0} // Mengakses melalui .data
-                icon={<UserCheck className="h-6 w-6 text-muted-foreground" />}
+                value={dashboardData?.data?.tugasan ?? 0}
+                icon={<UserCheck className="h-6 w-6" />}
                 description="Santri yang sedang magang"
+                color="text-purple-600"
               />
             </Link>
           </>
