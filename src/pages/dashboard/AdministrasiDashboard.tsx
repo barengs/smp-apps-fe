@@ -132,7 +132,7 @@ const AdministrasiDashboard: React.FC = () => {
                   icon={<UserPlus className="h-6 w-6" />}
                   description="Jumlah pendaftar santri baru"
                   color="text-orange-600"
-                />
+              />
               </Link>
             )}
             <Link to="/dashboard/guru-tugas">
