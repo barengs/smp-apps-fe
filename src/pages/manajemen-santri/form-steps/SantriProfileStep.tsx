@@ -24,6 +24,15 @@ import {
 import { useLazyCheckStudentByNikQuery } from '@/store/slices/calonSantriApi';
 import { toast } from 'sonner';
 
+// Helper function untuk memetakan jenis kelamin dari API
+const mapJenisKelaminFromApi = (jenisKelaminApi: string): 'L' | 'P' => {
+  const lower = (jenisKelaminApi || '').toLowerCase();
+  if (lower.startsWith('l') || lower === 'male' || lower === 'laki-laki') {
+    return 'L';
+  }
+  return 'P';
+};
+
 interface SantriProfileStepProps {
   // form: any; // Dihapus karena menggunakan useFormContext
 }
@@ -63,7 +72,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
       if (toastId) toast.dismiss(toastId);
       if (nikCheckData.success) {
         // Isi otomatis tanggal lahir, tempat lahir, jenis kelamin, dan desa (pakai desa pertama jika ada)
-        const jenisKelaminShort = (nikCheckData.jenis_kelamin || '').toLowerCase().startsWith('l') ? 'L' : 'P';
+        const jenisKelaminShort = mapJenisKelaminFromApi(nikCheckData.jenis_kelamin);
         setValue('jenisKelamin', jenisKelaminShort);
         if (nikCheckData.tanggal_lahir) {
           setValue('tanggalLahir', new Date(nikCheckData.tanggal_lahir));
