@@ -87,6 +87,10 @@ const KamarPage: React.FC = () => {
               <CardTitle>Manajemen Kamar</CardTitle>
               <CardDescription>Kelola semua kamar yang ada di setiap asrama.</CardDescription>
             </div>
+            <Button onClick={() => handleFormOpen()}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Tambah Kamar
+            </Button>
           </CardHeader>
           <CardContent>
             {isGetLoading ? (
