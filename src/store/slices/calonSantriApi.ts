@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { CalonSantri, PaginatedResponse, CalonSantriApiResponse, SingleCalonSantriApiResponse } from '@/types/calonSantri'; // Import new types
+import { CalonSantri, PaginatedResponse, CalonSantriApiResponse, SingleCalonSantriApiResponse, CheckStudentNikResponse } from '@/types/calonSantri'; // Import new types
 
 // New interface for the payment request
 export interface ProcessRegistrationPaymentRequest {
@@ -50,8 +50,11 @@ export const calonSantriApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['CalonSantri'], // Invalidate to refetch santri details
     }),
+    checkStudentByNik: builder.query<CheckStudentNikResponse, string>({
+      query: (nik) => `main/registration/student/${nik}/check`,
+    }),
   }),
   overrideExisting: true,
 });
 
-export const { useGetCalonSantriQuery, useRegisterSantriMutation, useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation, useUpdateCalonSantriMutation } = calonSantriApi;
+export const { useGetCalonSantriQuery, useRegisterSantriMutation, useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation, useUpdateCalonSantriMutation, useLazyCheckStudentByNikQuery } = calonSantriApi;

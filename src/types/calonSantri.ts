@@ -65,3 +65,23 @@ export interface SingleCalonSantriApiResponse {
   status: number;
   data: CalonSantri;
 }
+
+// New interface: response untuk cek nik santri
+export interface CheckStudentNikVillage {
+  id: string;
+  code: string;
+  name: string;
+  district_name: string;
+  city_name: string;
+  province_name: string;
+}
+
+export interface CheckStudentNikResponse {
+  success: boolean;
+  jenis_kelamin: string;
+  tanggal_lahir: string;
+  kode_kota: string;
+  tempat_lahir: string;
+  nik: string;
+  desa: CheckStudentNikVillage[];
+}

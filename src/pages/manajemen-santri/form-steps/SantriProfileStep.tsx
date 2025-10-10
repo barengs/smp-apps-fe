@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLazyGetVillageByNikQuery } from '@/store/slices/villageApi';
+import { useLazyCheckStudentByNikQuery } from '@/store/slices/calonSantriApi';
 import { toast } from 'sonner';
 
 interface SantriProfileStepProps {
@@ -33,58 +33,68 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
   
   const nikSantriValue = watch('nikSantri'); // Watch nikSantri field
 
-  // Hook for lazy fetching village data by NIK
-  const [triggerGetVillageByNik, { data: villageNikData, isLoading: isLoadingVillageNik, isError: isErrorVillageNik, error: villageNikError, reset: resetVillageNikQuery }] = useLazyGetVillageByNikQuery();
+  // Lazy query untuk cek NIK santri (data tanggal lahir, tempat lahir, dan desa)
+  const [
+    triggerCheckNik,
+    { data: nikCheckData, isLoading: isLoadingNikCheck, isError: isErrorNikCheck, error: nikCheckError, reset: resetNikCheck },
+  ] = useLazyCheckStudentByNikQuery();
 
-  // Effect to trigger village lookup when nikSantri is 16 digits
+  // Trigger cek NIK ketika 16 digit
   useEffect(() => {
     if (nikSantriValue && nikSantriValue.length === 16) {
-      triggerGetVillageByNik(nikSantriValue);
+      triggerCheckNik(nikSantriValue);
     } else {
-      // If NIK is not 16 digits or cleared, reset NIK lookup and clear village code
-      resetVillageNikQuery();
+      resetNikCheck();
       setValue('villageCode', '');
+      setValue('tempatLahir', '');
+      setValue('tanggalLahir', undefined as unknown as Date);
     }
-  }, [nikSantriValue, triggerGetVillageByNik, resetVillageNikQuery, setValue]);
+  }, [nikSantriValue, triggerCheckNik, resetNikCheck, setValue]);
 
-  // Effect to handle village lookup response
+  // Tangani respons cek NIK
   useEffect(() => {
     let toastId: string | number | undefined;
 
-    if (isLoadingVillageNik) {
-      toastId = toast.loading('Mengecek NIK Santri untuk data desa...');
+    if (isLoadingNikCheck) {
+      toastId = toast.loading('Mengecek NIK Santri...');
     }
 
-    if (villageNikData) { // Response received
+    if (nikCheckData) {
       if (toastId) toast.dismiss(toastId);
-      if (villageNikData.length > 0) {
-        const foundVillage = villageNikData[0];
-        toast.success('Data desa ditemukan.', {
-          description: `Desa/Kelurahan: ${foundVillage.name} telah diisi.`,
-        });
-        setValue('villageCode', foundVillage.code);
-      } else { // Empty array means not found
-        toast.info('Data desa tidak ditemukan untuk NIK ini.', {
-          description: 'Silakan pilih desa/kelurahan secara manual.',
+      if (nikCheckData.success) {
+        // Isi otomatis tanggal lahir, tempat lahir, jenis kelamin, dan desa (pakai desa pertama jika ada)
+        const jenisKelaminShort = (nikCheckData.jenis_kelamin || '').toLowerCase().startsWith('l') ? 'L' : 'P';
+        setValue('jenisKelamin', jenisKelaminShort);
+        if (nikCheckData.tanggal_lahir) {
+          setValue('tanggalLahir', new Date(nikCheckData.tanggal_lahir));
+        }
+        if (nikCheckData.tempat_lahir) {
+          setValue('tempatLahir', nikCheckData.tempat_lahir);
+        }
+        if (nikCheckData.desa && nikCheckData.desa.length > 0) {
+          setValue('villageCode', nikCheckData.desa[0].code);
+          toast.success('Data NIK ditemukan', {
+            description: `Tanggal & tempat lahir diisi otomatis. Desa: ${nikCheckData.desa[0].name}.`,
+          });
+        } else {
+          toast.info('Data NIK ditemukan tanpa desa.', {
+            description: 'Silakan pilih desa/kelurahan secara manual.',
+          });
+        }
+      } else {
+        toast.info('Data tidak ditemukan untuk NIK ini.', {
+          description: 'Silakan isi data secara manual.',
         });
       }
     }
 
-    if (isErrorVillageNik) {
+    if (isErrorNikCheck) {
       if (toastId) toast.dismiss(toastId);
       // @ts-ignore
-      if (villageNikError?.status === 404) {
-        toast.info('Data desa tidak ditemukan untuk NIK ini.', {
-          description: 'Silakan pilih desa/kelurahan secara manual.',
-        });
-      } else {
-        toast.error('Gagal mengecek data desa.', {
-          // @ts-ignore
-          description: villageNikError?.data?.message || 'Terjadi kesalahan pada server.',
-        });
-      }
+      const msg = nikCheckError?.data?.message || 'Terjadi kesalahan pada server.';
+      toast.error('Gagal mengecek NIK', { description: msg });
     }
-  }, [villageNikData, isLoadingVillageNik, isErrorVillageNik, villageNikError, setValue]);
+  }, [nikCheckData, isLoadingNikCheck, isErrorNikCheck, nikCheckError, setValue]);
 
   return (
     <div className="space-y-6">
@@ -230,18 +240,18 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih Desa/Kelurahan">
                           {field.value
-                            ? villageNikData?.find((v) => v.code === field.value)?.name || 'Memuat...'
+                            ? nikCheckData?.desa?.find((v) => v.code === field.value)?.name || 'Memuat...'
                             : 'Pilih Desa/Kelurahan'}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isLoadingVillageNik ? (
+                      {isLoadingNikCheck ? (
                         <SelectItem value="loading" disabled>Memuat desa/kelurahan...</SelectItem>
-                      ) : isErrorVillageNik ? (
+                      ) : isErrorNikCheck ? (
                         <SelectItem value="error" disabled>Gagal memuat data.</SelectItem>
-                      ) : villageNikData && villageNikData.length > 0 ? (
-                        villageNikData.map((village) => (
+                      ) : nikCheckData?.desa && nikCheckData.desa.length > 0 ? (
+                        nikCheckData.desa.map((village) => (
                           <SelectItem key={village.id} value={village.code}>
                             {village.name}
                           </SelectItem>
