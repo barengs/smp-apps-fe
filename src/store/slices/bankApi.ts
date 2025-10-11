@@ -22,7 +22,7 @@ export const bankApi = smpApi.injectEndpoints({
       providesTags: (result, error, { accountNumber }) => [{ type: 'Transaksi', id: `LIST-${accountNumber}` }],
     }),
     getTransactionsByAccountLast7Days: builder.query<TransaksiApiResponse, string>({
-      query: (accountNumber) => `transaction/account/${accountNumber}/last-7-days`,
+      query: (accountNumber) => `main/transaction/account/${accountNumber}/last-7-days`,
       providesTags: (result, error, accountNumber) => [{ type: 'Transaksi', id: `LIST-${accountNumber}-7DAYS` }],
     }),
     validateTransaction: builder.mutation<{ message: string }, { id: string }>({

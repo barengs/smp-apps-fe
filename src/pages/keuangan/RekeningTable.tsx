@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface RekeningTableProps {
   data: Account[];
@@ -15,6 +16,7 @@ interface RekeningTableProps {
 }
 
 export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails }) => {
+  const navigate = useNavigate();
 
   const columns: ColumnDef<Account>[] = [
     {
@@ -92,12 +94,17 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
     },
   ];
 
+  const handleRowClick = (account: Account) => {
+    navigate(`/keuangan/rekening/${account.account_number}`);
+  };
+
   return (
     <DataTable
       columns={columns}
       data={data}
       exportFileName="data_rekening"
       exportTitle="Data Rekening"
+      onRowClick={handleRowClick}
     />
   );
 };
