@@ -8,6 +8,8 @@ import { Account } from '@/types/keuangan';
 import { RekeningForm } from './RekeningForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 
 const RekeningPage: React.FC = () => {
   const navigate = useNavigate();
@@ -60,53 +62,62 @@ const RekeningPage: React.FC = () => {
     }
   };
 
+  const breadcrumbItems = [
+    { label: 'Bank Santri', href: '/dashboard/bank-santri' },
+    { label: 'Rekening' }
+  ];
+
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Manajemen Rekening</h1>
-        <Button onClick={() => setIsFormOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Tambah Rekening
-        </Button>
-      </div>
+    <DashboardLayout title="Manajemen Rekening" role="administrasi">
+      <div className="container mx-auto py-6 space-y-6">
+        <CustomBreadcrumb items={breadcrumbItems} />
+        
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Manajemen Rekening</h1>
+          <Button onClick={() => setIsFormOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tambah Rekening
+          </Button>
+        </div>
 
-      <RekeningTable
-        data={apiResponse || []}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onViewDetails={handleViewDetails}
-      />
-
-      {isFormOpen && (
-        <RekeningForm
-          isOpen={isFormOpen}
-          onClose={() => {
-            setIsFormOpen(false);
-            setEditingAccount(null);
-          }}
-          onSubmit={handleFormSubmit}
-          initialData={editingAccount}
-          isLoading={isSubmitting}
+        <RekeningTable
+          data={apiResponse || []}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onViewDetails={handleViewDetails}
         />
-      )}
 
-      <AlertDialog open={!!deletingAccount} onOpenChange={() => setDeletingAccount(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
-            <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus rekening {deletingAccount?.account_number}?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Hapus
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {isFormOpen && (
+          <RekeningForm
+            isOpen={isFormOpen}
+            onClose={() => {
+              setIsFormOpen(false);
+              setEditingAccount(null);
+            }}
+            onSubmit={handleFormSubmit}
+            initialData={editingAccount}
+            isLoading={isSubmitting}
+          />
+        )}
+
+        <AlertDialog open={!!deletingAccount} onOpenChange={() => setDeletingAccount(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+              <AlertDialogDescription>
+                Apakah Anda yakin ingin menghapus rekening {deletingAccount?.account_number}?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                Hapus
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </DashboardLayout>
   );
 };
 
