@@ -70,7 +70,7 @@ const RekeningPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Manajemen Rekening" role="administrasi">
-      <div className="space-y-6">
+      <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         
         <Card>
