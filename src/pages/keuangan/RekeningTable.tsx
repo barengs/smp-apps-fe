@@ -95,7 +95,7 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
   ];
 
   const handleRowClick = (account: Account) => {
-    navigate(`/keuangan/rekening/${account.account_number}`);
+    navigate(`/dashboard/bank-santri/rekening/${account.account_number}`);
   };
 
   return (
