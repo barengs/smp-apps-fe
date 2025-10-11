@@ -1,7 +1,7 @@
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
-import { useGetTransactionsByAccountQuery } from '@/store/slices/bankApi';
+import { useGetTransactionsByAccountLast7DaysQuery } from '@/store/slices/bankApi';
 import { Transaksi } from '@/types/keuangan';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
 };
 
 export const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({ accountNumber }) => {
-  const { data: apiResponse, isLoading, isError } = useGetTransactionsByAccountQuery({ accountNumber, days: 7 });
+  const { data: apiResponse, isLoading, isError } = useGetTransactionsByAccountLast7DaysQuery(accountNumber);
 
   const columns: ColumnDef<Transaksi>[] = [
     {
