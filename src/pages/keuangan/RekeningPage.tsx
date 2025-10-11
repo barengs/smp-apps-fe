@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from 'sonner';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const RekeningPage: React.FC = () => {
   const navigate = useNavigate();
@@ -72,20 +73,30 @@ const RekeningPage: React.FC = () => {
       <div className="container mx-auto py-6 space-y-6">
         <CustomBreadcrumb items={breadcrumbItems} />
         
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Manajemen Rekening</h1>
-          <Button onClick={() => setIsFormOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Rekening
-          </Button>
-        </div>
-
-        <RekeningTable
-          data={apiResponse || []}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onViewDetails={handleViewDetails}
-        />
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl font-bold">Manajemen Rekening</CardTitle>
+                <CardDescription>
+                  Kelola data rekening bank santri
+                </CardDescription>
+              </div>
+              <Button onClick={() => setIsFormOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Tambah Rekening
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <RekeningTable
+              data={apiResponse || []}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onViewDetails={handleViewDetails}
+            />
+          </CardContent>
+        </Card>
 
         {isFormOpen && (
           <RekeningForm
