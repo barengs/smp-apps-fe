@@ -29,7 +29,7 @@ const RekeningPage: React.FC = () => {
   };
 
   const handleViewDetails = (account: Account) => {
-    navigate(`/dashboard/bank-santri/rekening/${account.account_number}`);
+    navigate(`/keuangan/rekening/${account.account_number}`);
   };
 
   const handleFormSubmit = async (data: any) => {
