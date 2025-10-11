@@ -59,6 +59,12 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   isLoading,
 }: DataTableProps<TData, TValue>) {
+  // Set default pagination state jika tidak ada
+  const defaultPagination: PaginationState = {
+    pageIndex: 0,
+    pageSize: 10,
+  };
+
   const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination;
 
   const table = useReactTable({
@@ -66,7 +72,7 @@ export function DataTable<TData, TValue>({
     columns,
     state: {
       sorting: sorting,
-      pagination: pagination,
+      pagination: pagination || defaultPagination,
     },
     onSortingChange,
     onPaginationChange,
@@ -77,6 +83,11 @@ export function DataTable<TData, TValue>({
     manualPagination: manualPaginationEnabled,
     pageCount: manualPaginationEnabled ? pageCount : undefined,
   });
+
+  // Early return jika table belum siap
+  if (!table) {
+    return <Skeleton className="h-64 w-full" />;
+  }
 
   const handleExport = () => {
     if (exportFileName && exportTitle) {
