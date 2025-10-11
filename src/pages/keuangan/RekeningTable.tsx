@@ -1,12 +1,9 @@
 import React from 'react';
-import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
-import { Account } from '@/types/keuangan';
-import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Account } from '@/types/keuangan';
+import { ColumnDef } from '@tanstack/react-table';
 
 interface RekeningTableProps {
   data: Account[];
@@ -16,34 +13,24 @@ interface RekeningTableProps {
 }
 
 export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails }) => {
-  const navigate = useNavigate();
-
   const columns: ColumnDef<Account>[] = [
     {
       accessorKey: 'account_number',
       header: 'Nomor Rekening',
     },
     {
-      accessorKey: 'customer',
-      header: 'Nama Santri',
-      cell: ({ row }) => {
-        const customer = row.original.customer;
-        return customer ? `${customer.first_name} ${customer.last_name || ''}` : '-';
-      },
+      accessorKey: 'account_name',
+      header: 'Nama Rekening',
     },
     {
-      accessorKey: 'product',
-      header: 'Produk',
-      cell: ({ row }) => {
-        const product = row.original.product;
-        return product ? product.product_name : '-';
-      },
+      accessorKey: 'account_type',
+      header: 'Tipe Rekening',
     },
     {
       accessorKey: 'balance',
       header: 'Saldo',
       cell: ({ row }) => {
-        const balance = parseFloat(row.original.balance);
+        const balance = row.getValue('balance') as number;
         return new Intl.NumberFormat('id-ID', {
           style: 'currency',
           currency: 'IDR',
@@ -51,60 +38,45 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       },
     },
     {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const status = row.original.status;
-        return (
-          <Badge variant={status === 'ACTIVE' ? 'success' : 'destructive'}>
-            {status}
-          </Badge>
-        );
-      },
-    },
-    {
       id: 'actions',
+      header: 'Aksi',
       cell: ({ row }) => {
         const account = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onViewDetails(account)}>
-                <Eye className="mr-2 h-4 w-4" />
-                Lihat Detail
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(account)}>
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(account)} className="text-red-600">
-                Hapus
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onViewDetails(account)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(account)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(account)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         );
       },
     },
   ];
 
-  const handleRowClick = (account: Account) => {
-    navigate(`/keuangan/rekening/${account.account_number}`);
-  };
-
   return (
     <DataTable
       columns={columns}
       data={data}
-      exportFileName="data_rekening"
-      exportTitle="Data Rekening"
-      onRowClick={handleRowClick}
+      onAddData={() => {}}
+      addButtonLabel="Tambah Rekening"
     />
   );
 };
