@@ -15,6 +15,7 @@ const RekeningPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [deletingAccount, setDeletingAccount] = useState<Account | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEdit = (account: Account) => {
     setEditingAccount(account);
@@ -27,6 +28,22 @@ const RekeningPage: React.FC = () => {
 
   const handleViewDetails = (account: Account) => {
     navigate(`/keuangan/rekening/${account.account_number}`);
+  };
+
+  const handleFormSubmit = async (data: any) => {
+    setIsSubmitting(true);
+    try {
+      // Handle submit logic here
+      console.log('Submit data:', data);
+      toast.success('Data rekening berhasil disimpan');
+      setIsFormOpen(false);
+      setEditingAccount(null);
+      refetch();
+    } catch (error) {
+      toast.error('Gagal menyimpan data rekening');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -62,12 +79,14 @@ const RekeningPage: React.FC = () => {
 
       {isFormOpen && (
         <RekeningForm
-          account={editingAccount}
+          isOpen={isFormOpen}
           onClose={() => {
             setIsFormOpen(false);
             setEditingAccount(null);
-            refetch();
           }}
+          onSubmit={handleFormSubmit}
+          initialData={editingAccount}
+          isLoading={isSubmitting}
         />
       )}
 

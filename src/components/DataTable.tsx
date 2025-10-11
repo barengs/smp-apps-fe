@@ -84,6 +84,7 @@ export function DataTable<TData, TValue>({
     }
   };
 
+  // Ambil kolom pertama yang valid dari table instance, bukan dari definisi ColumnDef
   const firstLeafColumnId = table.getAllLeafColumns()[0]?.id;
 
   return (
@@ -101,6 +102,7 @@ export function DataTable<TData, TValue>({
             />
           )}
 
+          {/* Render input filter tambahan bila disediakan */}
           {filterableColumns &&
             Object.entries(filterableColumns).map(([columnId, cfg]) => (
               <Input
@@ -192,35 +194,35 @@ export function DataTable<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.firstPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => table.firstPage?.()}
+          disabled={!table.getCanPreviousPage?.()}
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => table.previousPage?.()}
+          disabled={!table.getCanPreviousPage?.()}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="text-sm text-gray-700">
-          Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
+          Halaman {table.getState().pagination?.pageIndex + 1 || 1} dari {table.getPageCount?.() || 1}
         </span>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => table.nextPage?.()}
+          disabled={!table.getCanNextPage?.()}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.lastPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => table.lastPage?.()}
+          disabled={!table.getCanNextPage?.()}
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
