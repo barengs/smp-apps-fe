@@ -179,7 +179,7 @@ interface SaveAttendanceResponse {
 export interface UpdatePresenceItem {
   student_id: number;
   meeting_schedule_id: number;
-  status: 'Hadir' | 'Sakit' | 'Izin' | 'Alfa';
+  status: 'hadir' | 'sakit' | 'izin' | 'alpha';
   description?: string | null;
 }
 

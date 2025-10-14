@@ -12,7 +12,7 @@ import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery, useUpdatePr
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
 
-type AttendanceStatus = 'Hadir' | 'Sakit' | 'Izin' | 'Alfa';
+type AttendanceStatus = 'hadir' | 'sakit' | 'izin' | 'alpha';
 type FormData = {
   attendances: Record<string, AttendanceStatus>;
 };
@@ -68,7 +68,7 @@ const PresensiFormPage: React.FC = () => {
       const defaultValues: Record<string, AttendanceStatus> = {};
       students.forEach(student => {
         const existingPresence = currentMeetingSchedule.presences?.find(p => parseInt(p.student_id, 10) === student.id);
-        defaultValues[student.id] = existingPresence?.status || 'Hadir';
+        defaultValues[student.id] = (existingPresence?.status || 'hadir').toLowerCase() as AttendanceStatus;
       });
       reset({ attendances: defaultValues });
     }
@@ -171,17 +171,17 @@ const PresensiFormPage: React.FC = () => {
                           </TableCell>
                           <TableCell className="py-1 px-2">
                             <Select
-                              value={watchedAttendances?.[student.id] || 'Hadir'}
+                              value={watchedAttendances?.[student.id] || 'hadir'}
                               onValueChange={(value: AttendanceStatus) => setValue(`attendances.${student.id}`, value)}
                             >
                               <SelectTrigger className="h-8 text-sm">
                                 <SelectValue placeholder="Pilih Status" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="Hadir">Hadir</SelectItem>
-                                <SelectItem value="Sakit">Sakit</SelectItem>
-                                <SelectItem value="Izin">Izin</SelectItem>
-                                <SelectItem value="Alfa">Alfa</SelectItem>
+                                <SelectItem value="hadir">Hadir</SelectItem>
+                                <SelectItem value="sakit">Sakit</SelectItem>
+                                <SelectItem value="izin">Izin</SelectItem>
+                                <SelectItem value="alpha">Alfa</SelectItem>
                               </SelectContent>
                             </Select>
                           </TableCell>
