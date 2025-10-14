@@ -84,17 +84,19 @@ const PresensiFormPage: React.FC = () => {
       status,
     }));
 
-    // Bentuk list objek presensi sesuai format backend (tanpa pembungkus attendances)
-    const presenceList = attendancePayload.map((item) => ({
-      student_id: item.student_id,
-      meeting_schedule_id: currentMeetingSchedule.id,
-      status: item.status,
-      description: null,
-    }));
+    // Bentuk list objek presensi sesuai format backend dengan key 'presences'
+    const presenceList = {
+      presences: attendancePayload.map((item) => ({
+        student_id: item.student_id,
+        meeting_schedule_id: currentMeetingSchedule.id,
+        status: item.status,
+        description: null,
+      }))
+    };
 
     const toastId = showLoading('Menyimpan presensi...');
     try {
-      await updatePresence(presenceList).unwrap();
+      await updatePresence(presenceList.presences).unwrap();
       dismissToast(toastId);
       showSuccess('Data presensi berhasil disimpan!');
       navigate(-1);
