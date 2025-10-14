@@ -47,7 +47,6 @@ const PresensiDetailPage: React.FC = () => {
     const studentList = currentDetail.students || [];
     const newPresenceData: Record<number, Record<number, string>> = {};
     const newFilledMeetings = new Set<number>();
-    const statusMap: Record<string, string> = { 'Hadir': 'H', 'Sakit': 'S', 'Izin': 'I', 'Alfa': 'A' };
 
     studentList.forEach(student => {
       newPresenceData[student.id] = {};
@@ -60,7 +59,7 @@ const PresensiDetailPage: React.FC = () => {
         meeting.presences.forEach(p => {
           const studentId = parseInt(p.student_id, 10);
           if (newPresenceData[studentId]) {
-            newPresenceData[studentId][meetingNum] = statusMap[p.status] || '-';
+            newPresenceData[studentId][meetingNum] = p.status;
           }
         });
       }
