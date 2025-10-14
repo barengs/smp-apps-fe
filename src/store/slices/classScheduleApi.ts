@@ -175,10 +175,14 @@ interface SaveAttendanceResponse {
 }
 
 // --- Tipe untuk memperbarui presensi ---
-export interface UpdatePresenceRequest {
+// Ganti definisi request agar mengirim list objek presensi satu-per-satu
+export interface UpdatePresenceItem {
+  student_id: number;
   meeting_schedule_id: number;
-  attendances: AttendanceRecord[];
+  status: 'Hadir' | 'Sakit' | 'Izin' | 'Alfa';
+  description?: string | null;
 }
+export type UpdatePresenceRequest = UpdatePresenceItem[];
 
 interface UpdatePresenceResponse {
   message: string;
@@ -214,10 +218,10 @@ export const classScheduleApi = smpApi.injectEndpoints({
       invalidatesTags: ['Attendance', 'ClassSchedule', 'Presence'],
     }),
     updatePresence: builder.mutation<UpdatePresenceResponse, UpdatePresenceRequest>({
-      query: (presenceData) => ({
+      query: (presenceList) => ({
         url: 'main/presence',
         method: 'POST',
-        body: presenceData,
+        body: presenceList,
       }),
       invalidatesTags: ['Presence', 'ClassSchedule', 'Attendance'],
     }),
