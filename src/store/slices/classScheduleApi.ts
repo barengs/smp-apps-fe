@@ -182,7 +182,10 @@ export interface UpdatePresenceItem {
   status: 'Hadir' | 'Sakit' | 'Izin' | 'Alfa';
   description?: string | null;
 }
-export type UpdatePresenceRequest = UpdatePresenceItem[];
+
+export interface UpdatePresenceRequest {
+  presences: UpdatePresenceItem[];
+}
 
 interface UpdatePresenceResponse {
   message: string;

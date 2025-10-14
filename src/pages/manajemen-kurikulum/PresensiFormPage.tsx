@@ -96,7 +96,7 @@ const PresensiFormPage: React.FC = () => {
 
     const toastId = showLoading('Menyimpan presensi...');
     try {
-      await updatePresence(presenceList.presences).unwrap();
+      await updatePresence(presenceList).unwrap(); // Kirim objek dengan key 'presences'
       dismissToast(toastId);
       showSuccess('Data presensi berhasil disimpan!');
       navigate(-1);
