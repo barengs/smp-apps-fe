@@ -227,10 +227,10 @@ const PresensiDetailPage: React.FC = () => {
                             return (
                               <TableCell key={i} className="text-center py-1 px-1">
                                 <span className={cn("text-sm font-semibold", {
-                                  "text-green-600": status === 'H',
-                                  "text-yellow-600": status === 'S',
-                                  "text-blue-600": status === 'I',
-                                  "text-red-600": status === 'A',
+                                  "text-green-600": status === 'hadir',
+                                  "text-yellow-600": status === 'sakit',
+                                  "text-blue-600": status === 'izin',
+                                  "text-red-600": status === 'alpha',
                                 })}>
                                   {status}
                                 </span>
