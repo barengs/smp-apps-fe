@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery, useUpdatePresenceMutation } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
@@ -163,33 +164,46 @@ const PresensiFormPage: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {students.length > 0 ? (
-                      students.map((student, index) => (
-                        <TableRow key={student.id} className="h-8">
-                          <TableCell className="py-1 px-2 text-sm">{index + 1}</TableCell>
-                          <TableCell className="font-medium py-1 px-2 text-sm">
-                            {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
-                          </TableCell>
-                          <TableCell className="py-1 px-2">
-                            <Select
-                              value={watchedAttendances?.[student.id] || 'hadir'}
-                              onValueChange={(value: AttendanceStatus) => setValue(`attendances.${student.id}`, value)}
-                            >
-                              <SelectTrigger className="h-8 text-sm">
-                                <SelectValue placeholder="Pilih Status" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="hadir">Hadir</SelectItem>
-                                <SelectItem value="sakit">Sakit</SelectItem>
-                                <SelectItem value="izin">Izin</SelectItem>
-                                <SelectItem value="alpha">Alfa</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      students.map((student, index) => {
+                        const currentStatus = watchedAttendances?.[student.id] || 'hadir';
+                        const isDescriptionEnabled = currentStatus !== 'hadir';
+                        
+                        return (
+                          <TableRow key={student.id} className="h-8">
+                            <TableCell className="py-1 px-2 text-sm">{index + 1}</TableCell>
+                            <TableCell className="font-medium py-1 px-2 text-sm">
+                              {`${student.first_name || ''} ${student.last_name || ''}`.trim()}
+                            </TableCell>
+                            <TableCell className="py-1 px-2">
+                              <Select
+                                value={currentStatus}
+                                onValueChange={(value: AttendanceStatus) => setValue(`attendances.${student.id}`, value)}
+                              >
+                                <SelectTrigger className="h-8 text-sm">
+                                  <SelectValue placeholder="Pilih Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="hadir">Hadir</SelectItem>
+                                  <SelectItem value="sakit">Sakit</SelectItem>
+                                  <SelectItem value="izin">Izin</SelectItem>
+                                  <SelectItem value="alpha">Alfa</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell className="py-1 px-2">
+                              <Input
+                                {...register(`descriptions.${student.id}` as `descriptions.${string}`)}
+                                placeholder={isDescriptionEnabled ? "Masukkan keterangan" : "Keterangan tidak perlu"}
+                                disabled={!isDescriptionEnabled}
+                                className="h-8 text-sm"
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center py-2">
+                        <TableCell colSpan={4} className="text-center py-2">
                           Tidak ada siswa di rombel ini.
                         </TableCell>
                       </TableRow>
