@@ -16,6 +16,7 @@ import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
 type AttendanceStatus = 'hadir' | 'sakit' | 'izin' | 'alpha';
 type FormData = {
   attendances: Record<string, AttendanceStatus>;
+  description: Record<string, string>;
 };
 
 const PresensiFormPage: React.FC = () => {
@@ -88,25 +89,33 @@ const PresensiFormPage: React.FC = () => {
   const watchedAttendances = watch('attendances');
   const watchedDescriptions = watch('descriptions' as any);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: any) => {
     if (!currentMeetingSchedule) return;
+
+    console.log('=== DEBUG: Form submission data ===');
+    console.log('Form data received:', data);
+    console.log('Attendances:', data.attendances);
+    console.log('Descriptions:', data.description);
 
     // Build the payload with description from form data
     const attendancePayload = Object.entries(data.attendances).map(([student_id, status]) => ({
       student_id: parseInt(student_id, 10),
       status,
-      description: (data as any).description[student_id] || null, // Use type assertion
+      description: data.description[student_id] || null,
     }));
 
-    // Use the payload that already contains the description
+    console.log('Attendance payload:', attendancePayload);
+
     const presenceList = {
       presences: attendancePayload.map((item) => ({
         student_id: item.student_id,
         meeting_schedule_id: currentMeetingSchedule.id,
-        status: item.status,
-        description: item.description, // Use description from item, not hardcoded null
+        status: item.status as 'hadir' | 'sakit' | 'izin' | 'alpha',
+        description: item.description as string | null,
       }))
     };
+
+    console.log('Final presence list:', presenceList);
 
     const toastId = showLoading('Menyimpan presensi...');
     try {
