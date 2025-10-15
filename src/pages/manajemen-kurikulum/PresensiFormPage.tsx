@@ -192,7 +192,7 @@ const PresensiFormPage: React.FC = () => {
                             </TableCell>
                             <TableCell className="py-1 px-2">
                               <Input
-                                {...register(`descriptions.${student.id}` as `descriptions.${string}`)}
+                                {...register(`descriptions.${student.id}` as any)}
                                 placeholder={isDescriptionEnabled ? "Masukkan keterangan" : "Keterangan tidak perlu"}
                                 disabled={!isDescriptionEnabled}
                                 className="h-8 text-sm"
