@@ -91,24 +91,26 @@ const PresensiFormPage: React.FC = () => {
   const onSubmit = async (data: FormData) => {
     if (!currentMeetingSchedule) return;
 
+    // Build the payload with description from form data
     const attendancePayload = Object.entries(data.attendances).map(([student_id, status]) => ({
       student_id: parseInt(student_id, 10),
       status,
+      description: (data as any).description[student_id] || null, // Use type assertion
     }));
 
-    // Bentuk list objek presensi sesuai format backend dengan key 'presences'
+    // Use the payload that already contains the description
     const presenceList = {
       presences: attendancePayload.map((item) => ({
         student_id: item.student_id,
         meeting_schedule_id: currentMeetingSchedule.id,
         status: item.status,
-        description: null,
+        description: item.description, // Use description from item, not hardcoded null
       }))
     };
 
     const toastId = showLoading('Menyimpan presensi...');
     try {
-      await updatePresence(presenceList).unwrap(); // Kirim objek dengan key 'presences'
+      await updatePresence(presenceList).unwrap();
       dismissToast(toastId);
       showSuccess('Data presensi berhasil disimpan!');
       navigate(-1);
