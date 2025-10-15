@@ -182,6 +182,13 @@ const PresensiFormPage: React.FC = () => {
                         const currentDescription = watchedDescriptions?.[student.id] || '';
                         const isDescriptionEnabled = currentStatus !== 'hadir';
                         
+                        console.log(`Rendering student ${student.id}:`, {
+                          currentStatus,
+                          currentDescription,
+                          isDescriptionEnabled,
+                          watchedDescriptions: watchedDescriptions
+                        });
+                        
                         return (
                           <TableRow key={student.id} className="h-8">
                             <TableCell className="py-1 px-2 text-sm">{index + 1}</TableCell>
@@ -206,10 +213,11 @@ const PresensiFormPage: React.FC = () => {
                             </TableCell>
                             <TableCell className="py-1 px-2">
                               <Input
-                                {...register(`description.${student.id}` as any)}
+                                {...register(`description.${student.id}` as `description.${string}`)}
                                 placeholder={isDescriptionEnabled ? "Masukkan keterangan" : "Keterangan tidak perlu"}
                                 readOnly={!isDescriptionEnabled}
                                 className="h-8 text-sm"
+                                value={currentDescription}
                               />
                             </TableCell>
                           </TableRow>
