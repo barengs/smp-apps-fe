@@ -10,6 +10,7 @@ import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery } from '@/st
 import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
@@ -195,19 +196,34 @@ const PresensiDetailPage: React.FC = () => {
                       {Array.from({ length: meetingCount }, (_, i) => {
                         const meetingNumber = i + 1;
                         const isFilled = filledMeetings.has(meetingNumber);
+                        const meetingData = detail?.meeting_schedules?.find(m => parseInt(m.meeting_sequence, 10) === meetingNumber);
+                        const meetingDate = meetingData?.meeting_date;
+                        const tooltipText = isFilled 
+                          ? `Tanggal pertemuan: ${meetingDate ? new Date(meetingDate).toLocaleDateString('id-ID') : 'Tanggal tidak tersedia'}`
+                          : 'Pertemuan belum terealisasi';
+                        
                         return (
                           <TableHead key={i} className="text-center py-1 px-1">
-                            <div
-                              onClick={() => handleHeaderClick(meetingNumber)}
-                              className={cn(
-                                "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded cursor-pointer transition-colors",
-                                isFilled 
-                                  ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50" 
-                                  : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
-                              )}
-                            >
-                              P {meetingNumber}
-                            </div>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    onClick={() => handleHeaderClick(meetingNumber)}
+                                    className={cn(
+                                      "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded cursor-pointer transition-colors",
+                                      isFilled 
+                                        ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50" 
+                                        : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                                    )}
+                                  >
+                                    P {meetingNumber}
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{tooltipText}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </TableHead>
                         );
                       })}
