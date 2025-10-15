@@ -71,7 +71,7 @@ const PresensiFormPage: React.FC = () => {
       students.forEach(student => {
         const existingPresence = currentMeetingSchedule.presences?.find(p => parseInt(p.student_id, 10) === student.id);
         defaultValues[student.id] = (existingPresence?.status || 'hadir').toLowerCase() as AttendanceStatus;
-        defaultDescriptions[student.id] = existingPresence?.description || '';
+        defaultDescriptions[student.id] = existingPresence?.description || ''; // Use existing description
       });
       
       reset({ 
