@@ -87,7 +87,14 @@ const PresensiFormPage: React.FC = () => {
   }, [students, currentMeetingSchedule, reset, setValue]);
 
   const watchedAttendances = watch('attendances');
-  const watchedDescriptions = watch('descriptions' as any);
+  const watchedDescriptions = watch('description');
+
+  // Add useEffect to monitor form state changes
+  useEffect(() => {
+    console.log('=== Form state changed ===');
+    console.log('Watched attendances:', watchedAttendances);
+    console.log('Watched descriptions:', watchedDescriptions);
+  }, [watchedAttendances, watchedDescriptions]);
 
   const onSubmit = async (data: any) => {
     if (!currentMeetingSchedule) return;
