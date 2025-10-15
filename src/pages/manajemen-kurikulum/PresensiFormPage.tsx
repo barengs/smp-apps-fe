@@ -198,7 +198,13 @@ const PresensiFormPage: React.FC = () => {
                             <TableCell className="py-1 px-2">
                               <Select
                                 value={currentStatus}
-                                onValueChange={(value: AttendanceStatus) => setValue(`attendances.${student.id}`, value)}
+                                onValueChange={(value: AttendanceStatus) => {
+                                  setValue(`attendances.${student.id}`, value);
+                                  // Reset description when status changes to hadir
+                                  if (value === 'hadir') {
+                                    setValue(`description.${student.id}` as any, '');
+                                  }
+                                }}
                               >
                                 <SelectTrigger className="h-8 text-sm">
                                   <SelectValue placeholder="Pilih Status" />
@@ -213,11 +219,14 @@ const PresensiFormPage: React.FC = () => {
                             </TableCell>
                             <TableCell className="py-1 px-2">
                               <Input
-                                {...register(`description.${student.id}` as `description.${string}`)}
+                                {...register(`description.${student.id}` as any)}
                                 placeholder={isDescriptionEnabled ? "Masukkan keterangan" : "Keterangan tidak perlu"}
-                                readOnly={!isDescriptionEnabled}
+                                disabled={!isDescriptionEnabled}
                                 className="h-8 text-sm"
-                                value={currentDescription}
+                                onChange={(e) => {
+                                  // Manual onChange to ensure the value is updated
+                                  setValue(`description.${student.id}` as any, e.target.value);
+                                }}
                               />
                             </TableCell>
                           </TableRow>
