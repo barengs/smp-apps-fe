@@ -67,13 +67,23 @@ const PresensiFormPage: React.FC = () => {
   useEffect(() => {
     if (students.length > 0 && currentMeetingSchedule) {
       const defaultValues: Record<string, AttendanceStatus> = {};
+      const defaultDescriptions: Record<string, string> = {};
       students.forEach(student => {
         const existingPresence = currentMeetingSchedule.presences?.find(p => parseInt(p.student_id, 10) === student.id);
         defaultValues[student.id] = (existingPresence?.status || 'hadir').toLowerCase() as AttendanceStatus;
+        defaultDescriptions[student.id] = existingPresence?.description || '';
       });
-      reset({ attendances: defaultValues });
+      
+      reset({ 
+        attendances: defaultValues
+      });
+      
+      // Set description values separately
+      Object.entries(defaultDescriptions).forEach(([studentId, description]) => {
+        setValue(`description.${studentId}` as any, description);
+      });
     }
-  }, [students, currentMeetingSchedule, reset]);
+  }, [students, currentMeetingSchedule, reset, setValue]);
 
   const watchedAttendances = watch('attendances');
   const watchedDescriptions = watch('descriptions' as any);
