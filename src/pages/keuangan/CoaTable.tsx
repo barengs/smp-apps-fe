@@ -173,6 +173,9 @@ const CoaTable: React.FC = () => {
         exportTitle="Data Chart of Accounts"
         onAddData={handleAdd}
         addButtonLabel="Tambah COA"
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+        getSubRows={(row: CoaWithSubRows) => row.subRows}
       />
       <CoaForm
         isOpen={isFormOpen}

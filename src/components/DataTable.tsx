@@ -9,6 +9,8 @@ import {
   useReactTable,
   PaginationState,
   SortingState,
+  ExpandedState,
+  getExpandedRowModel,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -39,6 +41,11 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange?: (updater: PaginationState) => void;
 
   isLoading?: boolean;
+  
+  // Add support for expandable rows
+  expanded?: ExpandedState;
+  onExpandedChange?: (updater: ExpandedState) => void;
+  getSubRows?: (row: TData) => TData[] | undefined;
 }
 
 export function DataTable<TData, TValue>({
@@ -58,6 +65,9 @@ export function DataTable<TData, TValue>({
   pagination,
   onPaginationChange,
   isLoading,
+  expanded,
+  onExpandedChange,
+  getSubRows,
 }: DataTableProps<TData, TValue>) {
   // Set default pagination state jika tidak ada
   const defaultPagination: PaginationState = {
@@ -73,9 +83,11 @@ export function DataTable<TData, TValue>({
     state: {
       sorting: sorting,
       pagination: pagination || defaultPagination,
+      expanded: expanded,
     },
     onSortingChange,
     onPaginationChange,
+    onExpandedChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
