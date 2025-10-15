@@ -223,12 +223,6 @@ const PresensiFormPage: React.FC = () => {
                                 placeholder={isDescriptionEnabled ? "Masukkan keterangan" : "Keterangan tidak perlu"}
                                 disabled={!isDescriptionEnabled}
                                 className="h-8 text-sm"
-                                onChange={(e) => {
-                                  // Manual onChange to ensure the value is updated
-                                  setValue(`description.${student.id}` as any, e.target.value);
-                                }}
-                                // Force the value to be displayed
-                                value={currentDescription}
                               />
                             </TableCell>
                           </TableRow>
