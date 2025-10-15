@@ -198,6 +198,35 @@ const TransaksiDetailPage: React.FC = () => {
             <DetailRow label="Terakhir Diperbarui" value={format(new Date(transaction.updated_at), 'dd MMMM yyyy HH:mm', { locale: id })} />
           </CardContent>
         </Card>
+
+        {/* Ledger Entries Card */}
+        {transaction.ledger_entries && transaction.ledger_entries.length > 0 && (
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Entri Jurnal</CardTitle>
+              <CardDescription>Detail entri akuntansi untuk transaksi ini.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {transaction.ledger_entries.map((entry, index) => (
+                  <div key={entry.id} className="border rounded-lg p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <DetailRow label="No. Urut" value={index + 1} />
+                      <DetailRow label="Kode COA" value={entry.coa_code} />
+                      <DetailRow label="Tipe Entri" value={
+                        <Badge variant={entry.entry_type === 'DEBIT' ? 'default' : 'secondary'}>
+                          {entry.entry_type}
+                        </Badge>
+                      } />
+                      <DetailRow label="Jumlah" value={formatCurrency(entry.amount)} />
+                      <DetailRow label="Waktu Entri" value={entry.entry_time} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Print Preview Dialog */}
