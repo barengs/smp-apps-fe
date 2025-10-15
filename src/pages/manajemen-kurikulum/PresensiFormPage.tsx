@@ -227,6 +227,8 @@ const PresensiFormPage: React.FC = () => {
                                   // Manual onChange to ensure the value is updated
                                   setValue(`description.${student.id}` as any, e.target.value);
                                 }}
+                                // Force the value to be displayed
+                                value={currentDescription}
                               />
                             </TableCell>
                           </TableRow>
