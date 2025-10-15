@@ -130,7 +130,14 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
   const transactionDetails = [
     { label: 'ID Transaksi', value: transaction.id },
     { label: 'No. Referensi', value: transaction.reference_number || '-' },
-    { label: 'Tipe Transaksi', value: transaction.transaction_type },
+    {
+      label: 'Tipe Transaksi',
+      value: typeof transaction.transaction_type === 'object' && transaction.transaction_type !== null
+        ? transaction.transaction_type.name || transaction.transaction_type.code || 'N/A'
+        : typeof transaction.transaction_type === 'string'
+          ? transaction.transaction_type
+          : 'N/A'
+    },
     { label: 'Deskripsi', value: transaction.description },
     { label: 'Jumlah', value: formatCurrency(transaction.amount) },
     { label: 'Status', value: transaction.status },

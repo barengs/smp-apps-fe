@@ -1,6 +1,6 @@
 export interface Transaksi {
   id: string;
-  transaction_type: string;
+  transaction_type: string | TransactionType; // Updated to allow TransactionType object
   transaction_type_id?: string; // Added based on sample JSON
   description: string;
   amount: string;

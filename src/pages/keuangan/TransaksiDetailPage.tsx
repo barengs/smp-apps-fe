@@ -179,7 +179,15 @@ const TransaksiDetailPage: React.FC = () => {
           <CardContent>
             <DetailRow label="ID Transaksi" value={transaction.id} />
             <DetailRow label="No. Referensi" value={transaction.reference_number} />
-            <DetailRow label="Tipe Transaksi" value={<Badge variant="secondary" className="capitalize">{transaction.transaction_type}</Badge>} />
+            <DetailRow label="Tipe Transaksi" value={
+              <Badge variant="secondary" className="capitalize">
+                {typeof transaction.transaction_type === 'object' && transaction.transaction_type !== null
+                  ? transaction.transaction_type.name || transaction.transaction_type.code || 'Unknown'
+                  : typeof transaction.transaction_type === 'string'
+                  ? transaction.transaction_type
+                  : 'Unknown'}
+              </Badge>
+            } />
             <DetailRow label="Deskripsi" value={transaction.description} />
             <DetailRow label="Jumlah" value={formatCurrency(transaction.amount)} />
             <DetailRow label="Status" value={<Badge variant={getStatusVariant(transaction.status)} className="capitalize">{transaction.status}</Badge>} />
