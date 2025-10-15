@@ -76,6 +76,7 @@ const PresensiFormPage: React.FC = () => {
   }, [students, currentMeetingSchedule, reset]);
 
   const watchedAttendances = watch('attendances');
+  const watchedDescriptions = watch('descriptions' as any);
 
   const onSubmit = async (data: FormData) => {
     if (!currentMeetingSchedule) return;
@@ -166,6 +167,7 @@ const PresensiFormPage: React.FC = () => {
                     {students.length > 0 ? (
                       students.map((student, index) => {
                         const currentStatus = watchedAttendances?.[student.id] || 'hadir';
+                        const currentDescription = watchedDescriptions?.[student.id] || '';
                         const isDescriptionEnabled = currentStatus !== 'hadir';
                         
                         return (
