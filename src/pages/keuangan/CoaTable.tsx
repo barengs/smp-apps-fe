@@ -45,14 +45,20 @@ const CoaTable: React.FC = () => {
 
   const tableData = useMemo(() => {
     if (!data) return [];
-    // Fungsi rekursif untuk mengubah 'children' menjadi 'subRows'
+    
+    console.log('Raw COA data:', data); // Debug log
+    
     const transformData = (items: Coa[]): CoaWithSubRows[] => {
       return items.map(item => ({
         ...item,
         subRows: item.children && item.children.length > 0 ? transformData(item.children) : undefined,
       }));
     };
-    return transformData(data);
+    
+    const transformed = transformData(data);
+    console.log('Transformed table data:', transformed); // Debug log
+    
+    return transformed;
   }, [data]);
 
   const handleAdd = () => {

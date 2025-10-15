@@ -92,8 +92,10 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     manualPagination: manualPaginationEnabled,
     pageCount: manualPaginationEnabled ? pageCount : undefined,
+    getSubRows: getSubRows || ((row: any) => row.subRows),
   });
 
   // Early return jika table belum siap
