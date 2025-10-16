@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download } from 'lucide-react';
 import { exportToExcel } from '@/utils/export';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -111,6 +112,23 @@ export function DataTable<TData, TValue>({
 
   // Ambil kolom pertama yang valid dari table instance, bukan dari definisi ColumnDef
   const firstLeafColumnId = table.getAllLeafColumns()[0]?.id;
+
+  // Handle page size change
+  const handlePageSizeChange = (value: string) => {
+    const newPageSize = parseInt(value);
+    if (onPaginationChange) {
+      onPaginationChange({
+        pageIndex: 0, // Reset to first page
+        pageSize: newPageSize,
+      });
+    } else {
+      // If no external pagination, use internal table state
+      table.setPageSize(newPageSize);
+    }
+  };
+
+  // Get current page size
+  const currentPageSize = pagination?.pageSize || table.getState().pagination.pageSize || 10;
 
   return (
     <div className="space-y-4">
@@ -215,42 +233,84 @@ export function DataTable<TData, TValue>({
         )}
       </div>
 
-      <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.firstPage?.()}
-          disabled={!table.getCanPreviousPage?.()}
-        >
-          <ChevronsLeft className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage?.()}
-          disabled={!table.getCanPreviousPage?.()}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <span className="text-sm text-gray-700">
-          Halaman {table.getState().pagination?.pageIndex + 1 || 1} dari {table.getPageCount?.() || 1}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage?.()}
-          disabled={!table.getCanNextPage?.()}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.lastPage?.()}
-          disabled={!table.getCanNextPage?.()}
-        >
-          <ChevronsRight className="h-4 w-4" />
-        </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Baris per halaman:</span>
+          <Select value={currentPageSize.toString()} onValueChange={handlePageSizeChange}>
+            <SelectTrigger className="w-20 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (onPaginationChange) {
+                onPaginationChange({ ...table.getState().pagination, pageIndex: 0 });
+              } else {
+                table.setPageIndex(0);
+              }
+            }}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (onPaginationChange) {
+                onPaginationChange({ ...table.getState().pagination, pageIndex: table.getState().pagination.pageIndex - 1 });
+              } else {
+                table.previousPage();
+              }
+            }}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-gray-700">
+            Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (onPaginationChange) {
+                onPaginationChange({ ...table.getState().pagination, pageIndex: table.getState().pagination.pageIndex + 1 });
+              } else {
+                table.nextPage();
+              }
+            }}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (onPaginationChange) {
+                onPaginationChange({ ...table.getState().pagination, pageIndex: table.getPageCount() - 1 });
+              } else {
+                table.setPageIndex(table.getPageCount() - 1);
+              }
+            }}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
