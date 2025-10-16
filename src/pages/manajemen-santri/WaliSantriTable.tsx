@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import React, { useMemo, useState } from 'react';
+import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -23,6 +23,10 @@ interface WaliSantri {
 const WaliSantriTable: React.FC = () => {
   const { data: parentsData, error, isLoading } = useGetParentsQuery();
   const navigate = useNavigate();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsData?.data) {
@@ -110,6 +114,8 @@ const WaliSantriTable: React.FC = () => {
     <DataTable
       columns={columns}
       data={waliSantriList}
+      pagination={pagination}
+      onPaginationChange={setPagination}
       exportFileName="data_wali_santri"
       exportTitle="Data Wali Santri Pesantren"
       onAddData={handleAddData}
