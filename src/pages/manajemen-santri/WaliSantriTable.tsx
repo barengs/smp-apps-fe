@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { ColumnDef, PaginationState } from '@tanstack/react-table';
+import React, { useMemo } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -20,17 +20,9 @@ interface WaliSantri {
   parentAs: string;
 }
 
-interface WaliSantriTableProps {
-  onAddData?: () => void;
-}
-
-const WaliSantriTable: React.FC<WaliSantriTableProps> = ({ onAddData }) => {
+const WaliSantriTable: React.FC = () => {
   const { data: parentsData, error, isLoading } = useGetParentsQuery();
   const navigate = useNavigate();
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsData?.data) {
@@ -103,11 +95,8 @@ const WaliSantriTable: React.FC<WaliSantriTableProps> = ({ onAddData }) => {
   );
 
   const handleAddData = () => {
-    if (onAddData) {
-      onAddData();
-    } else {
-      toast.showWarning('Membuka form tambah data wali santri...');
-    }
+    toast.showWarning('Membuka form tambah data wali santri...');
+    // Implementasi logika untuk membuka form tambah data wali santri
   };
 
   if (isLoading) return <TableLoadingSkeleton numCols={7} />;
@@ -123,11 +112,9 @@ const WaliSantriTable: React.FC<WaliSantriTableProps> = ({ onAddData }) => {
       data={waliSantriList}
       exportFileName="data_wali_santri"
       exportTitle="Data Wali Santri Pesantren"
-      onRowClick={handleRowClick}
       onAddData={handleAddData}
+      onRowClick={handleRowClick}
       addButtonLabel="Tambah Wali Santri"
-      pagination={pagination}
-      onPaginationChange={setPagination}
     />
   );
 };
