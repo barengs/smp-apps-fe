@@ -76,7 +76,8 @@ export function DataTable<TData, TValue>({
     pageSize: 10,
   };
 
-  const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination;
+  // Determine if we're using manual pagination (server-side) or automatic (client-side)
+  const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination && !!onPaginationChange;
 
   const table = useReactTable({
     data,
@@ -127,8 +128,44 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  // Get current page size
+  // Get current page info
   const currentPageSize = pagination?.pageSize || table.getState().pagination.pageSize || 10;
+  const currentPageIndex = pagination?.pageIndex ?? table.getState().pagination.pageIndex ?? 0;
+  const totalPageCount = manualPaginationEnabled ? pageCount : table.getPageCount();
+
+  // Handle pagination button clicks
+  const handleFirstPage = () => {
+    if (onPaginationChange) {
+      onPaginationChange({ pageIndex: 0, pageSize: currentPageSize });
+    } else {
+      table.setPageIndex(0);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (onPaginationChange) {
+      onPaginationChange({ pageIndex: currentPageIndex - 1, pageSize: currentPageSize });
+    } else {
+      table.previousPage();
+    }
+  };
+
+  const handleNextPage = () => {
+    if (onPaginationChange) {
+      onPaginationChange({ pageIndex: currentPageIndex + 1, pageSize: currentPageSize });
+    } else {
+      table.nextPage();
+    }
+  };
+
+  const handleLastPage = () => {
+    const lastPage = (totalPageCount || 1) - 1;
+    if (onPaginationChange) {
+      onPaginationChange({ pageIndex: lastPage, pageSize: currentPageSize });
+    } else {
+      table.setPageIndex(lastPage);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -254,59 +291,35 @@ export function DataTable<TData, TValue>({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (onPaginationChange) {
-                onPaginationChange({ ...table.getState().pagination, pageIndex: 0 });
-              } else {
-                table.setPageIndex(0);
-              }
-            }}
-            disabled={!table.getCanPreviousPage()}
+            onClick={handleFirstPage}
+            disabled={currentPageIndex === 0}
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (onPaginationChange) {
-                onPaginationChange({ ...table.getState().pagination, pageIndex: table.getState().pagination.pageIndex - 1 });
-              } else {
-                table.previousPage();
-              }
-            }}
-            disabled={!table.getCanPreviousPage()}
+            onClick={handlePreviousPage}
+            disabled={currentPageIndex === 0}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm text-gray-700">
-            Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
+            Halaman {currentPageIndex + 1} dari {totalPageCount}
           </span>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (onPaginationChange) {
-                onPaginationChange({ ...table.getState().pagination, pageIndex: table.getState().pagination.pageIndex + 1 });
-              } else {
-                table.nextPage();
-              }
-            }}
-            disabled={!table.getCanNextPage()}
+            onClick={handleNextPage}
+            disabled={currentPageIndex >= (totalPageCount || 1) - 1}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (onPaginationChange) {
-                onPaginationChange({ ...table.getState().pagination, pageIndex: table.getPageCount() - 1 });
-              } else {
-                table.setPageIndex(table.getPageCount() - 1);
-              }
-            }}
-            disabled={!table.getCanNextPage()}
+            onClick={handleLastPage}
+            disabled={currentPageIndex >= (totalPageCount || 1) - 1}
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

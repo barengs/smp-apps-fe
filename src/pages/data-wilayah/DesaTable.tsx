@@ -11,13 +11,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import DesaForm from './DesaForm.tsx';
-import { useLazyGetVillagesQuery } from '@/store/slices/villageApi'; // Mengubah import menjadi useLazyGetVillagesQuery
+import { useLazyGetVillagesQuery } from '@/store/slices/villageApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { showSuccess, showError } from '@/utils/toast';
 
 interface Desa {
-  id: string; // Ubah dari number menjadi string
+  id: string;
   code: string;
   name: string;
   district_code: string;
@@ -28,7 +28,7 @@ interface Desa {
 
 const DesaTable: React.FC = () => {
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0, // 0-based page index for tanstack-table
+    pageIndex: 0,
     pageSize: 5,
   });
 
@@ -41,7 +41,7 @@ const DesaTable: React.FC = () => {
       page: pagination.pageIndex + 1, // 1-based page index for API
       per_page: pagination.pageSize,
     });
-  }, [pagination, triggerGetVillages]); // Tambahkan triggerGetVillages ke dependency array
+  }, [pagination, triggerGetVillages]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDesa, setEditingDesa] = useState<Desa | undefined>(undefined);

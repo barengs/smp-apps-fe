@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'; // Import useState
-import { ColumnDef, SortingState } from '@tanstack/react-table'; // Import SortingState
+import { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table'; // Import SortingState and PaginationState
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -31,6 +31,10 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const { data: studentsData, error, isLoading } = useGetStudentsQuery();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // Atur pengurutan default
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const santriList: Santri[] = useMemo(() => {
     if (studentsData?.data) {
@@ -140,6 +144,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       onAddData={onAddData}
       sorting={sorting}
       onSortingChange={setSorting}
+      pagination={pagination}
+      onPaginationChange={setPagination}
       addButtonLabel="Tambah Santri"
     />
   );
