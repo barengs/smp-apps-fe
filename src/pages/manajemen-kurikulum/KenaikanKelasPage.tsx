@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
+import { PaginationState } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,6 +54,11 @@ export default function KenaikanKelasPage() {
   const [approvalNote, setApprovalNote] = useState('');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const navigate = useNavigate();
+  // Tambahkan state pagination (pageIndex berbasis 0, pageSize default 10)
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -60,7 +66,10 @@ export default function KenaikanKelasPage() {
   ];
 
   // Mengambil data dari endpoint main/student-class dengan pagination
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+  });
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
   const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
   const { data: institusiPendidikan, isLoading: isLoadingInstitusiPendidikan } = useGetInstitusiPendidikanQuery();
@@ -118,6 +127,13 @@ export default function KenaikanKelasPage() {
       return result;
     });
   }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading]);
+
+  // Hitung total halaman dari response paginasi backend
+  const pageCount =
+    studentClassesResponse?.last_page ??
+    (studentClassesResponse?.total && studentClassesResponse?.per_page
+      ? Math.ceil(studentClassesResponse.total / studentClassesResponse.per_page)
+      : 0);
 
   const handleOpenApprovalDialog = (data: PromotionData) => {
     setSelectedPromotion(data);
@@ -272,6 +288,10 @@ export default function KenaikanKelasPage() {
                 onAddData={handleAddData}
                 onAssignment={handleAssignment}
                 addButtonLabel="Atur Kelas"
+                // Tambahan: aktifkan server-side pagination
+                pageCount={pageCount || 0}
+                pagination={pagination}
+                onPaginationChange={setPagination}
               />
             )}
           </CardContent>
