@@ -1,30 +1,34 @@
 import React from 'react';
-import DashboardLayout from '../../layouts/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import WaliSantriTable from './WaliSantriTable';
-import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Users, UserPlus } from 'lucide-react';
 
 const WaliSantriListPage: React.FC = () => {
-  const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
-    { label: 'Wali Santri', icon: <UserPlus className="h-4 w-4" /> },
-  ];
+  const navigate = useNavigate();
+
+  const handleAddWaliSantri = () => {
+    // Navigate to add wali santri form or open modal
+    navigate('/dashboard/wali-santri/tambah');
+  };
 
   return (
-    <DashboardLayout title="Manajemen Wali Santri" role="administrasi">
-      <div className="container mx-auto pb-4 px-4">
-        <CustomBreadcrumb items={breadcrumbItems} />
-        <Card>
-          <CardHeader>
-            <CardTitle>Informasi Wali Santri</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WaliSantriTable />
-          </CardContent>
-        </Card>
+    <div className="container mx-auto py-6 px-4">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Manajemen Wali Santri</h1>
+          <p className="text-gray-600">Kelola data wali santri pesantren</p>
+        </div>
+        <Button onClick={handleAddWaliSantri}>
+          <Plus className="h-4 w-4 mr-2" />
+          Tambah Wali Santri
+        </Button>
       </div>
-    </DashboardLayout>
+
+      <div className="bg-white rounded-lg shadow">
+        <WaliSantriTable onAddData={handleAddWaliSantri} />
+      </div>
+    </div>
   );
 };
 
