@@ -3,7 +3,7 @@ import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
-import { useCreateStudentClassMutation, useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
+import { useCreateStudentClassMutation, useGetStudentClassesQuery, useUpdateStudentClassMutation } from '@/store/slices/studentClassApi';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +18,10 @@ import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidik
 interface TambahKenaikanKelasFormProps {
   isOpen: boolean;
   onClose: () => void;
+  // Add props for editing existing assignments
+  editMode?: boolean;
+  existingAssignments?: any[];
+  onAssignmentUpdate?: () => void;
 }
 
 interface ClassGroup {
@@ -40,7 +44,23 @@ interface Classroom {
   class_groups: ClassGroup[];
 }
 
-const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpen, onClose }) => {
+interface StudentClassAssignment {
+  id: number;
+  student_id: number;
+  academic_year_id: number;
+  educational_institution_id: number;
+  classroom_id: number;
+  class_group_id: number;
+  approval_status: string;
+}
+
+const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ 
+  isOpen, 
+  onClose, 
+  editMode = false,
+  existingAssignments = [],
+  onAssignmentUpdate 
+}) => {
   // Data fetching
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery();
   const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
@@ -48,6 +68,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const { data: classroomsResponse, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
   const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
   const [createStudentClass, { isLoading: isCreating }] = useCreateStudentClassMutation();
+  const [updateStudentClass, { isLoading: isUpdating }] = useUpdateStudentClassMutation();
 
   // Form state
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('');
@@ -55,6 +76,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
   const [selectedClassGroup, setSelectedClassGroup] = useState<string>('');
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+  const [studentAssignments, setStudentAssignments] = useState<Record<number, StudentClassAssignment>>({});
 
   const isLoading = isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms || isLoadingStudentClasses;
 
@@ -73,31 +95,44 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
     }
   }, [selectedLevel]);
 
-  const unassignedStudents = useMemo(() => {
-    // Jika tidak ada data students, return array kosong
+  // Build student assignments map for quick lookup
+  useEffect(() => {
+    if (studentClassesResponse?.data && Array.isArray(studentClassesResponse.data)) {
+      const assignmentsMap: Record<number, StudentClassAssignment> = {};
+      studentClassesResponse.data.forEach((assignment: any) => {
+        assignmentsMap[assignment.student_id] = assignment;
+      });
+      setStudentAssignments(assignmentsMap);
+    }
+  }, [studentClassesResponse]);
+
+  const availableStudents = useMemo(() => {
     if (!studentsResponse?.data || !Array.isArray(studentsResponse.data)) {
       return [];
     }
-    
-    // Jika studentClassesResponse belum ada datanya (masih kosong), 
-    // berarti semua siswa belum memiliki kelas, tampilkan semua siswa
-    if (!studentClassesResponse?.data || !Array.isArray(studentClassesResponse.data) || studentClassesResponse.data.length === 0) {
-      return studentsResponse.data;
-    }
-    
-    try {
-      // Filter siswa yang belum memiliki kelas
-      const assignedStudentIds = new Set(studentClassesResponse.data.map(sc => sc.student_id));
-      const unassigned = studentsResponse.data.filter(student => !assignedStudentIds.has(student.id));
-      return unassigned;
-    } catch (error) {
-      return studentsResponse.data; // Tampilkan semua siswa jika terjadi error
-    }
-  }, [studentsResponse, studentClassesResponse]);
+
+    // Filter students based on current selections
+    return studentsResponse.data.filter(student => {
+      const existingAssignment = studentAssignments[student.id];
+      
+      // If student has no assignment, they can be selected
+      if (!existingAssignment) {
+        return true;
+      }
+      
+      // If student has assignment in current academic year, they can be edited
+      if (existingAssignment.academic_year_id.toString() === selectedAcademicYear) {
+        return true;
+      }
+      
+      // Otherwise, student is already assigned to different academic year
+      return false;
+    });
+  }, [studentsResponse, studentAssignments, selectedAcademicYear]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedStudents(unassignedStudents.map(s => s.id));
+      setSelectedStudents(availableStudents.map(s => s.id));
     } else {
       setSelectedStudents([]);
     }
@@ -117,27 +152,74 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
       return;
     }
 
-    const toastId = showLoading('Menambahkan siswa ke kelas...');
+    const toastId = showLoading('Menyimpan data kenaikan kelas...');
+    
     try {
-      // Kirim data dengan field yang sesuai untuk backend
-      await Promise.all(
-        selectedStudents.map(studentId =>
-          createStudentClass({
-            academic_year_id: parseInt(selectedAcademicYear),
-            educational_institution_id: parseInt(selectedLevel), // Ganti dari education_id
-            student_id: studentId,
-            classroom_id: parseInt(selectedClassroom), // Tambahkan classroom_id untuk data kelas
-            class_group_id: parseInt(selectedClassGroup), // Tambahkan class_group_id untuk data rombel
-            approval_status: 'diajukan',
-          }).unwrap()
-        )
-      );
+      // Separate students into new assignments and updates
+      const newAssignments: number[] = [];
+      const updateAssignments: { studentId: number; assignmentId: number }[] = [];
+
+      selectedStudents.forEach(studentId => {
+        const existingAssignment = studentAssignments[studentId];
+        if (existingAssignment && existingAssignment.academic_year_id.toString() === selectedAcademicYear) {
+          // Student already has assignment in this academic year - update it
+          updateAssignments.push({ studentId, assignmentId: existingAssignment.id });
+        } else {
+          // Student has no assignment or in different academic year - create new
+          newAssignments.push(studentId);
+        }
+      });
+
+      // Create new assignments
+      if (newAssignments.length > 0) {
+        await Promise.all(
+          newAssignments.map(studentId =>
+            createStudentClass({
+              academic_year_id: parseInt(selectedAcademicYear),
+              educational_institution_id: parseInt(selectedLevel),
+              student_id: studentId,
+              classroom_id: parseInt(selectedClassroom),
+              class_group_id: parseInt(selectedClassGroup),
+              approval_status: 'diajukan',
+            }).unwrap()
+          )
+        );
+      }
+
+      // Update existing assignments
+      if (updateAssignments.length > 0) {
+        await Promise.all(
+          updateAssignments.map(({ assignmentId }) =>
+            updateStudentClass({
+              id: assignmentId,
+              data: {
+                academic_year_id: parseInt(selectedAcademicYear),
+                educational_institution_id: parseInt(selectedLevel),
+                classroom_id: parseInt(selectedClassroom),
+                class_group_id: parseInt(selectedClassGroup),
+                approval_status: 'diajukan',
+              }
+            }).unwrap()
+          )
+        );
+      }
+
       dismissToast(toastId);
-      showSuccess(`${selectedStudents.length} siswa berhasil ditambahkan ke kelas.`);
+      showSuccess(`${selectedStudents.length} data kenaikan kelas berhasil disimpan.`);
+      
+      // Reset form
+      setSelectedStudents([]);
+      setSelectedAcademicYear('');
+      setSelectedLevel('');
+      setSelectedClassroom('');
+      setSelectedClassGroup('');
+      
       onClose();
+      onAssignmentUpdate?.();
     } catch (error) {
       dismissToast(toastId);
-      showError('Gagal menambahkan siswa. Silakan coba lagi.');
+      showError('Gagal menyimpan data kenaikan kelas. Silakan coba lagi.');
+      console.error('Error saving student class assignments:', error);
     }
   };
 
@@ -179,11 +261,23 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
     ));
   };
 
+  // Get student status for display
+  const getStudentStatus = (studentId: number) => {
+    const assignment = studentAssignments[studentId];
+    if (!assignment) return { text: 'Belum ada kelas', className: 'text-gray-500' };
+    
+    if (assignment.academic_year_id.toString() === selectedAcademicYear) {
+      return { text: 'Sudah ada kelas (bisa diubah)', className: 'text-blue-600' };
+    }
+    
+    return { text: 'Sudah ada kelas di tahun ajaran lain', className: 'text-orange-600' };
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Tambah Data Kenaikan Kelas</DialogTitle>
+          <DialogTitle>{editMode ? 'Edit Kenaikan Kelas' : 'Tambah Data Kenaikan Kelas'}</DialogTitle>
           <DialogDescription>
             Pilih tahun ajaran, jenjang, dan kelas, lalu pilih siswa yang akan dimasukkan ke kelas tersebut.
           </DialogDescription>
@@ -233,7 +327,12 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
             </div>
 
             <div className="py-2">
-              <p className="text-sm font-medium mb-2">Pilih Siswa (Siswa yang belum memiliki kelas)</p>
+              <p className="text-sm font-medium mb-2">Pilih Siswa</p>
+              <div className="text-xs text-gray-600 mb-2">
+                • Siswa yang belum memiliki kelas: dapat dipilih
+                <br/>• Siswa yang sudah ada kelas di tahun ajaran ini: dapat diubah
+                <br/>• Siswa yang sudah ada kelas di tahun ajaran lain: tidak dapat dipilih
+              </div>
               <ScrollArea className="h-64 border rounded-md">
                 <Table>
                   <TableHeader className="sticky top-0 bg-background">
@@ -241,33 +340,42 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
                       <TableHead className="w-12 py-2">
                         <Checkbox
                           onCheckedChange={handleSelectAll}
-                          checked={selectedStudents.length > 0 && selectedStudents.length === unassignedStudents.length}
+                          checked={selectedStudents.length > 0 && selectedStudents.length === availableStudents.length}
                           aria-label="Pilih semua"
                         />
                       </TableHead>
                       <TableHead className="py-2">Nama Siswa</TableHead>
                       <TableHead className="py-2">NIS</TableHead>
+                      <TableHead className="py-2">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {unassignedStudents.length > 0 ? (
-                      unassignedStudents.map(student => (
-                        <TableRow key={student.id} className="h-10">
-                          <TableCell className="py-1">
-                            <Checkbox
-                              checked={selectedStudents.includes(student.id)}
-                              onCheckedChange={(checked) => handleSelectSingle(student.id, !!checked)}
-                            />
-                          </TableCell>
-                          <TableCell className="py-1">{`${student.first_name} ${student.last_name || ''}`.trim()}</TableCell>
-                          <TableCell className="py-1">{student.nis}</TableCell>
-                        </TableRow>
-                      ))
+                    {availableStudents.length > 0 ? (
+                      availableStudents.map(student => {
+                        const status = getStudentStatus(student.id);
+                        const isDisabled = status.text.includes('tahun ajaran lain');
+                        return (
+                          <TableRow key={student.id} className="h-10">
+                            <TableCell className="py-1">
+                              <Checkbox
+                                checked={selectedStudents.includes(student.id)}
+                                onCheckedChange={(checked) => handleSelectSingle(student.id, !!checked)}
+                                disabled={isDisabled}
+                              />
+                            </TableCell>
+                            <TableCell className="py-1">{`${student.first_name} ${student.last_name || ''}`.trim()}</TableCell>
+                            <TableCell className="py-1">{student.nis}</TableCell>
+                            <TableCell className="py-1">
+                              <span className={`text-xs ${status.className}`}>{status.text}</span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center py-4">
+                        <TableCell colSpan={4} className="text-center py-4">
                           {studentsResponse?.data && studentsResponse.data.length > 0 
-                            ? 'Semua siswa sudah memiliki kelas.' 
+                            ? 'Tidak ada siswa yang tersedia untuk tahun ajaran ini.' 
                             : 'Tidak ada data siswa yang tersedia.'
                           }
                         </TableCell>
@@ -282,8 +390,8 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ isOpe
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Batal</Button>
-          <Button onClick={handleSubmit} disabled={isCreating || isLoading}>
-            {isCreating ? 'Menyimpan...' : 'Simpan'}
+          <Button onClick={handleSubmit} disabled={isCreating || isUpdating || isLoading}>
+            {isCreating || isUpdating ? 'Menyimpan...' : 'Simpan'}
           </Button>
         </DialogFooter>
       </DialogContent>
