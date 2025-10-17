@@ -399,9 +399,11 @@ const GuruFormPage: React.FC = () => {
     formData.append('status', values.status);
     formData.append('village_id', String(values.village_code));
     formData.append('job_id', String(values.job_id));
-    formData.append('role', roleName);
 
-    // PASTIKAN password_confirmation selalu dikirim sebagai string
+    // GANTI: kirim roles sebagai array "roles[]"
+    formData.append('roles[]', roleName);
+
+    // Konfirmasi password selalu dikirim sebagai string
     formData.append('password_confirmation', String(values.password_confirmation || ''));
 
     // Password - wajib untuk mode tambah
@@ -419,8 +421,8 @@ const GuruFormPage: React.FC = () => {
     if (values.birth_place) formData.append('birth_place', values.birth_place.trim());
     if (values.religion) formData.append('religion', values.religion.trim());
 
-    // Photo
-    if (values.photo instanceof File) {
+    // Photo: kirim sebagai string bila ada
+    if (typeof values.photo === 'string' && values.photo.trim()) {
       formData.append('photo', values.photo);
     }
 

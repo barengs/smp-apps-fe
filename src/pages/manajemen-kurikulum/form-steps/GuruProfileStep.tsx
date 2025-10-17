@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DatePicker } from '@/components/ui/datepicker';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
-import { dataURLtoFile } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 interface GuruProfileStepProps {
@@ -17,8 +16,8 @@ interface GuruProfileStepProps {
 
 const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, setPhotoPreview, isCheckingNik }) => {
   const handleCapture = (imageSrc: string) => {
-    const capturedFile = dataURLtoFile(imageSrc, `webcam-photo-${Date.now()}.jpg`);
-    form.setValue('photo', capturedFile, { shouldValidate: true });
+    // Simpan sebagai string (data URL), bukan File
+    form.setValue('photo', imageSrc, { shouldValidate: true });
     setPhotoPreview(imageSrc);
   };
 
@@ -42,8 +41,14 @@ const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, s
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        field.onChange(file);
-                        setPhotoPreview(URL.createObjectURL(file));
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const result = reader.result as string;
+                          // Simpan nilai form sebagai string (data URL)
+                          field.onChange(result);
+                          setPhotoPreview(result);
+                        };
+                        reader.readAsDataURL(file);
                       }
                     }}
                   />
