@@ -1,6 +1,35 @@
 import { smpApi } from '../baseApi';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
+export interface Student {
+  id: number;
+  parent_id: string;
+  nis: string;
+  period: string;
+  nik: string;
+  kk: string;
+  first_name: string;
+  last_name: string | null;
+  gender: string;
+  address: string;
+  born_in: string;
+  born_at: string;
+  last_education: string;
+  village_id: number | null;
+  village: string;
+  district: string;
+  postal_code: string;
+  phone: string;
+  hostel_id: string;
+  program_id: string;
+  status: string;
+  photo: string | null;
+  user_id: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Parent {
   id: number;
   name: string;
@@ -8,6 +37,7 @@ export interface Parent {
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
+  students: Student[];
   parent: {
     id: number;
     kk: string;

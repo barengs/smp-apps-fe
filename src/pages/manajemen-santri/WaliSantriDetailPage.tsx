@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetParentByIdQuery } from '@/store/slices/parentApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, Users, UserPlus, Edit } from 'lucide-react';
+import { User, Users, UserPlus, Edit, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -129,6 +130,7 @@ const WaliSantriDetailPage: React.FC = () => {
                 <DetailRow label="Status Wali" value={parentDetails?.parent_as} />
                 <DetailRow label="Telepon" value={parentDetails?.phone} />
                 <DetailRow label="Alamat" value={parentDetails?.card_address} />
+                <DetailRow label="Alamat Domisili" value={parentDetails?.domicile_address} />
                 <DetailRow label="Tanggal Dibuat" value={parentData?.created_at ? new Date(parentData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
               </div>
             </CardContent>
@@ -145,16 +147,37 @@ const WaliSantriDetailPage: React.FC = () => {
                   <TableRow>
                     <TableHead>NIS</TableHead>
                     <TableHead>Nama Lengkap</TableHead>
+                    <TableHead>Alamat</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center">
-                      Tidak ada santri terkait.
-                    </TableCell>
-                  </TableRow>
+                  {parentData?.students && parentData.students.length > 0 ? (
+                    parentData.students.map((student) => (
+                      <TableRow key={student.id}>
+                        <TableCell className="font-medium">{student.nis}</TableCell>
+                        <TableCell>{`${student.first_name} ${student.last_name || ''}`}</TableCell>
+                        <TableCell>{student.address}</TableCell>
+                        <TableCell>
+                          <Badge variant={student.status === 'Aktif' ? 'default' : 'secondary'}>
+                            {student.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="outline" size="sm" onClick={() => navigate(`/dashboard/santri/${student.id}`)}>
+                            <Eye className="mr-2 h-4 w-4" /> Lihat
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center">
+                        Tidak ada santri terkait.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
