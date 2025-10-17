@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'; // Import useState
-import { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table'; // Import SortingState and PaginationState
+import { ColumnDef, SortingState } from '@tanstack/react-table'; // Import SortingState and PaginationState
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -29,18 +29,10 @@ interface SantriTableProps {
 
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // Atur pengurutan default
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // tetap client-side sorting
 
-  const { data: studentsResponse, error, isLoading, isFetching } = useGetStudentsQuery({
-    page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
-    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
-  });
+  // Hentikan server-side pagination: ambil data tanpa page/per_page/sort_by
+  const { data: studentsResponse, error, isLoading, isFetching } = useGetStudentsQuery({});
 
   const santriList: Santri[] = useMemo(() => {
     if (studentsResponse?.data) {
@@ -52,9 +44,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         period: student.period,
         gender: student.gender === 'L' ? 'Laki-Laki' : student.gender === 'P' ? 'Perempuan' : 'Tidak Diketahui',
         status: student.status,
-        programName: student.program ? student.program.name : '', // Perbaikan di sini
-        created_at: student.created_at, // Petakan created_at
-        updated_at: student.updated_at, // Petakan updated_at
+        programName: student.program ? student.program.name : '',
+        created_at: student.created_at,
+        updated_at: student.updated_at,
       }));
     }
     return [];
@@ -150,9 +142,6 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       onAddData={onAddData}
       sorting={sorting}
       onSortingChange={setSorting}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      pageCount={studentsResponse?.last_page || 0}
       addButtonLabel="Tambah Santri"
     />
   );

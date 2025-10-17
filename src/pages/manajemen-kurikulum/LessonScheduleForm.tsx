@@ -43,7 +43,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
   // Fetch data for selects
   const { data: institutionsData } = useGetInstitusiPendidikanQuery({});
-  const { data: classroomsData } = useGetClassroomsQuery({});
+  const { data: classroomsData } = useGetClassroomsQuery();
   const { data: classGroupsData } = useGetClassGroupsQuery({});
   const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery({});
   const { data: lessonHoursData } = useGetLessonHoursQuery();
