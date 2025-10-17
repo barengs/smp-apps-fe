@@ -13,13 +13,24 @@ export interface Student {
   program?: { name: string };
   created_at: string;
   updated_at: string;
-  // Tambahan opsional untuk halaman detail
+  // Opsional untuk halaman detail (sesuai struktur baru)
   photo?: string | null;
   born_in?: string | null;
   born_at?: string | null;
   phone?: string | null;
   address?: string | null;
   parents?: any;
+  parent_id?: string;
+  kk?: string;
+  last_education?: string;
+  village_id?: number;
+  village?: string;
+  district?: string;
+  postal_code?: string;
+  hostel_id?: number;
+  program_id?: number;
+  user_id?: number;
+  deleted_at?: string;
 }
 
 export interface CreateUpdateStudentRequest {
@@ -47,8 +58,7 @@ export const studentApi = smpApi.injectEndpoints({
         if (params.search) queryParams.append('search', params.search);
         if (params.sort_by) queryParams.append('sort_by', params.sort_by);
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
-        // Add other filters if needed
-        return `master/student?${queryParams.toString()}`;
+        return `main/student?${queryParams.toString()}`;
       },
       transformResponse: (response: { data: PaginatedResponse<Student> }) => response.data,
       providesTags: (result) =>
@@ -60,12 +70,13 @@ export const studentApi = smpApi.injectEndpoints({
           : [{ type: 'Student', id: 'LIST' }],
     }),
     getStudentById: builder.query<Student, number>({
-      query: (id) => `master/student/${id}`,
+      query: (id) => `main/student/${id}`,
+      transformResponse: (response: { message: string; status: number; data: Student }) => response.data,
       providesTags: (result, error, id) => [{ type: 'Student', id }],
     }),
     createStudent: builder.mutation<Student, CreateUpdateStudentRequest>({
       query: (newStudent) => ({
-        url: 'master/student',
+        url: 'main/student',
         method: 'POST',
         body: newStudent,
       }),
@@ -73,7 +84,7 @@ export const studentApi = smpApi.injectEndpoints({
     }),
     updateStudent: builder.mutation<Student, { id: number; data: CreateUpdateStudentRequest }>({
       query: ({ id, data }) => ({
-        url: `master/student/${id}`,
+        url: `main/student/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -81,7 +92,7 @@ export const studentApi = smpApi.injectEndpoints({
     }),
     deleteStudent: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/student/${id}`,
+        url: `main/student/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'Student', id: 'LIST' }],
