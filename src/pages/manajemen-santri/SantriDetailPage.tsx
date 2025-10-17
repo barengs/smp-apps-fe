@@ -210,7 +210,7 @@ const SantriDetailPage: React.FC = () => {
                 <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="lg:col-span-1 flex flex-col items-center text-center">
                     <div className="w-full max-w-[240px]">
-                      <SantriPhotoCard photoUrl={santri.photo} name={fullName} />
+                      <SantriPhotoCard photoUrl={santri.photo || null} name={fullName} />
                     </div>
                   </div>
                   <div className="lg:col-span-3">
@@ -221,10 +221,10 @@ const SantriDetailPage: React.FC = () => {
                     <DetailRow label="Status" value={<Badge variant="outline">{santri.status}</Badge>} />
                     <DetailRow label="Program" value={santri.program?.name} />
                     <DetailRow label="Periode" value={santri.period} />
-                    <DetailRow label="Tempat Lahir" value={santri.born_in} />
+                    <DetailRow label="Tempat Lahir" value={santri.born_in || '-'} />
                     <DetailRow label="Tanggal Lahir" value={santri.born_at ? new Date(santri.born_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
-                    <DetailRow label="Telepon" value={santri.phone} />
-                    <DetailRow label="Alamat" value={santri.address} />
+                    <DetailRow label="Telepon" value={santri.phone || '-'} />
+                    <DetailRow label="Alamat" value={santri.address || '-'} />
                     <DetailRow label="Nama Orang Tua" value={getParentLinks(santri.parents)} />
                     <DetailRow label="Tanggal Dibuat" value={new Date(santri.created_at).toLocaleString('id-ID')} />
                     <DetailRow label="Terakhir Diperbarui" value={new Date(santri.updated_at).toLocaleString('id-ID')} />
@@ -288,7 +288,18 @@ const SantriDetailPage: React.FC = () => {
             <DialogTitle>Pratinjau Kartu Santri</DialogTitle>
           </DialogHeader>
           <div className="my-4 flex justify-center">
-            <SantriCard ref={cardComponentRef} santri={santri} />
+            <SantriCard
+              ref={cardComponentRef}
+              santri={{
+                id: santri.id,
+                first_name: santri.first_name,
+                last_name: santri.last_name || '',
+                nis: santri.nis,
+                photo: santri.photo || null,
+                gender: santri.gender,
+                program: santri.program,
+              } as any}
+            />
           </div>
           <DialogFooter>
             <ActionButton variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Batal</ActionButton>

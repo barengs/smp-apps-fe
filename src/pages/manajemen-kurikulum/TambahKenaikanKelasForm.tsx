@@ -63,7 +63,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
 }) => {
   // Data fetching
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery({});
-  const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery({});
+  const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
   const { data: institusiPendidikan, isLoading: isLoadingInstitusiPendidikan } = useGetInstitusiPendidikanQuery({});
   const { data: classroomsResponse, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
   const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();

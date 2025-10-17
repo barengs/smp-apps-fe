@@ -58,6 +58,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
       name: values.name,
       description: values.description,
       education_class_ids: (values.education_class_codes || []).map((code) => Number(code)),
+      level: Number((initialData as any)?.level ?? 0),
     };
 
     try {

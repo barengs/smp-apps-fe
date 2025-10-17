@@ -66,7 +66,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
 
       if (nikData) {
         toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
-        const parentData = nikData;
+        const parentData = nikData.parent;
 
         const kkValue = String(parentData.kk || '').trim();
         if (kkValue.match(/^\d{16}$/)) {
@@ -75,10 +75,10 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
           setValue('kk', '');
           toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
         }
-        
+
         setValue('firstName', parentData.first_name);
         setValue('lastName', parentData.last_name || '');
-        setValue('gender', parentData.gender);
+        setValue('gender', (parentData.gender as 'L' | 'P'));
         setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
         setValue('phone', parentData.phone || '');
         setValue('email', parentData.email || '');

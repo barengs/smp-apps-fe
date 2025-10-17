@@ -13,6 +13,13 @@ export interface Student {
   program?: { name: string };
   created_at: string;
   updated_at: string;
+  // Tambahan opsional untuk halaman detail
+  photo?: string | null;
+  born_in?: string | null;
+  born_at?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  parents?: any;
 }
 
 export interface CreateUpdateStudentRequest {
