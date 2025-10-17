@@ -29,7 +29,6 @@ import GuruAddressStep from './form-steps/GuruAddressStep';
 import GuruEmploymentStep from './form-steps/GuruEmploymentStep';
 
 const formSchema = z.object({
-  username: z.string().min(3, 'Username minimal 3 karakter'),
   first_name: z.string().min(1, 'Nama depan wajib diisi'),
   last_name: z.string().optional(),
   nik: z.string().length(16, 'NIK harus 16 digit').optional().or(z.literal('')),
@@ -82,7 +81,6 @@ const GuruFormPage: React.FC = () => {
   const form = useForm<GuruFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '', // Add username default value
       status: 'Aktif',
       gender: 'male',
       first_name: '',
@@ -190,7 +188,6 @@ const GuruFormPage: React.FC = () => {
   // Schema validasi yang berbeda untuk mode tambah dan edit
   const getFormSchema = () => {
     const baseSchema = z.object({
-      username: z.string().min(3, 'Username minimal 3 karakter'),
       first_name: z.string().min(1, 'Nama depan wajib diisi'),
       last_name: z.string().min(1, 'Nama belakang wajib diisi'),
       nik: z.string().length(16, 'NIK harus 16 digit').optional().or(z.literal('')),
@@ -306,7 +303,6 @@ const GuruFormPage: React.FC = () => {
 
       // Reset form with teacher data
       form.reset({
-        username: teacher.user?.name || '',
         first_name: teacher.first_name,
         last_name: teacher.last_name || '',
         nik: teacher.nik || '',
@@ -381,20 +377,18 @@ const GuruFormPage: React.FC = () => {
 
     // Debug: Cek semua values dari form
     console.log('=== Form Values ===');
-    console.log('username:', values.username);
     console.log('password:', values.password);
     console.log('password_confirmation:', values.password_confirmation);
     console.log('==================');
 
     // Validasi data wajib
-    if (!values.email || !values.first_name || !values.last_name || !values.status || !roleName || !values.username) {
+    if (!values.email || !values.first_name || !values.last_name || !values.status || !roleName) {
       toast.showError('Data wajib tidak lengkap');
       return;
     }
 
     // Append semua field dengan benar - semua sebagai string untuk Laravel
     formData.append('name', values.email.trim());
-    formData.append('username', values.username.trim()); // Add username
     formData.append('first_name', values.first_name.trim());
     formData.append('last_name', values.last_name.trim());
     formData.append('email', values.email.trim());
@@ -475,7 +469,7 @@ const GuruFormPage: React.FC = () => {
   const isLoading = isAdding || isUpdating || isLoadingTeacher || isCheckingNik;
 
   const stepFields: (keyof GuruFormValues)[][] = [
-    ['username', 'first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
+    ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
     ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
     ['marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'],
   ];
