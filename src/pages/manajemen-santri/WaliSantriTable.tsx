@@ -26,7 +26,7 @@ const WaliSantriTable: React.FC = () => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery({});
+  const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery();
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsResponse) {

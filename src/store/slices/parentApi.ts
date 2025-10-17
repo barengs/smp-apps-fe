@@ -58,14 +58,14 @@ export interface CreateUpdateParentRequest {
     email?: string | null;
     domicile_address?: string | null;
     card_address?: string | null;
-    occupation?: string | null;
-    education?: string | null;
+    occupation_id?: number | null;
+    education_id?: number | null;
   };
 }
 
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getParents: builder.query<Parent[], PaginationParams>({
+    getParents: builder.query<Parent[], void>({
       query: () => 'main/parent',
       transformResponse: (response: { data: Parent[] }) => response.data,
       providesTags: (result) =>
@@ -82,7 +82,7 @@ export const parentApi = smpApi.injectEndpoints({
     }),
     createParent: builder.mutation<Parent, CreateUpdateParentRequest>({
       query: (newParent) => ({
-        url: 'master/parent',
+        url: 'main/parent',
         method: 'POST',
         body: newParent,
       }),
@@ -90,7 +90,7 @@ export const parentApi = smpApi.injectEndpoints({
     }),
     updateParent: builder.mutation<Parent, { id: number; data: CreateUpdateParentRequest }>({
       query: ({ id, data }) => ({
-        url: `master/parent/${id}`,
+        url: `main/parent/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -98,13 +98,13 @@ export const parentApi = smpApi.injectEndpoints({
     }),
     deleteParent: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/parent/${id}`,
+        url: `main/parent/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'Parent', id: 'LIST' }],
     }),
     getParentByNik: builder.query<Parent, string>({
-      query: (nik) => `master/parent/nik/${nik}`,
+      query: (nik) => `main/parent/nik/${nik}`,
       providesTags: (result, error, nik) => [{ type: 'Parent', id: nik }],
     }),
   }),
