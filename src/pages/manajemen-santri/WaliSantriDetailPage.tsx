@@ -110,26 +110,26 @@ const WaliSantriDetailPage: React.FC = () => {
             <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="lg:col-span-1 flex flex-col items-center text-center">
                 <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                  {parentDetails.photo ? (
+                  {parentDetails?.photo ? (
                     <img src={parentDetails.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
                   ) : (
                     <User className="h-24 w-24 text-muted-foreground" />
                   )}
                 </div>
                 <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
-                <p className="text-sm text-muted-foreground">{parentData.email || '-'}</p>
+                <p className="text-sm text-muted-foreground">{parentData?.email || '-'}</p>
               </div>
               <div className="lg:col-span-3">
-                <DetailRow label="Nama Depan" value={parentDetails.first_name} />
-                <DetailRow label="Nama Belakang" value={parentDetails.last_name} />
-                <DetailRow label="Email" value={parentData.email} />
-                <DetailRow label="No. KK" value={parentDetails.kk} />
-                <DetailRow label="NIK" value={parentDetails.nik} />
-                <DetailRow label="Jenis Kelamin" value={parentDetails.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
-                <DetailRow label="Status Wali" value={parentDetails.parent_as} />
-                <DetailRow label="Telepon" value={parentDetails.phone} />
-                <DetailRow label="Alamat" value={parentDetails.card_address} />
-                <DetailRow label="Tanggal Dibuat" value={parentData.created_at ? new Date(parentData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
+                <DetailRow label="Nama Depan" value={parentDetails?.first_name} />
+                <DetailRow label="Nama Belakang" value={parentDetails?.last_name} />
+                <DetailRow label="Email" value={parentData?.email} />
+                <DetailRow label="No. KK" value={parentDetails?.kk} />
+                <DetailRow label="NIK" value={parentDetails?.nik} />
+                <DetailRow label="Jenis Kelamin" value={parentDetails?.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
+                <DetailRow label="Status Wali" value={parentDetails?.parent_as} />
+                <DetailRow label="Telepon" value={parentDetails?.phone} />
+                <DetailRow label="Alamat" value={parentDetails?.card_address} />
+                <DetailRow label="Tanggal Dibuat" value={parentData?.created_at ? new Date(parentData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />
               </div>
             </CardContent>
           </Card>
