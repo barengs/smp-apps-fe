@@ -42,7 +42,7 @@ const PresensiPage: React.FC = () => {
   ];
 
   // Mengambil data dari API
-  const { data: classSchedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
+  const { data: classSchedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
   const { data: teachersResponse, isLoading: isLoadingTeachers } = useGetTeachersQuery();
   const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery({});
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels } = useGetEducationLevelsQuery({});

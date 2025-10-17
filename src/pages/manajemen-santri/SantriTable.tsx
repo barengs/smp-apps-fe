@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'; // Import useState
-import { ColumnDef, SortingState } from '@tanstack/react-table'; // Import SortingState and PaginationState
+import { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table'; // Import PaginationState
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -29,10 +29,19 @@ interface SantriTableProps {
 
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // tetap client-side sorting
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-  // Ambil semua data tanpa server-side pagination
-  const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({});
+  // Panggil API dengan pagination dan sorting
+  const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    sort_by: sorting[0]?.id,
+    sort_order: sorting[0]?.desc ? 'desc' : 'asc',
+  });
 
   const santriList: Santri[] = useMemo(() => {
     if (Array.isArray(students)) {
@@ -92,13 +101,13 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         header: 'Program',
       },
       {
-        accessorKey: 'updated_at', // Tambahkan kolom updated_at
+        accessorKey: 'updated_at',
         header: 'Terakhir Diperbarui',
         cell: ({ row }) => {
           const date = new Date(row.original.updated_at);
-          return date.toLocaleString('id-ID'); // Format tanggal untuk tampilan
+          return date.toLocaleString('id-ID');
         },
-        enableSorting: true, // Aktifkan pengurutan untuk kolom ini
+        enableSorting: true,
       },
       {
         id: 'actions',
@@ -147,6 +156,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       onAddData={onAddData}
       sorting={sorting}
       onSortingChange={setSorting}
+      pagination={pagination}
+      onPaginationChange={setPagination}
       addButtonLabel="Tambah Santri"
     />
   );
