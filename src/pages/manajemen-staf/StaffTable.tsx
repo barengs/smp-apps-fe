@@ -34,6 +34,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
 import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Staff {
   id: number;
@@ -53,7 +54,7 @@ interface Staff {
 }
 
 const StaffTable: React.FC = () => {
-  const { data: employeesData, error, isLoading } = useGetEmployeesQuery({});
+  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
   const [deleteEmployee] = useDeleteEmployeeMutation();
   const navigate = useNavigate();
 
@@ -63,10 +64,10 @@ const StaffTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | undefined>(undefined);
 
+  // Bangun list staf dari respons array
   const staffData: Staff[] = useMemo(() => {
-    if (employeesData?.data) {
-      return employeesData.data.map(apiEmployee => {
-        // Data is in apiEmployee.staff property
+    if (Array.isArray(employeesData)) {
+      return employeesData.map(apiEmployee => {
         const staffData = apiEmployee.staff;
         return {
           id: apiEmployee.id,
@@ -79,15 +80,18 @@ const StaffTable: React.FC = () => {
             address: staffData.address || '',
             zip_code: staffData.zip_code || '',
           },
-          email: staffData.email || '', // Use email from staff object
-          roles: apiEmployee.roles || [], // Roles are directly in apiEmployee.roles
-          fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`,
-          username: apiEmployee.name || '', // Username is in apiEmployee.name
+          email: staffData.email || '',
+          roles: apiEmployee.roles || [],
+          fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim(),
+          username: apiEmployee.name || '',
         };
       });
     }
     return [];
   }, [employeesData]);
+
+  // Pagination lokal seperti halaman santri
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(staffData, 10);
 
   const handleAddData = () => {
     setEditingStaff(undefined);
@@ -232,12 +236,17 @@ const StaffTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={staffData}
+        data={paginatedData}
         exportFileName="data_staf"
         exportTitle="Data Staf"
         onAddData={handleAddData}
         onImportData={handleImportData}
         addButtonLabel="Tambah Staf"
+        onRowClick={handleRowClick}
+        // aktifkan manual pagination (lokal)
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        pageCount={pageCount}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
