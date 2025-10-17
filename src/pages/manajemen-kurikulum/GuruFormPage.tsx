@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { User } from 'lucide-react';
 import { format } from 'date-fns';
+import { dataURLtoFile } from '@/lib/utils';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -430,9 +431,16 @@ const GuruFormPage: React.FC = () => {
     if (values.birth_place) formData.append('birth_place', values.birth_place.trim());
     if (values.religion) formData.append('religion', values.religion.trim());
 
-    // Photo: kirim sebagai string bila ada
-    if (typeof values.photo === 'string' && values.photo.trim()) {
-      formData.append('photo', values.photo);
+    // Photo: kirim sebagai File (image) bila ada data URL
+    if (typeof values.photo === 'string' && values.photo.startsWith('data:')) {
+      const ext =
+        values.photo.includes('image/jpeg') || values.photo.includes('image/jpg')
+          ? 'jpg'
+          : values.photo.includes('image/gif')
+          ? 'gif'
+          : 'png';
+      const file = dataURLtoFile(values.photo, `photo.${ext}`);
+      formData.append('photo', file);
     }
 
     // Debug log untuk melihat isi FormData
