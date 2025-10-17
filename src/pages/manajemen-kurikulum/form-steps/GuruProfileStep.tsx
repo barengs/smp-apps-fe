@@ -44,7 +44,6 @@ const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, s
                         const reader = new FileReader();
                         reader.onloadend = () => {
                           const result = reader.result as string;
-                          // Simpan nilai form sebagai string (data URL)
                           field.onChange(result);
                           setPhotoPreview(result);
                         };
@@ -59,35 +58,160 @@ const GuruProfileStep: React.FC<GuruProfileStepProps> = ({ form, photoPreview, s
           )}
         />
       </div>
-      <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField name="first_name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nama Depan</FormLabel><FormControl><Input placeholder="Nama Depan" {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <FormField name="last_name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nama Belakang</FormLabel><FormControl><Input placeholder="Nama Belakang" {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <FormField
-          name="nik"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>NIK</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Input placeholder="16 digit NIK" {...field} />
-                  {isCheckingNik && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+      <div className="md:col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Masukkan username"
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Depan *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Masukkan nama depan"
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Belakang *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Masukkan nama belakang"
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Jenis Kelamin *</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    className="flex flex-row space-y-1"
+                    disabled={isCheckingNik}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="male" id="male" />
+                      <FormLabel htmlFor="male" className="font-normal">
+                        Laki-laki
+                      </FormLabel>
                     </div>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField name="nip" control={form.control} render={({ field }) => (<FormItem><FormLabel>NIP</FormLabel><FormControl><Input placeholder="NIP (jika ada)" {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <FormField name="gender" control={form.control} render={({ field }) => (<FormItem><FormLabel>Jenis Kelamin</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Laki-laki</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Perempuan</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
-        <FormField name="phone_number" control={form.control} render={({ field }) => (<FormItem><FormLabel>Nomor Telepon</FormLabel><FormControl><Input placeholder="08..." {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <FormField name="email" control={form.control} render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="contoh@email.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <FormField name="birth_place" control={form.control} render={({ field }) => (<FormItem><FormLabel>Tempat Lahir</FormLabel><FormControl><Input placeholder="Kota Kelahiran" {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <Controller name="birth_date" control={form.control} render={({ field }) => (<FormItem><FormLabel>Tanggal Lahir</FormLabel><FormControl><DatePicker value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="female" id="female" />
+                      <FormLabel htmlFor="female" className="font-normal">
+                        Perempuan
+                      </FormLabel>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone_number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nomor Telepon *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Masukkan nomor telepon"
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="Masukkan email"
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="birth_place"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tempat Lahir *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Masukkan tempat lahir"
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="birth_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tanggal Lahir *</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isCheckingNik}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
     </div>
   );
