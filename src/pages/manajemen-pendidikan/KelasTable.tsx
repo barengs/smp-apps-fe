@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, ChevronDown } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
@@ -62,6 +62,12 @@ const KelasTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [kelasToDelete, setKelasToDelete] = useState<Kelas | undefined>(undefined);
 
+  // Pagination lokal untuk halaman Kelas
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
   const classrooms: Kelas[] = useMemo(() => {
     if (classroomsData?.data) {
       return classroomsData.data.map(c => ({
@@ -76,6 +82,18 @@ const KelasTable: React.FC = () => {
     }
     return [];
   }, [classroomsData]);
+
+  // Data yang sudah diiris sesuai pagination lokal
+  const paginatedClassrooms = useMemo(() => {
+    const start = pagination.pageIndex * pagination.pageSize;
+    return classrooms.slice(start, start + pagination.pageSize);
+  }, [classrooms, pagination]);
+
+  // Total halaman berdasarkan jumlah data dan pageSize
+  const pageCount = useMemo(() => {
+    if (!classrooms || classrooms.length === 0) return 0;
+    return Math.ceil(classrooms.length / pagination.pageSize);
+  }, [classrooms, pagination.pageSize]);
 
   const handleAddData = () => {
     setEditingKelas(undefined);
@@ -211,11 +229,15 @@ const KelasTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={classrooms}
+        data={paginatedClassrooms}
         exportFileName="data_kelas"
         exportTitle="Data Kelas"
         onAddData={handleAddData}
         addButtonLabel="Tambah Kelas"
+        // Aktifkan manual pagination khusus untuk halaman Kelas
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
