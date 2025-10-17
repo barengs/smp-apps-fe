@@ -23,16 +23,27 @@ const WaliSantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const parentId = parseInt(id || '', 10);
 
-  useEffect(() => {
-    if (isNaN(parentId)) {
-      toast.showError('ID Wali Santri tidak valid.');
-      navigate('/dashboard/wali-santri-list');
-    }
-  }, [parentId, navigate]);
-
   const { data: parentData, error, isLoading } = useGetParentByIdQuery(parentId);
 
-  const parentDetails = parentData?.parent;
+  // Validasi ID di awal render
+  if (isNaN(parentId)) {
+    useEffect(() => {
+      toast.showError('ID Wali Santri tidak valid.');
+      navigate('/dashboard/wali-santri-list');
+    }, [navigate]);
+    return null;
+  }
+
+  // Tangani error dan data tidak ditemukan
+  if (error || !parentData) {
+    useEffect(() => {
+      toast.showError('Gagal memuat detail wali santri atau data tidak ditemukan.');
+      navigate('/dashboard/wali-santri-list');
+    }, [error, parentData, navigate]);
+    return null;
+  }
+
+  const parentDetails = parentData.parent;
   const fullName = parentDetails ? `${parentDetails.first_name || ''} ${parentDetails.last_name || ''}`.trim() : 'Detail Wali Santri';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -70,17 +81,6 @@ const WaliSantriDetailPage: React.FC = () => {
         </div>
       </DashboardLayout>
     );
-  }
-
-  useEffect(() => {
-    if (error || !parentData || !parentDetails) {
-      toast.showError('Gagal memuat detail wali santri atau data tidak ditemukan.');
-      navigate('/dashboard/wali-santri-list');
-    }
-  }, [error, parentData, parentDetails, navigate]);
-
-  if (error || !parentData || !parentDetails) {
-    return null;
   }
 
   return (
