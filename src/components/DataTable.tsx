@@ -70,13 +70,12 @@ export function DataTable<TData, TValue>({
   onExpandedChange,
   getSubRows,
 }: DataTableProps<TData, TValue>) {
-  // Set default pagination state jika tidak ada
-  const defaultPagination: PaginationState = {
-    pageIndex: 0,
-    pageSize: 10,
-  };
+  // Hapus penguncian pagination default; gunakan hanya saat manual pagination aktif
+  // const defaultPagination: PaginationState = {
+  //   pageIndex: 0,
+  //   pageSize: 10,
+  // };
 
-  // Determine if we're using manual pagination (server-side) or automatic (client-side)
   const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination && !!onPaginationChange;
 
   const table = useReactTable({
@@ -84,11 +83,11 @@ export function DataTable<TData, TValue>({
     columns,
     state: {
       sorting: sorting,
-      pagination: pagination || defaultPagination,
       expanded: expanded,
+      ...(manualPaginationEnabled ? { pagination: pagination! } : {}),
     },
     onSortingChange,
-    onPaginationChange,
+    onPaginationChange: manualPaginationEnabled ? onPaginationChange : undefined,
     onExpandedChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
