@@ -77,7 +77,7 @@ export const parentApi = smpApi.injectEndpoints({
           : [{ type: 'Parent', id: 'LIST' }],
     }),
     getParentById: builder.query<Parent, number>({
-      query: (id) => `main/parent/parent/${id}`,
+      query: (id) => `main/parent/${id}`,
       providesTags: (result, error, id) => [{ type: 'Parent', id }],
     }),
     createParent: builder.mutation<Parent, CreateUpdateParentRequest>({
