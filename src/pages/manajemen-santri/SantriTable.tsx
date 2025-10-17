@@ -8,6 +8,7 @@ import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -30,18 +31,9 @@ interface SantriTableProps {
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
-  // Panggil API dengan pagination dan sorting
-  const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({
-    page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-    sort_by: sorting[0]?.id,
-    sort_order: sorting[0]?.desc ? 'desc' : 'asc',
-  });
+  // Ambil semua data tanpa server-side pagination
+  const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({});
 
   const santriList: Santri[] = useMemo(() => {
     if (Array.isArray(students)) {
@@ -65,6 +57,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     }
     return [];
   }, [students]);
+
+  // Pagination client-side
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(santriList, 10);
 
   const handleRowClick = (santri: Santri) => {
     navigate(`/dashboard/santri/${santri.id}`);
@@ -144,7 +139,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   return (
     <DataTable
       columns={columns}
-      data={santriList}
+      data={paginatedData}
       exportFileName="data_santri"
       exportTitle="Data Santri Pesantren"
       onRowClick={handleRowClick}
@@ -156,8 +151,6 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       onAddData={onAddData}
       sorting={sorting}
       onSortingChange={setSorting}
-      pagination={pagination}
-      onPaginationChange={setPagination}
       addButtonLabel="Tambah Santri"
     />
   );

@@ -42,7 +42,7 @@ export const RekeningForm: React.FC<RekeningFormProps> = ({ isOpen, onClose, onS
   });
 
   const { data: studentsData, isLoading: isStudentsLoading } = useGetStudentsQuery({});
-  const { data: produkBankData, isLoading: isProdukLoading } = useGetProdukBankQuery();
+  const { data: produkBankData, isLoading: isProdukLoading } = useGetProdukBankQuery({});
 
   const santriOptions = useMemo(() => {
     return studentsData?.map(student => ({

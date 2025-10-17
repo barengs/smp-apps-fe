@@ -55,7 +55,7 @@ const CalonSantriDetailPage: React.FC = () => {
   const [selectedTransactionTypeId, setSelectedTransactionTypeId] = useState<string | undefined>(undefined);
 
   const { data: produkBankData, isLoading: isLoadingProdukBank } = useGetProdukBankQuery({});
-  const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery();
+  const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery({});
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
