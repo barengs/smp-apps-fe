@@ -97,7 +97,6 @@ export function DataTable<TData, TValue>({
     manualPagination: manualPaginationEnabled,
     pageCount: manualPaginationEnabled ? pageCount : undefined,
     getSubRows: getSubRows || ((row: any) => row.subRows),
-    // Inisialisasi pagination default agar konsisten
     initialState: {
       pagination: { pageIndex: 0, pageSize: 10 },
     },
@@ -120,44 +119,48 @@ export function DataTable<TData, TValue>({
   // Handle page size change
   const handlePageSizeChange = (value: string) => {
     const newPageSize = parseInt(value);
-    if (onPaginationChange) {
-      onPaginationChange({
-        pageIndex: 0, // Reset ke halaman pertama
+    if (manualPaginationEnabled) {
+      onPaginationChange!({
+        pageIndex: 0,
         pageSize: newPageSize,
       });
     } else {
       table.setPageSize(newPageSize);
-      table.setPageIndex(0); // Reset ke halaman pertama untuk internal pagination
+      table.setPageIndex(0);
     }
   };
 
-  // Get current page info
-  const currentPageSize = pagination?.pageSize || table.getState().pagination.pageSize || 10;
-  const currentPageIndex = pagination?.pageIndex ?? table.getState().pagination.pageIndex ?? 0;
+  // Get current page info — hanya gunakan prop saat manual mode
+  const currentPageSize = manualPaginationEnabled
+    ? pagination!.pageSize
+    : table.getState().pagination.pageSize;
+  const currentPageIndex = manualPaginationEnabled
+    ? pagination!.pageIndex
+    : table.getState().pagination.pageIndex;
+
   const totalPageCount = manualPaginationEnabled ? pageCount : table.getPageCount();
-  // Pastikan minimal 1 untuk tampilan UI agar tombol tidak terlihat "mati" di data kosong
   const shownTotalPageCount = Math.max((totalPageCount as number) || 0, 1);
 
-  // Handle pagination button clicks
+  // Handle pagination button clicks — panggil parent hanya saat manual mode
   const handleFirstPage = () => {
-    if (onPaginationChange) {
-      onPaginationChange({ pageIndex: 0, pageSize: currentPageSize });
+    if (manualPaginationEnabled) {
+      onPaginationChange!({ pageIndex: 0, pageSize: currentPageSize });
     } else {
       table.setPageIndex(0);
     }
   };
 
   const handlePreviousPage = () => {
-    if (onPaginationChange) {
-      onPaginationChange({ pageIndex: currentPageIndex - 1, pageSize: currentPageSize });
+    if (manualPaginationEnabled) {
+      onPaginationChange!({ pageIndex: currentPageIndex - 1, pageSize: currentPageSize });
     } else {
       table.previousPage();
     }
   };
 
   const handleNextPage = () => {
-    if (onPaginationChange) {
-      onPaginationChange({ pageIndex: currentPageIndex + 1, pageSize: currentPageSize });
+    if (manualPaginationEnabled) {
+      onPaginationChange!({ pageIndex: currentPageIndex + 1, pageSize: currentPageSize });
     } else {
       table.nextPage();
     }
@@ -165,8 +168,8 @@ export function DataTable<TData, TValue>({
 
   const handleLastPage = () => {
     const lastPage = shownTotalPageCount - 1;
-    if (onPaginationChange) {
-      onPaginationChange({ pageIndex: lastPage, pageSize: currentPageSize });
+    if (manualPaginationEnabled) {
+      onPaginationChange!({ pageIndex: lastPage, pageSize: currentPageSize });
     } else {
       table.setPageIndex(lastPage);
     }
