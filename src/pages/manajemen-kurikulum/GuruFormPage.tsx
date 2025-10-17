@@ -48,9 +48,10 @@ const formSchema = z.object({
   job_id: z.number({ required_error: 'Pekerjaan wajib dipilih' }),
   role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
   status: z.enum(['Aktif', 'Tidak Aktif', 'Cuti']),
-  photo: z.any().optional(),
+  username: z.string().min(3, 'Username minimal 3 karakter'),
   password: z.string().min(8, 'Password minimal 8 karakter').optional().or(z.literal('')),
   password_confirmation: z.string().optional(),
+  photo: z.string().optional(),
 }).refine(data => {
   if (data.password && data.password !== data.password_confirmation) {
     return false;
@@ -97,6 +98,7 @@ const GuruFormPage: React.FC = () => {
       village_code: '',
       religion: '',
       marital_status: '',
+      username: '',
       password: '',
       password_confirmation: '',
     },
@@ -208,6 +210,9 @@ const GuruFormPage: React.FC = () => {
       role_id: z.number({ required_error: 'Hak akses wajib dipilih' }),
       status: z.enum(['Aktif', 'Tidak Aktif', 'Cuti'], { required_error: 'Status kepegawaian wajib dipilih' }),
       photo: z.any().optional(),
+      username: z.string().min(3, 'Username minimal 3 karakter'),
+      password: z.string().min(8, 'Password minimal 8 karakter').optional().or(z.literal('')),
+      password_confirmation: z.string().optional(),
     });
 
     if (isEditMode) {
@@ -322,6 +327,7 @@ const GuruFormPage: React.FC = () => {
         job_id: teacher.job_id,
         role_id: teacher.user?.roles[0]?.id || 0,
         status: teacher.status,
+        username: teacher.user?.username || '',
       });
 
       if (teacher.photo) {
@@ -403,6 +409,9 @@ const GuruFormPage: React.FC = () => {
     // GANTI: kirim roles sebagai array "roles[]"
     formData.append('roles[]', roleName);
 
+    // Add username field
+    formData.append('username', values.username.trim());
+
     // Konfirmasi password selalu dikirim sebagai string
     formData.append('password_confirmation', String(values.password_confirmation || ''));
 
@@ -471,7 +480,7 @@ const GuruFormPage: React.FC = () => {
   const stepFields: (keyof GuruFormValues)[][] = [
     ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
     ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
-    ['marital_status', 'job_id', 'role_id', 'status', 'password', 'password_confirmation'],
+    ['marital_status', 'job_id', 'role_id', 'status', 'username', 'password', 'password_confirmation'],
   ];
 
   const steps = [
