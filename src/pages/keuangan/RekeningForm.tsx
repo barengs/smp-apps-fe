@@ -45,7 +45,7 @@ export const RekeningForm: React.FC<RekeningFormProps> = ({ isOpen, onClose, onS
   const { data: produkBankData, isLoading: isProdukLoading } = useGetProdukBankQuery();
 
   const santriOptions = useMemo(() => {
-    return studentsData?.data.map(student => ({
+    return studentsData?.map(student => ({
       value: student.id,
       label: `${student.first_name} ${student.last_name || ''} (NIS: ${student.nis})`,
     })) || [];

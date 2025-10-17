@@ -31,18 +31,23 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // tetap client-side sorting
 
-  // Hentikan server-side pagination: ambil data tanpa page/per_page/sort_by
-  const { data: studentsResponse, error, isLoading, isFetching } = useGetStudentsQuery({});
+  // Ambil semua data tanpa server-side pagination
+  const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({});
 
   const santriList: Santri[] = useMemo(() => {
-    if (studentsResponse?.data) {
-      return studentsResponse.data.map(student => ({
+    if (Array.isArray(students)) {
+      return students.map((student) => ({
         id: student.id,
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
         nik: student.nik,
         period: student.period,
-        gender: student.gender === 'L' ? 'Laki-Laki' : student.gender === 'P' ? 'Perempuan' : 'Tidak Diketahui',
+        gender:
+          student.gender === 'L'
+            ? 'Laki-Laki'
+            : student.gender === 'P'
+            ? 'Perempuan'
+            : 'Tidak Diketahui',
         status: student.status,
         programName: student.program ? student.program.name : '',
         created_at: student.created_at,
@@ -50,7 +55,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       }));
     }
     return [];
-  }, [studentsResponse]);
+  }, [students]);
 
   const handleRowClick = (santri: Santri) => {
     navigate(`/dashboard/santri/${santri.id}`);

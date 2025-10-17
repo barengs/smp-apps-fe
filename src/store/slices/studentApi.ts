@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data';
+import { PaginationParams } from '@/types/master-data';
 
 export interface Student {
   id: number;
@@ -50,7 +50,7 @@ interface GetStudentsResponse {
 
 export const studentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudents: builder.query<PaginatedResponse<Student>, PaginationParams>({
+    getStudents: builder.query<Student[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
@@ -60,11 +60,20 @@ export const studentApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/student?${queryParams.toString()}`;
       },
-      transformResponse: (response: { data: PaginatedResponse<Student> }) => response.data,
+      // Normalisasi berbagai bentuk respons: { data: Student[] } atau { data: { data: Student[] } }
+      transformResponse: (response: any): Student[] => {
+        if (Array.isArray(response?.data)) {
+          return response.data as Student[];
+        }
+        if (Array.isArray(response?.data?.data)) {
+          return response.data.data as Student[];
+        }
+        return [];
+      },
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
+              ...result.map(({ id }) => ({ type: 'Student' as const, id })),
               { type: 'Student', id: 'LIST' },
             ]
           : [{ type: 'Student', id: 'LIST' }],

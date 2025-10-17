@@ -107,12 +107,12 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
   }, [studentClassesResponse]);
 
   const availableStudents = useMemo(() => {
-    if (!studentsResponse?.data || !Array.isArray(studentsResponse.data)) {
+    if (!studentsResponse || !Array.isArray(studentsResponse)) {
       return [];
     }
 
     // Filter students based on current selections
-    return studentsResponse.data.filter(student => {
+    return studentsResponse.filter(student => {
       const existingAssignment = studentAssignments[student.id];
       
       // If student has no assignment, they can be selected
@@ -374,7 +374,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
                     ) : (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-4">
-                          {studentsResponse?.data && studentsResponse.data.length > 0 
+                          {studentsResponse && studentsResponse.length > 0 
                             ? 'Tidak ada siswa yang tersedia untuk tahun ajaran ini.' 
                             : 'Tidak ada data siswa yang tersedia.'
                           }
