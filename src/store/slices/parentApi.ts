@@ -50,6 +50,10 @@ export const parentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Parent', id: 'LIST' }],
     }),
+    getParentByNik: builder.query<Parent, string>({
+      query: (nik) => `master/parent/nik/${nik}`,
+      providesTags: (result, error, nik) => [{ type: 'Parent', id: nik }],
+    }),
   }),
 });
 
@@ -59,4 +63,6 @@ export const {
   useCreateParentMutation,
   useUpdateParentMutation,
   useDeleteParentMutation,
+  useGetParentByNikQuery,
+  useLazyGetParentByNikQuery,
 } = parentApi;
