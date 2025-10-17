@@ -23,7 +23,7 @@ const WaliSantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const parentId = parseInt(id || '', 10);
 
-  const { data: parentData, error, isLoading } = useGetParentByIdQuery(parentId);
+  const { data: parentData, error, isLoading } = useGetParentByIdQuery(parentId, { refetchOnMountOrArgChange: true });
 
   // Validasi ID di awal render
   if (isNaN(parentId)) {
