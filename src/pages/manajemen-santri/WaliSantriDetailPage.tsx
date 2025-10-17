@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { User, Users, UserPlus, Edit } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft } from 'lucide-react'; // Import ArrowLeft icon
+import { ArrowLeft } from 'lucide-react';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -23,15 +23,15 @@ const WaliSantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const parentId = parseInt(id || '', 10);
 
-  if (isNaN(parentId)) {
-    toast.showError('ID Wali Santri tidak valid.');
-    navigate('/dashboard/wali-santri-list');
-    return null;
-  }
+  useEffect(() => {
+    if (isNaN(parentId)) {
+      toast.showError('ID Wali Santri tidak valid.');
+      navigate('/dashboard/wali-santri-list');
+    }
+  }, [parentId, navigate]);
 
-  const { data: responseData, error, isLoading } = useGetParentByIdQuery(parentId);
+  const { data: parentData, error, isLoading } = useGetParentByIdQuery(parentId);
 
-  const parentData = responseData;
   const parentDetails = parentData?.parent;
   const fullName = parentDetails ? `${parentDetails.first_name || ''} ${parentDetails.last_name || ''}`.trim() : 'Detail Wali Santri';
 
@@ -72,9 +72,14 @@ const WaliSantriDetailPage: React.FC = () => {
     );
   }
 
+  useEffect(() => {
+    if (error || !parentData || !parentDetails) {
+      toast.showError('Gagal memuat detail wali santri atau data tidak ditemukan.');
+      navigate('/dashboard/wali-santri-list');
+    }
+  }, [error, parentData, parentDetails, navigate]);
+
   if (error || !parentData || !parentDetails) {
-    toast.showError('Gagal memuat detail wali santri atau data tidak ditemukan.');
-    navigate('/dashboard/wali-santri-list');
     return null;
   }
 
@@ -90,7 +95,7 @@ const WaliSantriDetailPage: React.FC = () => {
                   <CardTitle>Informasi Wali Santri</CardTitle>
                   <CardDescription>Detail lengkap mengenai wali santri.</CardDescription>
                 </div>
-                <div className="flex items-center space-x-2"> {/* Add a div for spacing */}
+                <div className="flex items-center space-x-2">
                   <Button variant="outline" onClick={() => navigate('/dashboard/wali-santri-list')}>
                     <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                   </Button>
