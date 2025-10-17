@@ -151,6 +151,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       onAddData={onAddData}
       sorting={sorting}
       onSortingChange={setSorting}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      pageCount={pageCount}
       addButtonLabel="Tambah Santri"
     />
   );
