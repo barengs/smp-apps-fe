@@ -97,6 +97,10 @@ export function DataTable<TData, TValue>({
     manualPagination: manualPaginationEnabled,
     pageCount: manualPaginationEnabled ? pageCount : undefined,
     getSubRows: getSubRows || ((row: any) => row.subRows),
+    // Inisialisasi pagination default agar konsisten
+    initialState: {
+      pagination: { pageIndex: 0, pageSize: 10 },
+    },
   });
 
   // Early return jika table belum siap
@@ -118,12 +122,12 @@ export function DataTable<TData, TValue>({
     const newPageSize = parseInt(value);
     if (onPaginationChange) {
       onPaginationChange({
-        pageIndex: 0, // Reset to first page
+        pageIndex: 0, // Reset ke halaman pertama
         pageSize: newPageSize,
       });
     } else {
-      // If no external pagination, use internal table state
       table.setPageSize(newPageSize);
+      table.setPageIndex(0); // Reset ke halaman pertama untuk internal pagination
     }
   };
 
@@ -131,6 +135,8 @@ export function DataTable<TData, TValue>({
   const currentPageSize = pagination?.pageSize || table.getState().pagination.pageSize || 10;
   const currentPageIndex = pagination?.pageIndex ?? table.getState().pagination.pageIndex ?? 0;
   const totalPageCount = manualPaginationEnabled ? pageCount : table.getPageCount();
+  // Pastikan minimal 1 untuk tampilan UI agar tombol tidak terlihat "mati" di data kosong
+  const shownTotalPageCount = Math.max((totalPageCount as number) || 0, 1);
 
   // Handle pagination button clicks
   const handleFirstPage = () => {
@@ -158,7 +164,7 @@ export function DataTable<TData, TValue>({
   };
 
   const handleLastPage = () => {
-    const lastPage = (totalPageCount || 1) - 1;
+    const lastPage = shownTotalPageCount - 1;
     if (onPaginationChange) {
       onPaginationChange({ pageIndex: lastPage, pageSize: currentPageSize });
     } else {
@@ -304,13 +310,13 @@ export function DataTable<TData, TValue>({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm text-gray-700">
-            Halaman {currentPageIndex + 1} dari {totalPageCount}
+            Halaman {currentPageIndex + 1} dari {shownTotalPageCount}
           </span>
           <Button
             variant="outline"
             size="sm"
             onClick={handleNextPage}
-            disabled={currentPageIndex >= (totalPageCount || 1) - 1}
+            disabled={currentPageIndex >= shownTotalPageCount - 1}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -318,7 +324,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={handleLastPage}
-            disabled={currentPageIndex >= (totalPageCount || 1) - 1}
+            disabled={currentPageIndex >= shownTotalPageCount - 1}
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>
