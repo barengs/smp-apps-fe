@@ -11,13 +11,25 @@ import { Room, CreateUpdateRoomRequest } from '@/types/kepesantrenan';
 import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { PaginationState, SortingState } from '@tanstack/react-table'; // Import PaginationState, SortingState
 
 const KamarPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
-  const { data: roomsData, isLoading: isGetLoading, isError } = useGetRoomsQuery();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const { data: roomsResponse, isLoading: isGetLoading, isError, isFetching } = useGetRoomsQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
+    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
+  });
   const [createRoom, { isLoading: isCreateLoading }] = useCreateRoomMutation();
   const [updateRoom, { isLoading: isUpdateLoading }] = useUpdateRoomMutation();
   const [deleteRoom] = useDeleteRoomMutation();
@@ -93,15 +105,20 @@ const KamarPage: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            {isGetLoading ? (
+            {isGetLoading || isFetching ? (
               <TableLoadingSkeleton />
             ) : isError ? (
               <div className="text-red-500 text-center my-4">Gagal memuat data kamar.</div>
             ) : (
               <KamarTable
-                data={roomsData?.data || []}
+                data={roomsResponse?.data || []}
                 onEdit={handleFormOpen}
                 onDelete={handleDeleteConfirmOpen}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                pageCount={roomsResponse?.last_page || 0}
+                sorting={sorting}
+                onSortingChange={setSorting}
               />
             )}
           </CardContent>

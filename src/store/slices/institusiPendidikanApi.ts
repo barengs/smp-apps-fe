@@ -1,6 +1,7 @@
 import { smpApi } from '../baseApi';
 import { InstitusiPendidikan, JenjangPendidikan } from '@/types/pendidikan';
 import { Staff } from '@/types/teacher';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 interface InstitusiPendidikanApiResponse extends Omit<InstitusiPendidikan, 'education_id' | 'education' | 'education_class' | 'headmaster'> {
   education_id: number;
@@ -9,9 +10,9 @@ interface InstitusiPendidikanApiResponse extends Omit<InstitusiPendidikan, 'educ
   headmaster: Staff;
 }
 
-interface GetInstitusiPendidikanApiResponse {
+interface GetInstitusiPendidikanRawResponse {
   message: string;
-  data: InstitusiPendidikanApiResponse[];
+  data: PaginatedResponse<InstitusiPendidikanApiResponse>; // Wrap in PaginatedResponse
 }
 
 export interface CreateUpdateInstitusiPendidikanRequest {
@@ -27,10 +28,24 @@ export interface CreateUpdateInstitusiPendidikanRequest {
 
 export const institusiPendidikanApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getInstitusiPendidikan: builder.query<InstitusiPendidikanApiResponse[], void>({
-      query: () => 'main/educational-institution',
-      transformResponse: (response: GetInstitusiPendidikanApiResponse) => response.data,
-      providesTags: ['InstitusiPendidikan'],
+    getInstitusiPendidikan: builder.query<PaginatedResponse<InstitusiPendidikanApiResponse>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `main/educational-institution?${queryParams.toString()}`;
+      },
+      transformResponse: (response: GetInstitusiPendidikanRawResponse) => response.data, // Extract the PaginatedResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'InstitusiPendidikan' as const, id })),
+              { type: 'InstitusiPendidikan', id: 'LIST' },
+            ]
+          : [{ type: 'InstitusiPendidikan', id: 'LIST' }],
     }),
     createInstitusiPendidikan: builder.mutation<InstitusiPendidikan, CreateUpdateInstitusiPendidikanRequest>({
       query: (body) => ({
@@ -38,7 +53,7 @@ export const institusiPendidikanApi = smpApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['InstitusiPendidikan'],
+      invalidatesTags: [{ type: 'InstitusiPendidikan', id: 'LIST' }],
     }),
     updateInstitusiPendidikan: builder.mutation<InstitusiPendidikan, { id: number; data: CreateUpdateInstitusiPendidikanRequest }>({
       query: ({ id, data }) => ({
@@ -46,14 +61,14 @@ export const institusiPendidikanApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'InstitusiPendidikan', id }, 'InstitusiPendidikan'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'InstitusiPendidikan', id }, { type: 'InstitusiPendidikan', id: 'LIST' }],
     }),
     deleteInstitusiPendidikan: builder.mutation<{ message: string }, number>({
         query: (id) => ({
             url: `main/educational-institution/${id}`,
             method: 'DELETE',
         }),
-        invalidatesTags: ['InstitusiPendidikan'],
+        invalidatesTags: [{ type: 'InstitusiPendidikan', id: 'LIST' }],
     }),
   }),
 });

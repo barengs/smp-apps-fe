@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // --- API Response and Request Types ---
 
@@ -19,7 +20,7 @@ interface ProgramApiData {
 
 // New interface for the raw API response for getPrograms
 interface GetProgramsRawResponse {
-  data: ProgramApiData[];
+  data: PaginatedResponse<ProgramApiData>; // Wrap in PaginatedResponse
 }
 
 // The GET response is a direct array
@@ -33,10 +34,24 @@ export interface CreateUpdateProgramRequest {
 
 export const programApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPrograms: builder.query<ProgramApiData[], void>({ // Change return type to ProgramApiData[]
-      query: () => 'master/program',
-      transformResponse: (response: GetProgramsRawResponse) => response.data, // Extract the array from the 'data' property
-      providesTags: ['Program'],
+    getPrograms: builder.query<PaginatedResponse<ProgramApiData>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `master/program?${queryParams.toString()}`;
+      },
+      transformResponse: (response: GetProgramsRawResponse) => response.data, // Extract the PaginatedResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Program' as const, id })),
+              { type: 'Program', id: 'LIST' },
+            ]
+          : [{ type: 'Program', id: 'LIST' }],
     }),
     createProgram: builder.mutation<ProgramApiData, CreateUpdateProgramRequest>({
       query: (newProgram) => ({
@@ -44,7 +59,7 @@ export const programApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newProgram,
       }),
-      invalidatesTags: ['Program'],
+      invalidatesTags: [{ type: 'Program', id: 'LIST' }],
     }),
     updateProgram: builder.mutation<ProgramApiData, { id: number; data: CreateUpdateProgramRequest }>({
       query: ({ id, data }) => ({
@@ -52,14 +67,14 @@ export const programApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Program'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Program', id }, { type: 'Program', id: 'LIST' }],
     }),
     deleteProgram: builder.mutation<void, number>({
       query: (id) => ({
         url: `master/program/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Program'],
+      invalidatesTags: [{ type: 'Program', id: 'LIST' }],
     }),
   }),
 });

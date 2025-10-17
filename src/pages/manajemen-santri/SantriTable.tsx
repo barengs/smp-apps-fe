@@ -8,6 +8,7 @@ import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { Student } from '@/types/kepesantrenan'; // Import Student type
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -28,7 +29,6 @@ interface SantriTableProps {
 }
 
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
-  const { data: studentsData, error, isLoading } = useGetStudentsQuery();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]); // Atur pengurutan default
   const [pagination, setPagination] = useState<PaginationState>({
@@ -36,9 +36,16 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     pageSize: 10,
   });
 
+  const { data: studentsResponse, error, isLoading, isFetching } = useGetStudentsQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
+    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
+  });
+
   const santriList: Santri[] = useMemo(() => {
-    if (studentsData?.data) {
-      return studentsData.data.map(student => ({
+    if (studentsResponse?.data) {
+      return studentsResponse.data.map(student => ({
         id: student.id,
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
@@ -52,7 +59,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       }));
     }
     return [];
-  }, [studentsData]);
+  }, [studentsResponse]);
 
   const handleRowClick = (santri: Santri) => {
     navigate(`/dashboard/santri/${santri.id}`);
@@ -122,7 +129,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     [navigate]
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={8} />;
+  if (isLoading || isFetching) return <TableLoadingSkeleton numCols={8} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
@@ -146,6 +153,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       onSortingChange={setSorting}
       pagination={pagination}
       onPaginationChange={setPagination}
+      pageCount={studentsResponse?.last_page || 0}
       addButtonLabel="Tambah Santri"
     />
   );

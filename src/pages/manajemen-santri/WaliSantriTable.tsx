@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ColumnDef, PaginationState } from '@tanstack/react-table';
+import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import * as toast from '@/utils/toast';
@@ -8,6 +8,7 @@ import { useGetParentsQuery } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { Parent } from '@/types/kepesantrenan';
 
 // Interface for the data displayed in the table
 interface WaliSantri {
@@ -21,16 +22,23 @@ interface WaliSantri {
 }
 
 const WaliSantriTable: React.FC = () => {
-  const { data: parentsData, error, isLoading } = useGetParentsQuery();
   const navigate = useNavigate();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
+    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
+  });
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
-    if (parentsData?.data) {
-      return parentsData.data.map(parent => ({
+    if (parentsResponse?.data) {
+      return parentsResponse.data.map(parent => ({
         id: parent.id,
         fullName: `${parent.parent.first_name} ${parent.parent.last_name || ''}`.trim(),
         email: parent.email,
@@ -41,7 +49,7 @@ const WaliSantriTable: React.FC = () => {
       }));
     }
     return [];
-  }, [parentsData]);
+  }, [parentsResponse]);
 
   const handleRowClick = (wali: WaliSantri) => {
     navigate(`/dashboard/wali-santri/${wali.id}`);
@@ -103,7 +111,7 @@ const WaliSantriTable: React.FC = () => {
     // Implementasi logika untuk membuka form tambah data wali santri
   };
 
-  if (isLoading) return <TableLoadingSkeleton numCols={7} />;
+  if (isLoading || isFetching) return <TableLoadingSkeleton numCols={7} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
@@ -114,8 +122,11 @@ const WaliSantriTable: React.FC = () => {
     <DataTable
       columns={columns}
       data={waliSantriList}
+      pageCount={parentsResponse?.last_page || 0}
       pagination={pagination}
       onPaginationChange={setPagination}
+      sorting={sorting}
+      onSortingChange={setSorting}
       exportFileName="data_wali_santri"
       exportTitle="Data Wali Santri Pesantren"
       onAddData={handleAddData}

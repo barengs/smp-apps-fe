@@ -11,14 +11,28 @@ import { toast } from 'sonner';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PaginationState, SortingState } from '@tanstack/react-table';
+import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
 const RekeningPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: apiResponse, isLoading, refetch } = useGetAccountsQuery();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [deletingAccount, setDeletingAccount] = useState<Account | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const { data: accountsResponse, isLoading, isFetching, refetch } = useGetAccountsQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
+    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
+  });
 
   const handleEdit = (account: Account) => {
     setEditingAccount(account);
@@ -89,12 +103,21 @@ const RekeningPage: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <RekeningTable
-              data={apiResponse || []}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onViewDetails={handleViewDetails}
-            />
+            {isLoading || isFetching ? (
+              <TableLoadingSkeleton />
+            ) : (
+              <RekeningTable
+                data={accountsResponse?.data || []}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onViewDetails={handleViewDetails}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                pageCount={accountsResponse?.last_page || 0}
+                sorting={sorting}
+                onSortingChange={setSorting}
+              />
+            )}
           </CardContent>
         </Card>
 

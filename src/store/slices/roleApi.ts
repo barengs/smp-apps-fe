@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // Define the nested permission structure
 interface PermissionNestedData {
@@ -23,9 +24,9 @@ interface RoleApiResponse {
 }
 
 // Define the API response structure for multiple roles
-interface GetRolesResponse {
+interface GetRolesRawResponse {
   message: string;
-  data: RoleApiResponse[];
+  data: PaginatedResponse<RoleApiResponse>; // Wrap in PaginatedResponse
 }
 
 // Define the request body for creating/updating a role
@@ -37,9 +38,24 @@ interface CreateUpdateRoleRequest {
 
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getRoles: builder.query<GetRolesResponse, void>({
-      query: () => 'main/role',
-      providesTags: ['Role'],
+    getRoles: builder.query<PaginatedResponse<RoleApiResponse>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `main/role?${queryParams.toString()}`;
+      },
+      transformResponse: (response: GetRolesRawResponse) => response.data, // Extract the PaginatedResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Role' as const, id })),
+              { type: 'Role', id: 'LIST' },
+            ]
+          : [{ type: 'Role', id: 'LIST' }],
     }),
     createRole: builder.mutation<RoleApiResponse, CreateUpdateRoleRequest>({
       query: (newRole) => ({
@@ -47,7 +63,7 @@ export const roleApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newRole,
       }),
-      invalidatesTags: ['Role'],
+      invalidatesTags: [{ type: 'Role', id: 'LIST' }],
     }),
     updateRole: builder.mutation<RoleApiResponse, { id: number; data: CreateUpdateRoleRequest }>({
       query: ({ id, data }) => ({
@@ -55,14 +71,14 @@ export const roleApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Role'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Role', id }, { type: 'Role', id: 'LIST' }],
     }),
     deleteRole: builder.mutation<void, number>({
       query: (id) => ({
         url: `main/role/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Role'],
+      invalidatesTags: [{ type: 'Role', id: 'LIST' }],
     }),
   }),
 });

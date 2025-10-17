@@ -1,137 +1,67 @@
 import { smpApi } from '../baseApi';
+import { Student, CreateUpdateStudentRequest } from '@/types/kepesantrenan';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
-// API response structure for a single program
-interface ProgramApiData {
-  id: number;
-  name: string;
-  // other properties if any
-}
-
-// API response structure for a single student
-interface StudentApiData {
-  id: number;
-  first_name: string;
-  last_name: string;
-  nis: string;
-  nik: string;
-  period: string;
-  gender: string;
-  status: string;
-  program: ProgramApiData;
-  created_at: string; // Ditambahkan
-  updated_at: string; // Ditambahkan
-  // other properties
-}
-
-// API response for the GET /student endpoint
 interface GetStudentsResponse {
-  message: string;
-  data: StudentApiData[];
-}
-
-// --- Types for Single Student Detail ---
-
-// Structure for a parent object within the student detail response
-export interface ParentDetailData { // Added export
-  user_id: string; // Changed from 'id' to 'user_id' based on provided JSON, and type changed to string
-  first_name: string;
-  last_name: string | null;
-  parent_as?: string;
-  kk?: string;
-  nik?: string;
-  parent_id?: string | null;
-  gender?: string;
-  card_address?: string;
-  domicile_address?: string | null;
-  village_id?: number | null;
-  phone?: string | null;
-  email?: string | null;
-  occupation?: string | null;
-  education?: string | null;
-  photo?: string | null;
-  photo_path?: string | null;
-  deleted_at?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface StudentDetailData { // Added export
-  id: number;
-  first_name: string;
-  last_name: string | null;
-  nis: string;
-  nik: string;
-  period: string;
-  gender: 'L' | 'P';
-  status: string;
-  program: ProgramApiData;
-  parents: ParentDetailData | ParentDetailData[]; // Adjusted to handle single object or array
-  born_in?: string;
-  born_at?: string;
-  address?: string;
-  phone?: string;
-  photo?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface GetStudentByIdResponse {
-  message: string;
-  data: StudentDetailData;
-}
-
-// --- Request Types for Create/Update Student ---
-export interface CreateUpdateStudentRequest {
-  first_name: string;
-  last_name?: string | null;
-  nis: string;
-  nik?: string | null;
-  period: string;
-  gender: 'L' | 'P';
-  status: string;
-  program_id: number;
-  born_in?: string | null;
-  born_at?: string | null; // Date string (e.g., YYYY-MM-DD)
-  address?: string | null;
-  phone?: string | null;
-  photo?: string | null; // URL for photo
-  parent_id: number; // Added parent_id for linking
+  data: Student[];
 }
 
 export const studentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudents: builder.query<GetStudentsResponse, void>({
-      query: () => 'main/student',
-      providesTags: ['Student'],
+    getStudents: builder.query<PaginatedResponse<Student>, PaginationParams>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        // Add other filters if needed
+        return `master/student?${queryParams.toString()}`;
+      },
+      transformResponse: (response: { data: PaginatedResponse<Student> }) => response.data,
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Student' as const, id })),
+              { type: 'Student', id: 'LIST' },
+            ]
+          : [{ type: 'Student', id: 'LIST' }],
     }),
-    getStudentById: builder.query<GetStudentByIdResponse, number>({
-      query: (id) => `main/student/${id}`,
+    getStudentById: builder.query<Student, number>({
+      query: (id) => `master/student/${id}`,
       providesTags: (result, error, id) => [{ type: 'Student', id }],
     }),
-    createStudent: builder.mutation<StudentApiData, CreateUpdateStudentRequest>({
+    createStudent: builder.mutation<Student, CreateUpdateStudentRequest>({
       query: (newStudent) => ({
-        url: 'main/student',
+        url: 'master/student',
         method: 'POST',
         body: newStudent,
       }),
-      invalidatesTags: ['Student'],
+      invalidatesTags: [{ type: 'Student', id: 'LIST' }],
     }),
-    updateStudent: builder.mutation<StudentApiData, { id: number; data: CreateUpdateStudentRequest }>({
+    updateStudent: builder.mutation<Student, { id: number; data: CreateUpdateStudentRequest }>({
       query: ({ id, data }) => ({
-        url: `main/student/${id}`,
+        url: `master/student/${id}`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Student'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Student', id }, { type: 'Student', id: 'LIST' }],
     }),
     deleteStudent: builder.mutation<void, number>({
       query: (id) => ({
-        url: `main/student/${id}`,
+        url: `master/student/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Student'],
+      invalidatesTags: [{ type: 'Student', id: 'LIST' }],
     }),
   }),
 });
 
-export const { useGetStudentsQuery, useGetStudentByIdQuery, useCreateStudentMutation, useUpdateStudentMutation, useDeleteStudentMutation } = studentApi;
+export const {
+  useGetStudentsQuery,
+  useGetStudentByIdQuery,
+  useCreateStudentMutation,
+  useUpdateStudentMutation,
+  useDeleteStudentMutation,
+} = studentApi;

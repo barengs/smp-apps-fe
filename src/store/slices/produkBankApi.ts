@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 export type ProdukType = "Tabungan" | "Deposito" | "Pinjaman";
 
@@ -25,16 +26,31 @@ export interface CreateUpdateProdukBankRequest {
   is_active: boolean;
 }
 
-interface GetProdukBankResponse {
+interface GetProdukBankRawResponse {
   message: string;
-  data: ProdukBank[];
+  data: PaginatedResponse<ProdukBank>; // Wrap in PaginatedResponse
 }
 
 export const produkBankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProdukBank: builder.query<GetProdukBankResponse, void>({
-      query: () => 'master/product',
-      providesTags: ['ProdukBank'],
+    getProdukBank: builder.query<PaginatedResponse<ProdukBank>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `master/product?${queryParams.toString()}`;
+      },
+      transformResponse: (response: GetProdukBankRawResponse) => response.data, // Extract the PaginatedResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'ProdukBank' as const, id })),
+              { type: 'ProdukBank', id: 'LIST' },
+            ]
+          : [{ type: 'ProdukBank', id: 'LIST' }],
     }),
     createProdukBank: builder.mutation<ProdukBank, CreateUpdateProdukBankRequest>({
       query: (newProduk) => ({
@@ -42,7 +58,7 @@ export const produkBankApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newProduk,
       }),
-      invalidatesTags: ['ProdukBank'],
+      invalidatesTags: [{ type: 'ProdukBank', id: 'LIST' }],
     }),
     updateProdukBank: builder.mutation<ProdukBank, { id: string; data: CreateUpdateProdukBankRequest }>({
       query: ({ id, data }) => ({
@@ -50,14 +66,14 @@ export const produkBankApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['ProdukBank'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'ProdukBank', id }, { type: 'ProdukBank', id: 'LIST' }],
     }),
     deleteProdukBank: builder.mutation<void, string>({
       query: (id) => ({
         url: `master/product/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['ProdukBank'],
+      invalidatesTags: [{ type: 'ProdukBank', id: 'LIST' }],
     }),
   }),
 });

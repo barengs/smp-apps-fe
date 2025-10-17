@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { PaginationState, SortingState } from '@tanstack/react-table';
 
 const breadcrumbItems = [
   { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -33,7 +34,18 @@ const JenisTransaksiPage: React.FC = () => {
   const [selectedTransactionType, setSelectedTransactionType] = useState<TransactionType | null>(null);
   const [transactionTypeIdToDelete, setTransactionTypeIdToDelete] = useState<number | null>(null);
 
-  const { data: paginatedResponse, isLoading, isError, error } = useGetTransactionTypesQuery();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const { data: paginatedResponse, isLoading, isError, error, isFetching } = useGetTransactionTypesQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
+    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
+  });
   const [deleteTransactionType, { isLoading: isDeleting }] = useDeleteTransactionTypeMutation();
 
   const handleAdd = () => {
@@ -84,12 +96,21 @@ const JenisTransaksiPage: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoading || isFetching ? (
             <TableLoadingSkeleton />
           ) : isError ? (
             <p className="text-red-500">Terjadi kesalahan saat memuat data.</p>
           ) : (
-            <JenisTransaksiTable data={transactionTypes} onEdit={handleEdit} onDelete={handleDelete} />
+            <JenisTransaksiTable
+              data={transactionTypes}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              pageCount={paginatedResponse?.last_page || 0}
+              sorting={sorting}
+              onSortingChange={setSorting}
+            />
           )}
         </CardContent>
       </Card>

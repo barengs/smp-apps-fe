@@ -1,10 +1,19 @@
 import { smpApi } from '../baseApi';
 import { TransactionType, CreateUpdateTransactionTypeRequest, PaginatedTransactionTypes, TransactionTypeApiResponse } from '@/types/keuangan';
+import { PaginationParams } from '@/types/master-data';
 
 export const transactionTypeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTransactionTypes: builder.query<PaginatedTransactionTypes, void>({
-      query: () => 'main/transaction-type',
+    getTransactionTypes: builder.query<PaginatedTransactionTypes, PaginationParams>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `main/transaction-type?${queryParams.toString()}`;
+      },
       providesTags: (result) =>
         result?.data
           ? [
@@ -12,7 +21,7 @@ export const transactionTypeApi = smpApi.injectEndpoints({
               { type: 'TransactionType', id: 'LIST' },
             ]
           : [{ type: 'TransactionType', id: 'LIST' }],
-      transformResponse: (response: TransactionTypeApiResponse) => {
+      transformResponse: (response: { data: PaginatedTransactionTypes }) => {
         const paginatedData = response.data;
         // Konversi nilai string '1'/'0' menjadi boolean
         const transformedData = paginatedData.data.map((item: any) => ({
@@ -30,7 +39,7 @@ export const transactionTypeApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newType,
       }),
-      invalidatesTags: ['TransactionType'],
+      invalidatesTags: [{ type: 'TransactionType', id: 'LIST' }],
     }),
     updateTransactionType: builder.mutation<TransactionType, { id: number; data: CreateUpdateTransactionTypeRequest }>({
         query: ({ id, data }) => ({
@@ -38,14 +47,14 @@ export const transactionTypeApi = smpApi.injectEndpoints({
             method: 'PUT',
             body: data,
         }),
-        invalidatesTags: ['TransactionType'],
+        invalidatesTags: (result, error, { id }) => [{ type: 'TransactionType', id }, { type: 'TransactionType', id: 'LIST' }],
     }),
     deleteTransactionType: builder.mutation<{ message: string }, number>({
         query: (id) => ({
             url: `main/transaction-type/${id}`,
             method: 'DELETE',
         }),
-        invalidatesTags: ['TransactionType'],
+        invalidatesTags: [{ type: 'TransactionType', id: 'LIST' }],
     }),
   }),
 });

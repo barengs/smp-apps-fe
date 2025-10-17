@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { TransactionType } from '@/types/keuangan';
 import { Badge } from '@/components/ui/badge';
@@ -11,9 +11,14 @@ interface JenisTransaksiTableProps {
   data: TransactionType[];
   onEdit: (transactionType: TransactionType) => void;
   onDelete: (id: number) => void;
+  pagination: PaginationState;
+  onPaginationChange: (updater: PaginationState) => void;
+  pageCount: number;
+  sorting: SortingState;
+  onSortingChange: (updater: SortingState) => void;
 }
 
-export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, onEdit, onDelete }) => {
+export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, onEdit, onDelete, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
 
   const columns: ColumnDef<TransactionType>[] = [
     {
@@ -71,6 +76,11 @@ export const JenisTransaksiTable: React.FC<JenisTransaksiTableProps> = ({ data, 
       data={data}
       exportFileName="data_jenis_transaksi"
       exportTitle="Data Jenis Transaksi"
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      pageCount={pageCount}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
     />
   );
 };

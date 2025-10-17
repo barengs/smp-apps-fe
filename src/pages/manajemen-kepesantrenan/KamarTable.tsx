@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { Room } from '@/types/kepesantrenan';
 import { Badge } from '@/components/ui/badge';
@@ -12,9 +12,14 @@ interface KamarTableProps {
   data: Room[];
   onEdit: (room: Room) => void;
   onDelete: (room: Room) => void;
+  pagination: PaginationState;
+  onPaginationChange: (updater: PaginationState) => void;
+  pageCount: number;
+  sorting: SortingState;
+  onSortingChange: (updater: SortingState) => void;
 }
 
-export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete }) => {
+export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
   const navigate = useNavigate();
 
   const handleAddData = () => {
@@ -70,5 +75,10 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete }
     data={data}
     exportFileName="data_kamar"
     exportTitle="Data Kamar"
+    pagination={pagination}
+    onPaginationChange={onPaginationChange}
+    pageCount={pageCount}
+    sorting={sorting}
+    onSortingChange={onSortingChange}
   />;
 };

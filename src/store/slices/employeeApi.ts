@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // Define API response structures
 interface RoleApiData {
@@ -82,9 +83,9 @@ interface GetEmployeeByIdResponse {
 }
 
 // For list response - actual structure
-interface GetEmployeesResponse {
+interface GetEmployeesRawResponse {
   message: string;
-  data: StaffInListResponse[];
+  data: PaginatedResponse<StaffInListResponse>; // Wrap in PaginatedResponse
 }
 
 export interface CreateUpdateEmployeeRequest {
@@ -105,9 +106,24 @@ export interface CreateUpdateEmployeeRequest {
 
 export const employeeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEmployees: builder.query<GetEmployeesResponse, void>({
-      query: () => 'main/staff',
-      providesTags: ['Employee'],
+    getEmployees: builder.query<PaginatedResponse<StaffInListResponse>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `main/staff?${queryParams.toString()}`;
+      },
+      transformResponse: (response: GetEmployeesRawResponse) => response.data, // Extract the PaginatedResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Employee' as const, id })),
+              { type: 'Employee', id: 'LIST' },
+            ]
+          : [{ type: 'Employee', id: 'LIST' }],
     }),
     getEmployeeById: builder.query<GetEmployeeByIdResponse, number>({
       query: (id) => `main/staff/${id}`,
@@ -119,7 +135,7 @@ export const employeeApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newEmployee,
       }),
-      invalidatesTags: ['Employee'],
+      invalidatesTags: [{ type: 'Employee', id: 'LIST' }],
     }),
     updateEmployee: builder.mutation<GetEmployeeByIdResponse, { id: number; data: CreateUpdateEmployeeRequest }>({
       query: ({ id, data }) => ({
@@ -127,14 +143,14 @@ export const employeeApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Employee'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Employee', id }, { type: 'Employee', id: 'LIST' }],
     }),
     deleteEmployee: builder.mutation<void, number>({
       query: (id) => ({
         url: `main/staff/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Employee'],
+      invalidatesTags: [{ type: 'Employee', id: 'LIST' }],
     }),
     importEmployee: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
@@ -142,7 +158,7 @@ export const employeeApi = smpApi.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: ['Employee'],
+      invalidatesTags: [{ type: 'Employee', id: 'LIST' }],
     }),
     checkNik: builder.query<{ data: any }, { nik: string }>({
       query: (body) => ({

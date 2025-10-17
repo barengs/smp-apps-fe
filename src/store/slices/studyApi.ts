@@ -1,5 +1,6 @@
 import { smpApi } from '../baseApi';
 import { MataPelajaran } from '@/types/pendidikan';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // New interface for the import response
 export interface ImportStudyResponse {
@@ -8,10 +9,24 @@ export interface ImportStudyResponse {
 
 export const studyApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudies: builder.query<MataPelajaran[], void>({
-      query: () => 'master/study',
-      transformResponse: (response: { data: MataPelajaran[] }) => response.data, // Menambahkan baris ini
-      providesTags: ['Study'],
+    getStudies: builder.query<PaginatedResponse<MataPelajaran>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `master/study?${queryParams.toString()}`;
+      },
+      transformResponse: (response: { data: PaginatedResponse<MataPelajaran> }) => response.data, // Adjust transformResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Study' as const, id })),
+              { type: 'Study', id: 'LIST' },
+            ]
+          : [{ type: 'Study', id: 'LIST' }],
     }),
     getStudyById: builder.query<MataPelajaran, string>({
       query: (id) => `master/study/${id}`,
@@ -23,7 +38,7 @@ export const studyApi = smpApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['Study'],
+      invalidatesTags: [{ type: 'Study', id: 'LIST' }], // Invalidate LIST
     }),
     updateStudy: builder.mutation<MataPelajaran, Partial<MataPelajaran>>({
       query: ({ id, ...patch }) => ({
@@ -31,14 +46,14 @@ export const studyApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: patch,
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Study', id }, 'Study'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Study', id }, { type: 'Study', id: 'LIST' }], // Invalidate specific and LIST
     }),
     deleteStudy: builder.mutation<{ success: boolean; id: string }, string>({
       query: (id) => ({
         url: `master/study/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Study'],
+      invalidatesTags: [{ type: 'Study', id: 'LIST' }], // Invalidate LIST
     }),
     importStudies: builder.mutation<ImportStudyResponse, FormData>({
       query: (formData) => ({
@@ -46,7 +61,7 @@ export const studyApi = smpApi.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: ['Study'],
+      invalidatesTags: [{ type: 'Study', id: 'LIST' }], // Invalidate LIST
     }),
   }),
 });

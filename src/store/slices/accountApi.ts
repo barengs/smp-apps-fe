@@ -1,38 +1,54 @@
 import { smpApi } from '../baseApi';
-import { AccountApiResponse, SingleAccountApiResponse, CreateUpdateAccountRequest, Account } from '@/types/keuangan';
+import { Account, CreateUpdateAccountRequest } from '@/types/keuangan';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
 export const accountApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAccounts: builder.query<AccountApiResponse, void>({ // Mengubah tipe kembalian menjadi AccountApiResponse (yang sekarang adalah Account[])
-      query: () => 'main/account',
-      providesTags: ['Account'],
+    getAccounts: builder.query<PaginatedResponse<Account>, PaginationParams>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `main/account?${queryParams.toString()}`;
+      },
+      transformResponse: (response: { data: PaginatedResponse<Account> }) => response.data,
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Account' as const, id })),
+              { type: 'Account', id: 'LIST' },
+            ]
+          : [{ type: 'Account', id: 'LIST' }],
     }),
-    getAccountById: builder.query<Account, string>({ // Mengubah tipe kembalian menjadi Account
-      query: (accountNumber) => `main/account/${accountNumber}`,
-      providesTags: (result, error, accountNumber) => [{ type: 'Account', id: accountNumber }],
+    getAccountById: builder.query<Account, number>({
+      query: (id) => `main/account/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Account', id }],
     }),
-    createAccount: builder.mutation<SingleAccountApiResponse, CreateUpdateAccountRequest>({
+    createAccount: builder.mutation<Account, CreateUpdateAccountRequest>({
       query: (newAccount) => ({
         url: 'main/account',
         method: 'POST',
         body: newAccount,
       }),
-      invalidatesTags: ['Account'],
+      invalidatesTags: [{ type: 'Account', id: 'LIST' }],
     }),
-    updateAccount: builder.mutation<SingleAccountApiResponse, { accountNumber: string; data: Partial<CreateUpdateAccountRequest> }>({
-      query: ({ accountNumber, data }) => ({
-        url: `main/account/${accountNumber}`,
+    updateAccount: builder.mutation<Account, { id: number; data: CreateUpdateAccountRequest }>({
+      query: ({ id, data }) => ({
+        url: `main/account/${id}`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { accountNumber }) => [{ type: 'Account', id: accountNumber }, 'Account'],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Account', id }, { type: 'Account', id: 'LIST' }],
     }),
-    deleteAccount: builder.mutation<{ message: string }, string>({
-      query: (accountNumber) => ({
-        url: `main/account/${accountNumber}`,
+    deleteAccount: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `main/account/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Account'],
+      invalidatesTags: [{ type: 'Account', id: 'LIST' }],
     }),
   }),
 });

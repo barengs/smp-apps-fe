@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { Account } from '@/types/keuangan';
 import { Badge } from '@/components/ui/badge';
@@ -13,9 +13,14 @@ interface RekeningTableProps {
   onEdit: (account: Account) => void;
   onDelete: (account: Account) => void;
   onViewDetails: (account: Account) => void;
+  pagination: PaginationState;
+  onPaginationChange: (updater: PaginationState) => void;
+  pageCount: number;
+  sorting: SortingState;
+  onSortingChange: (updater: SortingState) => void;
 }
 
-export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails }) => {
+export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
   const navigate = useNavigate();
 
   const columns: ColumnDef<Account>[] = [
@@ -105,6 +110,11 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       exportFileName="data_rekening"
       exportTitle="Data Rekening"
       onRowClick={handleRowClick}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      pageCount={pageCount}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
     />
   );
 };

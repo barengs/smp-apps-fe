@@ -1,5 +1,6 @@
 import { smpApi } from '../baseApi';
 import { InstitusiPendidikan } from '@/types/pendidikan';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // --- New Types for Presence ---
 interface Presence {
@@ -136,10 +137,10 @@ export interface ClassScheduleData {
 }
 
 // Respons GET lengkap
-interface GetClassSchedulesResponse {
+interface GetClassSchedulesRawResponse {
   message: string;
   status: number;
-  data: ClassScheduleData[];
+  data: PaginatedResponse<ClassScheduleData>; // Wrap in PaginatedResponse
 }
 
 // Respons POST
@@ -196,9 +197,24 @@ interface UpdatePresenceResponse {
 
 export const classScheduleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getClassSchedules: builder.query<GetClassSchedulesResponse, void>({
-      query: () => 'main/class-schedule',
-      providesTags: ['ClassSchedule'],
+    getClassSchedules: builder.query<PaginatedResponse<ClassScheduleData>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return `main/class-schedule?${queryParams.toString()}`;
+      },
+      transformResponse: (response: GetClassSchedulesRawResponse) => response.data, // Extract the PaginatedResponse
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'ClassSchedule' as const, id })),
+              { type: 'ClassSchedule', id: 'LIST' },
+            ]
+          : [{ type: 'ClassSchedule', id: 'LIST' }],
     }),
     getPresenceByScheduleId: builder.query<GetPresenceResponse, number>({
       query: (classScheduleId) => `main/presence?class_schedule_id=${classScheduleId}`,
@@ -210,7 +226,7 @@ export const classScheduleApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newSchedule,
       }),
-      invalidatesTags: ['ClassSchedule'],
+      invalidatesTags: [{ type: 'ClassSchedule', id: 'LIST' }],
     }),
     saveAttendance: builder.mutation<SaveAttendanceResponse, SaveAttendanceRequest>({
       query: (attendanceData) => ({
