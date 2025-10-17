@@ -85,15 +85,15 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         setValue('alamatKtp', parentData.card_address || '');
         setValue('alamatDomisili', parentData.domicile_address || '');
 
-        if (parentData.occupation && pekerjaanList.length > 0) {
-          const foundPekerjaan = pekerjaanList.find(p => p.name === parentData.occupation);
+        if (parentData.occupation_id && pekerjaanList.length > 0) {
+          const foundPekerjaan = pekerjaanList.find(p => p.id.toString() === parentData.occupation_id?.toString());
           if (foundPekerjaan) {
             setValue('pekerjaanValue', foundPekerjaan.id.toString());
           }
         }
 
-        if (parentData.education && educationLevelsList.length > 0) {
-          const foundEducation = educationLevelsList.find(edu => edu.name === parentData.education);
+        if (parentData.education_id && educationLevelsList.length > 0) {
+          const foundEducation = educationLevelsList.find(edu => edu.id.toString() === parentData.education_id?.toString());
           if (foundEducation) {
             setValue('educationValue', foundEducation.id.toString());
           }

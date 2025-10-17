@@ -143,26 +143,11 @@ const WaliSantriDetailPage: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {parentData.students && parentData.students.length > 0 ? (
-                    parentData.students.map((student) => (
-                      <TableRow key={student.id}>
-                        <TableCell>{student.nis}</TableCell>
-                        <TableCell>{`${student.first_name} ${student.last_name || ''}`.trim()}</TableCell>
-                        <TableCell>{student.status}</TableCell>
-                        <TableCell>
-                          <Button asChild variant="link" className="p-0 h-auto">
-                            <Link to={`/dashboard/santri/${student.id}`}>Lihat Detail</Link>
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center">
-                        Tidak ada santri terkait.
-                      </TableCell>
-                    </TableRow>
-                  )}
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center">
+                      Tidak ada santri terkait.
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>

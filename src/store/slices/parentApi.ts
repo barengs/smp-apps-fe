@@ -1,27 +1,48 @@
 import { smpApi } from '../baseApi';
-// import { Parent, CreateUpdateParentRequest } from '@/types/kepesantrenan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
 export interface Parent {
   id: number;
+  name: string;
   email: string;
-  created_at?: string;
-  students?: any[];
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
   parent: {
-    first_name: string;
-    last_name?: string | null;
+    id: number;
     kk: string;
     nik: string;
-    gender: string;
+    parent_id: number | null;
+    user_id: string;
     parent_as: string;
-    phone?: string | null;
-    email?: string | null;
-    domicile_address?: string | null;
-    card_address?: string | null;
-    occupation?: string | null;
-    education?: string | null;
-    photo?: string | null;
+    first_name: string;
+    last_name: string | null;
+    gender: string;
+    card_address: string | null;
+    domicile_address: string | null;
+    village_id: number | null;
+    phone: string | null;
+    email: string | null;
+    occupation_id: number | null;
+    education_id: number | null;
+    photo: string | null;
+    photo_path: string | null;
+    deleted_at: string | null;
+    created_at: string;
+    updated_at: string;
   };
+  roles: Array<{
+    id: number;
+    name: string;
+    guard_name: string;
+    created_at: string;
+    updated_at: string;
+    pivot: {
+      model_type: string;
+      model_id: string;
+      role_id: string;
+    };
+  }>;
 }
 
 export interface CreateUpdateParentRequest {
@@ -44,27 +65,19 @@ export interface CreateUpdateParentRequest {
 
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getParents: builder.query<PaginatedResponse<Parent>, PaginationParams>({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
-        return `master/parent?${queryParams.toString()}`;
-      },
-      transformResponse: (response: { data: PaginatedResponse<Parent> }) => response.data,
+    getParents: builder.query<Parent[], PaginationParams>({
+      query: () => 'main/parent',
+      transformResponse: (response: { data: Parent[] }) => response.data,
       providesTags: (result) =>
-        result?.data
+        result
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Parent' as const, id })),
+              ...result.map(({ id }) => ({ type: 'Parent' as const, id })),
               { type: 'Parent', id: 'LIST' },
             ]
           : [{ type: 'Parent', id: 'LIST' }],
     }),
     getParentById: builder.query<Parent, number>({
-      query: (id) => `master/parent/${id}`,
+      query: (id) => `main/parent/${id}`,
       providesTags: (result, error, id) => [{ type: 'Parent', id }],
     }),
     createParent: builder.mutation<Parent, CreateUpdateParentRequest>({

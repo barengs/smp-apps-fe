@@ -8,6 +8,7 @@ import { useGetParentsQuery } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 // import { Parent } from '@/types/kepesantrenan';
 
 // Interface for the data displayed in the table
@@ -23,22 +24,13 @@ interface WaliSantri {
 
 const WaliSantriTable: React.FC = () => {
   const navigate = useNavigate();
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery({
-    page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-    sort_by: sorting.length > 0 ? sorting[0].id : undefined,
-    sort_order: sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
-  });
+  const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery({});
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
-    if (parentsResponse?.data) {
-      return parentsResponse.data.map(parent => ({
+    if (parentsResponse) {
+      return parentsResponse.map(parent => ({
         id: parent.id,
         fullName: `${parent.parent.first_name} ${parent.parent.last_name || ''}`.trim(),
         email: parent.email,
@@ -50,6 +42,9 @@ const WaliSantriTable: React.FC = () => {
     }
     return [];
   }, [parentsResponse]);
+
+  // Pagination client-side
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(waliSantriList, 10);
 
   const handleRowClick = (wali: WaliSantri) => {
     navigate(`/dashboard/wali-santri/${wali.id}`);
@@ -121,8 +116,8 @@ const WaliSantriTable: React.FC = () => {
   return (
     <DataTable
       columns={columns}
-      data={waliSantriList}
-      pageCount={parentsResponse?.last_page || 0}
+      data={paginatedData}
+      pageCount={pageCount}
       pagination={pagination}
       onPaginationChange={setPagination}
       sorting={sorting}
