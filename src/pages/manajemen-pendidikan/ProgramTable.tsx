@@ -15,6 +15,7 @@ import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Hostel {
   id: number;
@@ -43,6 +44,8 @@ const ProgramTable: React.FC = () => {
       hostels: p.hostels || [],
     }));
   }, [programsData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Program>(programs);
 
   const handleAddData = () => {
     setEditingProgram(undefined);
@@ -170,11 +173,14 @@ const ProgramTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={programs}
+        data={paginatedData}
         exportFileName="data_program"
         exportTitle="Data Program"
         onAddData={handleAddData}
         addButtonLabel="Tambah Program"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

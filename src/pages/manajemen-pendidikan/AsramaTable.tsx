@@ -26,6 +26,7 @@ import AsramaImportDialog from './AsramaImportDialog'; // Import dialog impor
 import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Asrama {
   id: number;
@@ -54,12 +55,14 @@ const AsramaTable: React.FC = () => {
         id: apiHostel.id,
         name: apiHostel.name,
         description: apiHostel.description || 'Tidak ada deskripsi',
-        program: apiHostel.program, // Memetakan data program
-        capacity: apiHostel.capacity, // Memetakan data capacity
+        program: apiHostel.program,
+        capacity: apiHostel.capacity,
       }));
     }
     return [];
   }, [hostelsData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Asrama>(asramas);
 
   const handleAddData = () => {
     setEditingAsrama(undefined);
@@ -170,11 +173,14 @@ const AsramaTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={asramas}
+        data={paginatedData}
         exportFileName="data_asrama"
         exportTitle="Data Asrama"
         onAddData={handleAddData}
         addButtonLabel="Tambah Asrama"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

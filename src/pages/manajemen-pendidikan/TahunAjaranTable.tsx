@@ -17,6 +17,7 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface TahunAjaran {
   id: number;
@@ -41,6 +42,8 @@ const TahunAjaranTable: React.FC = () => {
       description: p.description || 'Tidak ada deskripsi',
     }));
   }, [tahunAjaranData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<TahunAjaran>(academicYears);
 
   const handleAddData = () => {
     setEditingTahunAjaran(undefined);
@@ -154,11 +157,14 @@ const TahunAjaranTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={academicYears}
+        data={paginatedData}
         exportFileName="data_tahun_ajaran"
         exportTitle="Data Tahun Ajaran"
         onAddData={handleAddData}
         addButtonLabel="Tambah Tahun Ajaran"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

@@ -15,6 +15,7 @@ import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Kota {
   id: number;
@@ -45,6 +46,8 @@ const KotaTable: React.FC = () => {
   const cities: Kota[] = useMemo(() => {
     return citiesData || [];
   }, [citiesData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Kota>(cities);
 
   const handleAddData = () => {
     setEditingKota(undefined);
@@ -117,11 +120,14 @@ const KotaTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={cities}
+        data={paginatedData}
         exportFileName="data_kota"
         exportTitle="Data Kota"
         onAddData={handleAddData}
         addButtonLabel="Tambah Kota"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

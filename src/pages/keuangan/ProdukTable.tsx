@@ -24,6 +24,7 @@ import {
 import * as toast from '@/utils/toast'; // Diperbaiki
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import ProdukForm from './ProdukForm';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 const ProdukTable: React.FC = () => {
   const { data, isLoading, isError, error } = useGetProdukBankQuery();
@@ -146,11 +147,14 @@ const ProdukTable: React.FC = () => {
     <div>
       <DataTable
         columns={columns}
-        data={data?.data || []}
+        data={useLocalPagination<ProdukBank>(data?.data || []).paginatedData}
         exportFileName="data_produk"
         exportTitle="Data Produk"
         onAddData={handleAdd}
         addButtonLabel="Tambah Produk"
+        pageCount={useLocalPagination<ProdukBank>(data?.data || []).pageCount}
+        pagination={useLocalPagination<ProdukBank>(data?.data || []).pagination}
+        onPaginationChange={useLocalPagination<ProdukBank>(data?.data || []).setPagination}
       />
       <ProdukForm
         isOpen={isFormOpen}

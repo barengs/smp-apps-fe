@@ -25,6 +25,7 @@ import RombelForm from './RombelForm';
 import { useGetClassGroupsQuery, useDeleteClassGroupMutation } from '@/store/slices/classGroupApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Rombel {
   id: number;
@@ -47,6 +48,8 @@ const RombelTable: React.FC = () => {
   const rombels: Rombel[] = useMemo(() => {
     return classGroupsData?.data || [];
   }, [classGroupsData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Rombel>(rombels);
 
   const handleAddData = () => {
     setEditingRombel(undefined);
@@ -140,11 +143,14 @@ const RombelTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={rombels}
+        data={paginatedData}
         exportFileName="data_rombel"
         exportTitle="Data Rombongan Belajar"
         onAddData={handleAddData}
         addButtonLabel="Tambah Rombel"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

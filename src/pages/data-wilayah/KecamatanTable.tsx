@@ -15,6 +15,7 @@ import { useGetDistrictsQuery } from '@/store/slices/districtApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useGetCitiesQuery } from '@/store/slices/cityApi';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Kecamatan {
   id: number;
@@ -41,6 +42,8 @@ const KecamatanTable: React.FC = () => {
   const districts: Kecamatan[] = useMemo(() => {
     return districtsData || [];
   }, [districtsData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Kecamatan>(districts);
 
   const handleAddData = () => {
     setEditingKecamatan(undefined);
@@ -110,11 +113,14 @@ const KecamatanTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={districts}
+        data={paginatedData}
         exportFileName="data_kecamatan"
         exportTitle="Data Kecamatan"
         onAddData={handleAddData}
         addButtonLabel="Tambah Kecamatan"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

@@ -15,6 +15,7 @@ import ProvinsiForm from './ProvinsiForm.tsx';
 import { useGetProvincesQuery } from '@/store/slices/provinceApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Provinsi {
   id: number;
@@ -32,6 +33,8 @@ const ProvinsiTable: React.FC = () => {
   const provinces: Provinsi[] = useMemo(() => {
     return provincesData || [];
   }, [provincesData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Provinsi>(provinces);
 
   const handleAddData = () => {
     setEditingProvinsi(undefined);
@@ -96,11 +99,14 @@ const ProvinsiTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={provinces}
+        data={paginatedData}
         exportFileName="data_provinsi"
         exportTitle="Data Provinsi"
         onAddData={handleAddData}
         addButtonLabel="Tambah Provinsi"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

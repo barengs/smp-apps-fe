@@ -15,6 +15,7 @@ import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Pekerjaan } from '@/types/master-data';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 const PekerjaanTable: React.FC = () => {
   const { data: pekerjaanData, error, isLoading } = useGetPekerjaanQuery();
@@ -25,6 +26,8 @@ const PekerjaanTable: React.FC = () => {
   const pekerjaanList: Pekerjaan[] = useMemo(() => {
     return pekerjaanData || [];
   }, [pekerjaanData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Pekerjaan>(pekerjaanList);
 
   const handleAddData = () => {
     setEditingPekerjaan(undefined);
@@ -93,11 +96,14 @@ const PekerjaanTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={pekerjaanList}
+        data={paginatedData}
         exportFileName="data_pekerjaan"
         exportTitle="Data Pekerjaan"
         onAddData={handleAddData}
         addButtonLabel="Tambah Pekerjaan"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

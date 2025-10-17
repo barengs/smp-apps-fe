@@ -26,9 +26,9 @@ import JenjangPendidikanImportDialog from './JenjangPendidikanImportDialog';
 import { useGetEducationLevelsQuery, useDeleteEducationLevelMutation } from '@/store/slices/educationApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-
 // Mengimpor NestedEducationClass dari educationApi untuk konsistensi tipe
 import type { NestedEducationClass } from '@/store/slices/educationApi';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface JenjangPendidikan {
   id: number;
@@ -53,12 +53,13 @@ const JenjangPendidikanTable: React.FC = () => {
         id: item.id,
         name: item.name,
         description: item.description || 'Tidak ada deskripsi',
-        // Memproses array education_class dan menggabungkan namanya
-        education_class: item.education_class || [], // Pastikan ini array
+        education_class: item.education_class || [],
       }));
     }
     return [];
   }, [educationLevelsData]);
+
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<JenjangPendidikan>(educationLevels);
 
   const handleAddData = () => {
     setEditingData(undefined);
@@ -167,12 +168,15 @@ const JenjangPendidikanTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={educationLevels}
+        data={paginatedData}
         exportFileName="data_jenjang_pendidikan"
         exportTitle="Data Jenjang Pendidikan"
         onAddData={handleAddData}
         onImportData={handleImportData}
         addButtonLabel="Tambah Jenjang Pendidikan"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
