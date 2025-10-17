@@ -55,7 +55,7 @@ interface KelasFormProps {
 const KelasTable: React.FC = () => {
   const { data: classroomsData, error, isLoading } = useGetClassroomsQuery();
   const [deleteClassroom] = useDeleteClassroomMutation();
-  const { data: institutionsData } = useGetInstitusiPendidikanQuery();
+  const { data: institutionsData } = useGetInstitusiPendidikanQuery({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKelas, setEditingKelas] = useState<Kelas | undefined>(undefined);

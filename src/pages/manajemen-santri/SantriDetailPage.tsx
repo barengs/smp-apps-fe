@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom'; // Import Link
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useGetStudentByIdQuery, StudentDetailData, ParentDetailData } from '@/store/slices/studentApi'; // Import StudentDetailData, ParentDetailData
+import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
 import { Printer, Edit, Users, UserCheck, User, ArrowLeft } from 'lucide-react';
@@ -40,7 +40,7 @@ const SantriDetailPage: React.FC = () => {
   const cardComponentRef = useRef<HTMLDivElement>(null);
 
   const reactToPrintHook = useReactToPrint({
-    documentTitle: `Kartu-Santri-${responseData?.data.nis || santriId}`,
+    documentTitle: `Kartu-Santri-${responseData?.nis || santriId}`,
     onAfterPrint: () => {
       toast.showSuccess('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
@@ -55,7 +55,7 @@ const SantriDetailPage: React.FC = () => {
     toast.showWarning('Fitur edit santri akan segera tersedia.');
   };
 
-  const santri = responseData?.data;
+  const santri = responseData;
   const fullName = santri ? `${santri.first_name} ${santri.last_name || ''}`.trim() : 'Detail Santri';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -119,7 +119,7 @@ const SantriDetailPage: React.FC = () => {
     return null;
   }
   
-  const getParentLinks = (parentsData: StudentDetailData['parents']): React.ReactNode => {
+  const getParentLinks = (parentsData: any): React.ReactNode => {
     console.log('getParentLinks: Raw parentsData:', parentsData);
 
     if (!parentsData || (Array.isArray(parentsData) && parentsData.length === 0) || (typeof parentsData === 'object' && Object.keys(parentsData).length === 0)) {
@@ -127,24 +127,20 @@ const SantriDetailPage: React.FC = () => {
       return 'Tidak ada data orang tua';
     }
 
-    let parentsArray: ParentDetailData[] = [];
+    let parentsArray: any[] = [];
 
     if (Array.isArray(parentsData)) {
       console.log('getParentLinks: parentsData is an array.');
       parentsArray = parentsData;
     } else if (typeof parentsData === 'object') {
       console.log('getParentLinks: parentsData is an object.');
-      // Check if it's a direct ParentDetailData object
-      // Changed typeof parentsData.user_id === 'number' to typeof parentsData.user_id === 'string'
-      if ('user_id' in parentsData && typeof parentsData.user_id === 'string' && 'first_name' in parentsData && typeof parentsData.first_name === 'string') {
-        console.log('getParentLinks: Detected single ParentDetailData object.');
-        parentsArray = [parentsData as ParentDetailData];
+      if ('user_id' in parentsData && typeof (parentsData as any).user_id === 'string' && 'first_name' in parentsData && typeof (parentsData as any).first_name === 'string') {
+        console.log('getParentLinks: Detected single Parent object.');
+        parentsArray = [parentsData as any];
       } else {
-        // Assume it's an object where keys map to ParentDetailData (e.g., { 'ayah': {...}, 'ibu': {...} })
-        console.log('getParentLinks: Attempting to extract ParentDetailData from object values.');
-        parentsArray = Object.values(parentsData).filter((val): val is ParentDetailData => {
-          // Changed typeof val.user_id === 'number' to typeof val.user_id === 'string'
-          const isValid = typeof val === 'object' && val !== null && 'user_id' in val && typeof val.user_id === 'string' && 'first_name' in val && typeof val.first_name === 'string';
+        console.log('getParentLinks: Attempting to extract Parent from object values.');
+        parentsArray = Object.values(parentsData).filter((val): val is any => {
+          const isValid = typeof val === 'object' && val !== null && 'user_id' in val && typeof (val as any).user_id === 'string' && 'first_name' in val && typeof (val as any).first_name === 'string';
           if (!isValid) {
             console.log('getParentLinks: Filtered out invalid parent object:', val);
           }
@@ -153,19 +149,18 @@ const SantriDetailPage: React.FC = () => {
       }
     } else {
       console.log('getParentLinks: parentsData is neither array nor object, or unexpected type:', typeof parentsData);
-      return 'Format data orang tua tidak dikenali'; // Should not happen with StudentDetailData['parents'] type
+      return 'Format data orang tua tidak dikenali';
     }
 
     console.log('getParentLinks: Processed parentsArray:', parentsArray);
 
     const links = parentsArray
       .map((p, index) => {
-        // Removed typeof p.user_id === 'number' check as user_id is now string
-        if (p.user_id) {
+        if ((p as any).user_id) {
           return (
-            <React.Fragment key={p.user_id}>
-              <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
-                {`${p.first_name} ${p.last_name || ''}`.trim()}
+            <React.Fragment key={(p as any).user_id}>
+              <Link to={`/dashboard/wali-santri/${(p as any).user_id}`} className="text-blue-600 hover:underline">
+                {`${(p as any).first_name} ${(p as any).last_name || ''}`.trim()}
               </Link>
               {index < parentsArray.length - 1 && ', '}
             </React.Fragment>
@@ -174,7 +169,7 @@ const SantriDetailPage: React.FC = () => {
         console.log('getParentLinks: Skipping parent due to invalid user_id or missing first_name:', p);
         return null;
       })
-      .filter(Boolean);
+      .filter(Boolean) as React.ReactNode[];
 
     if (links.length > 0) {
       console.log('getParentLinks: Links generated successfully.');

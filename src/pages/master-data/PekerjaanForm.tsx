@@ -17,7 +17,7 @@ import * as toast from '@/utils/toast';
 import { useCreatePekerjaanMutation, useUpdatePekerjaanMutation, type CreateUpdatePekerjaanRequest } from '@/store/slices/pekerjaanApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
-import { Pekerjaan } from '@/types/master-data';
+import type { Pekerjaan } from '@/store/slices/pekerjaanApi';
 
 const formSchema = z.object({
   name: z.string().min(2, {

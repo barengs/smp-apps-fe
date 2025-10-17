@@ -34,7 +34,7 @@ interface HakAkses {
 }
 
 const HakAksesTable: React.FC = () => {
-  const { data: permissionsData, error, isLoading } = useGetPermissionsQuery();
+  const { data: permissionsData, error, isLoading } = useGetPermissionsQuery({});
   const [deletePermission] = useDeletePermissionMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);

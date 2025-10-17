@@ -1,6 +1,46 @@
 import { smpApi } from '../baseApi';
-import { Parent, CreateUpdateParentRequest } from '@/types/kepesantrenan';
+// import { Parent, CreateUpdateParentRequest } from '@/types/kepesantrenan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
+
+export interface Parent {
+  id: number;
+  email: string;
+  created_at?: string;
+  students?: any[];
+  parent: {
+    first_name: string;
+    last_name?: string | null;
+    kk: string;
+    nik: string;
+    gender: string;
+    parent_as: string;
+    phone?: string | null;
+    email?: string | null;
+    domicile_address?: string | null;
+    card_address?: string | null;
+    occupation?: string | null;
+    education?: string | null;
+    photo?: string | null;
+  };
+}
+
+export interface CreateUpdateParentRequest {
+  email: string;
+  parent: {
+    first_name: string;
+    last_name?: string | null;
+    kk: string;
+    nik: string;
+    gender: string;
+    parent_as: string;
+    phone?: string | null;
+    email?: string | null;
+    domicile_address?: string | null;
+    card_address?: string | null;
+    occupation?: string | null;
+    education?: string | null;
+  };
+}
 
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({

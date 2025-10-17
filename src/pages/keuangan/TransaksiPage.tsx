@@ -22,7 +22,7 @@ import TransaksiForm from './TransaksiForm';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const TransaksiPage: React.FC = () => {
-  const { data: apiResponse, isLoading, isError, error } = useGetTransactionsQuery();
+  const { data: apiResponse, isLoading, isError, error } = useGetTransactionsQuery({});
   const [isFormOpen, setIsFormOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
 

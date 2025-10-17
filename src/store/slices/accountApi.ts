@@ -18,7 +18,7 @@ export const accountApi = smpApi.injectEndpoints({
       providesTags: (result) =>
         result?.data
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Account' as const, id })),
+              ...result.data.map(({ account_number }) => ({ type: 'Account' as const, id: account_number })),
               { type: 'Account', id: 'LIST' },
             ]
           : [{ type: 'Account', id: 'LIST' }],

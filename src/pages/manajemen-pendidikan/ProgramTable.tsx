@@ -31,14 +31,14 @@ interface Program {
 }
 
 const ProgramTable: React.FC = () => {
-  const { data: programsData, error, isLoading } = useGetProgramsQuery();
+  const { data: programsData, error, isLoading } = useGetProgramsQuery({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProgram, setEditingProgram] = useState<Program | undefined>(undefined);
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const programs: Program[] = useMemo(() => {
-    return (programsData || []).map(p => ({
+    return (programsData?.data || []).map(p => ({
       ...p,
       description: p.description || 'Tidak ada deskripsi',
       hostels: p.hostels || [],

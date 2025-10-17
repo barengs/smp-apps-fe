@@ -12,7 +12,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const InstitusiPendidikanTable: React.FC = () => {
-  const { data, error, isLoading } = useGetInstitusiPendidikanQuery();
+  const { data, error, isLoading } = useGetInstitusiPendidikanQuery({});
   const [deleteInstitusi] = useDeleteInstitusiPendidikanMutation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<InstitusiPendidikan | undefined>(undefined);
@@ -44,7 +44,7 @@ const InstitusiPendidikanTable: React.FC = () => {
   };
 
   const tableData = useMemo(() => {
-    return (data || []).map(item => ({
+    return (data?.data || []).map(item => ({
       ...item,
       education_id: item.education?.id || 0,
       education_class_id: item.education_class?.id || 0,
@@ -123,7 +123,7 @@ const InstitusiPendidikanTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={data || []}
+        data={tableData}
         exportFileName="data_institusi_pendidikan"
         exportTitle="Data Institusi Pendidikan"
         onAddData={handleAdd}

@@ -110,7 +110,7 @@ const GuruFormPage: React.FC = () => {
   const { data: cities = [] } = useGetCitiesQuery();
   const { data: districts = [] } = useGetDistrictsQuery();
   const { data: jobs = [] } = useGetPekerjaanQuery();
-  const { data: roles = { data: [] } } = useGetRolesQuery();
+  const { data: roles = { data: [] } } = useGetRolesQuery({});
 
   const provinceCode = form.watch('province_code');
   const cityCode = form.watch('city_code');

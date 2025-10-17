@@ -38,7 +38,7 @@ interface JenjangPendidikan {
 }
 
 const JenjangPendidikanTable: React.FC = () => {
-  const { data: educationLevelsData, error, isLoading } = useGetEducationLevelsQuery();
+  const { data: educationLevelsData, error, isLoading } = useGetEducationLevelsQuery({});
   const [deleteEducationLevel] = useDeleteEducationLevelMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);

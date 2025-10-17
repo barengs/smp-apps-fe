@@ -16,7 +16,7 @@ const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
   const navigate = useNavigate();
 
-  const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
+  const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
 
   const parentSchedule = useMemo(() => {
     if (!schedulesResponse?.data || !detailId) return null;

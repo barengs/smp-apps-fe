@@ -31,7 +31,7 @@ const WaliSantriDetailPage: React.FC = () => {
 
   const { data: responseData, error, isLoading } = useGetParentByIdQuery(parentId);
 
-  const parentData = responseData?.data;
+  const parentData = responseData;
   const parentDetails = parentData?.parent;
   const fullName = parentDetails ? `${parentDetails.first_name || ''} ${parentDetails.last_name || ''}`.trim() : 'Detail Wali Santri';
 

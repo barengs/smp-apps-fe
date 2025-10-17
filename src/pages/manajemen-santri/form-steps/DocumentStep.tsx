@@ -34,8 +34,8 @@ const DocumentStep: React.FC = () => {
 
   const fotoSantriFile = watch('fotoSantri');
   const ijazahFile = watch('ijazahFile');
-  const { data: programsResponse, isLoading: isLoadingPrograms, isError: isErrorPrograms } = useGetProgramsQuery();
-  const programs = programsResponse || [];
+  const { data: programsResponse, isLoading: isLoadingPrograms, isError: isErrorPrograms } = useGetProgramsQuery({});
+  const programs = programsResponse?.data || [];
 
   useEffect(() => {
     if (fotoSantriFile && fotoSantriFile instanceof File) {

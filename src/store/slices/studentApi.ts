@@ -1,6 +1,30 @@
 import { smpApi } from '../baseApi';
-import { Student, CreateUpdateStudentRequest } from '@/types/kepesantrenan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
+
+export interface Student {
+  id: number;
+  first_name: string;
+  last_name?: string | null;
+  nis: string;
+  nik: string;
+  period: string;
+  gender: string;
+  status: string;
+  program?: { name: string };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateUpdateStudentRequest {
+  first_name: string;
+  last_name?: string | null;
+  nis: string;
+  nik: string;
+  period: string;
+  gender: string;
+  status: string;
+  program_id?: number;
+}
 
 interface GetStudentsResponse {
   data: Student[];

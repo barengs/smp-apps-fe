@@ -37,7 +37,7 @@ const FormSchema = z.object({
 });
 
 const AssignStudyModal: React.FC<AssignStudyModalProps> = ({ isOpen, onClose, staff }) => {
-  const { data: studiesData, isLoading: isLoadingStudies } = useGetStudiesQuery();
+  const { data: studiesData, isLoading: isLoadingStudies } = useGetStudiesQuery({});
   const [assignStudies, { isLoading: isAssigning }] = useAssignStudiesToStaffMutation();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -48,8 +48,8 @@ const AssignStudyModal: React.FC<AssignStudyModalProps> = ({ isOpen, onClose, st
   });
 
   const studyOptions: Option[] = React.useMemo(() => {
-    if (!studiesData) return [];
-    return studiesData.map((study) => ({
+    if (!studiesData?.data) return [];
+    return studiesData.data.map((study) => ({
       value: String(study.id),
       label: study.name,
     }));

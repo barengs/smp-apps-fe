@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import AssignStudyModal from './AssignStudyModal';
 
 const TeacherAssignmentTable: React.FC = () => {
-  const { data, error, isLoading } = useGetTeacherAssignmentsQuery();
+  const { data, error, isLoading } = useGetTeacherAssignmentsQuery({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
 

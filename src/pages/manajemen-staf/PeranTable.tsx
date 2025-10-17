@@ -41,7 +41,7 @@ interface Peran {
 }
 
 const PeranTable: React.FC = () => {
-  const { data: rolesData, error, isLoading } = useGetRolesQuery();
+  const { data: rolesData, error, isLoading } = useGetRolesQuery({});
   const [deleteRole] = useDeleteRoleMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);

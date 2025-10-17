@@ -30,7 +30,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const { data: pekerjaanResponse, isLoading: isLoadingPekerjaan, isError: isErrorPekerjaan } = useGetPekerjaanQuery();
   const pekerjaanList = pekerjaanResponse || [];
 
-  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery();
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery({});
   const educationLevelsList = educationLevelsResponse?.data || [];
 
   const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError, isUninitialized, reset }] = useLazyGetParentByNikQuery();
@@ -64,9 +64,9 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         loadingToastId.current = null;
       }
 
-      if (nikData && nikData.data) {
+      if (nikData) {
         toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
-        const parentData = nikData.data;
+        const parentData = nikData;
 
         const kkValue = String(parentData.kk || '').trim();
         if (kkValue.match(/^\d{16}$/)) {
@@ -108,7 +108,6 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
           toast.showError(`Gagal mengecek NIK: ${errorMessage}`);
         }
       } else {
-        // This handles the case where the API call was successful but returned no data.
         toast.showInfo('NIK belum terdaftar, silahkan isi data secara manual');
       }
     }

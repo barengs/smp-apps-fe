@@ -34,7 +34,7 @@ interface InstitusiPendidikanFormProps {
 }
 
 const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initialData, onSuccess, onCancel }) => {
-  const { data: educationLevelsData } = useGetEducationLevelsQuery();
+  const { data: educationLevelsData } = useGetEducationLevelsQuery({});
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
   const { data: usersData } = useGetStaffsQuery();
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();

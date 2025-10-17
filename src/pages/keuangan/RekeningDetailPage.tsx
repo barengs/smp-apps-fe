@@ -41,7 +41,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
 const RekeningDetailPage: React.FC = () => {
   const { accountNumber } = useParams<{ accountNumber: string }>();
   
-  const { data: account, isLoading, isError } = useGetAccountByIdQuery(accountNumber!, {
+  const { data: account, isLoading, isError } = useGetAccountByIdQuery(Number(accountNumber), {
     skip: !accountNumber,
   });
 

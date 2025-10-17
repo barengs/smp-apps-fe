@@ -8,7 +8,6 @@ import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
-import { Student } from '@/types/kepesantrenan'; // Import Student type
 
 // Interface for the data displayed in the table
 interface Santri {

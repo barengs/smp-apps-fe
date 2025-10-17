@@ -8,7 +8,7 @@ import { useGetParentsQuery } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
-import { Parent } from '@/types/kepesantrenan';
+// import { Parent } from '@/types/kepesantrenan';
 
 // Interface for the data displayed in the table
 interface WaliSantri {

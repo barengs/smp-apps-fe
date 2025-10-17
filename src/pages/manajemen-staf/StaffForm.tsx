@@ -88,7 +88,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const [currentStep, setCurrentStep] = useState(0);
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
-  const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery();
+  const { data: rolesData, isLoading: isLoadingRoles } = useGetRolesQuery({});
   const [showPassword, setShowPassword] = useState(false);
 
   const availableRoles = useMemo(() => {

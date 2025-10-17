@@ -48,7 +48,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
-  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery();
+  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

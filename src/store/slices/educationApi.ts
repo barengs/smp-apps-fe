@@ -1,5 +1,4 @@
 import { smpApi } from '../baseApi';
-import { EducationLevel } from '@/types/master-data';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // Nested type for education_class

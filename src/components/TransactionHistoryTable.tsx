@@ -36,7 +36,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
 };
 
 export const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = ({ accountNumber }) => {
-  const { data: apiResponse, isLoading, isError } = useGetTransactionsByAccountLast7DaysQuery(accountNumber);
+  const { data: apiResponse, isLoading, isError } = useGetTransactionsByAccountLast7DaysQuery({ accountNumber });
 
   const columns: ColumnDef<Transaksi>[] = [
     {

@@ -57,7 +57,7 @@ interface AsramaFormProps {
 const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createHostel, { isLoading: isCreating }] = useCreateHostelMutation();
   const [updateHostel, { isLoading: isUpdating }] = useUpdateHostelMutation();
-  const { data: programsData, isLoading: isLoadingPrograms } = useGetProgramsQuery();
+  const { data: programsData, isLoading: isLoadingPrograms } = useGetProgramsQuery({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -142,7 +142,7 @@ const AsramaForm: React.FC<AsramaFormProps> = ({ initialData, onSuccess, onCance
                   {isLoadingPrograms ? (
                     <SelectItem value="loading" disabled>Memuat program...</SelectItem>
                   ) : (
-                    programsData?.map((program) => (
+                    (programsData?.data || []).map((program) => (
                       <SelectItem key={program.id} value={program.id.toString()}>
                         {program.name}
                       </SelectItem>

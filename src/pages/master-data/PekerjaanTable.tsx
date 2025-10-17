@@ -14,7 +14,7 @@ import PekerjaanForm from './PekerjaanForm';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { Pekerjaan } from '@/types/master-data';
+import type { Pekerjaan } from '@/store/slices/pekerjaanApi';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 const PekerjaanTable: React.FC = () => {

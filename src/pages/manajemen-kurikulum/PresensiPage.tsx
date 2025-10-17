@@ -44,8 +44,8 @@ const PresensiPage: React.FC = () => {
   // Mengambil data dari API
   const { data: classSchedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
   const { data: teachersResponse, isLoading: isLoadingTeachers } = useGetTeachersQuery();
-  const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery();
-  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels } = useGetEducationLevelsQuery();
+  const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery({});
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels } = useGetEducationLevelsQuery({});
   const { data: academicYearsResponse, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
 
   const isLoading = isLoadingSchedules || isLoadingTeachers || isLoadingPrograms || isLoadingEducationLevels || isLoadingAcademicYears;
@@ -62,7 +62,7 @@ const PresensiPage: React.FC = () => {
 
     // Membuat peta untuk pencarian cepat
     const teacherMap = new Map(teachersResponse.data.map((t: any) => [t.staff.id, t]));
-    const programMap = new Map(programsResponse.map((p: any) => [p.id, p]));
+    const programMap = new Map((programsResponse?.data || []).map((p: any) => [p.id, p]));
     const educationLevelMap = new Map((educationLevelsResponse as any).data.map((l: any) => [l.id, l]));
     const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
 

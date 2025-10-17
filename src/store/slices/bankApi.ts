@@ -1,10 +1,30 @@
 import { smpApi } from '../baseApi';
 import { TransaksiApiResponse, SingleTransaksiApiResponse, Transaksi } from '@/types/keuangan';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginatedResponse, PaginationParams } from '@/types/master-data';
+
+const asPaginated = (data: any): PaginatedResponse<Transaksi> => {
+  if (data && typeof data === 'object' && 'data' in data) return data as PaginatedResponse<Transaksi>;
+  const arr = Array.isArray(data) ? data : [];
+  return {
+    current_page: 1,
+    data: arr,
+    first_page_url: '',
+    from: arr.length ? 1 : 0,
+    last_page: 1,
+    last_page_url: '',
+    links: [],
+    next_page_url: null,
+    path: '',
+    per_page: arr.length || 10,
+    prev_page_url: null,
+    to: arr.length,
+    total: arr.length,
+  };
+};
 
 export const bankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTransactions: builder.query<PaginatedResponse<Transaksi>, PaginationParams>({ // Update return type and add params
+    getTransactions: builder.query<PaginatedResponse<Transaksi>, PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
@@ -14,7 +34,7 @@ export const bankApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/transaction?${queryParams.toString()}`;
       },
-      transformResponse: (response: TransaksiApiResponse) => response.data as PaginatedResponse<Transaksi>, // Adjust transformResponse
+      transformResponse: (response: TransaksiApiResponse) => asPaginated(response.data),
       providesTags: (result) =>
         result?.data
           ? [
@@ -27,7 +47,7 @@ export const bankApi = smpApi.injectEndpoints({
       query: (id) => `main/transaction/${id}`,
       providesTags: (result, error, id) => [{ type: 'Transaksi', id }],
     }),
-    getTransactionsByAccount: builder.query<PaginatedResponse<Transaksi>, { accountNumber: string; days?: number; page?: number; per_page?: number; sort_by?: string; sort_order?: 'asc' | 'desc' }>({ // Update return type and add params
+    getTransactionsByAccount: builder.query<PaginatedResponse<Transaksi>, { accountNumber: string; days?: number; page?: number; per_page?: number; sort_by?: string; sort_order?: 'asc' | 'desc' }>({
       query: ({ accountNumber, days, page, per_page, sort_by, sort_order }) => {
         const queryParams = new URLSearchParams();
         if (days) queryParams.append('days', days.toString());
@@ -37,10 +57,10 @@ export const bankApi = smpApi.injectEndpoints({
         if (sort_order) queryParams.append('sort_order', sort_order);
         return `main/account/${accountNumber}/transactions?${queryParams.toString()}`;
       },
-      transformResponse: (response: TransaksiApiResponse) => response.data as PaginatedResponse<Transaksi>, // Adjust transformResponse
+      transformResponse: (response: TransaksiApiResponse) => asPaginated(response.data),
       providesTags: (result, error, { accountNumber }) => [{ type: 'Transaksi', id: `LIST-${accountNumber}` }],
     }),
-    getTransactionsByAccountLast7Days: builder.query<PaginatedResponse<Transaksi>, { accountNumber: string; page?: number; per_page?: number; sort_by?: string; sort_order?: 'asc' | 'desc' }>({ // Update return type and add params
+    getTransactionsByAccountLast7Days: builder.query<PaginatedResponse<Transaksi>, { accountNumber: string; page?: number; per_page?: number; sort_by?: string; sort_order?: 'asc' | 'desc' }>({
       query: ({ accountNumber, page, per_page, sort_by, sort_order }) => {
         const queryParams = new URLSearchParams();
         if (page) queryParams.append('page', page.toString());
@@ -49,7 +69,7 @@ export const bankApi = smpApi.injectEndpoints({
         if (sort_order) queryParams.append('sort_order', sort_order);
         return `main/transaction/account/${accountNumber}/last-7-days?${queryParams.toString()}`;
       },
-      transformResponse: (response: TransaksiApiResponse) => response.data as PaginatedResponse<Transaksi>, // Adjust transformResponse
+      transformResponse: (response: TransaksiApiResponse) => asPaginated(response.data),
       providesTags: (result, error, accountNumber) => [{ type: 'Transaksi', id: `LIST-${accountNumber}-7DAYS` }],
     }),
     validateTransaction: builder.mutation<{ message: string }, { id: string }>({

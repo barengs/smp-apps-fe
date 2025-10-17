@@ -57,7 +57,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     const payload: CreateUpdateEducationLevelRequest = {
       name: values.name,
       description: values.description,
-      education_class_codes: values.education_class_codes,
+      education_class_ids: (values.education_class_codes || []).map((code) => Number(code)),
     };
 
     try {

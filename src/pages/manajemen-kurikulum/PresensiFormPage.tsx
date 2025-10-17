@@ -24,7 +24,7 @@ const PresensiFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { register, handleSubmit, setValue, watch, reset } = useForm<FormData>();
 
-  const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery();
+  const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
   const [updatePresence, { isLoading: isSaving }] = useUpdatePresenceMutation();
 
   const parentSchedule = useMemo(() => {

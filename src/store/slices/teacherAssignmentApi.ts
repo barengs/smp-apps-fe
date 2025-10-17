@@ -1,6 +1,26 @@
 import { smpApi } from '../baseApi';
 import { TeacherAssignmentApiResponse, StaffDetailFromApi } from '@/types/teacherAssignment';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginatedResponse, PaginationParams } from '@/types/master-data';
+
+const asPaginatedStaff = (data: any): PaginatedResponse<StaffDetailFromApi> => {
+  if (data && typeof data === 'object' && 'data' in data) return data as PaginatedResponse<StaffDetailFromApi>;
+  const arr = Array.isArray(data) ? data : [];
+  return {
+    current_page: 1,
+    data: arr,
+    first_page_url: '',
+    from: arr.length ? 1 : 0,
+    last_page: 1,
+    last_page_url: '',
+    links: [],
+    next_page_url: null,
+    path: '',
+    per_page: arr.length || 10,
+    prev_page_url: null,
+    to: arr.length,
+    total: arr.length,
+  };
+};
 
 export interface AssignStudiesRequest {
   staffId: string;
@@ -19,11 +39,7 @@ export const teacherAssignmentApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `/master/staff-study?${queryParams.toString()}`;
       },
-      transformResponse: (response: TeacherAssignmentApiResponse) => {
-        // Assuming TeacherAssignmentApiResponse.data is already PaginatedResponse<StaffDetailFromApi>
-        // If it's not, you might need an intermediate type or adjust TeacherAssignmentApiResponse
-        return response.data as PaginatedResponse<StaffDetailFromApi>;
-      },
+      transformResponse: (response: TeacherAssignmentApiResponse) => asPaginatedStaff(response.data),
       providesTags: (result) =>
         result?.data
           ? [

@@ -1,5 +1,11 @@
 import { smpApi } from '../baseApi';
-import { Partner } from '@/types/master-data';
+// import { Partner } from '@/types/master-data';
+
+export interface Partner {
+  id: number;
+  name: string;
+  email?: string;
+}
 
 export interface GetPartnersResponse {
   message: string;

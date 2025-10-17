@@ -35,7 +35,7 @@ import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
 const MataPelajaranTable: React.FC = () => {
-  const { data: studies, isLoading, isError, refetch } = useGetStudiesQuery();
+  const { data: studies, isLoading, isError, refetch } = useGetStudiesQuery({});
   const [deleteStudy] = useDeleteStudyMutation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedStudy, setSelectedStudy] = useState<MataPelajaran | undefined>(undefined);
@@ -150,7 +150,7 @@ const MataPelajaranTable: React.FC = () => {
       </Dialog>
       <DataTable
         columns={columns}
-        data={studies || []}
+        data={studies?.data || []}
         exportFileName="DaftarMataPelajaran"
         exportTitle="Daftar Mata Pelajaran"
         onAddData={handleAddDataClick}

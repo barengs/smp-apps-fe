@@ -13,7 +13,7 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery();
+  const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery({});
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: t('sidebar.curriculum'), href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },

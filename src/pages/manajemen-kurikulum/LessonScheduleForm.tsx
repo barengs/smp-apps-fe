@@ -42,10 +42,10 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
   // Fetch data for selects
-  const { data: institutionsData } = useGetInstitusiPendidikanQuery();
-  const { data: classroomsData } = useGetClassroomsQuery();
-  const { data: classGroupsData } = useGetClassGroupsQuery();
-  const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery();
+  const { data: institutionsData } = useGetInstitusiPendidikanQuery({});
+  const { data: classroomsData } = useGetClassroomsQuery({});
+  const { data: classGroupsData } = useGetClassGroupsQuery({});
+  const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery({});
   const { data: lessonHoursData } = useGetLessonHoursQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
 
@@ -178,7 +178,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                     <SelectValue placeholder="Pilih lembaga pendidikan" />
                   </SelectTrigger>
                   <SelectContent>
-                    {institutionsData?.map(institution => (
+                    {(institutionsData?.data || []).map(institution => (
                       <SelectItem key={institution.id} value={String(institution.id)}>{institution.institution_name}</SelectItem>
                     ))}
                   </SelectContent>

@@ -1,5 +1,12 @@
 import { smpApi } from '../baseApi';
-import { Pekerjaan } from '@/types/master-data';
+// import { Pekerjaan } from '@/types/master-data';
+
+export interface Pekerjaan {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+}
 
 // --- API Response and Request Types ---
 

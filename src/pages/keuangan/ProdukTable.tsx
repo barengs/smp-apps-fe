@@ -27,7 +27,7 @@ import ProdukForm from './ProdukForm';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 const ProdukTable: React.FC = () => {
-  const { data, isLoading, isError, error } = useGetProdukBankQuery();
+  const { data, isLoading, isError, error } = useGetProdukBankQuery({});
   const [deleteProdukBank, { isLoading: isDeleting }] = useDeleteProdukBankMutation();
 
   const [isFormOpen, setIsFormOpen] = useState(false);

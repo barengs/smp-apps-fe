@@ -53,7 +53,7 @@ interface Staff {
 }
 
 const StaffTable: React.FC = () => {
-  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
+  const { data: employeesData, error, isLoading } = useGetEmployeesQuery({});
   const [deleteEmployee] = useDeleteEmployeeMutation();
   const navigate = useNavigate();
 

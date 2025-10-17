@@ -50,7 +50,7 @@ interface KelasFormProps {
 const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createClassroom, { isLoading: isCreating }] = useCreateClassroomMutation();
   const [updateClassroom, { isLoading: isUpdating }] = useUpdateClassroomMutation();
-  const { data: institutionsData, isLoading: isLoadingInstitutions } = useGetInstitusiPendidikanQuery();
+  const { data: institutionsData, isLoading: isLoadingInstitutions } = useGetInstitusiPendidikanQuery({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -100,7 +100,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
   };
 
   const isSubmitting = isCreating || isUpdating;
-  const institutions = institutionsData || [];
+  const institutions = institutionsData?.data || [];
 
   return (
     <Form {...form}>
@@ -122,15 +122,11 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {isLoadingInstitutions ? (
-                    <div className="p-2">Memuat lembaga...</div>
-                  ) : (
-                    institutions.map((institution) => (
-                      <SelectItem key={institution.id} value={String(institution.id)}>
-                        {institution.institution_name}
-                      </SelectItem>
-                    ))
-                  )}
+                  {(institutionsData?.data || []).map((institution) => (
+                    <SelectItem key={institution.id} value={String(institution.id)}>
+                      {institution.institution_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
