@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
 
 // Nested type for education_class
 export interface NestedEducationClass {
@@ -11,34 +12,21 @@ export interface NestedEducationClass {
 export interface EducationLevelApiData {
   id: number;
   name: string;
+  level: number;
   description: string | null;
-  deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
-  education: Array<{
-    id: number;
-    name: string;
-    description: string;
-    deleted_at: string | null;
-    created_at: string;
-    updated_at: string;
-    pivot: {
-      education_class_id: string;
-      education_id: string;
-    };
-  }>;
+  education_class: NestedEducationClass[]; // Array of associated education classes
 }
 
-// Raw response structure from the API with array
+// Raw response structure from the API with 'data' wrapper
 interface GetEducationLevelsRawResponse {
   message: string;
-  status: number;
-  data: EducationLevelApiData[];
+  data: PaginatedResponse<EducationLevelApiData>; // Wrap in PaginatedResponse
 }
 
 // Structure for the POST/PUT request body
 export interface CreateUpdateEducationLevelRequest {
   name: string;
+  level: number;
   description?: string;
   education_class_ids?: number[]; // Array of IDs for associated education classes
 }
@@ -50,24 +38,32 @@ export interface ImportEducationLevelResponse {
 
 export const educationApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEducationLevels: builder.query<EducationLevelApiData[], void>({
-      query: () => 'master/education-class',
-      transformResponse: (response: GetEducationLevelsRawResponse) => response.data,
+    getEducationLevels: builder.query<PaginatedResponse<EducationLevelApiData>, PaginationParams>({ // Update return type and add params
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        return 'master/education';
+      },
+      transformResponse: (response: GetEducationLevelsRawResponse) => response.data, // Extract the PaginatedResponse
       providesTags: (result) =>
-        result && Array.isArray(result)
+        result?.data
           ? [
-              ...result.map(({ id }) => ({ type: 'EducationLevel' as const, id })),
+              ...result.data.map(({ id }) => ({ type: 'EducationLevel' as const, id })),
               { type: 'EducationLevel', id: 'LIST' },
             ]
           : [{ type: 'EducationLevel', id: 'LIST' }],
     }),
     getEducationLevelById: builder.query<EducationLevelApiData, number>({
-      query: (id) => `master/education-class/${id}`,
+      query: (id) => `master/education/${id}`,
       providesTags: (result, error, id) => [{ type: 'EducationLevel', id }],
     }),
     createEducationLevel: builder.mutation<EducationLevelApiData, CreateUpdateEducationLevelRequest>({
       query: (newLevel) => ({
-        url: 'master/education-class',
+        url: 'master/education',
         method: 'POST',
         body: newLevel,
       }),
@@ -75,7 +71,7 @@ export const educationApi = smpApi.injectEndpoints({
     }),
     updateEducationLevel: builder.mutation<EducationLevelApiData, { id: number; data: CreateUpdateEducationLevelRequest }>({
       query: ({ id, data }) => ({
-        url: `master/education-class/${id}`,
+        url: `master/education/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -83,14 +79,14 @@ export const educationApi = smpApi.injectEndpoints({
     }),
     deleteEducationLevel: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/education-class/${id}`,
+        url: `master/education/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'EducationLevel', id: 'LIST' }],
     }),
     importEducationLevels: builder.mutation<ImportEducationLevelResponse, FormData>({
       query: (formData) => ({
-        url: 'master/education-class/import',
+        url: 'master/education/import',
         method: 'POST',
         body: formData,
       }),

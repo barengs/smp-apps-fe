@@ -45,7 +45,7 @@ const PresensiPage: React.FC = () => {
   const { data: classSchedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
   const { data: teachersResponse, isLoading: isLoadingTeachers } = useGetTeachersQuery();
   const { data: programsResponse, isLoading: isLoadingPrograms } = useGetProgramsQuery({});
-  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels } = useGetEducationLevelsQuery();
+  const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels } = useGetEducationLevelsQuery({});
   const { data: academicYearsResponse, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
 
   const isLoading = isLoadingSchedules || isLoadingTeachers || isLoadingPrograms || isLoadingEducationLevels || isLoadingAcademicYears;

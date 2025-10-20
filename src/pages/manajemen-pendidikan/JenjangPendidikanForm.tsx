@@ -25,7 +25,7 @@ const formSchema = z.object({
     message: 'Nama Jenjang Pendidikan harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
-  education_class_ids: z.array(z.string()).optional(),
+  education_class_codes: z.array(z.string()).optional(),
 });
 
 interface JenjangPendidikanFormProps {
@@ -49,7 +49,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     defaultValues: {
       name: initialData?.name || '',
       description: initialData?.description || '',
-      education_class_ids: initialData?.education_class?.map(ec => ec.code) || [],
+      education_class_codes: initialData?.education_class?.map(ec => ec.code) || [],
     },
   });
 
@@ -57,7 +57,8 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     const payload: CreateUpdateEducationLevelRequest = {
       name: values.name,
       description: values.description,
-      education_class_ids: (values.education_class_ids || []).map((id) => Number(id)),
+      education_class_ids: (values.education_class_codes || []).map((code) => Number(code)),
+      level: Number((initialData as any)?.level ?? 0),
     };
 
     try {
@@ -91,7 +92,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
 
   const educationGroupOptions: Option[] = React.useMemo(() => {
     return educationGroupsData?.map(group => ({
-      value: String(group.id),
+      value: group.code,
       label: group.name,
     })) || [];
   }, [educationGroupsData]);
@@ -127,7 +128,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
         />
         <FormField
           control={form.control}
-          name="education_class_ids"
+          name="education_class_codes"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Kelompok Pendidikan</FormLabel>

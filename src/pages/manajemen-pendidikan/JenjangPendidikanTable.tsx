@@ -26,33 +26,19 @@ import JenjangPendidikanImportDialog from './JenjangPendidikanImportDialog';
 import { useGetEducationLevelsQuery, useDeleteEducationLevelMutation } from '@/store/slices/educationApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import type { EducationLevelApiData } from '@/store/slices/educationApi';
+// Mengimpor NestedEducationClass dari educationApi untuk konsistensi tipe
+import type { NestedEducationClass } from '@/store/slices/educationApi';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface JenjangPendidikan {
   id: number;
-  code: string;
   name: string;
   description: string;
-  deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
-  education: Array<{
-    id: number;
-    name: string;
-    description: string;
-    deleted_at: string | null;
-    created_at: string;
-    updated_at: string;
-    pivot: {
-      education_class_id: string;
-      education_id: string;
-    };
-  }>;
+  education_class: NestedEducationClass[]; // Mengubah menjadi array objek
 }
 
 const JenjangPendidikanTable: React.FC = () => {
-  const { data: educationLevelsData, error, isLoading } = useGetEducationLevelsQuery();
+  const { data: educationLevelsData, error, isLoading } = useGetEducationLevelsQuery({});
   const [deleteEducationLevel] = useDeleteEducationLevelMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,22 +48,18 @@ const JenjangPendidikanTable: React.FC = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const educationLevels: JenjangPendidikan[] = useMemo(() => {
-    if (Array.isArray(educationLevelsData)) {
-      return educationLevelsData.map(item => ({
+    if (educationLevelsData?.data) {
+      return educationLevelsData.data.map(item => ({
         id: item.id,
-        code: `EDU${item.id.toString().padStart(3, '0')}`, // Generate code from ID
         name: item.name,
         description: item.description || 'Tidak ada deskripsi',
-        deleted_at: item.deleted_at,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        education: item.education || [],
+        education_class: item.education_class || [],
       }));
     }
     return [];
   }, [educationLevelsData]);
 
-  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<JenjangPendidikan>(educationLevels, 10);
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<JenjangPendidikan>(educationLevels);
 
   const handleAddData = () => {
     setEditingData(undefined);
@@ -127,20 +109,17 @@ const JenjangPendidikanTable: React.FC = () => {
   const columns: ColumnDef<JenjangPendidikan>[] = useMemo(
     () => [
       {
-        accessorKey: 'code',
-        header: 'Kode',
-      },
-      {
         accessorKey: 'name',
         header: 'Nama Jenjang',
       },
       {
-        accessorKey: 'education',
-        header: 'Jenjang Pendidikan',
+        accessorKey: 'education_class', // Mengakses properti education_class (array)
+        header: 'Kelompok Pendidikan',
         cell: ({ row }) => {
-          const educations = row.original.education;
-          return educations && educations.length > 0
-            ? educations.map(e => e.name).join(', ')
+          const educationClasses = row.original.education_class;
+          // Menggabungkan nama-nama kelompok pendidikan menjadi satu string
+          return educationClasses && educationClasses.length > 0
+            ? educationClasses.map(ec => ec.name).join(', ')
             : 'Tidak ada';
         },
       },
@@ -177,7 +156,7 @@ const JenjangPendidikanTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
 
   // Treat 404 error as empty data, but show other errors
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
@@ -209,12 +188,7 @@ const JenjangPendidikanTable: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <JenjangPendidikanForm
-            initialData={editingData ? {
-              id: editingData.id,
-              name: editingData.name,
-              description: editingData.description,
-              education_class: editingData.education.map(e => ({ code: e.id.toString(), name: e.name }))
-            } : undefined}
+            initialData={editingData}
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}
           />
