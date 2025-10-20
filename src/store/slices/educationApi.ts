@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginationParams } from '@/types/master-data';
 
 // Nested type for education_class
 export interface NestedEducationClass {
@@ -20,7 +20,8 @@ export interface EducationLevelApiData {
 // Raw response structure from the API with 'data' wrapper
 interface GetEducationLevelsRawResponse {
   message: string;
-  data: PaginatedResponse<EducationLevelApiData>; // Wrap in PaginatedResponse
+  status?: number;
+  data: EducationLevelApiData[]; // API returns array directly
 }
 
 // Structure for the POST/PUT request body
@@ -38,21 +39,21 @@ export interface ImportEducationLevelResponse {
 
 export const educationApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEducationLevels: builder.query<PaginatedResponse<EducationLevelApiData>, PaginationParams>({ // Update return type and add params
+    getEducationLevels: builder.query<EducationLevelApiData[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params?.sort_order) queryParams.append('sort_order', params.sort_order);
         return 'master/education';
       },
-      transformResponse: (response: GetEducationLevelsRawResponse) => response.data, // Extract the PaginatedResponse
+      transformResponse: (response: GetEducationLevelsRawResponse) => response.data,
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'EducationLevel' as const, id })),
+              ...result.map(({ id }) => ({ type: 'EducationLevel' as const, id })),
               { type: 'EducationLevel', id: 'LIST' },
             ]
           : [{ type: 'EducationLevel', id: 'LIST' }],

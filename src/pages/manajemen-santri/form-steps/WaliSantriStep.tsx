@@ -31,7 +31,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
   const pekerjaanList = pekerjaanResponse || [];
 
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery({});
-  const educationLevelsList = educationLevelsResponse?.data || [];
+  const educationLevelsList = educationLevelsResponse || [];
 
   const [triggerGetParentByNik, { data: nikData, isLoading: isLoadingNik, isError: isErrorNik, error: nikError, isUninitialized, reset }] = useLazyGetParentByNikQuery();
 

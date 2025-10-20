@@ -48,8 +48,8 @@ const JenjangPendidikanTable: React.FC = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const educationLevels: JenjangPendidikan[] = useMemo(() => {
-    if (educationLevelsData?.data) {
-      return educationLevelsData.data.map(item => ({
+    if (educationLevelsData && Array.isArray(educationLevelsData)) {
+      return educationLevelsData.map(item => ({
         id: item.id,
         name: item.name,
         description: item.description || 'Tidak ada deskripsi',

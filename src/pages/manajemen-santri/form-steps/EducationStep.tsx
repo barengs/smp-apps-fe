@@ -17,7 +17,7 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 const EducationStep: React.FC = () => {
   const { control } = useFormContext();
   const { data: educationLevelsResponse, isLoading: isLoadingEducationLevels, isError: isErrorEducationLevels } = useGetEducationLevelsQuery({});
-  const educationLevels = educationLevelsResponse?.data || [];
+  const educationLevels = educationLevelsResponse || [];
 
   return (
     <div className="space-y-6">
