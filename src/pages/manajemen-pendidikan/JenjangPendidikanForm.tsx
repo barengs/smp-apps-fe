@@ -91,7 +91,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
   const isSubmitting = isCreating || isUpdating;
 
   const educationGroupOptions: Option[] = React.useMemo(() => {
-    return educationGroupsData?.data.map(group => ({
+    return educationGroupsData?.map(group => ({
       value: group.code,
       label: group.name,
     })) || [];

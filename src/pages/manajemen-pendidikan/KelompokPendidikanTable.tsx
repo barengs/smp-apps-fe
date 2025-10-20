@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { showSuccess, showError } from '@/utils/toast';
+import { showSuccess, showError, toast, showWarning } from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -22,14 +22,31 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import KelompokPendidikanForm from './KelompokPendidikanForm';
+import KelompokPendidikanImportDialog from './KelompokPendidikanImportDialog';
 import { useGetEducationGroupsQuery, useDeleteEducationGroupMutation } from '@/store/slices/educationGroupApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
-interface EducationGroup {
-  code: string; // Mengganti 'id' dengan 'code'
+interface KelompokPendidikan {
+  id: number;
+  code: string;
   name: string;
-  // 'description' dihapus
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  education: Array<{
+    id: number;
+    name: string;
+    description: string;
+    deleted_at: string | null;
+    created_at: string;
+    updated_at: string;
+    pivot: {
+      education_class_id: string;
+      education_id: string;
+    };
+  }>;
 }
 
 const KelompokPendidikanTable: React.FC = () => {
@@ -37,40 +54,54 @@ const KelompokPendidikanTable: React.FC = () => {
   const [deleteEducationGroup] = useDeleteEducationGroupMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingEducationGroup, setEditingEducationGroup] = useState<EducationGroup | undefined>(undefined);
+  const [editingData, setEditingData] = useState<KelompokPendidikan | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [educationGroupToDelete, setEducationGroupToDelete] = useState<EducationGroup | undefined>(undefined);
+  const [dataToDelete, setDataToDelete] = useState<KelompokPendidikan | undefined>(undefined);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  const educationGroups: EducationGroup[] = useMemo(() => {
-    return educationGroupsData?.data || [];
+  const educationGroups: KelompokPendidikan[] = useMemo(() => {
+    if (Array.isArray(educationGroupsData)) {
+      return educationGroupsData.map(item => ({
+        id: item.id,
+        code: item.code,
+        name: item.name,
+        deleted_at: item.deleted_at,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        education: item.education || [],
+      }));
+    }
+    return [];
   }, [educationGroupsData]);
 
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<KelompokPendidikan>(educationGroups, 10);
+
   const handleAddData = () => {
-    setEditingEducationGroup(undefined);
+    setEditingData(undefined);
     setIsModalOpen(true);
   };
 
-  const handleEditData = (educationGroup: EducationGroup) => {
-    setEditingEducationGroup(educationGroup);
+  const handleEditData = (data: KelompokPendidikan) => {
+    setEditingData(data);
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (educationGroup: EducationGroup) => {
-    setEducationGroupToDelete(educationGroup);
+  const handleDeleteClick = (data: KelompokPendidikan) => {
+    setDataToDelete(data);
     setIsDeleteDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
-    if (educationGroupToDelete) {
+    if (dataToDelete) {
       try {
-        await deleteEducationGroup(educationGroupToDelete.code).unwrap(); // Menggunakan 'code'
-        showSuccess(`Kelompok Pendidikan "${educationGroupToDelete.name}" berhasil dihapus.`);
+        await deleteEducationGroup(dataToDelete.code).unwrap();
+        showSuccess(`Kelompok Pendidikan "${dataToDelete.name}" berhasil dihapus.`);
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
-        const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus kelompok pendidikan.';
+        const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus data.';
         showError(errorMessage);
       } finally {
-        setEducationGroupToDelete(undefined);
+        setDataToDelete(undefined);
         setIsDeleteDialogOpen(false);
       }
     }
@@ -78,38 +109,59 @@ const KelompokPendidikanTable: React.FC = () => {
 
   const handleFormSuccess = () => {
     setIsModalOpen(false);
-    setEditingEducationGroup(undefined);
+    setEditingData(undefined);
   };
 
   const handleFormCancel = () => {
     setIsModalOpen(false);
-    setEditingEducationGroup(undefined);
+    setEditingData(undefined);
   };
 
-  const columns: ColumnDef<EducationGroup>[] = useMemo(
+  const handleImportData = () => {
+    // setIsImportModalOpen(true); // Commented out since import dialog doesn't exist
+    showWarning('Fitur import belum tersedia.');
+  };
+
+  const columns: ColumnDef<KelompokPendidikan>[] = useMemo(
     () => [
       {
-        accessorKey: 'code', // Menambahkan kolom 'code'
-        header: 'Kode Kelompok Pendidikan',
+        accessorKey: 'code',
+        header: 'Kode',
       },
       {
         accessorKey: 'name',
-        header: 'Nama Kelompok Pendidikan',
+        header: 'Nama Kelompok',
       },
-      // Kolom 'description' dihapus
+      {
+        accessorKey: 'education',
+        header: 'Jenjang Pendidikan',
+        cell: ({ row }) => {
+          const educations = row.original.education;
+          return educations && educations.length > 0
+            ? educations.map(e => e.name).join(', ')
+            : 'Tidak ada';
+        },
+      },
       {
         id: 'actions',
         header: 'Aksi',
         cell: ({ row }) => {
-          const educationGroup = row.original;
+          const data = row.original;
           return (
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => handleEditData(educationGroup)}
+                onClick={() => handleEditData(data)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="danger"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleDeleteClick(data)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
             </div>
           );
@@ -119,7 +171,7 @@ const KelompokPendidikanTable: React.FC = () => {
     []
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
@@ -130,23 +182,27 @@ const KelompokPendidikanTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={educationGroups}
+        data={paginatedData}
         exportFileName="data_kelompok_pendidikan"
         exportTitle="Data Kelompok Pendidikan"
         onAddData={handleAddData}
+        onImportData={handleImportData}
         addButtonLabel="Tambah Kelompok Pendidikan"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>{editingEducationGroup ? 'Edit Kelompok Pendidikan' : 'Tambah Kelompok Pendidikan Baru'}</DialogTitle>
+            <DialogTitle>{editingData ? 'Edit Kelompok Pendidikan' : 'Tambah Kelompok Pendidikan Baru'}</DialogTitle>
             <DialogDescription>
-              {editingEducationGroup ? 'Ubah detail kelompok pendidikan ini.' : 'Isi detail untuk kelompok pendidikan baru.'}
+              {editingData ? 'Ubah detail kelompok pendidikan ini.' : 'Isi detail untuk kelompok pendidikan baru.'}
             </DialogDescription>
           </DialogHeader>
           <KelompokPendidikanForm
-            initialData={editingEducationGroup}
+            initialData={editingData}
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}
           />
@@ -159,7 +215,7 @@ const KelompokPendidikanTable: React.FC = () => {
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
               Tindakan ini tidak dapat dibatalkan. Ini akan menghapus kelompok pendidikan{' '}
-              <span className="font-semibold text-foreground">"{educationGroupToDelete?.name}"</span> secara permanen.
+              <span className="font-semibold text-foreground">"{dataToDelete?.name}"</span> secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -168,6 +224,11 @@ const KelompokPendidikanTable: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* <KelompokPendidikanImportDialog
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+      /> */}
     </>
   );
 };

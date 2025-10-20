@@ -46,7 +46,7 @@ export const educationApi = smpApi.injectEndpoints({
         if (params.search) queryParams.append('search', params.search);
         if (params.sort_by) queryParams.append('sort_by', params.sort_by);
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
-        return 'master/education-level';
+        return 'master/education';
       },
       transformResponse: (response: GetEducationLevelsRawResponse) => response.data, // Extract the PaginatedResponse
       providesTags: (result) =>
@@ -58,12 +58,12 @@ export const educationApi = smpApi.injectEndpoints({
           : [{ type: 'EducationLevel', id: 'LIST' }],
     }),
     getEducationLevelById: builder.query<EducationLevelApiData, number>({
-      query: (id) => `master/education-level/${id}`,
+      query: (id) => `master/education/${id}`,
       providesTags: (result, error, id) => [{ type: 'EducationLevel', id }],
     }),
     createEducationLevel: builder.mutation<EducationLevelApiData, CreateUpdateEducationLevelRequest>({
       query: (newLevel) => ({
-        url: 'master/education-level',
+        url: 'master/education',
         method: 'POST',
         body: newLevel,
       }),
@@ -71,7 +71,7 @@ export const educationApi = smpApi.injectEndpoints({
     }),
     updateEducationLevel: builder.mutation<EducationLevelApiData, { id: number; data: CreateUpdateEducationLevelRequest }>({
       query: ({ id, data }) => ({
-        url: `master/education-level/${id}`,
+        url: `master/education/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -79,14 +79,14 @@ export const educationApi = smpApi.injectEndpoints({
     }),
     deleteEducationLevel: builder.mutation<void, number>({
       query: (id) => ({
-        url: `master/education-level/${id}`,
+        url: `master/education/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'EducationLevel', id: 'LIST' }],
     }),
     importEducationLevels: builder.mutation<ImportEducationLevelResponse, FormData>({
       query: (formData) => ({
-        url: 'master/education-level/import',
+        url: 'master/education/import',
         method: 'POST',
         body: formData,
       }),

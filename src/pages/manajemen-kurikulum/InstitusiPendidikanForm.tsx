@@ -87,7 +87,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
 
   const isLoading = isCreating || isUpdating;
   const educationLevels = educationLevelsData?.data || [];
-  const educationGroups = educationGroupsData?.data || [];
+  const educationGroups = educationGroupsData || [];
   
   // Ekstrak data staf dari usersData yang memiliki properti staff
   const staffs = useMemo(() => {
