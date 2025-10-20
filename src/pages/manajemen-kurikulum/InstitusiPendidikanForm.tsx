@@ -34,7 +34,7 @@ interface InstitusiPendidikanFormProps {
 }
 
 const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initialData, onSuccess, onCancel }) => {
-  const { data: educationLevelsData } = useGetEducationLevelsQuery({});
+  const { data: educationLevelsData } = useGetEducationLevelsQuery();
   const { data: educationGroupsData } = useGetEducationGroupsQuery();
   const { data: usersData } = useGetStaffsQuery();
   const [createInstitusi, { isLoading: isCreating }] = useCreateInstitusiPendidikanMutation();
@@ -86,7 +86,7 @@ const InstitusiPendidikanForm: React.FC<InstitusiPendidikanFormProps> = ({ initi
   };
 
   const isLoading = isCreating || isUpdating;
-  const educationLevels = educationLevelsData?.data || [];
+  const educationLevels = educationLevelsData || [];
   const educationGroups = educationGroupsData || [];
   
   // Ekstrak data staf dari usersData yang memiliki properti staff
