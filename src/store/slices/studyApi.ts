@@ -1,6 +1,6 @@
 import { smpApi } from '../baseApi';
 import { MataPelajaran } from '@/types/pendidikan';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginationParams } from '@/types/master-data';
 
 // New interface for the import response
 export interface ImportStudyResponse {
@@ -9,21 +9,26 @@ export interface ImportStudyResponse {
 
 export const studyApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudies: builder.query<PaginatedResponse<MataPelajaran>, PaginationParams>({ // Update return type and add params
+    getStudies: builder.query<MataPelajaran[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params?.sort_order) queryParams.append('sort_order', params.sort_order);
         return `master/study?${queryParams.toString()}`;
       },
-      transformResponse: (response: { data: PaginatedResponse<MataPelajaran> }) => response.data, // Adjust transformResponse
+      transformResponse: (response: { success?: boolean; data: Array<{ id: number | string; name: string; description?: string | null }> }) =>
+        (response.data || []).map((item) => ({
+          id: String(item.id),
+          name: item.name,
+          description: item.description ?? null,
+        })),
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Study' as const, id })),
+              ...result.map(({ id }) => ({ type: 'Study' as const, id })),
               { type: 'Study', id: 'LIST' },
             ]
           : [{ type: 'Study', id: 'LIST' }],

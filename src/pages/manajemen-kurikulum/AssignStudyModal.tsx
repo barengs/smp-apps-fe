@@ -48,8 +48,8 @@ const AssignStudyModal: React.FC<AssignStudyModalProps> = ({ isOpen, onClose, st
   });
 
   const studyOptions: Option[] = React.useMemo(() => {
-    if (!studiesData?.data) return [];
-    return studiesData.data.map((study) => ({
+    const list = studiesData || [];
+    return list.map((study) => ({
       value: String(study.id),
       label: study.name,
     }));

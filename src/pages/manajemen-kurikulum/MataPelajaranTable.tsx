@@ -150,7 +150,7 @@ const MataPelajaranTable: React.FC = () => {
       </Dialog>
       <DataTable
         columns={columns}
-        data={studies?.data || []}
+        data={studies || []}
         exportFileName="DaftarMataPelajaran"
         exportTitle="Daftar Mata Pelajaran"
         onAddData={handleAddDataClick}
