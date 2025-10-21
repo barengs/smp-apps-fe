@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -99,7 +99,11 @@ const JadwalPelajaranPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const data = schedulesResponse?.data ? flattenScheduleData(schedulesResponse.data) : [];
+  const data = React.useMemo(() => {
+    const raw: ClassScheduleData[] =
+      (Array.isArray(schedulesResponse) ? schedulesResponse : schedulesResponse?.data) || [];
+    return flattenScheduleData(raw);
+  }, [schedulesResponse]);
 
   return (
     <DashboardLayout title={t('sidebar.lessonSchedule')} role="administrasi">
