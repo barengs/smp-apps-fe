@@ -44,12 +44,15 @@ const InstitusiPendidikanTable: React.FC = () => {
   };
 
   const tableData = useMemo(() => {
-    return (data?.data || []).map(item => ({
-      ...item,
-      education_id: item.education?.id || 0,
-      education_class_id: item.education_class?.id || 0,
-      headmaster_id: item.headmaster_id || '',
-    }));
+    if (data && Array.isArray(data)) {
+      return data.map(item => ({
+        ...item,
+        education_id: item.education?.id || 0,
+        education_class_id: item.education_class?.id || 0,
+        headmaster_id: item.headmaster_id || '',
+      }));
+    }
+    return [];
   }, [data]);
 
   const columns: ColumnDef<InstitusiPendidikan>[] = useMemo(

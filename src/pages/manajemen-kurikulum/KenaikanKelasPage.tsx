@@ -97,7 +97,7 @@ export default function KenaikanKelasPage() {
     // Membuat peta untuk pencarian cepat
     const studentMap = new Map(studentsResponse?.map((s: any) => [s.id, s]) || []);
     const academicYearMap = new Map(academicYears?.map((ay: any) => [ay.id, ay]) || []);
-    const institusiPendidikanMap = new Map((institusiPendidikan?.data || []).map((ip: any) => [ip.id, ip]) || []);
+    const institusiPendidikanMap = new Map((institusiPendidikan || []).map((ip: any) => [ip.id, ip]) || []);
     const classroomMap = new Map((classroomsResponse?.data || []).map((c: any) => [c.id, c]) || []);
 
     return studentClassesResponse.data.map((studentClass): PromotionData => {

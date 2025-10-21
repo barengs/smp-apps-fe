@@ -100,7 +100,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
   };
 
   const isSubmitting = isCreating || isUpdating;
-  const institutions = institutionsData?.data || [];
+  const institutions = institutionsData || [];
 
   return (
     <Form {...form}>
@@ -122,7 +122,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {(institutionsData?.data || []).map((institution) => (
+                  {institutions.map((institution) => (
                     <SelectItem key={institution.id} value={String(institution.id)}>
                       {institution.institution_name}
                     </SelectItem>

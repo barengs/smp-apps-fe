@@ -178,7 +178,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                     <SelectValue placeholder="Pilih lembaga pendidikan" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(institutionsData?.data || []).map(institution => (
+                    {(institutionsData || []).map(institution => (
                       <SelectItem key={institution.id} value={String(institution.id)}>{institution.institution_name}</SelectItem>
                     ))}
                   </SelectContent>

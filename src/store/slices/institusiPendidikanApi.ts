@@ -1,18 +1,19 @@
 import { smpApi } from '../baseApi';
 import { InstitusiPendidikan, JenjangPendidikan } from '@/types/pendidikan';
 import { Staff } from '@/types/teacher';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginationParams } from '@/types/master-data'; // Hanya import PaginationParams
 
 interface InstitusiPendidikanApiResponse extends Omit<InstitusiPendidikan, 'education_id' | 'education' | 'education_class' | 'headmaster'> {
-  education_id: number;
+  education_id: string; // API returns string
   education: JenjangPendidikan;
   education_class: { id: number; code: string; name: string };
   headmaster: Staff;
 }
 
 interface GetInstitusiPendidikanRawResponse {
+  success: boolean;
   message: string;
-  data: PaginatedResponse<InstitusiPendidikanApiResponse>; // Wrap in PaginatedResponse
+  data: InstitusiPendidikanApiResponse[]; // API returns array directly
 }
 
 export interface CreateUpdateInstitusiPendidikanRequest {
@@ -28,21 +29,21 @@ export interface CreateUpdateInstitusiPendidikanRequest {
 
 export const institusiPendidikanApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getInstitusiPendidikan: builder.query<PaginatedResponse<InstitusiPendidikanApiResponse>, PaginationParams>({ // Update return type and add params
+    getInstitusiPendidikan: builder.query<InstitusiPendidikanApiResponse[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+        if (params?.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/educational-institution?${queryParams.toString()}`;
       },
-      transformResponse: (response: GetInstitusiPendidikanRawResponse) => response.data, // Extract the PaginatedResponse
+      transformResponse: (response: GetInstitusiPendidikanRawResponse) => response.data,
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'InstitusiPendidikan' as const, id })),
+              ...result.map(({ id }) => ({ type: 'InstitusiPendidikan' as const, id })),
               { type: 'InstitusiPendidikan', id: 'LIST' },
             ]
           : [{ type: 'InstitusiPendidikan', id: 'LIST' }],
