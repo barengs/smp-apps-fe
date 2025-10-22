@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetClassSchedulesQuery, useUpdatePresenceMutation } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useUpdatePresenceMutation, useGetPresenceByScheduleIdQuery } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
 
@@ -37,13 +37,19 @@ const PresensiFormPage: React.FC = () => {
     return null;
   }, [schedulesResponse, detailId]);
 
+  // Ambil data presence berdasarkan class_schedule_id dari parentSchedule
+  const { data: presenceResponse, isLoading: isLoadingPresence } = useGetPresenceByScheduleIdQuery(parentSchedule?.id as number, {
+    skip: !parentSchedule?.id,
+  });
+
   const { detail, students, currentMeetingSchedule } = useMemo(() => {
     const emptyResult = { detail: null, students: [] as Array<{ id: number; first_name?: string; last_name?: string }>, currentMeetingSchedule: null as any };
-    if (!parentSchedule || !detailId || !meetingNumber) {
+    if (!presenceResponse?.data || !detailId || !meetingNumber) {
       return emptyResult;
     }
 
-    const currentDetail = parentSchedule.details.find(d => d.id === parseInt(detailId, 10));
+    const scheduleData = presenceResponse.data;
+    const currentDetail = scheduleData.details.find(d => d.id === parseInt(detailId, 10));
     if (!currentDetail) {
       return emptyResult;
     }
@@ -57,7 +63,7 @@ const PresensiFormPage: React.FC = () => {
       students: studentList,
       currentMeetingSchedule: currentMeeting,
     };
-  }, [parentSchedule, detailId, meetingNumber]);
+  }, [presenceResponse, detailId, meetingNumber]);
 
   useEffect(() => {
     if (students.length > 0 && currentMeetingSchedule) {
@@ -138,7 +144,7 @@ const PresensiFormPage: React.FC = () => {
     { label: `Presensi Pertemuan ke-${meetingNumber}` },
   ];
 
-  const isLoading = isLoadingSchedules;
+  const isLoading = isLoadingSchedules || isLoadingPresence;
 
   if (isLoading) {
     return <DashboardLayout title="Formulir Presensi" role="administrasi"><Skeleton className="h-96 w-full" /></DashboardLayout>;
