@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetClassSchedulesQuery, useUpdatePresenceMutation, useGetPresenceByScheduleIdQuery } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useUpdatePresenceMutation, useSaveAttendanceMutation } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
 
@@ -26,60 +26,50 @@ const PresensiFormPage: React.FC = () => {
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
   const [updatePresence, { isLoading: isSaving }] = useUpdatePresenceMutation();
+  const [saveAttendance] = useSaveAttendanceMutation();
 
   const parentSchedule = useMemo(() => {
-    if (!schedulesResponse?.data || !detailId) return null;
-    for (const s of schedulesResponse.data) {
-      if (s.details.some((d) => d.id === parseInt(detailId, 10))) {
+    if (!schedulesResponse || !detailId) return null;
+    const schedulesArray = Array.isArray(schedulesResponse)
+      ? schedulesResponse
+      : schedulesResponse.data || [];
+    for (const s of schedulesArray) {
+      if (s.details?.some((d) => d.id === parseInt(detailId, 10))) {
         return s;
       }
     }
     return null;
   }, [schedulesResponse, detailId]);
 
-  // Ambil data presence berdasarkan class_schedule_id dari parentSchedule
-  const { data: presenceResponse, isLoading: isLoadingPresence } = useGetPresenceByScheduleIdQuery(parentSchedule?.id as number, {
-    skip: !parentSchedule?.id,
-  });
-
   const { detail, students, currentMeetingSchedule } = useMemo(() => {
     const emptyResult = { detail: null, students: [] as Array<{ id: number; first_name?: string; last_name?: string }>, currentMeetingSchedule: null as any };
-    if (!presenceResponse?.data || !detailId || !meetingNumber) {
+    if (!parentSchedule || !detailId || !meetingNumber) {
       return emptyResult;
     }
-
-    const scheduleData = presenceResponse.data;
-    const currentDetail = scheduleData.details.find(d => d.id === parseInt(detailId, 10));
+    const currentDetail = parentSchedule.details.find(d => d.id === parseInt(detailId, 10));
     if (!currentDetail) {
       return emptyResult;
     }
-
     const studentList = currentDetail.students || [];
     const meetingNum = parseInt(meetingNumber, 10);
     const currentMeeting = currentDetail.meeting_schedules?.find(ms => parseInt(ms.meeting_sequence as any, 10) === meetingNum) || null;
-
     return {
       detail: currentDetail,
       students: studentList,
       currentMeetingSchedule: currentMeeting,
     };
-  }, [presenceResponse, detailId, meetingNumber]);
+  }, [parentSchedule, detailId, meetingNumber]);
 
   useEffect(() => {
-    if (students.length > 0 && currentMeetingSchedule) {
+    if (students.length > 0) {
       const defaultValues: Record<string, AttendanceStatus> = {};
       const defaultDescriptions: Record<string, string> = {};
       students.forEach(student => {
-        const existingPresence = currentMeetingSchedule.presences?.find(p => parseInt(p.student_id, 10) === student.id);
+        const existingPresence = currentMeetingSchedule?.presences?.find(p => parseInt(p.student_id, 10) === student.id);
         defaultValues[student.id] = (existingPresence?.status || 'hadir').toLowerCase() as AttendanceStatus;
-        defaultDescriptions[student.id] = existingPresence?.description || ''; // Use existing description
+        defaultDescriptions[student.id] = existingPresence?.description || '';
       });
-      
-      reset({ 
-        attendances: defaultValues
-      });
-      
-      // Set description values separately
+      reset({ attendances: defaultValues });
       Object.entries(defaultDescriptions).forEach(([studentId, description]) => {
         setValue(`description.${studentId}` as any, description);
       });
@@ -97,36 +87,30 @@ const PresensiFormPage: React.FC = () => {
   }, [watchedAttendances, watchedDescriptions]);
 
   const onSubmit = async (data: any) => {
-    if (!currentMeetingSchedule) return;
-
-    console.log('=== DEBUG: Form submission data ===');
-    console.log('Form data received:', data);
-    console.log('Attendances:', data.attendances);
-    console.log('Descriptions:', data.description);
-
-    // Build the payload with description from form data
-    const attendancePayload = Object.entries(data.attendances).map(([student_id, status]) => ({
-      student_id: parseInt(student_id, 10),
-      status,
-      description: data.description[student_id] || null,
-    }));
-
-    console.log('Attendance payload:', attendancePayload);
-
-    const presenceList = {
-      presences: attendancePayload.map((item) => ({
-        student_id: item.student_id,
-        meeting_schedule_id: currentMeetingSchedule.id,
-        status: item.status as 'hadir' | 'sakit' | 'izin' | 'alpha',
-        description: item.description as string | null,
-      }))
-    };
-
-    console.log('Final presence list:', presenceList);
-
     const toastId = showLoading('Menyimpan presensi...');
     try {
-      await updatePresence(presenceList).unwrap();
+      if (currentMeetingSchedule) {
+        const presenceList = {
+          presences: Object.entries(data.attendances).map(([student_id, status]) => ({
+            student_id: parseInt(student_id, 10),
+            meeting_schedule_id: currentMeetingSchedule.id,
+            status: status as AttendanceStatus,
+            description: data.description?.[student_id] || null,
+          })),
+        };
+        await updatePresence(presenceList).unwrap();
+      } else {
+        const toUpper = { hadir: 'Hadir', sakit: 'Sakit', izin: 'Izin', alpha: 'Alfa' } as const;
+        const payload = {
+          schedule_detail_id: detail.id,
+          meeting_number: parseInt(meetingNumber as string, 10),
+          attendances: Object.entries(data.attendances).map(([student_id, status]) => ({
+            student_id: parseInt(student_id, 10),
+            status: toUpper[status as AttendanceStatus],
+          })),
+        };
+        await saveAttendance(payload).unwrap();
+      }
       dismissToast(toastId);
       showSuccess('Data presensi berhasil disimpan!');
       navigate(-1);
@@ -144,17 +128,17 @@ const PresensiFormPage: React.FC = () => {
     { label: `Presensi Pertemuan ke-${meetingNumber}` },
   ];
 
-  const isLoading = isLoadingSchedules || isLoadingPresence;
+  const isLoading = isLoadingSchedules;
 
   if (isLoading) {
     return <DashboardLayout title="Formulir Presensi" role="administrasi"><Skeleton className="h-96 w-full" /></DashboardLayout>;
   }
 
-  if (!detail || !currentMeetingSchedule) {
+  if (!detail) {
     return (
       <DashboardLayout title="Error" role="administrasi">
         <div className="p-4 text-center">
-          <p>Data jadwal atau pertemuan tidak ditemukan.</p>
+          <p>Data jadwal tidak ditemukan.</p>
           <Button onClick={() => navigate(-1)} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
           </Button>
