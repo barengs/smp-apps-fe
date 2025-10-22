@@ -52,24 +52,24 @@ const PresensiPage: React.FC = () => {
 
   // Memproses data untuk tabel
   const presensiData = React.useMemo(() => {
-    if (isLoading || !classSchedulesResponse || !teachersResponse || !programsResponse || !educationLevelsResponse || !academicYearsResponse) {
+    if (isLoadingSchedules || !classSchedulesResponse) {
       return [];
     }
 
-    if (!classSchedulesResponse.data || !Array.isArray(classSchedulesResponse.data)) {
+    const schedulesArray =
+      Array.isArray(classSchedulesResponse)
+        ? classSchedulesResponse
+        : Array.isArray(classSchedulesResponse.data)
+          ? classSchedulesResponse.data
+          : [];
+
+    if (!schedulesArray.length) {
       return [];
     }
 
-    // Membuat peta untuk pencarian cepat
-    const teacherMap = new Map(teachersResponse.data.map((t: any) => [t.staff.id, t]));
-    const programMap = new Map((programsResponse?.data || []).map((p: any) => [p.id, p]));
-    const educationLevelMap = new Map((educationLevelsResponse as any).data.map((l: any) => [l.id, l]));
-    const academicYearMap = new Map(academicYearsResponse.map((ay: any) => [ay.id, ay]));
-
-    // Memproses data dari class schedules
     const processedData: PresensiData[] = [];
-    
-    classSchedulesResponse.data.forEach((schedule) => {
+
+    schedulesArray.forEach((schedule) => {
       if (schedule.details && Array.isArray(schedule.details)) {
         schedule.details.forEach((detail) => {
           const teacher = detail.teacher;
@@ -77,24 +77,24 @@ const PresensiPage: React.FC = () => {
           const classGroup = detail.class_group;
           const study = detail.study;
           const academicYear = schedule.academic_year;
-          const education = schedule.education; // Ambil data education dari schedule
+          const education = schedule.education;
 
           processedData.push({
             id: detail.id,
             mataPelajaran: study ? study.name : 'Tidak diketahui',
             guruPengampu: teacher ? `${teacher.first_name} ${teacher.last_name || ''}`.trim() : 'Tidak diketahui',
-            jenjangPendidikan: education ? (education as any).institution_name : 'Tidak diketahui', // Gunakan any untuk menghindari konflik tipe
+            jenjangPendidikan: education ? (education as any).institution_name : 'Tidak diketahui',
             kelas: classroom ? classroom.name : 'Tidak diketahui',
             rombel: classGroup ? classGroup.name : 'Tidak diketahui',
             tahunAjaran: academicYear ? (academicYear.year || (academicYear as any).name) : 'Tidak diketahui',
-            status: 'Belum dimulai', // Status default
+            status: 'Belum dimulai',
           });
         });
       }
     });
 
     return processedData;
-  }, [classSchedulesResponse, teachersResponse, programsResponse, educationLevelsResponse, academicYearsResponse, isLoading]);
+  }, [classSchedulesResponse, isLoadingSchedules]);
 
   // Kolom untuk tabel
   const columns: ColumnDef<PresensiData>[] = [
@@ -180,7 +180,7 @@ const PresensiPage: React.FC = () => {
             <CardDescription>Daftar presensi berdasarkan jadwal pelajaran yang tersedia.</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoadingSchedules ? (
               <TableLoadingSkeleton />
             ) : (
               <DataTable 
