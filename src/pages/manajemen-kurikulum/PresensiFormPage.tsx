@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery, useUpdatePresenceMutation } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useUpdatePresenceMutation } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
 
@@ -37,33 +37,27 @@ const PresensiFormPage: React.FC = () => {
     return null;
   }, [schedulesResponse, detailId]);
 
-  const { data: presenceResponse, isLoading: isLoadingPresence } = useGetPresenceByScheduleIdQuery(parentSchedule?.id, {
-    skip: !parentSchedule?.id,
-  });
-
   const { detail, students, currentMeetingSchedule } = useMemo(() => {
-    const emptyResult = { detail: null, students: [], currentMeetingSchedule: null };
-    if (!presenceResponse?.data || !detailId || !meetingNumber) {
+    const emptyResult = { detail: null, students: [] as Array<{ id: number; first_name?: string; last_name?: string }>, currentMeetingSchedule: null as any };
+    if (!parentSchedule || !detailId || !meetingNumber) {
       return emptyResult;
     }
 
-    const scheduleData = presenceResponse.data;
-    const currentDetail = scheduleData.details.find(d => d.id === parseInt(detailId, 10));
-
+    const currentDetail = parentSchedule.details.find(d => d.id === parseInt(detailId, 10));
     if (!currentDetail) {
       return emptyResult;
     }
 
     const studentList = currentDetail.students || [];
     const meetingNum = parseInt(meetingNumber, 10);
-    const currentMeeting = currentDetail.meeting_schedules?.find(ms => parseInt(ms.meeting_sequence, 10) === meetingNum);
+    const currentMeeting = currentDetail.meeting_schedules?.find(ms => parseInt(ms.meeting_sequence as any, 10) === meetingNum) || null;
 
     return {
       detail: currentDetail,
       students: studentList,
       currentMeetingSchedule: currentMeeting,
     };
-  }, [presenceResponse, detailId, meetingNumber]);
+  }, [parentSchedule, detailId, meetingNumber]);
 
   useEffect(() => {
     if (students.length > 0 && currentMeetingSchedule) {
@@ -144,7 +138,7 @@ const PresensiFormPage: React.FC = () => {
     { label: `Presensi Pertemuan ke-${meetingNumber}` },
   ];
 
-  const isLoading = isLoadingSchedules || isLoadingPresence;
+  const isLoading = isLoadingSchedules;
 
   if (isLoading) {
     return <DashboardLayout title="Formulir Presensi" role="administrasi"><Skeleton className="h-96 w-full" /></DashboardLayout>;
