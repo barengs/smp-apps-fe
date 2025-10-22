@@ -19,8 +19,13 @@ const PresensiDetailPage: React.FC = () => {
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
 
   const parentSchedule = useMemo(() => {
-    if (!schedulesResponse?.data || !detailId) return null;
-    for (const s of schedulesResponse.data) {
+    if (!schedulesResponse || !detailId) return null;
+    
+    const schedulesArray = Array.isArray(schedulesResponse) 
+      ? schedulesResponse 
+      : schedulesResponse.data || [];
+      
+    for (const s of schedulesArray) {
       if (s.details.some((d) => d.id === parseInt(detailId, 10))) {
         return s;
       }
