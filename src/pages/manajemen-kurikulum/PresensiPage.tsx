@@ -188,8 +188,6 @@ const PresensiPage: React.FC = () => {
                 data={presensiData} 
                 exportFileName="data-presensi" 
                 exportTitle="Data Presensi"
-                onAddData={handleAddData}
-                addButtonLabel="Tambah Presensi"
                 onRowClick={handleRowClick}
               />
             )}
