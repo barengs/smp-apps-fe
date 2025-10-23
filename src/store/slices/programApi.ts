@@ -34,7 +34,7 @@ export interface CreateUpdateProgramRequest {
 
 export const programApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPrograms: builder.query<PaginatedResponse<ProgramApiData>, PaginationParams>({ // Update return type and add params
+    getPrograms: builder.query<PaginatedResponse<ProgramApiData>, PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
@@ -44,7 +44,28 @@ export const programApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `master/program?${queryParams.toString()}`;
       },
-      transformResponse: (response: GetProgramsRawResponse) => response.data, // Extract the PaginatedResponse
+      transformResponse: (response: GetProgramsRawResponse): PaginatedResponse<ProgramApiData> => {
+        // Jika backend mengembalikan {success: true, data: [...]} tanpa wrapper paginasi
+        if (response.data && Array.isArray(response.data)) {
+          return {
+            current_page: 1,
+            last_page: 1,
+            per_page: response.data.length,
+            total: response.data.length,
+            first_page_url: '',
+            from: 1,
+            last_page_url: '',
+            links: [],
+            next_page_url: null,
+            path: '',
+            prev_page_url: null,
+            to: response.data.length,
+            data: response.data,
+          };
+        }
+        // Jika format paginasi sudah sesuai, kembalikan apa adanya
+        return response.data;
+      },
       providesTags: (result) =>
         result?.data
           ? [
