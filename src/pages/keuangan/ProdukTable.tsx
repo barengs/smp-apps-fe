@@ -35,6 +35,9 @@ const ProdukTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [produkToDelete, setProdukToDelete] = useState<string | null>(null);
 
+  // Panggil hook pagination sekali di level atas, agar tidak berubah antar render
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<ProdukBank>(data?.data || []);
+
   const handleAdd = () => {
     setSelectedProduk(null);
     setIsFormOpen(true);
@@ -147,14 +150,14 @@ const ProdukTable: React.FC = () => {
     <div>
       <DataTable
         columns={columns}
-        data={useLocalPagination<ProdukBank>(data?.data || []).paginatedData}
+        data={paginatedData}
         exportFileName="data_produk"
         exportTitle="Data Produk"
         onAddData={handleAdd}
         addButtonLabel="Tambah Produk"
-        pageCount={useLocalPagination<ProdukBank>(data?.data || []).pageCount}
-        pagination={useLocalPagination<ProdukBank>(data?.data || []).pagination}
-        onPaginationChange={useLocalPagination<ProdukBank>(data?.data || []).setPagination}
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
       <ProdukForm
         isOpen={isFormOpen}
