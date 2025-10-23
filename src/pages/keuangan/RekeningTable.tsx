@@ -13,11 +13,11 @@ interface RekeningTableProps {
   onEdit: (account: Account) => void;
   onDelete: (account: Account) => void;
   onViewDetails: (account: Account) => void;
-  pagination: PaginationState;
-  onPaginationChange: (updater: PaginationState) => void;
-  pageCount: number;
-  sorting: SortingState;
-  onSortingChange: (updater: SortingState) => void;
+  pagination?: PaginationState;
+  onPaginationChange?: (updater: PaginationState) => void;
+  pageCount?: number;
+  sorting?: SortingState;
+  onSortingChange?: (updater: SortingState) => void;
 }
 
 export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {

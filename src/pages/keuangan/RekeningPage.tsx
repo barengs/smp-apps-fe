@@ -106,17 +106,27 @@ const RekeningPage: React.FC = () => {
             {isLoading || isFetching ? (
               <TableLoadingSkeleton />
             ) : (
-              <RekeningTable
-                data={accountsResponse?.data || []}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onViewDetails={handleViewDetails}
-                pagination={pagination}
-                onPaginationChange={setPagination}
-                pageCount={accountsResponse?.last_page || 0}
-                sorting={sorting}
-                onSortingChange={setSorting}
-              />
+              (() => {
+                const isServerPaginated =
+                  !!accountsResponse &&
+                  typeof accountsResponse.last_page === 'number' &&
+                  accountsResponse.last_page >= 1 &&
+                  typeof accountsResponse.current_page === 'number';
+                const normalizedData = accountsResponse?.data || [];
+                return (
+                  <RekeningTable
+                    data={normalizedData}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onViewDetails={handleViewDetails}
+                    pagination={isServerPaginated ? pagination : undefined}
+                    onPaginationChange={isServerPaginated ? setPagination : undefined}
+                    pageCount={isServerPaginated ? accountsResponse!.last_page : undefined}
+                    sorting={sorting}
+                    onSortingChange={setSorting}
+                  />
+                );
+              })()
             )}
           </CardContent>
         </Card>

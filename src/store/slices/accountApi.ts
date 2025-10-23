@@ -14,7 +14,56 @@ export const accountApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/account?${queryParams.toString()}`;
       },
-      transformResponse: (response: { data: PaginatedResponse<Account> }) => response.data,
+      transformResponse: (response: any): PaginatedResponse<Account> => {
+        // Backend bisa kirim:
+        // 1) { success, message, data: Account[] }
+        // 2) { data: { ...paginatedMeta, data: Account[] } }
+        // 3) { data: PaginatedResponse<Account> }
+        const raw = response?.data;
+        // Kasus 1: array akun sederhana
+        if (Array.isArray(raw)) {
+          const data = raw as Account[];
+          return {
+            current_page: 1,
+            data,
+            first_page_url: '',
+            from: data.length > 0 ? 1 : 0,
+            last_page: 1,
+            last_page_url: '',
+            links: [],
+            next_page_url: null,
+            path: '',
+            per_page: data.length,
+            prev_page_url: null,
+            to: data.length,
+            total: data.length,
+          };
+        }
+        // Kasus 2: nested paginated di response.data
+        if (raw && Array.isArray(raw?.data)) {
+          return raw as PaginatedResponse<Account>;
+        }
+        // Kasus 3: langsung paginated di response (fallback aman)
+        if (Array.isArray(response?.data?.data)) {
+          return response.data as PaginatedResponse<Account>;
+        }
+        // Fallback: tidak ada data
+        return {
+          current_page: 1,
+          data: [],
+          first_page_url: '',
+          from: 0,
+          last_page: 1,
+          last_page_url: '',
+          links: [],
+          next_page_url: null,
+          path: '',
+          per_page: 0,
+          prev_page_url: null,
+          to: 0,
+          total: 0,
+        };
+      },
       providesTags: (result) =>
         result?.data
           ? [
@@ -25,6 +74,8 @@ export const accountApi = smpApi.injectEndpoints({
     }),
     getAccountById: builder.query<Account, number>({
       query: (id) => `main/account/${id}`,
+      transformResponse: (response: { success: boolean; message: string; data: Account } | Account) =>
+        (response as any)?.data ?? response,
       providesTags: (result, error, id) => [{ type: 'Account', id }],
     }),
     createAccount: builder.mutation<Account, CreateUpdateAccountRequest>({
