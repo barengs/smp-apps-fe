@@ -204,12 +204,14 @@ const PeranTable: React.FC = () => {
         header: 'Aksi',
         cell: ({ row }) => {
           const peran = row.original;
+          const isProtectedRole = peran.roleName === 'superadmin' || peran.roleName === 'orangtua';
           return (
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleEditData(peran)}
+                disabled={isProtectedRole}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
@@ -217,6 +219,7 @@ const PeranTable: React.FC = () => {
                 variant="danger"
                 className="h-8 px-2 text-xs"
                 onClick={() => handleDeleteClick(peran)}
+                disabled={isProtectedRole}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
               </Button>
