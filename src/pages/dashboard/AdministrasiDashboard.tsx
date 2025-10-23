@@ -61,6 +61,11 @@ const AdministrasiDashboard: React.FC = () => {
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null);
+  const [isRunningTextVisible, setIsRunningTextVisible] = useState(true);
+
+  const handleCloseRunningText = () => {
+    setIsRunningTextVisible(false);
+  };
 
   const newsItemsForRunningText = React.useMemo(() => {
     if (newsData?.data) {
@@ -104,8 +109,17 @@ const AdministrasiDashboard: React.FC = () => {
   return (
     <DashboardLayout title="Dashboard Administrasi" role="administrasi">
       {/* Running Text Section - News Headlines */}
-      {!isNewsLoading && !isNewsError && newsItemsForRunningText.length > 0 && (
-        <div className="w-full mb-6">
+      {!isNewsLoading && !isNewsError && newsItemsForRunningText.length > 0 && isRunningTextVisible && (
+        <div className="w-full mb-6 relative">
+          <button
+            onClick={handleCloseRunningText}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-800 rounded-full p-1 transition-colors"
+            aria-label="Tutup running text"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
           <RunningText items={newsItemsForRunningText} />
         </div>
       )}
