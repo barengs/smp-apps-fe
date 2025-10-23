@@ -52,7 +52,7 @@ export const RekeningForm: React.FC<RekeningFormProps> = ({ isOpen, onClose, onS
   }, [studentsData]);
 
   const produkOptions = useMemo(() => {
-    return produkBankData?.data.map(produk => ({
+    return produkBankData?.map(produk => ({
       value: produk.id,
       label: produk.product_name,
     })) || [];

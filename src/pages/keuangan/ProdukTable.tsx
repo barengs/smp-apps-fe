@@ -36,7 +36,7 @@ const ProdukTable: React.FC = () => {
   const [produkToDelete, setProdukToDelete] = useState<string | null>(null);
 
   // Panggil hook pagination sekali di level atas, agar tidak berubah antar render
-  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<ProdukBank>(data?.data || []);
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<ProdukBank>(data || []);
 
   const handleAdd = () => {
     setSelectedProduk(null);

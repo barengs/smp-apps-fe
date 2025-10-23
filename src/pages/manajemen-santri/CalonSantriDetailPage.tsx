@@ -336,7 +336,7 @@ const CalonSantriDetailPage: React.FC = () => {
                   <SelectValue placeholder={isLoadingProdukBank ? "Memuat produk..." : "Pilih produk tabungan"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {produkBankData?.data.map((produk) => (
+                  {produkBankData?.map((produk) => (
                     <SelectItem key={produk.id} value={String(produk.id)}>
                       {produk.product_name}
                     </SelectItem>

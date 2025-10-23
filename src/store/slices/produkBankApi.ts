@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginationParams } from '@/types/master-data';
 
 export type ProdukType = "Tabungan" | "Deposito" | "Pinjaman";
 
@@ -28,12 +28,24 @@ export interface CreateUpdateProdukBankRequest {
 
 interface GetProdukBankRawResponse {
   message: string;
-  data: PaginatedResponse<ProdukBank>; // Wrap in PaginatedResponse
+  status?: number;
+  data: Array<{
+    id: number;
+    product_code: string;
+    product_name: string;
+    product_type: ProdukType;
+    interest_rate: string;
+    admin_fee: string;
+    opening_fee: string;
+    is_active: string | number | boolean;
+    created_at: string;
+    updated_at: string;
+  }>;
 }
 
 export const produkBankApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProdukBank: builder.query<PaginatedResponse<ProdukBank>, PaginationParams>({ // Update return type and add params
+    getProdukBank: builder.query<ProdukBank[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
@@ -43,11 +55,16 @@ export const produkBankApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `master/product?${queryParams.toString()}`;
       },
-      transformResponse: (response: GetProdukBankRawResponse) => response.data, // Extract the PaginatedResponse
+      transformResponse: (response: GetProdukBankRawResponse): ProdukBank[] =>
+        response.data.map((p) => ({
+          ...p,
+          // pastikan is_active menjadi boolean
+          is_active: p.is_active === true || p.is_active === '1' || p.is_active === 1,
+        })),
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'ProdukBank' as const, id })),
+              ...result.map(({ id }) => ({ type: 'ProdukBank' as const, id })),
               { type: 'ProdukBank', id: 'LIST' },
             ]
           : [{ type: 'ProdukBank', id: 'LIST' }],
