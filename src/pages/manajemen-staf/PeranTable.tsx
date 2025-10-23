@@ -50,8 +50,8 @@ const PeranTable: React.FC = () => {
   const [peranToDelete, setPeranToDelete] = useState<Peran | undefined>(undefined);
 
   const roles: Peran[] = useMemo(() => {
-    if (rolesData?.data) {
-      return rolesData.data.map(apiRole => ({
+    if (rolesData && Array.isArray(rolesData)) {
+      return rolesData.map(apiRole => ({
         id: apiRole.id,
         roleName: apiRole.name,
         description: '', // Kept for form data structure, though not displayed

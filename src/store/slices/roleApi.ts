@@ -1,5 +1,5 @@
 import { smpApi } from '../baseApi';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data'; // Import PaginatedResponse and PaginationParams
+import { PaginationParams } from '@/types/master-data';
 
 // Define the nested permission structure
 interface PermissionNestedData {
@@ -25,8 +25,9 @@ interface RoleApiResponse {
 
 // Define the API response structure for multiple roles
 interface GetRolesRawResponse {
+  status?: string | number;
   message: string;
-  data: PaginatedResponse<RoleApiResponse>; // Wrap in PaginatedResponse
+  data: RoleApiResponse[];
 }
 
 // Define the request body for creating/updating a role
@@ -38,7 +39,7 @@ interface CreateUpdateRoleRequest {
 
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getRoles: builder.query<PaginatedResponse<RoleApiResponse>, PaginationParams>({ // Update return type and add params
+    getRoles: builder.query<RoleApiResponse[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
@@ -48,11 +49,11 @@ export const roleApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/role?${queryParams.toString()}`;
       },
-      transformResponse: (response: GetRolesRawResponse) => response.data, // Extract the PaginatedResponse
+      transformResponse: (response: GetRolesRawResponse): RoleApiResponse[] => response.data,
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Role' as const, id })),
+              ...result.map(({ id }) => ({ type: 'Role' as const, id })),
               { type: 'Role', id: 'LIST' },
             ]
           : [{ type: 'Role', id: 'LIST' }],

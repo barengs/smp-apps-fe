@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

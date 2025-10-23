@@ -20,10 +20,10 @@ import { useGetCitiesQuery } from '@/store/slices/cityApi';
 import { useGetDistrictsQuery } from '@/store/slices/districtApi';
 import { useGetVillagesByDistrictQuery } from '@/store/slices/villageApi';
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
-import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { useAddTeacherMutation, useGetTeacherByIdQuery, useUpdateTeacherMutation } from '@/store/slices/teacherApi';
 import { useLazyCheckNikQuery } from '@/store/slices/employeeApi';
 import { useGetAllVillagesQuery } from '@/store/slices/villageApi';
+import { useGetRolesQuery } from '@/store/slices/roleApi';
 
 import GuruProfileStep from './form-steps/GuruProfileStep';
 import GuruAddressStep from './form-steps/GuruAddressStep';
@@ -110,7 +110,9 @@ const GuruFormPage: React.FC = () => {
   const { data: cities = [] } = useGetCitiesQuery();
   const { data: districts = [] } = useGetDistrictsQuery();
   const { data: jobs = [] } = useGetPekerjaanQuery();
-  const { data: roles = { data: [] } } = useGetRolesQuery({});
+  const { data: rolesData = [], isLoading: isLoadingRoles } = useGetRolesQuery({});
+
+  const roleOptions = useMemo(() => rolesData.map(r => ({ value: r.id, label: r.name })), [rolesData]);
 
   const provinceCode = form.watch('province_code');
   const cityCode = form.watch('city_code');
@@ -168,7 +170,6 @@ const GuruFormPage: React.FC = () => {
   }, [villagesByDistrict, allVillages, districtCode]);
 
   const jobOptions = useMemo(() => jobs.map(j => ({ value: j.id, label: j.name })), [jobs]);
-  const roleOptions = useMemo(() => roles.data.map(r => ({ value: r.id, label: r.name })), [roles.data]);
 
   // Comprehensive debugging
   console.log('=== Village Loading Debug ===');
@@ -379,7 +380,7 @@ const GuruFormPage: React.FC = () => {
     const formData = new FormData();
 
     // Mencari nama role berdasarkan role_id yang dipilih
-    const selectedRole = roles.data.find(r => r.id === values.role_id);
+    const selectedRole = rolesData.find(r => r.id === values.role_id);
     const roleName = selectedRole ? selectedRole.name : '';
 
     // Debug: Cek semua values dari form
@@ -483,7 +484,7 @@ const GuruFormPage: React.FC = () => {
     { label: isEditMode ? 'Edit Guru' : 'Tambah Guru', icon: <User className="h-4 w-4" /> },
   ];
 
-  const isLoading = isAdding || isUpdating || isLoadingTeacher || isCheckingNik;
+  const isBusy = isAdding || isUpdating || isLoadingTeacher || isCheckingNik;
 
   const stepFields: (keyof GuruFormValues)[][] = [
     ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
@@ -521,7 +522,7 @@ const GuruFormPage: React.FC = () => {
             <CardDescription>Langkah {currentStep + 1} dari {steps.length}: {steps[currentStep].name}</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading && isEditMode ? <p>Memuat data...</p> : (
+            {isBusy && isEditMode ? <p>Memuat data...</p> : (
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -536,21 +537,21 @@ const GuruFormPage: React.FC = () => {
                   <div className="flex justify-between pt-4">
                     <div className="flex gap-2">
                       {currentStep > 0 && (
-                        <ActionButton type="button" variant="outline" onClick={handleBack} disabled={isLoading}>
+                        <ActionButton type="button" variant="outline" onClick={handleBack} disabled={isBusy}>
                           Kembali
                         </ActionButton>
                       )}
-                      <ActionButton type="button" variant="outline-danger" onClick={() => navigate('/dashboard/manajemen-kurikulum/guru')} disabled={isLoading}>
+                      <ActionButton type="button" variant="outline-danger" onClick={() => navigate('/dashboard/manajemen-kurikulum/guru')} disabled={isBusy}>
                         Batal
                       </ActionButton>
                     </div>
                     <div>
                       {currentStep < steps.length - 1 ? (
-                        <ActionButton type="button" onClick={handleNext} disabled={isLoading}>
+                        <ActionButton type="button" onClick={handleNext} disabled={isBusy}>
                           Selanjutnya
                         </ActionButton>
                       ) : (
-                        <ActionButton type="submit" isLoading={isLoading}>
+                        <ActionButton type="submit" isLoading={isBusy}>
                           {isEditMode ? 'Simpan Perubahan' : 'Simpan'}
                         </ActionButton>
                       )}

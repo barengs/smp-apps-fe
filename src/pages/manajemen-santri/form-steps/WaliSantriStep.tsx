@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useLazyGetParentByNikQuery } from '@/store/slices/parentApi';
+import { useGetPermissionsQuery } from '@/store/slices/permissionApi';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import * as toast from '@/utils/toast';
 import { Id } from 'react-toastify';
