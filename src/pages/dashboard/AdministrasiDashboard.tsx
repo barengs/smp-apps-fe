@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck, UserPlus } from 'lucide-react'; // Import UserPlus
+import { PlusCircle, Users, Briefcase, GraduationCap, UserCheck, UserPlus } from 'lucide-react';
 import { useGetDashboardStatsQuery } from '@/store/slices/dashboardApi';
-import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi'; // Import useGetCalonSantriQuery
+import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import EventCalendar from '@/components/EventCalendar';
 import { useGetActivitiesQuery } from '@/store/slices/activityApi';
 import { Kegiatan } from '@/types/kegiatan';
 import { format } from 'date-fns';
 import ActivityDetailModal from '@/components/ActivityDetailModal';
-import { useSelector } from 'react-redux'; // Import useSelector
-import { selectIsAuthenticated } from '@/store/slices/authSlice'; // Import selectIsAuthenticated
-import SantriGrowthChart from '@/components/SantriGrowthChart'; // Import SantriGrowthChart
+import { useSelector } from 'react-redux';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import SantriGrowthChart from '@/components/SantriGrowthChart';
+import { useGetBeritaQuery } from '@/store/slices/beritaApi';
+import RunningText from '@/components/RunningText';
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string; color?: string }> = ({ title, value, icon, description, color }) => (
   <Card className="transition-all hover:shadow-md">
@@ -43,21 +45,32 @@ const StatCardSkeleton: React.FC = () => (
 );
 
 const AdministrasiDashboard: React.FC = () => {
-  const isAuthenticated = useSelector(selectIsAuthenticated); // Dapatkan status autentikasi
-  const navigate = useNavigate(); // Inisialisasi useNavigate
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/'); // Arahkan ke halaman utama jika belum login
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery();
   const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
-  const { data: calonSantriData, isLoading: isLoadingCalonSantri, isError: isErrorCalonSantri } = useGetCalonSantriQuery(); // Fetch calon santri data
+  const { data: calonSantriData, isLoading: isLoadingCalonSantri, isError: isErrorCalonSantri } = useGetCalonSantriQuery();
+  const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
 
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State untuk modal
-  const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null); // State untuk kegiatan yang dipilih
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null);
+
+  const newsItemsForRunningText = React.useMemo(() => {
+    if (newsData?.data) {
+      return newsData.data.map(newsItem => ({ 
+        id: newsItem.id, 
+        title: newsItem.title 
+      }));
+    }
+    return [];
+  }, [newsData]);
 
   const kegiatanList: Kegiatan[] = React.useMemo(() => {
     if (!activitiesData?.data) return [];
@@ -85,11 +98,18 @@ const AdministrasiDashboard: React.FC = () => {
   };
 
   if (!isAuthenticated) {
-    return null; // Jangan render apa pun jika tidak diautentikasi (pengalihan akan terjadi)
+    return null;
   }
 
   return (
     <DashboardLayout title="Dashboard Administrasi" role="administrasi">
+      {/* Running Text Section - News Headlines */}
+      {!isNewsLoading && !isNewsError && newsItemsForRunningText.length > 0 && (
+        <div className="w-full mb-6">
+          <RunningText items={newsItemsForRunningText} />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoading ? (
           <>

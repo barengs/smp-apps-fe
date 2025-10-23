@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Newspaper } from 'lucide-react';
 
 interface RunningTextProps {
   items: { id: number; title: string }[];
@@ -21,10 +22,11 @@ const RunningText: React.FC<RunningTextProps> = ({ items, separator = ' • ' })
           <Link
             to={`/berita/${item.id}`}
             key={`${item.id}-${index}`}
-            className="inline-block px-4 text-blue-800 font-medium text-lg hover:text-blue-600 hover:underline transition-colors"
+            className="inline-flex items-center px-4 text-blue-800 font-medium text-lg hover:text-blue-600 hover:underline transition-colors"
           >
+            <Newspaper className="h-4 w-4 mr-2 text-blue-600" />
             {item.title}
-            <span className="text-blue-400 no-underline">{index < duplicatedItems.length - 1 && separator}</span>
+            <span className="text-blue-400 no-underline ml-4">{index < duplicatedItems.length - 1 && separator}</span>
           </Link>
         ))}
       </div>
