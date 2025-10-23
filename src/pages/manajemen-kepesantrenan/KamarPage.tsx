@@ -110,16 +110,27 @@ const KamarPage: React.FC = () => {
             ) : isError ? (
               <div className="text-red-500 text-center my-4">Gagal memuat data kamar.</div>
             ) : (
-              <KamarTable
-                data={roomsResponse?.data || []}
-                onEdit={handleFormOpen}
-                onDelete={handleDeleteConfirmOpen}
-                pagination={pagination}
-                onPaginationChange={setPagination}
-                pageCount={roomsResponse?.last_page || 0}
-                sorting={sorting}
-                onSortingChange={setSorting}
-              />
+              // Gunakan pagination manual hanya jika backend mengembalikan metadata paginasi valid
+              (() => {
+                const isServerPaginated =
+                  !!roomsResponse &&
+                  typeof roomsResponse.last_page === 'number' &&
+                  typeof roomsResponse.current_page === 'number' &&
+                  roomsResponse.last_page >= 1;
+                const normalizedData = roomsResponse?.data || [];
+                return (
+                  <KamarTable
+                    data={normalizedData}
+                    onEdit={handleFormOpen}
+                    onDelete={handleDeleteConfirmOpen}
+                    pagination={isServerPaginated ? pagination : undefined}
+                    onPaginationChange={isServerPaginated ? setPagination : undefined}
+                    pageCount={isServerPaginated ? roomsResponse!.last_page : undefined}
+                    sorting={sorting}
+                    onSortingChange={setSorting}
+                  />
+                );
+              })()
             )}
           </CardContent>
         </Card>

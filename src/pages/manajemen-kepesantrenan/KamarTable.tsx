@@ -12,11 +12,11 @@ interface KamarTableProps {
   data: Room[];
   onEdit: (room: Room) => void;
   onDelete: (room: Room) => void;
-  pagination: PaginationState;
-  onPaginationChange: (updater: PaginationState) => void;
-  pageCount: number;
-  sorting: SortingState;
-  onSortingChange: (updater: SortingState) => void;
+  pagination?: PaginationState;
+  onPaginationChange?: (updater: PaginationState) => void;
+  pageCount?: number;
+  sorting?: SortingState;
+  onSortingChange?: (updater: SortingState) => void;
 }
 
 export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
@@ -32,7 +32,7 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
       header: 'Nama Kamar',
     },
     {
-      accessorKey: 'hostel.name',
+      accessorFn: (row) => row.hostel?.name,
       header: 'Asrama',
     },
     {
