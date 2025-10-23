@@ -26,6 +26,7 @@ import { useGetPermissionsQuery, useDeletePermissionMutation } from '@/store/sli
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import ActionButton from '@/components/ActionButton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface HakAkses {
   id: number;
@@ -52,6 +53,9 @@ const HakAksesTable: React.FC = () => {
     }
     return [];
   }, [permissionsData]);
+
+  // Gunakan pagination lokal agar kontrol halaman dan ukuran per halaman berfungsi konsisten
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<HakAkses>(permissions);
 
   const handleAddData = () => {
     setEditingHakAkses(undefined);
@@ -149,11 +153,15 @@ const HakAksesTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={permissions}
+        data={paginatedData}
+        isLoading={isLoading}
         exportFileName="data_hak_akses"
         exportTitle="Data Hak Akses"
         onAddData={handleAddData}
         addButtonLabel="Tambah Hak Akses"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
