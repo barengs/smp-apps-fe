@@ -30,6 +30,7 @@ import {
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Peran {
   id: number;
@@ -62,6 +63,9 @@ const PeranTable: React.FC = () => {
     }
     return [];
   }, [rolesData]);
+
+  // Gunakan pagination lokal agar kontrol halaman dan ukuran per halaman berfungsi konsisten
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Peran>(roles);
 
   const handleAddData = () => {
     setEditingPeran(undefined);
@@ -248,11 +252,15 @@ const PeranTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={roles}
+        data={paginatedData}
+        isLoading={isLoading}
         exportFileName="data_peran"
         exportTitle="Data Peran"
         onAddData={handleAddData}
         addButtonLabel="Tambah Peran"
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
