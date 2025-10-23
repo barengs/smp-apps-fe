@@ -85,7 +85,18 @@ const TransaksiPage: React.FC = () => {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.original.status.toLowerCase();
-        const variant = status === 'completed' ? 'default' : status === 'pending' ? 'secondary' : 'destructive';
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline';
+        
+        if (status === 'completed' || status === 'success') {
+          variant = 'default'; // Hijau untuk completed/success
+        } else if (status === 'pending') {
+          variant = 'secondary'; // Abu-abu untuk pending
+        } else if (status === 'failed') {
+          variant = 'destructive'; // Merah untuk failed
+        } else {
+          variant = 'outline'; // Outline untuk status lainnya
+        }
+        
         return <Badge variant={variant} className="capitalize">{row.original.status}</Badge>;
       },
     },

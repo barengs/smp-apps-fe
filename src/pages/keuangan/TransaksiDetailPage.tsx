@@ -34,7 +34,8 @@ const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label
 const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status.toLowerCase()) {
     case 'completed':
-      return 'default';
+    case 'success':
+      return 'default'; // Hijau untuk completed/success
     case 'pending':
       return 'secondary';
     case 'failed':
