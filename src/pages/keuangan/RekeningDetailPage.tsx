@@ -23,7 +23,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
   switch (status.toUpperCase()) {
     case 'AKTIF':
     case 'ACTIVE':
-      return 'default';
+      return 'default'; // Hijau untuk aktif
     case 'TIDAK AKTIF':
     case 'INACTIVE':
       return 'secondary';

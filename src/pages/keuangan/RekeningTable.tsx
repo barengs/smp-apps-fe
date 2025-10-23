@@ -59,12 +59,22 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.status;
-        return (
-          <Badge variant={status === 'ACTIVE' ? 'success' : 'destructive'}>
-            {status}
-          </Badge>
-        );
+        const status = row.original.status.toLowerCase();
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline';
+        
+        if (status === 'aktif' || status === 'active') {
+          variant = 'default'; // Hijau untuk aktif/active
+        } else if (status === 'tidak aktif' || status === 'inactive') {
+          variant = 'secondary'; // Abu-abu untuk tidak aktif
+        } else if (status === 'dibekukan' || status === 'frozen') {
+          variant = 'destructive'; // Merah untuk dibekukan
+        } else if (status === 'ditutup' || status === 'closed') {
+          variant = 'outline'; // Outline untuk ditutup
+        } else {
+          variant = 'outline'; // Outline untuk status lainnya
+        }
+        
+        return <Badge variant={variant} className="capitalize">{row.original.status}</Badge>;
       },
     },
     {
