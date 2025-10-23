@@ -43,8 +43,8 @@ const HakAksesTable: React.FC = () => {
   const [hakAksesToDelete, setHakAksesToDelete] = useState<HakAkses | undefined>(undefined);
 
   const permissions: HakAkses[] = useMemo(() => {
-    if (permissionsData?.data) {
-      return permissionsData.data.map(apiPermission => ({
+    if (permissionsData && Array.isArray(permissionsData)) {
+      return permissionsData.map(apiPermission => ({
         id: apiPermission.id,
         name: apiPermission.name,
         description: apiPermission.description || 'Tidak ada deskripsi',

@@ -60,53 +60,39 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     },
   });
 
-  // Effect to split initialData.accessRights into menu access and explicit permissions once data is loaded
+  // Pisahkan initialData.accessRights menjadi menuAccess dan explicitPermissions saat data sudah siap
   useEffect(() => {
-    if (initialData && menuData?.data && permissionsData?.data) {
-      const allMenuIdTitles = new Set<string>();
-      const collectIdTitles = (menus: MenuItem[]) => {
-        menus.forEach(menu => {
-          allMenuIdTitles.add(menu.id_title);
-          if (menu.child) collectIdTitles(menu.child);
+    if (initialData && menuData?.data && Array.isArray(permissionsData)) {
+      // Kumpulkan semua id_title menu untuk validasi cepat
+      const collectIdTitles = (items: MenuItem[], acc = new Set<string>()) => {
+        items.forEach((item) => {
+          if (item.id_title) acc.add(item.id_title);
+          if (item.child?.length) collectIdTitles(item.child, acc);
         });
+        return acc;
       };
-      collectIdTitles(menuData.data);
+      const menuIdTitleSet = collectIdTitles(menuData.data);
+      const permissionNameSet = new Set(permissionsData.map((p) => p.name));
 
-      const allPermissionNames = new Set(permissionsData.data.map(p => p.name));
-
-      const initialMenus: string[] = [];
-      const initialPerms: string[] = [];
-
-      initialData.accessRights.forEach(right => {
-        if (allMenuIdTitles.has(right)) {
-          initialMenus.push(right);
-        } else if (allPermissionNames.has(right)) {
-          initialPerms.push(right);
-        } else {
-          // Fallback for rights that are neither a menu nor a known permission
-          // This could be an old title-based permission, try to find its id_title
-          let found = false;
-          const findAndAdd = (menus: MenuItem[]) => {
-            for (const menu of menus) {
-              if (menu.en_title === right || menu.ar_title === right) {
-                initialMenus.push(menu.id_title);
-                found = true;
-                return;
-              }
-              if (menu.child) findAndAdd(menu.child);
-              if (found) return;
-            }
-          };
-          findAndAdd(menuData.data);
-          
-          if (!found) {
-            initialPerms.push(right);
-          }
+      const explicitPerms: string[] = [];
+      const menuAccessIds: string[] = [];
+      (initialData.accessRights || []).forEach((right) => {
+        if (permissionNameSet.has(right)) {
+          explicitPerms.push(right);
+        } else if (menuIdTitleSet.has(right)) {
+          menuAccessIds.push(right);
         }
       });
 
-      form.setValue('menuAccess', initialMenus);
-      form.setValue('explicitPermissions', initialPerms);
+      form.setValue('explicitPermissions', explicitPerms);
+      form.setValue('menuAccess', menuAccessIds);
+    } else if (!initialData) {
+      form.reset({
+        name: '',
+        description: '',
+        menuAccess: [],
+        explicitPermissions: [],
+      });
     }
   }, [initialData, menuData, permissionsData, form]);
 
@@ -179,8 +165,19 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     }
   };
 
+  const allPermissionNames = useMemo(() => {
+    if (permissionsData && Array.isArray(permissionsData)) {
+      const allPermissionNames = new Set(permissionsData.map(p => p.name));
+      return Array.from(allPermissionNames).map(name => ({ value: name, label: name }));
+    }
+    return [];
+  }, [permissionsData]);
+  
   const permissionOptions: Option[] = useMemo(() => {
-    return permissionsData?.data.map(p => ({ value: p.name, label: p.name })) || [];
+    if (permissionsData && Array.isArray(permissionsData)) {
+      return permissionsData.map(p => ({ value: p.name, label: p.name }));
+    }
+    return [];
   }, [permissionsData]);
 
   const topLevelMenus = useMemo(() => {

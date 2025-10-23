@@ -15,8 +15,9 @@ interface PermissionApiData {
 
 // Structure for the GET /permission response
 interface GetPermissionsRawResponse {
+  status: string;
   message: string;
-  data: PaginatedResponse<PermissionApiData>; // Wrap in PaginatedResponse
+  data: PermissionApiData[];
 }
 
 // Structure for the POST/PUT request body
@@ -27,7 +28,7 @@ export interface CreateUpdatePermissionRequest {
 
 export const permissionApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPermissions: builder.query<PaginatedResponse<PermissionApiData>, PaginationParams>({ // Update return type and add params
+    getPermissions: builder.query<PermissionApiData[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.append('page', params.page.toString());
@@ -37,11 +38,11 @@ export const permissionApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/permission?${queryParams.toString()}`;
       },
-      transformResponse: (response: GetPermissionsRawResponse) => response.data, // Extract the PaginatedResponse
+      transformResponse: (response: GetPermissionsRawResponse): PermissionApiData[] => response.data,
       providesTags: (result) =>
-        result?.data
+        result && Array.isArray(result)
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Permission' as const, id })),
+              ...result.map(({ id }) => ({ type: 'Permission' as const, id })),
               { type: 'Permission', id: 'LIST' },
             ]
           : [{ type: 'Permission', id: 'LIST' }],
