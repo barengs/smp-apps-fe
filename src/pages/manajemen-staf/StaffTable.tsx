@@ -67,25 +67,30 @@ const StaffTable: React.FC = () => {
   // Bangun list staf dari respons array
   const staffData: Staff[] = useMemo(() => {
     if (Array.isArray(employeesData)) {
-      return employeesData.map(apiEmployee => {
-        const staffData = apiEmployee.staff;
-        return {
-          id: apiEmployee.id,
-          staff: {
-            first_name: staffData.first_name || '',
-            last_name: staffData.last_name || '',
-            code: staffData.code || '',
-            nik: staffData.nik || '',
-            phone: staffData.phone || '',
-            address: staffData.address || '',
-            zip_code: staffData.zip_code || '',
-          },
-          email: staffData.email || '',
-          roles: apiEmployee.roles || [],
-          fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim(),
-          username: apiEmployee.name || '',
-        };
-      });
+      // Filter keluar staf dengan peran asatidz dan walikelas
+      return employeesData
+        .filter(apiEmployee => !apiEmployee.roles?.some(role =>
+          ['asatidz', 'walikelas'].includes(String(role.name).toLowerCase())
+        ))
+        .map(apiEmployee => {
+          const staffData = apiEmployee.staff;
+          return {
+            id: apiEmployee.id,
+            staff: {
+              first_name: staffData.first_name || '',
+              last_name: staffData.last_name || '',
+              code: staffData.code || '',
+              nik: staffData.nik || '',
+              phone: staffData.phone || '',
+              address: staffData.address || '',
+              zip_code: staffData.zip_code || '',
+            },
+            email: staffData.email || '',
+            roles: apiEmployee.roles || [],
+            fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim(),
+            username: apiEmployee.name || '',
+          };
+        });
     }
     return [];
   }, [employeesData]);
