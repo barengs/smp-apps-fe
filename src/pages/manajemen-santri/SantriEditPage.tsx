@@ -471,7 +471,11 @@ const SantriEditPage: React.FC = () => {
                         <FormLabel>Asrama</FormLabel>
                         <FormControl>
                           <Select
-                            value={field.value ? String(field.value) : ''}
+                            value={
+                              field.value !== undefined && field.value !== null
+                                ? String(field.value)
+                                : ''
+                            }
                             onValueChange={(v) => field.onChange(Number(v))}
                             disabled={isHostelLoading}
                           >
@@ -499,7 +503,11 @@ const SantriEditPage: React.FC = () => {
                         <FormLabel>Program</FormLabel>
                         <FormControl>
                           <Select
-                            value={field.value ? String(field.value) : ''}
+                            value={
+                              field.value !== undefined && field.value !== null
+                                ? String(field.value)
+                                : ''
+                            }
                             onValueChange={(v) => field.onChange(Number(v))}
                             disabled={isProgramLoading}
                           >
