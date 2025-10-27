@@ -22,6 +22,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { useGetHostelsQuery } from '@/store/slices/hostelApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
+import PhotoDropzone from '@/components/PhotoDropzone';
 
 const toDateInputValue = (value?: string | null): string => {
   if (!value) return '';
@@ -196,6 +197,20 @@ const SantriEditPage: React.FC = () => {
               <form className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Identitas */}
                 <div className="space-y-4">
+                  {/* Foto profil: pindahkan ke kolom kiri sebagai card drag & drop */}
+                  <FormField
+                    control={form.control}
+                    name="photo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <PhotoDropzone
+                          value={field.value ?? ''}
+                          onChange={(dataUrl) => field.onChange(dataUrl ?? '')}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="nis"
@@ -204,7 +219,7 @@ const SantriEditPage: React.FC = () => {
                       <FormItem>
                         <FormLabel>NIS</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -341,9 +356,9 @@ const SantriEditPage: React.FC = () => {
                     name="parent_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>ID Wali Santri</FormLabel>
+                        <FormLabel>NIK Wali Santri</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Masukkan ID Wali (opsional)" />
+                          <Input {...field} placeholder="Masukkan NIK Wali (opsional)" />
                         </FormControl>
                       </FormItem>
                     )}
@@ -522,30 +537,6 @@ const SantriEditPage: React.FC = () => {
                               ))}
                             </SelectContent>
                           </Select>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="photo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Foto</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="https://..." />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="user_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>ID Pengguna</FormLabel>
-                        <FormControl>
-                          <Input type="number" value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value)} />
                         </FormControl>
                       </FormItem>
                     )}
