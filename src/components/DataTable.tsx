@@ -78,8 +78,39 @@ export function DataTable<TData, TValue>({
 
   const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination && !!onPaginationChange;
 
+  // Tambah state pencarian global
+  const [globalSearch, setGlobalSearch] = React.useState<string>('');
+
+  // Filter data secara lokal berdasarkan pencarian global (kecuali kolom Aksi)
+  const processedData = React.useMemo(() => {
+    if (!globalSearch) return data;
+    const search = globalSearch.toLowerCase();
+    const excludedIds = new Set(['aksi', 'action', 'actions']);
+
+    return (data as any[]).filter((row) => {
+      for (const col of columns as any[]) {
+        const id = (col.id as string) || (col.accessorKey as string) || '';
+        if (!id) continue;
+        if (excludedIds.has(id.toLowerCase())) continue;
+
+        const path = (col.accessorKey as string) || id;
+        let value: any = row;
+        if (path) {
+          for (const key of path.split('.')) {
+            value = value?.[key];
+          }
+        }
+
+        if (value == null) continue;
+        const str = String(value).toLowerCase();
+        if (str.includes(search)) return true;
+      }
+      return false;
+    });
+  }, [data, columns, globalSearch]);
+
   const table = useReactTable({
-    data,
+    data: processedData,
     columns,
     state: {
       sorting: sorting,
@@ -112,9 +143,6 @@ export function DataTable<TData, TValue>({
       exportToExcel(data as Record<string, any>[], exportFileName, exportTitle);
     }
   };
-
-  // Ambil kolom pertama yang valid dari table instance, bukan dari definisi ColumnDef
-  const firstLeafColumnId = table.getAllLeafColumns()[0]?.id;
 
   // Handle page size change
   const handlePageSizeChange = (value: string) => {
@@ -179,16 +207,12 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          {firstLeafColumnId && (
-            <Input
-              placeholder="Cari data..."
-              value={(table.getColumn(firstLeafColumnId)?.getFilterValue() as string) ?? ''}
-              onChange={(event) =>
-                table.getColumn(firstLeafColumnId)?.setFilterValue(event.target.value)
-              }
-              className="max-w-sm"
-            />
-          )}
+          <Input
+            placeholder="Cari data..."
+            value={globalSearch}
+            onChange={(event) => setGlobalSearch(event.target.value)}
+            className="max-w-sm"
+          />
 
           {/* Render input filter tambahan bila disediakan */}
           {filterableColumns &&
