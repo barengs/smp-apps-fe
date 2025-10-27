@@ -93,17 +93,38 @@ export function DataTable<TData, TValue>({
         if (!id) continue;
         if (excludedIds.has(id.toLowerCase())) continue;
 
-        const path = (col.accessorKey as string) || id;
-        let value: any = row;
-        if (path) {
-          for (const key of path.split('.')) {
-            value = value?.[key];
+        let value: any;
+
+        // Jika kolom memiliki accessorFn, gunakan itu untuk mendapatkan nilai yang ditampilkan
+        if (typeof (col as any).accessorFn === 'function') {
+          try {
+            value = (col as any).accessorFn(row);
+          } catch {
+            value = undefined;
+          }
+        } else {
+          // Jika tidak, gunakan path accessorKey/id pada objek row
+          const path = (col.accessorKey as string) || id;
+          value = row;
+          if (path) {
+            for (const key of path.split('.')) {
+              value = value?.[key];
+            }
           }
         }
 
         if (value == null) continue;
-        const str = String(value).toLowerCase();
-        if (str.includes(search)) return true;
+
+        const str =
+          typeof value === 'string'
+            ? value
+            : typeof value === 'number' || typeof value === 'boolean'
+            ? String(value)
+            : typeof value === 'object'
+            ? JSON.stringify(value)
+            : '';
+
+        if (str.toLowerCase().includes(search)) return true;
       }
       return false;
     });
