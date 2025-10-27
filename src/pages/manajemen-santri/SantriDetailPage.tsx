@@ -52,7 +52,7 @@ const SantriDetailPage: React.FC = () => {
   };
 
   const handleEdit = () => {
-    toast.showWarning('Fitur edit santri akan segera tersedia.');
+    navigate(`/dashboard/santri/${santriId}/edit`);
   };
 
   const santri = responseData;

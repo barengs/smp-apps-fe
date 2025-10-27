@@ -34,14 +34,29 @@ export interface Student {
 }
 
 export interface CreateUpdateStudentRequest {
+  parent_id?: string;
+  nis: string;
+  period: string;
+  nik: string;
+  kk?: string;
   first_name: string;
   last_name?: string | null;
-  nis: string;
-  nik: string;
-  period: string;
   gender: string;
+  address?: string | null;
+  born_in?: string | null;
+  born_at?: string | null;
+  last_education?: string | null;
+  village_id?: number | null;
+  village?: string | null;
+  district?: string | null;
+  postal_code?: string | null;
+  phone?: string | null;
+  hostel_id?: number | null;
+  program_id?: number | null;
   status: string;
-  program_id?: number;
+  photo?: string | null;
+  user_id?: number | null;
+  deleted_at?: string | null;
 }
 
 interface GetStudentsResponse {

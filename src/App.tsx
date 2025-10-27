@@ -33,6 +33,7 @@ import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
+import SantriEditPage from "@/pages/manajemen-santri/SantriEditPage";
 import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidikanPage';
 import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
 import BeritaPage from '@/pages/informasi/BeritaPage';
@@ -131,6 +132,7 @@ function App() {
                 {/* Rute Manajemen Santri */}
                 <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
                 <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
+                <Route path="/dashboard/santri/:id/edit" element={<SantriEditPage />} />
                 
                 {/* Rute Pendaftaran Santri */}
                 <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
