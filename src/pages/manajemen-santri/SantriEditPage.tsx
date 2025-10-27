@@ -19,6 +19,9 @@ import * as toast from '@/utils/toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowLeft, Save } from 'lucide-react';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
+import { useGetHostelsQuery } from '@/store/slices/hostelApi';
+import { useGetProgramsQuery } from '@/store/slices/programApi';
 
 const toDateInputValue = (value?: string | null): string => {
   if (!value) return '';
@@ -41,6 +44,13 @@ const SantriEditPage: React.FC = () => {
 
   const { data: santri, isLoading, error } = useGetStudentByIdQuery(santriId);
   const [updateStudent, { isLoading: isSaving }] = useUpdateStudentMutation();
+
+  // Ambil opsi Asrama dan Program
+  const { data: hostelPage, isLoading: isHostelLoading } = useGetHostelsQuery();
+  const hostelOptions = (hostelPage?.data ?? []).map((h) => ({ value: String(h.id), label: h.name }));
+
+  const { data: programPage, isLoading: isProgramLoading } = useGetProgramsQuery({ page: 1, per_page: 100 });
+  const programOptions = (programPage?.data ?? []).map((p) => ({ value: String(p.id), label: p.name }));
 
   const form = useForm<CreateUpdateStudentRequest>({
     defaultValues: {
@@ -279,6 +289,7 @@ const SantriEditPage: React.FC = () => {
                       </FormItem>
                     )}
                   />
+                  {/* Status: ganti menjadi Select */}
                   <FormField
                     control={form.control}
                     name="status"
@@ -287,7 +298,21 @@ const SantriEditPage: React.FC = () => {
                       <FormItem>
                         <FormLabel>Status</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Misal: aktif" />
+                          <Select
+                            value={field.value ?? ''}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="w-full h-10">
+                              <SelectValue placeholder="Pilih Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Tidak Aktif">Tidak Aktif</SelectItem>
+                              <SelectItem value="Aktif">Aktif</SelectItem>
+                              <SelectItem value="Tugas">Tugas</SelectItem>
+                              <SelectItem value="Lulus">Lulus</SelectItem>
+                              <SelectItem value="Dikeluarkan">Dikeluarkan</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -437,32 +462,62 @@ const SantriEditPage: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="hostel_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ID Asrama</FormLabel>
-                          <FormControl>
-                            <Input type="number" value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value)} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="program_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ID Program</FormLabel>
-                          <FormControl>
-                            <Input type="number" value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value)} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  {/* Asrama: ganti menjadi Select dari API */}
+                  <FormField
+                    control={form.control}
+                    name="hostel_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Asrama</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value ? String(field.value) : ''}
+                            onValueChange={(v) => field.onChange(Number(v))}
+                            disabled={isHostelLoading}
+                          >
+                            <SelectTrigger className="w-full h-10">
+                              <SelectValue placeholder={isHostelLoading ? 'Memuat asrama...' : 'Pilih Asrama'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {hostelOptions.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  {/* Program: ganti menjadi Select dari API */}
+                  <FormField
+                    control={form.control}
+                    name="program_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Program</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value ? String(field.value) : ''}
+                            onValueChange={(v) => field.onChange(Number(v))}
+                            disabled={isProgramLoading}
+                          >
+                            <SelectTrigger className="w-full h-10">
+                              <SelectValue placeholder={isProgramLoading ? 'Memuat program...' : 'Pilih Program'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {programOptions.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="photo"
