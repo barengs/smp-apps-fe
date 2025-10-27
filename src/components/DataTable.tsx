@@ -20,6 +20,13 @@ import { exportToExcel } from '@/utils/export';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// Tambah tipe konfigurasi filter agar mendukung select
+type FilterConfig = {
+  placeholder?: string;
+  type?: 'input' | 'select';
+  options?: { label: string; value: string }[];
+};
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -32,7 +39,8 @@ interface DataTableProps<TData, TValue> {
   onImportData?: () => void;
   onAssignment?: () => void;
 
-  filterableColumns?: Record<string, { placeholder?: string }>;
+  // Ubah tipe filterableColumns agar mendukung select
+  filterableColumns?: Record<string, FilterConfig>;
 
   sorting?: SortingState;
   onSortingChange?: (updater: SortingState) => void;
@@ -235,19 +243,48 @@ export function DataTable<TData, TValue>({
             className="max-w-sm"
           />
 
-          {/* Render input filter tambahan bila disediakan */}
+          {/* Render filter tambahan: input atau select sesuai konfigurasi */}
           {filterableColumns &&
-            Object.entries(filterableColumns).map(([columnId, cfg]) => (
-              <Input
-                key={columnId}
-                placeholder={cfg.placeholder || `Filter ${columnId}`}
-                value={(table.getColumn(columnId)?.getFilterValue() as string) ?? ''}
-                onChange={(event) =>
-                  table.getColumn(columnId)?.setFilterValue(event.target.value)
-                }
-                className="max-w-sm"
-              />
-            ))}
+            Object.entries(filterableColumns).map(([columnId, cfg]) => {
+              const currentValue =
+                (table.getColumn(columnId)?.getFilterValue() as string) ?? '';
+
+              if (cfg.type === 'select' && cfg.options && Array.isArray(cfg.options)) {
+                return (
+                  <Select
+                    key={columnId}
+                    value={currentValue}
+                    onValueChange={(value) =>
+                      table.getColumn(columnId)?.setFilterValue(value)
+                    }
+                  >
+                    <SelectTrigger className="w-40 h-8">
+                      <SelectValue placeholder={cfg.placeholder || `Pilih ${columnId}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cfg.options.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                );
+              }
+
+              // Default ke input jika tidak diset atau bukan select
+              return (
+                <Input
+                  key={columnId}
+                  placeholder={cfg.placeholder || `Filter ${columnId}`}
+                  value={currentValue}
+                  onChange={(event) =>
+                    table.getColumn(columnId)?.setFilterValue(event.target.value)
+                  }
+                  className="max-w-sm"
+                />
+              );
+            })}
         </div>
 
         <div className="flex items-center gap-2">

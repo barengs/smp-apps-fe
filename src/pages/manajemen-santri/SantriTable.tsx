@@ -58,6 +58,34 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     return [];
   }, [students]);
 
+  // Tambah opsi filter unik untuk Periode, Status, dan Program
+  const periodOptions = useMemo(
+    () => {
+      const set = new Set<string>(['']);
+      santriList.forEach(s => { if (s.period) set.add(s.period); });
+      return Array.from(set).map(v => ({ label: v ? v : 'Semua', value: v }));
+    },
+    [santriList]
+  );
+
+  const statusOptions = useMemo(
+    () => {
+      const set = new Set<string>(['']);
+      santriList.forEach(s => { if (s.status) set.add(s.status); });
+      return Array.from(set).map(v => ({ label: v ? v : 'Semua', value: v }));
+    },
+    [santriList]
+  );
+
+  const programOptions = useMemo(
+    () => {
+      const set = new Set<string>(['']);
+      santriList.forEach(s => { if (s.programName) set.add(s.programName); });
+      return Array.from(set).map(v => ({ label: v ? v : 'Semua', value: v }));
+    },
+    [santriList]
+  );
+
   // Pagination client-side
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(santriList, 10);
 
@@ -144,9 +172,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       exportTitle="Data Santri Pesantren"
       onRowClick={handleRowClick}
       filterableColumns={{
-        programName: {
-          placeholder: 'Filter berdasarkan program...',
-        },
+        period: { type: 'select', placeholder: 'Periode', options: periodOptions },
+        status: { type: 'select', placeholder: 'Status', options: statusOptions },
+        programName: { type: 'select', placeholder: 'Program', options: programOptions },
       }}
       onAddData={onAddData}
       sorting={sorting}
