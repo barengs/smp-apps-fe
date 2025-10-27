@@ -250,19 +250,27 @@ export function DataTable<TData, TValue>({
                 (table.getColumn(columnId)?.getFilterValue() as string) ?? '';
 
               if (cfg.type === 'select' && cfg.options && Array.isArray(cfg.options)) {
+                const CLEAR_FILTER_VALUE = '__ALL__';
+                const safeOptions = [
+                  { label: 'Semua', value: CLEAR_FILTER_VALUE },
+                  ...cfg.options.filter((opt) => opt.value !== ''),
+                ];
+
                 return (
                   <Select
                     key={columnId}
                     value={currentValue}
-                    onValueChange={(value) =>
-                      table.getColumn(columnId)?.setFilterValue(value)
-                    }
+                    onValueChange={(value) => {
+                      const col = table.getColumn(columnId);
+                      if (!col) return;
+                      col.setFilterValue(value === CLEAR_FILTER_VALUE ? '' : value);
+                    }}
                   >
                     <SelectTrigger className="w-40 h-8">
                       <SelectValue placeholder={cfg.placeholder || `Pilih ${columnId}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {cfg.options.map((opt) => (
+                      {safeOptions.map((opt) => (
                         <SelectItem key={opt.value} value={opt.value}>
                           {opt.label}
                         </SelectItem>

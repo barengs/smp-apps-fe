@@ -61,27 +61,27 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   // Tambah opsi filter unik untuk Periode, Status, dan Program
   const periodOptions = useMemo(
     () => {
-      const set = new Set<string>(['']);
+      const set = new Set<string>();
       santriList.forEach(s => { if (s.period) set.add(s.period); });
-      return Array.from(set).map(v => ({ label: v ? v : 'Semua', value: v }));
+      return Array.from(set).map(v => ({ label: v, value: v }));
     },
     [santriList]
   );
 
   const statusOptions = useMemo(
     () => {
-      const set = new Set<string>(['']);
+      const set = new Set<string>();
       santriList.forEach(s => { if (s.status) set.add(s.status); });
-      return Array.from(set).map(v => ({ label: v ? v : 'Semua', value: v }));
+      return Array.from(set).map(v => ({ label: v, value: v }));
     },
     [santriList]
   );
 
   const programOptions = useMemo(
     () => {
-      const set = new Set<string>(['']);
+      const set = new Set<string>();
       santriList.forEach(s => { if (s.programName) set.add(s.programName); });
-      return Array.from(set).map(v => ({ label: v ? v : 'Semua', value: v }));
+      return Array.from(set).map(v => ({ label: v, value: v }));
     },
     [santriList]
   );
