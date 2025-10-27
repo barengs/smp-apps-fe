@@ -23,6 +23,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@
 import { useGetHostelsQuery } from '@/store/slices/hostelApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import PhotoDropzone from '@/components/PhotoDropzone';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const toDateInputValue = (value?: string | null): string => {
   if (!value) return '';
@@ -194,57 +195,37 @@ const SantriEditPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Identitas */}
-                <div className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="nis"
-                    rules={{ required: 'NIS wajib diisi' }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NIS</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="nik"
-                    rules={{ required: 'NIK wajib diisi' }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NIK</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="kk"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nomor KK</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
+              <form className="space-y-4">
+                <Tabs defaultValue="personal" className="w-full">
+                  <TabsList className="flex flex-wrap gap-1">
+                    <TabsTrigger value="personal">Data Pribadi</TabsTrigger>
+                    <TabsTrigger value="address">Alamat & Kontak</TabsTrigger>
+                    <TabsTrigger value="program">Asrama & Program</TabsTrigger>
+                    <TabsTrigger value="photo">Foto</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="personal" className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="first_name"
-                      rules={{ required: 'Nama depan wajib diisi' }}
+                      name="nis"
+                      rules={{ required: 'NIS wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nama Depan</FormLabel>
+                          <FormLabel>NIS</FormLabel>
+                          <FormControl>
+                            <Input {...field} disabled />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="nik"
+                      rules={{ required: 'NIK wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>NIK</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -254,293 +235,327 @@ const SantriEditPage: React.FC = () => {
                     />
                     <FormField
                       control={form.control}
-                      name="last_name"
+                      name="kk"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nama Belakang</FormLabel>
+                          <FormLabel>Nomor KK</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Jenis Kelamin</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            className="flex gap-4"
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <div className="flex items-center gap-2">
-                              <RadioGroupItem value="L" id="gender-l" />
-                              <label htmlFor="gender-l" className="text-sm">Laki-Laki</label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <RadioGroupItem value="P" id="gender-p" />
-                              <label htmlFor="gender-p" className="text-sm">Perempuan</label>
-                            </div>
-                          </RadioGroup>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  {/* Status: ganti menjadi Select */}
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    rules={{ required: 'Status wajib diisi' }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <FormControl>
-                          <Select
-                            value={field.value ?? ''}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger className="w-full h-10">
-                              <SelectValue placeholder="Pilih Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Tidak Aktif">Tidak Aktif</SelectItem>
-                              <SelectItem value="Aktif">Aktif</SelectItem>
-                              <SelectItem value="Tugas">Tugas</SelectItem>
-                              <SelectItem value="Lulus">Lulus</SelectItem>
-                              <SelectItem value="Dikeluarkan">Dikeluarkan</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="photo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <PhotoDropzone
-                          value={field.value ?? ''}
-                          onChange={(dataUrl) => field.onChange(dataUrl ?? '')}
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="first_name"
+                        rules={{ required: 'Nama depan wajib diisi' }}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nama Depan</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="last_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nama Belakang</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Jenis Kelamin</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              className="flex flex-wrap gap-4"
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <div className="flex items-center gap-2">
+                                <RadioGroupItem value="L" id="gender-l" />
+                                <label htmlFor="gender-l" className="text-sm">Laki-Laki</label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <RadioGroupItem value="P" id="gender-p" />
+                                <label htmlFor="gender-p" className="text-sm">Perempuan</label>
+                              </div>
+                            </RadioGroup>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      rules={{ required: 'Status wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Status</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value ?? ''}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger className="w-full h-10">
+                                <SelectValue placeholder="Pilih Status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Tidak Aktif">Tidak Aktif</SelectItem>
+                                <SelectItem value="Aktif">Aktif</SelectItem>
+                                <SelectItem value="Tugas">Tugas</SelectItem>
+                                <SelectItem value="Lulus">Lulus</SelectItem>
+                                <SelectItem value="Dikeluarkan">Dikeluarkan</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="born_in"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tempat Lahir</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="born_at"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tanggal Lahir</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="last_education"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pendidikan Terakhir</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </TabsContent>
 
-                {/* Informasi Lain */}
-                <div className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="period"
-                    rules={{ required: 'Periode wajib diisi' }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Periode</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Misal: 2024/2025" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="parent_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NIK Wali Santri</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Masukkan NIK Wali (opsional)" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Alamat</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} rows={3} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
+                  <TabsContent value="address" className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="born_in"
+                      name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tempat Lahir</FormLabel>
+                          <FormLabel>Alamat</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} rows={3} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="village_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>ID Desa</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                value={field.value ?? ''}
+                                onChange={(e) => field.onChange(e.target.value)}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="village"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Desa</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="district"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Kecamatan</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="postal_code"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Kode Pos</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>No. Telepon</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
                         </FormItem>
                       )}
                     />
+                  </TabsContent>
+
+                  <TabsContent value="program" className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="born_at"
+                      name="period"
+                      rules={{ required: 'Periode wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tanggal Lahir</FormLabel>
+                          <FormLabel>Periode</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <Input {...field} placeholder="Misal: 2024/2025" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="last_education"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pendidikan Terakhir</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="village_id"
+                      name="parent_id"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ID Desa</FormLabel>
+                          <FormLabel>NIK Wali Santri</FormLabel>
                           <FormControl>
-                            <Input type="number" value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value)} />
+                            <Input {...field} placeholder="Masukkan NIK Wali (opsional)" />
                           </FormControl>
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="village"
+                      name="hostel_id"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Desa</FormLabel>
+                          <FormLabel>Asrama</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Select
+                              value={
+                                field.value !== undefined && field.value !== null
+                                  ? String(field.value)
+                                  : ''
+                              }
+                              onValueChange={(v) => field.onChange(Number(v))}
+                              disabled={isHostelLoading}
+                            >
+                              <SelectTrigger className="w-full h-10">
+                                <SelectValue placeholder={isHostelLoading ? 'Memuat asrama...' : 'Pilih Asrama'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {hostelOptions.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="district"
+                      name="program_id"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kecamatan</FormLabel>
+                          <FormLabel>Program</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Select
+                              value={
+                                field.value !== undefined && field.value !== null
+                                  ? String(field.value)
+                                  : ''
+                              }
+                              onValueChange={(v) => field.onChange(Number(v))}
+                              disabled={isProgramLoading}
+                            >
+                              <SelectTrigger className="w-full h-10">
+                                <SelectValue placeholder={isProgramLoading ? 'Memuat program...' : 'Pilih Program'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {programOptions.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                         </FormItem>
                       )}
                     />
+                  </TabsContent>
+
+                  <TabsContent value="photo" className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="postal_code"
+                      name="photo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kode Pos</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
+                          <PhotoDropzone
+                            value={field.value ?? ''}
+                            onChange={(dataUrl) => field.onChange(dataUrl ?? '')}
+                          />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>No. Telepon</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  {/* Asrama: ganti menjadi Select dari API */}
-                  <FormField
-                    control={form.control}
-                    name="hostel_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Asrama</FormLabel>
-                        <FormControl>
-                          <Select
-                            value={
-                              field.value !== undefined && field.value !== null
-                                ? String(field.value)
-                                : ''
-                            }
-                            onValueChange={(v) => field.onChange(Number(v))}
-                            disabled={isHostelLoading}
-                          >
-                            <SelectTrigger className="w-full h-10">
-                              <SelectValue placeholder={isHostelLoading ? 'Memuat asrama...' : 'Pilih Asrama'} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {hostelOptions.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  {/* Program: ganti menjadi Select dari API */}
-                  <FormField
-                    control={form.control}
-                    name="program_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Program</FormLabel>
-                        <FormControl>
-                          <Select
-                            value={
-                              field.value !== undefined && field.value !== null
-                                ? String(field.value)
-                                : ''
-                            }
-                            onValueChange={(v) => field.onChange(Number(v))}
-                            disabled={isProgramLoading}
-                          >
-                            <SelectTrigger className="w-full h-10">
-                              <SelectValue placeholder={isProgramLoading ? 'Memuat program...' : 'Pilih Program'} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {programOptions.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                  </TabsContent>
+                </Tabs>
               </form>
             </Form>
           </CardContent>
