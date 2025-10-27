@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,7 +23,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@
 import { useGetHostelsQuery } from '@/store/slices/hostelApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import PhotoDropzone from '@/components/PhotoDropzone';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import FormStepIndicator from '@/components/FormStepIndicator';
 
 const toDateInputValue = (value?: string | null): string => {
   if (!value) return '';
@@ -81,6 +81,10 @@ const SantriEditPage: React.FC = () => {
       deleted_at: undefined,
     },
   });
+
+  // ADDED: state untuk step wizard
+  const steps = ['Data Pribadi', 'Alamat & Kontak', 'Asrama & Program', 'Foto'];
+  const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
     if (santri) {
@@ -196,15 +200,12 @@ const SantriEditPage: React.FC = () => {
           <CardContent>
             <Form {...form}>
               <form className="space-y-4">
-                <Tabs defaultValue="personal" className="w-full">
-                  <TabsList className="flex flex-wrap gap-1">
-                    <TabsTrigger value="personal">Data Pribadi</TabsTrigger>
-                    <TabsTrigger value="address">Alamat & Kontak</TabsTrigger>
-                    <TabsTrigger value="program">Asrama & Program</TabsTrigger>
-                    <TabsTrigger value="photo">Foto</TabsTrigger>
-                  </TabsList>
+                {/* ADDED: Indikator langkah */}
+                <FormStepIndicator steps={steps} currentStep={currentStep} />
 
-                  <TabsContent value="personal" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* REPLACED: Tabs -> Konten per langkah */}
+                {currentStep === 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="nis"
@@ -360,9 +361,11 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="address" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentStep === 1 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="address"
@@ -439,9 +442,11 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="program" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentStep === 2 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="period"
@@ -530,9 +535,11 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="photo" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentStep === 3 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="photo"
@@ -546,8 +553,38 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                  </TabsContent>
-                </Tabs>
+                  </div>
+                )}
+
+                {/* ADDED: Navigasi langkah */}
+                <div className="mt-4 flex items-center justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+                    disabled={currentStep === 0}
+                  >
+                    Sebelumnya
+                  </Button>
+                  <div className="flex gap-2">
+                    {currentStep < steps.length - 1 ? (
+                      <Button
+                        type="button"
+                        onClick={() => setCurrentStep((s) => Math.min(steps.length - 1, s + 1))}
+                      >
+                        Berikutnya
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={form.handleSubmit(handleSubmit)}
+                        disabled={isSaving}
+                      >
+                        <Save className="h-4 w-4 mr-2" /> Simpan
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </form>
             </Form>
           </CardContent>

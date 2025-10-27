@@ -3,7 +3,6 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { UploadCloud, Image as ImageIcon, X } from 'lucide-react';
 import * as toast from '@/utils/toast';
 
@@ -77,13 +76,18 @@ const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({ value, onChange }) => {
           className={`group relative w-full rounded-md border ${isDragOver ? 'border-blue-500 bg-blue-50' : 'border-muted'} flex items-center justify-center overflow-hidden`}
         >
           {value ? (
-            <AspectRatio ratio={1} className="w-full">
-              <img
-                src={value}
-                alt="Preview Foto"
-                className="h-full w-full object-cover"
-              />
-            </AspectRatio>
+            <div className="flex items-center justify-center py-4">
+              <div
+                className="rounded-md shadow-sm border border-muted"
+                style={{ width: '4cm', height: '6cm' }}
+              >
+                <img
+                  src={value}
+                  alt="Preview Foto"
+                  className="h-full w-full object-cover rounded-md"
+                />
+              </div>
+            </div>
           ) : (
             <div className="flex h-48 w-full flex-col items-center justify-center text-center">
               <ImageIcon className="mb-2 h-8 w-8 text-muted-foreground" />
