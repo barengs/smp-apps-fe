@@ -204,7 +204,7 @@ const SantriEditPage: React.FC = () => {
                     <TabsTrigger value="photo">Foto</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="personal" className="space-y-4">
+                  <TabsContent value="personal" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="nis"
@@ -245,34 +245,32 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="first_name"
-                        rules={{ required: 'Nama depan wajib diisi' }}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nama Depan</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="last_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nama Belakang</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="first_name"
+                      rules={{ required: 'Nama depan wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama Depan</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="last_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama Belakang</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="gender"
@@ -326,32 +324,30 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="born_in"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tempat Lahir</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="born_at"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tanggal Lahir</FormLabel>
-                            <FormControl>
-                              <Input type="date" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="born_in"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tempat Lahir</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="born_at"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tanggal Lahir</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="last_education"
@@ -366,7 +362,7 @@ const SantriEditPage: React.FC = () => {
                     />
                   </TabsContent>
 
-                  <TabsContent value="address" className="space-y-4">
+                  <TabsContent value="address" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="address"
@@ -379,62 +375,58 @@ const SantriEditPage: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="village_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>ID Desa</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                value={field.value ?? ''}
-                                onChange={(e) => field.onChange(e.target.value)}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="village"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Desa</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="district"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Kecamatan</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="postal_code"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Kode Pos</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="village_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>ID Desa</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              value={field.value ?? ''}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="village"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Desa</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="district"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kecamatan</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="postal_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kode Pos</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="phone"
@@ -449,7 +441,7 @@ const SantriEditPage: React.FC = () => {
                     />
                   </TabsContent>
 
-                  <TabsContent value="program" className="space-y-4">
+                  <TabsContent value="program" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="period"
@@ -540,7 +532,7 @@ const SantriEditPage: React.FC = () => {
                     />
                   </TabsContent>
 
-                  <TabsContent value="photo" className="space-y-4">
+                  <TabsContent value="photo" className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="photo"
