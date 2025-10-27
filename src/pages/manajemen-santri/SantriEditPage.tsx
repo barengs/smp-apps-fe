@@ -197,20 +197,6 @@ const SantriEditPage: React.FC = () => {
               <form className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Identitas */}
                 <div className="space-y-4">
-                  {/* Foto profil: pindahkan ke kolom kiri sebagai card drag & drop */}
-                  <FormField
-                    control={form.control}
-                    name="photo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <PhotoDropzone
-                          value={field.value ?? ''}
-                          onChange={(dataUrl) => field.onChange(dataUrl ?? '')}
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="nis"
@@ -329,6 +315,19 @@ const SantriEditPage: React.FC = () => {
                             </SelectContent>
                           </Select>
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="photo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <PhotoDropzone
+                          value={field.value ?? ''}
+                          onChange={(dataUrl) => field.onChange(dataUrl ?? '')}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
