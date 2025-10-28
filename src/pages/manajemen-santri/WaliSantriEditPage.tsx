@@ -111,20 +111,10 @@ const WaliSantriEditPage: React.FC = () => {
     const loginValue = (values.email || '').trim();
     const treatingAsNik = !!loginValue && isNik(loginValue) && !isEmail(loginValue);
 
-    // Jika kolom login diisi NIK, pakai email valid dari Email Wali atau data tersimpan
-    const effectiveEmail = treatingAsNik
-      ? (values.parent.email || parentData?.email || '').trim()
-      : loginValue;
-
-    if (!isEmail(effectiveEmail)) {
-      toast.showError('Jika kolom Email Akun diisi NIK, isi Email Wali yang valid di langkah berikutnya.');
-      setCurrentStep(1);
-      return;
-    }
-
     // Payload flat sesuai ekspektasi backend (tanpa properti `parent`)
     const flatPayload = {
-      email: effectiveEmail,
+      // Boleh email atau NIK sesuai input
+      email: loginValue,
       first_name: values.parent.first_name,
       last_name: values.parent.last_name ?? null,
       kk: values.parent.kk,
