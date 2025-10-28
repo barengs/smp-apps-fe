@@ -34,6 +34,7 @@ import NavigationManagementPage from "@/pages/utility/NavigationManagementPage";
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
 import SantriEditPage from "@/pages/manajemen-santri/SantriEditPage";
+import WaliSantriEditPage from "@/pages/manajemen-santri/WaliSantriEditPage";
 import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidikanPage';
 import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
 import BeritaPage from '@/pages/informasi/BeritaPage';
@@ -142,6 +143,7 @@ function App() {
 
                 <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
                 <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
+                <Route path="/dashboard/wali-santri/:id/edit" element={<WaliSantriEditPage />} />
                 <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
                 <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
                 <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />

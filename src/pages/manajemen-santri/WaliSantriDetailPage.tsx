@@ -102,7 +102,7 @@ const WaliSantriDetailPage: React.FC = () => {
                   <Button variant="outline" onClick={() => navigate('/dashboard/wali-santri-list')}>
                     <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                   </Button>
-                  <Button variant="outline" onClick={() => toast.showWarning('Fitur edit akan segera tersedia.')}>
+                  <Button variant="outline" onClick={() => navigate(`/dashboard/wali-santri/${actualParentId}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" /> Edit
                   </Button>
                 </div>
