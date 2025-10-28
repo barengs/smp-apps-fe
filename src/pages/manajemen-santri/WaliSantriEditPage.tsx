@@ -104,14 +104,29 @@ const WaliSantriEditPage: React.FC = () => {
   };
 
   const handleSubmit = async (values: CreateUpdateParentRequest) => {
-    const payload: CreateUpdateParentRequest = {
+    const payload = {
+      // email akun (top-level)
       email: values.email,
-      parent: {
-        ...values.parent,
-        occupation_id: values.parent.occupation_id ?? null,
-        education_id: values.parent.education_id ?? null,
-      },
-    };
+      // identitas (flat sesuai error backend)
+      first_name: values.parent.first_name,
+      last_name: values.parent.last_name ?? null,
+      kk: values.parent.kk,
+      nik: values.parent.nik,
+      gender: values.parent.gender,
+      parent_as: values.parent.parent_as,
+      // kontak
+      phone: values.parent.phone ?? null,
+      // email kontak wali (opsional, tetap dikirim jika ada)
+      // jika backend hanya mengenal satu "email", pastikan "email" di atas sudah valid.
+      // Beberapa backend tetap menerima field email tambahan; bila tidak diperlukan, backend akan mengabaikan.
+      contact_email: values.parent.email ?? null,
+      // alamat
+      domicile_address: values.parent.domicile_address ?? null,
+      card_address: values.parent.card_address ?? null,
+      // pendidikan/pekerjaan
+      occupation_id: values.parent.occupation_id ?? null,
+      education_id: values.parent.education_id ?? null,
+    } as any;
 
     const result = await updateParent({ id: parentId, data: payload }).unwrap();
     if (result) {
@@ -170,7 +185,13 @@ const WaliSantriEditPage: React.FC = () => {
                     <FormField
                       control={form.control}
                       name="email"
-                      rules={{ required: 'Email akun wajib diisi' }}
+                      rules={{
+                        required: 'Email akun wajib diisi',
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: 'Masukkan email akun yang valid',
+                        },
+                      }}
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
                           <FormLabel>Email Akun</FormLabel>
