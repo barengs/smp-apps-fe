@@ -17,6 +17,10 @@ import { ArrowLeft, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import FormStepIndicator from '@/components/FormStepIndicator';
 
+// Helper validasi untuk email dan NIK
+const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v ?? '').trim());
+const isNik = (v: string) => /^\d{8,20}$/.test((v ?? '').trim());
+
 const WaliSantriEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -104,29 +108,35 @@ const WaliSantriEditPage: React.FC = () => {
   };
 
   const handleSubmit = async (values: CreateUpdateParentRequest) => {
-    const payload = {
-      // email akun (top-level)
-      email: values.email,
-      // identitas (flat sesuai error backend)
-      first_name: values.parent.first_name,
-      last_name: values.parent.last_name ?? null,
-      kk: values.parent.kk,
-      nik: values.parent.nik,
-      gender: values.parent.gender,
-      parent_as: values.parent.parent_as,
-      // kontak
-      phone: values.parent.phone ?? null,
-      // email kontak wali (opsional, tetap dikirim jika ada)
-      // jika backend hanya mengenal satu "email", pastikan "email" di atas sudah valid.
-      // Beberapa backend tetap menerima field email tambahan; bila tidak diperlukan, backend akan mengabaikan.
-      contact_email: values.parent.email ?? null,
-      // alamat
-      domicile_address: values.parent.domicile_address ?? null,
-      card_address: values.parent.card_address ?? null,
-      // pendidikan/pekerjaan
-      occupation_id: values.parent.occupation_id ?? null,
-      education_id: values.parent.education_id ?? null,
-    } as any;
+    const loginValue = (values.email || '').trim();
+    const treatingAsNik = loginValue && isNik(loginValue) && !isEmail(loginValue);
+
+    // Tentukan email efektif:
+    // - Jika user mengisi NIK di kolom Email Akun, gunakan email yang sudah ada (parentData.email) atau parent.email
+    // - Jika kolom berisi email, gunakan itu.
+    const effectiveEmail = treatingAsNik ? (parentData?.email || values.parent.email || '') : loginValue;
+
+    // Pastikan email efektif valid agar backend tidak menolak
+    if (!isEmail(effectiveEmail)) {
+      toast.showError('Saat mengisi Email Akun dengan NIK, pastikan ada email akun yang valid tersimpan.');
+      return;
+    }
+
+    const payload: CreateUpdateParentRequest = {
+      email: effectiveEmail,
+      parent: {
+        ...values.parent,
+        // Jika kolom Email Akun berisi NIK, pakai sebagai nik
+        nik: treatingAsNik ? loginValue : values.parent.nik,
+        occupation_id: values.parent.occupation_id ?? null,
+        education_id: values.parent.education_id ?? null,
+        last_name: values.parent.last_name ?? null,
+        phone: values.parent.phone ?? null,
+        domicile_address: values.parent.domicile_address ?? null,
+        card_address: values.parent.card_address ?? null,
+        email: values.parent.email ?? null,
+      },
+    };
 
     const result = await updateParent({ id: parentId, data: payload }).unwrap();
     if (result) {
@@ -186,17 +196,15 @@ const WaliSantriEditPage: React.FC = () => {
                       control={form.control}
                       name="email"
                       rules={{
-                        required: 'Email akun wajib diisi',
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: 'Masukkan email akun yang valid',
-                        },
+                        required: 'Email akun atau NIK wajib diisi',
+                        validate: (v: string) =>
+                          isEmail(v) || isNik(v) || 'Masukkan email akun yang valid atau NIK (angka)',
                       }}
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
-                          <FormLabel>Email Akun</FormLabel>
+                          <FormLabel>Email Akun atau NIK</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="Email akun wali (login)" {...field} />
+                            <Input type="text" placeholder="Contoh: nama@contoh.com atau 3276XXXXXXXXXXXX" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -291,12 +299,14 @@ const WaliSantriEditPage: React.FC = () => {
                     <FormField
                       control={form.control}
                       name="parent.kk"
+                      rules={{ required: 'No. KK wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>No. KK</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
