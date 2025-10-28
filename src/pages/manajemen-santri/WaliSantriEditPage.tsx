@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,8 +13,9 @@ import { useGetParentByIdQuery, useUpdateParentMutation, type CreateUpdateParent
 import { useGetPekerjaanQuery } from '@/store/slices/pekerjaanApi';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import * as toast from '@/utils/toast';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import FormStepIndicator from '@/components/FormStepIndicator';
 
 const WaliSantriEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,9 @@ const WaliSantriEditPage: React.FC = () => {
   const { data: pekerjaanList = [], isLoading: isPekerjaanLoading } = useGetPekerjaanQuery();
   const { data: educationList = [], isLoading: isEducationLoading } = useGetEducationLevelsQuery({} as any);
   const [updateParent, { isLoading: isSaving }] = useUpdateParentMutation();
+
+  const steps = ['Akun', 'Identitas', 'Kontak', 'Alamat', 'Pendidikan'];
+  const [currentStep, setCurrentStep] = useState(0);
 
   const form = useForm<CreateUpdateParentRequest>({
     defaultValues: {
@@ -75,6 +79,28 @@ const WaliSantriEditPage: React.FC = () => {
       });
     }
   }, [parentData, form]);
+
+  const stepFieldNames: Record<number, (keyof CreateUpdateParentRequest | string)[]> = {
+    0: ['email'],
+    1: ['parent.first_name', 'parent.gender', 'parent.parent_as', 'parent.nik', 'parent.kk'],
+    2: ['parent.phone', 'parent.email'],
+    3: ['parent.domicile_address', 'parent.card_address'],
+    4: ['parent.occupation_id', 'parent.education_id'],
+  };
+
+  const goNext = async () => {
+    const fields = stepFieldNames[currentStep] ?? [];
+    const valid = await form.trigger(fields as any, { shouldFocus: true });
+    if (!valid) {
+      toast.showError('Mohon lengkapi bagian ini sebelum lanjut.');
+      return;
+    }
+    setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+  };
+
+  const goBack = () => {
+    setCurrentStep((s) => Math.max(s - 1, 0));
+  };
 
   const handleSubmit = async (values: CreateUpdateParentRequest) => {
     const payload: CreateUpdateParentRequest = {
@@ -124,250 +150,282 @@ const WaliSantriEditPage: React.FC = () => {
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle>Edit Wali Santri</CardTitle>
-                <CardDescription>Perbarui informasi wali santri.</CardDescription>
+                <CardDescription>Perbarui informasi wali santri melalui langkah-langkah yang mudah.</CardDescription>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => navigate(`/dashboard/wali-santri/${parentId}`)}>
                   <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
                 </Button>
-                <Button onClick={form.handleSubmit(handleSubmit)} disabled={isSaving}>
-                  <Save className="h-4 w-4 mr-2" /> Simpan
-                </Button>
               </div>
             </div>
+            <FormStepIndicator steps={steps} currentStep={currentStep} />
           </CardHeader>
+
           <CardContent>
             <Form {...form}>
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  rules={{ required: 'Email akun wajib diisi' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Akun</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="Email akun wali (login)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <form className="space-y-6">
+                {currentStep === 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      rules={{ required: 'Email akun wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Email Akun</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="Email akun wali (login)" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="parent.first_name"
-                  rules={{ required: 'Nama depan wajib diisi' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nama Depan</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {currentStep === 1 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="parent.first_name"
+                      rules={{ required: 'Nama depan wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama Depan</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.last_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama Belakang</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.gender"
+                      rules={{ required: 'Jenis kelamin wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Jenis Kelamin</FormLabel>
+                          <FormControl>
+                            <RadioGroup value={field.value} onValueChange={field.onChange} className="flex gap-6">
+                              <div className="flex items-center gap-2">
+                                <RadioGroupItem id="gender-l" value="L" />
+                                <label htmlFor="gender-l" className="text-sm">Laki-Laki</label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <RadioGroupItem id="gender-p" value="P" />
+                                <label htmlFor="gender-p" className="text-sm">Perempuan</label>
+                              </div>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.parent_as"
+                      rules={{ required: 'Status wali wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Status Wali</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih status wali" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="ayah">Ayah</SelectItem>
+                                <SelectItem value="ibu">Ibu</SelectItem>
+                                <SelectItem value="wali">Wali</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.nik"
+                      rules={{ required: 'NIK wajib diisi' }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>NIK</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.kk"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>No. KK</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="parent.last_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nama Belakang</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                {currentStep === 2 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="parent.phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>No. Telepon</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Wali</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="Email untuk kontak wali" {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="parent.gender"
-                  rules={{ required: 'Jenis kelamin wajib diisi' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Jenis Kelamin</FormLabel>
-                      <FormControl>
-                        <RadioGroup value={field.value} onValueChange={field.onChange} className="flex gap-6">
-                          <div className="flex items-center gap-2">
-                            <RadioGroupItem id="gender-l" value="L" />
-                            <label htmlFor="gender-l" className="text-sm">Laki-Laki</label>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <RadioGroupItem id="gender-p" value="P" />
-                            <label htmlFor="gender-p" className="text-sm">Perempuan</label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {currentStep === 3 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="parent.domicile_address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Alamat Domisili</FormLabel>
+                          <FormControl>
+                            <Textarea rows={3} {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parent.card_address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Alamat KTP</FormLabel>
+                          <FormControl>
+                            <Textarea rows={3} {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="parent.parent_as"
-                  rules={{ required: 'Status wali wajib diisi' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status Wali</FormLabel>
-                      <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pilih status wali" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="ayah">Ayah</SelectItem>
-                            <SelectItem value="ibu">Ibu</SelectItem>
-                            <SelectItem value="wali">Wali</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {currentStep === 4 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="parent.occupation_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pekerjaan</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value !== null && field.value !== undefined ? String(field.value) : ''}
+                              onValueChange={(v) => field.onChange(v ? Number(v) : null)}
+                              disabled={isPekerjaanLoading}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={isPekerjaanLoading ? 'Memuat pekerjaan...' : 'Pilih pekerjaan'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {pekerjaanList.map((p) => (
+                                  <SelectItem key={p.id} value={String(p.id)}>
+                                    {p.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="parent.nik"
-                  rules={{ required: 'NIK wajib diisi' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>NIK</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.kk"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>No. KK</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>No. Telepon</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.domicile_address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alamat Domisili</FormLabel>
-                      <FormControl>
-                        <Textarea rows={3} {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Wali</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="Email untuk kontak wali" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.card_address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alamat KTP</FormLabel>
-                      <FormControl>
-                        <Textarea rows={3} {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.occupation_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pekerjaan</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value !== null && field.value !== undefined ? String(field.value) : ''}
-                          onValueChange={(v) => field.onChange(v ? Number(v) : null)}
-                          disabled={isPekerjaanLoading}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={isPekerjaanLoading ? 'Memuat pekerjaan...' : 'Pilih pekerjaan'} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {pekerjaanList.map((p) => (
-                              <SelectItem key={p.id} value={String(p.id)}>
-                                {p.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.education_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pendidikan</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value !== null && field.value !== undefined ? String(field.value) : ''}
-                          onValueChange={(v) => field.onChange(v ? Number(v) : null)}
-                          disabled={isEducationLoading}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={isEducationLoading ? 'Memuat pendidikan...' : 'Pilih pendidikan'} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {educationList.map((e) => (
-                              <SelectItem key={e.id} value={String(e.id)}>
-                                {e.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={form.control}
+                      name="parent.education_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pendidikan</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value !== null && field.value !== undefined ? String(field.value) : ''}
+                              onValueChange={(v) => field.onChange(v ? Number(v) : null)}
+                              disabled={isEducationLoading}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={isEducationLoading ? 'Memuat pendidikan...' : 'Pilih pendidikan'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {educationList.map((e) => (
+                                  <SelectItem key={e.id} value={String(e.id)}>
+                                    {e.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
               </form>
             </Form>
           </CardContent>
+
+          <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-sm text-muted-foreground">
+              Langkah {currentStep + 1} dari {steps.length}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={goBack} disabled={currentStep === 0 || isSaving}>
+                <ChevronLeft className="h-4 w-4 mr-2" /> Sebelumnya
+              </Button>
+              {currentStep < steps.length - 1 ? (
+                <Button onClick={goNext} disabled={isSaving}>
+                  Lanjut <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button onClick={form.handleSubmit(handleSubmit)} disabled={isSaving}>
+                  <Save className="h-4 w-4 mr-2" /> Simpan
+                </Button>
+              )}
+            </div>
+          </CardFooter>
         </Card>
       </div>
     </DashboardLayout>
