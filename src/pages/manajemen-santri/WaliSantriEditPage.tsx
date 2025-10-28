@@ -111,22 +111,11 @@ const WaliSantriEditPage: React.FC = () => {
     const loginValue = (values.email || '').trim();
     const treatingAsNik = loginValue && isNik(loginValue) && !isEmail(loginValue);
 
-    // Tentukan email efektif:
-    // - Jika user mengisi NIK di kolom Email Akun, gunakan email yang sudah ada (parentData.email) atau parent.email
-    // - Jika kolom berisi email, gunakan itu.
-    const effectiveEmail = treatingAsNik ? (parentData?.email || values.parent.email || '') : loginValue;
-
-    // Pastikan email efektif valid agar backend tidak menolak
-    if (!isEmail(effectiveEmail)) {
-      toast.showError('Saat mengisi Email Akun dengan NIK, pastikan ada email akun yang valid tersimpan.');
-      return;
-    }
-
     const payload: CreateUpdateParentRequest = {
-      email: effectiveEmail,
+      // Sesuai kebutuhan: field ini dapat berupa email atau NIK
+      email: loginValue,
       parent: {
         ...values.parent,
-        // Jika kolom Email Akun berisi NIK, pakai sebagai nik
         nik: treatingAsNik ? loginValue : values.parent.nik,
         occupation_id: values.parent.occupation_id ?? null,
         education_id: values.parent.education_id ?? null,
@@ -198,7 +187,7 @@ const WaliSantriEditPage: React.FC = () => {
                       rules={{
                         required: 'Email akun atau NIK wajib diisi',
                         validate: (v: string) =>
-                          isEmail(v) || isNik(v) || 'Masukkan email akun yang valid atau NIK (angka)',
+                          isEmail((v ?? '').trim()) || isNik((v ?? '').trim()) || 'Masukkan email akun yang valid atau NIK (angka)',
                       }}
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
