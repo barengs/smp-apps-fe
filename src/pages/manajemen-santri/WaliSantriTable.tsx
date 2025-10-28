@@ -31,7 +31,7 @@ const WaliSantriTable: React.FC = () => {
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsResponse) {
       return parentsResponse.map(parent => ({
-        id: parent.id,
+        id: parent.parent.id,
         fullName: `${parent.parent.first_name} ${parent.parent.last_name || ''}`.trim(),
         email: parent.email,
         kk: parent.parent.kk,
