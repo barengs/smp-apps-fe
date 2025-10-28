@@ -129,6 +129,10 @@ const WaliSantriDetailPage: React.FC = () => {
                 <DetailRow label="Jenis Kelamin" value={parentDetails?.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
                 <DetailRow label="Status Wali" value={parentDetails?.parent_as} />
                 <DetailRow label="Telepon" value={parentDetails?.phone} />
+
+                <DetailRow label="Pekerjaan" value={parentDetails?.occupation?.name} />
+                <DetailRow label="Pendidikan" value={parentDetails?.education?.name} />
+
                 <DetailRow label="Alamat" value={parentDetails?.card_address} />
                 <DetailRow label="Alamat Domisili" value={parentDetails?.domicile_address} />
                 <DetailRow label="Tanggal Dibuat" value={parentData?.created_at ? new Date(parentData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'} />

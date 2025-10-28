@@ -55,6 +55,11 @@ export interface Parent {
     email: string | null;
     occupation_id: number | null;
     education_id: number | null;
+
+    // ADDED: nested detail untuk pekerjaan dan pendidikan
+    occupation?: { id: number; name: string } | null;
+    education?: { id: number; name: string } | null;
+
     photo: string | null;
     photo_path: string | null;
     deleted_at: string | null;
