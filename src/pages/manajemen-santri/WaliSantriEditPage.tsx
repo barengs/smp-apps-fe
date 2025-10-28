@@ -288,7 +288,7 @@ const WaliSantriEditPage: React.FC = () => {
                   control={form.control}
                   name="parent.card_address"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
+                    <FormItem>
                       <FormLabel>Alamat KTP</FormLabel>
                       <FormControl>
                         <Textarea rows={3} {...field} />
@@ -301,7 +301,7 @@ const WaliSantriEditPage: React.FC = () => {
                   control={form.control}
                   name="parent.domicile_address"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
+                    <FormItem>
                       <FormLabel>Alamat Domisili</FormLabel>
                       <FormControl>
                         <Textarea rows={3} {...field} />
