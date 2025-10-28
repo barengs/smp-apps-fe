@@ -109,25 +109,36 @@ const WaliSantriEditPage: React.FC = () => {
 
   const handleSubmit = async (values: CreateUpdateParentRequest) => {
     const loginValue = (values.email || '').trim();
-    const treatingAsNik = loginValue && isNik(loginValue) && !isEmail(loginValue);
+    const treatingAsNik = !!loginValue && isNik(loginValue) && !isEmail(loginValue);
 
-    const payload: CreateUpdateParentRequest = {
-      // Sesuai kebutuhan: field ini dapat berupa email atau NIK
-      email: loginValue,
-      parent: {
-        ...values.parent,
-        nik: treatingAsNik ? loginValue : values.parent.nik,
-        occupation_id: values.parent.occupation_id ?? null,
-        education_id: values.parent.education_id ?? null,
-        last_name: values.parent.last_name ?? null,
-        phone: values.parent.phone ?? null,
-        domicile_address: values.parent.domicile_address ?? null,
-        card_address: values.parent.card_address ?? null,
-        email: values.parent.email ?? null,
-      },
+    // Jika kolom login diisi NIK, pakai email valid dari Email Wali atau data tersimpan
+    const effectiveEmail = treatingAsNik
+      ? (values.parent.email || parentData?.email || '').trim()
+      : loginValue;
+
+    if (!isEmail(effectiveEmail)) {
+      toast.showError('Jika kolom Email Akun diisi NIK, isi Email Wali yang valid di langkah berikutnya.');
+      setCurrentStep(1);
+      return;
+    }
+
+    // Payload flat sesuai ekspektasi backend (tanpa properti `parent`)
+    const flatPayload = {
+      email: effectiveEmail,
+      first_name: values.parent.first_name,
+      last_name: values.parent.last_name ?? null,
+      kk: values.parent.kk,
+      nik: treatingAsNik ? loginValue : values.parent.nik,
+      gender: values.parent.gender,
+      parent_as: values.parent.parent_as,
+      phone: values.parent.phone ?? null,
+      domicile_address: values.parent.domicile_address ?? null,
+      card_address: values.parent.card_address ?? null,
+      occupation_id: values.parent.occupation_id ?? null,
+      education_id: values.parent.education_id ?? null,
     };
 
-    const result = await updateParent({ id: parentId, data: payload }).unwrap();
+    const result = await updateParent({ id: parentId, data: flatPayload }).unwrap();
     if (result) {
       toast.showSuccess('Data wali santri berhasil diperbarui.');
       navigate(`/dashboard/wali-santri/${parentId}`);

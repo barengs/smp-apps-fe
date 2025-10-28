@@ -98,6 +98,9 @@ export interface CreateUpdateParentRequest {
   };
 }
 
+// Izinkan update payload berupa nested lama atau flat baru
+export type UpdateParentPayload = CreateUpdateParentRequest | Record<string, unknown>;
+
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getParents: builder.query<Parent[], void>({
@@ -124,7 +127,7 @@ export const parentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Parent', id: 'LIST' }],
     }),
-    updateParent: builder.mutation<Parent, { id: number; data: CreateUpdateParentRequest }>({
+    updateParent: builder.mutation<Parent, { id: number; data: UpdateParentPayload }>({
       query: ({ id, data }) => ({
         url: `main/parent/${id}`,
         method: 'PUT',
