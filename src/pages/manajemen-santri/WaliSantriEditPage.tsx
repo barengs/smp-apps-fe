@@ -42,7 +42,7 @@ const WaliSantriEditPage: React.FC = () => {
         kk: '',
         nik: '',
         gender: 'L',
-        parent_as: 'Ayah',
+        parent_as: 'ayah',
         phone: '',
         email: '',
         domicile_address: '',
@@ -64,7 +64,7 @@ const WaliSantriEditPage: React.FC = () => {
           kk: parentData.parent.kk || '',
           nik: parentData.parent.nik || '',
           gender: parentData.parent.gender || 'L',
-          parent_as: parentData.parent.parent_as || 'Ayah',
+          parent_as: (parentData.parent.parent_as || 'ayah').toLowerCase(),
           phone: parentData.parent.phone || '',
           email: parentData.parent.email || parentData.email || '',
           domicile_address: parentData.parent.domicile_address || '',
@@ -219,9 +219,9 @@ const WaliSantriEditPage: React.FC = () => {
                             <SelectValue placeholder="Pilih status wali" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Ayah">Ayah</SelectItem>
-                            <SelectItem value="Ibu">Ibu</SelectItem>
-                            <SelectItem value="Wali">Wali</SelectItem>
+                            <SelectItem value="ayah">Ayah</SelectItem>
+                            <SelectItem value="ibu">Ibu</SelectItem>
+                            <SelectItem value="wali">Wali</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
