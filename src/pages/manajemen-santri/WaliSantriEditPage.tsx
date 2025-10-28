@@ -273,6 +273,19 @@ const WaliSantriEditPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
+                  name="parent.domicile_address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alamat Domisili</FormLabel>
+                      <FormControl>
+                        <Textarea rows={3} {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="parent.email"
                   render={({ field }) => (
                     <FormItem>
@@ -290,19 +303,6 @@ const WaliSantriEditPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Alamat KTP</FormLabel>
-                      <FormControl>
-                        <Textarea rows={3} {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="parent.domicile_address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alamat Domisili</FormLabel>
                       <FormControl>
                         <Textarea rows={3} {...field} />
                       </FormControl>
