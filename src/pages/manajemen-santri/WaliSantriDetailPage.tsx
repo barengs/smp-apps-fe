@@ -23,24 +23,31 @@ const WaliSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const parentId = parseInt(id || '', 10);
+  const invalidId = isNaN(parentId);
 
   const { data: parentData, error, isLoading } = useGetParentByIdQuery(parentId, { refetchOnMountOrArgChange: true });
 
-  // Validasi ID di awal render
-  if (isNaN(parentId)) {
-    useEffect(() => {
+  // Top-level effect untuk validasi ID (tidak memanggil hooks secara kondisional)
+  useEffect(() => {
+    if (invalidId) {
       toast.showError('ID Wali Santri tidak valid.');
       navigate('/dashboard/wali-santri-list');
-    }, [navigate]);
-    return null;
-  }
+    }
+  }, [invalidId, navigate]);
 
-  // Tangani error dan data tidak ditemukan
-  if (error || !parentData) {
-    useEffect(() => {
+  // Top-level effect: redirect jika selesai loading dan data error/tidak ada
+  useEffect(() => {
+    if (!invalidId && !isLoading && (error || !parentData)) {
       toast.showError('Gagal memuat detail wali santri atau data tidak ditemukan.');
       navigate('/dashboard/wali-santri-list');
-    }, [error, parentData, navigate]);
+    }
+  }, [invalidId, isLoading, error, parentData, navigate]);
+
+  // Guard render aman tanpa memanggil hooks di dalam kondisi
+  if (invalidId) {
+    return null;
+  }
+  if (!invalidId && !isLoading && (error || !parentData)) {
     return null;
   }
 
