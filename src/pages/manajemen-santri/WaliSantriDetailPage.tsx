@@ -46,7 +46,7 @@ const WaliSantriDetailPage: React.FC = () => {
 
   // Gunakan parent.id dari respons API sebagai ID utama
   const parentDetails = parentData.parent;
-  const actualParentId = parentDetails?.id;
+  const actualParentId = parentData?.id;
   const fullName = parentDetails ? `${parentDetails.first_name || ''} ${parentDetails.last_name || ''}`.trim() : 'Detail Wali Santri';
 
   const breadcrumbItems: BreadcrumbItemData[] = [
