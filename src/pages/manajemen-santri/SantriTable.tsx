@@ -30,14 +30,14 @@ interface SantriTableProps {
 
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'updated_at', desc: true }]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
 
   // Ambil semua data tanpa server-side pagination
   const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({});
 
   const santriList: Santri[] = useMemo(() => {
     if (Array.isArray(students)) {
-      return students.map((student) => ({
+      const mapped = students.map((student) => ({
         id: student.id,
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
@@ -54,6 +54,11 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         created_at: student.created_at,
         updated_at: student.updated_at,
       }));
+      // Urutkan berdasarkan tanggal dibuat (terbaru di atas)
+      mapped.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      return mapped;
     }
     return [];
   }, [students]);
