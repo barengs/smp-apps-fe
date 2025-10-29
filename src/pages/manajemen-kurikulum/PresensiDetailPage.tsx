@@ -149,42 +149,42 @@ const PresensiDetailPage: React.FC = () => {
             <CardDescription>Informasi lengkap mengenai jadwal pelajaran yang dipilih.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="font-semibold text-muted-foreground">Tahun Ajaran</p>
-                <p>{schedule.academic_year?.year || '-'}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Tahun Ajaran</div>
+                <div className="font-medium truncate">{schedule.academic_year?.year || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Tingkat Pendidikan</p>
-                <p>{schedule.education?.institution_name || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Sesi</div>
+                <div className="font-medium truncate">{schedule.session || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Jenjang Pendidikan</p>
-                <p>{schedule.education?.institution_name || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Tingkat Pendidikan</div>
+                <div className="font-medium truncate">{schedule.education?.institution_name || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Sesi</p>
-                <p>{schedule.session || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Kelas</div>
+                <div className="font-medium truncate">{detail.classroom?.name || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Mata Pelajaran</p>
-                <p>{detail.study?.name || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Jenjang Pendidikan</div>
+                <div className="font-medium truncate">{schedule.education?.institution_name || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Kelas</p>
-                <p>{detail.classroom?.name || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Rombel</div>
+                <div className="font-medium truncate">{detail.class_group?.name || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Rombel</p>
-                <p>{detail.class_group?.name || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Mata Pelajaran</div>
+                <div className="font-medium truncate">{detail.study?.name || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Guru Pengampu</p>
-                <p>{`${detail.teacher?.first_name || ''} ${detail.teacher?.last_name || ''}`.trim() || '-'}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
+                <div className="font-semibold text-muted-foreground">Guru Pengampu</div>
+                <div className="font-medium truncate">{`${detail.teacher?.first_name || ''} ${detail.teacher?.last_name || ''}`.trim() || '-'}</div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Jam Pelajaran</p>
-                <p>{`${detail.lesson_hour?.start_time ? detail.lesson_hour.start_time.substring(0, 5) : ''} - ${detail.lesson_hour?.end_time ? detail.lesson_hour.end_time.substring(0, 5) : ''}`}</p>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2 md:col-span-2">
+                <div className="font-semibold text-muted-foreground">Jam Pelajaran</div>
+                <div className="font-medium truncate">{`${detail.lesson_hour?.start_time ? detail.lesson_hour.start_time.substring(0, 5) : ''} - ${detail.lesson_hour?.end_time ? detail.lesson_hour.end_time.substring(0, 5) : ''}`}</div>
               </div>
             </div>
             
