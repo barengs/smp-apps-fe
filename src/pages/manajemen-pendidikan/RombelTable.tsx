@@ -34,6 +34,8 @@ interface Rombel {
   classroom: {
     name: string;
   };
+  // Kolom tambahan untuk Wali Kelas (data mungkin belum tersedia)
+  homeroom_teacher?: string;
 }
 
 const RombelTable: React.FC = () => {
@@ -102,6 +104,14 @@ const RombelTable: React.FC = () => {
       {
         accessorKey: 'name',
         header: 'Nama Rombel',
+      },
+      {
+        accessorKey: 'homeroom_teacher',
+        header: 'Wali Kelas',
+        cell: ({ row }) => {
+          const wali = row.original.homeroom_teacher;
+          return <span>{wali && wali.trim() !== '' ? wali : '-'}</span>;
+        },
       },
       {
         id: 'actions',

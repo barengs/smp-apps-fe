@@ -31,6 +31,8 @@ const formSchema = z.object({
   classroom_id: z.number({
     required_error: 'Kelas harus dipilih.',
   }),
+  // Field tambahan untuk Wali Kelas (tidak dikirim ke API untuk saat ini)
+  homeroom_teacher: z.string().optional(),
 });
 
 interface RombelFormProps {
@@ -38,6 +40,7 @@ interface RombelFormProps {
     id: number;
     name: string;
     classroom_id: number;
+    homeroom_teacher?: string;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -53,16 +56,23 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
     defaultValues: initialData || {
       name: '',
       classroom_id: undefined,
+      homeroom_teacher: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Hanya kirim field yang didukung API untuk saat ini
+    const payload: CreateUpdateClassGroupRequest = {
+      name: values.name,
+      classroom_id: values.classroom_id,
+    };
+
     try {
       if (initialData) {
-        await updateClassGroup({ id: initialData.id, data: values as CreateUpdateClassGroupRequest }).unwrap();
+        await updateClassGroup({ id: initialData.id, data: payload }).unwrap();
         showSuccess(`Rombel "${values.name}" berhasil diperbarui.`); // Updated call
       } else {
-        await createClassGroup(values as CreateUpdateClassGroupRequest).unwrap();
+        await createClassGroup(payload).unwrap();
         showSuccess(`Rombel "${values.name}" berhasil ditambahkan.`); // Updated call
       }
       onSuccess();
@@ -119,6 +129,19 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
                   )}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="homeroom_teacher"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Wali Kelas</FormLabel>
+              <FormControl>
+                <Input placeholder="Nama Wali Kelas (opsional)" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
