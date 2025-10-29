@@ -324,7 +324,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>{editMode ? 'Edit Kenaikan Kelas' : 'Tambah Data Kenaikan Kelas'}</DialogTitle>
+          <DialogTitle>{editMode ? 'Edit Kenaikan Kelas' : 'Pengaturan Kelas'}</DialogTitle>
           <DialogDescription>
             Pilih tahun ajaran, jenjang, dan kelas, lalu pilih siswa yang akan dimasukkan ke kelas tersebut.
           </DialogDescription>
