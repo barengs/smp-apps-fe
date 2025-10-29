@@ -21,14 +21,30 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import * as toast from '@/utils/toast'; // Baris ini diperbaiki
+import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
+import AssignStudyModal from './AssignStudyModal';
+import type { Staff as StaffForAssignment, Study } from '@/types/teacherAssignment';
 
 const GuruPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery();
   const [deleteTeacher] = useDeleteTeacherMutation();
+  const { data: assignmentsResponse } = useGetTeacherAssignmentsQuery({});
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [selectedStaff, setSelectedStaff] = React.useState<StaffForAssignment | null>(null);
 
   // Data diambil dari API, jika tidak ada, gunakan array kosong
   const teachersData: UserWithStaffAndRoles[] = apiResponse?.data || [];
+
+  // Buat peta staffId -> studies untuk menampilkan dan mengubah penugasan mapel
+  const assignments = React.useMemo(() => assignmentsResponse?.data || [], [assignmentsResponse]);
+  const assignmentsMap = React.useMemo(() => {
+    const map = new Map<string, Study[]>();
+    assignments.forEach((staffDetail) => {
+      map.set(String(staffDetail.id), staffDetail.studies || []);
+    });
+    return map;
+  }, [assignments]);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -88,6 +104,60 @@ const GuruPage: React.FC = () => {
         if (status === 'Tidak Aktif') variant = 'destructive';
         if (status === 'Cuti') variant = 'warning';
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
+      },
+    },
+    {
+      id: 'studies',
+      header: 'Mata Pelajaran',
+      cell: ({ row }) => {
+        const user = row.original;
+        const studies = assignmentsMap.get(String(user.staff.id)) || [];
+        const staffForModal: StaffForAssignment = {
+          id: String(user.staff.id),
+          first_name: user.staff.first_name,
+          last_name: user.staff.last_name,
+          nip: user.staff.nip,
+          email: user.staff.email,
+        };
+
+        if (!studies.length) {
+          return (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-auto py-1 px-2 text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedStaff(staffForModal);
+                setIsModalOpen(true);
+              }}
+            >
+              Tugaskan Mapel
+            </Button>
+          );
+        }
+
+        return (
+          <div className="flex flex-wrap items-center gap-1">
+            {studies.map((study) => (
+              <Badge key={study.id} variant="outline">
+                {study.name}
+              </Badge>
+            ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedStaff(staffForModal);
+                setIsModalOpen(true);
+              }}
+            >
+              Ubah
+            </Button>
+          </div>
+        );
       },
     },
     {
@@ -173,6 +243,14 @@ const GuruPage: React.FC = () => {
                   onAddData={handleAddData}
                   onRowClick={handleRowClick}
                   addButtonLabel="Tambah Guru"
+                />
+                <AssignStudyModal
+                  isOpen={isModalOpen}
+                  onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedStaff(null);
+                  }}
+                  staff={selectedStaff}
                 />
               </>
             )}
