@@ -49,30 +49,8 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: lessonHoursData } = useGetLessonHoursQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
 
-  // Kelas berdasarkan lembaga pendidikan terpilih
-  const filteredClassrooms = React.useMemo(() => {
-    const instId = parseInt(educationalInstitutionId);
-    if (!instId || Number.isNaN(instId)) return [];
-    return (classroomsData?.data || []).filter(
-      (c) => (c.educational_institution_id ?? null) === instId
-    );
-  }, [classroomsData, educationalInstitutionId]);
-
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
-
-  // Reset pilihan kelas/rombel/jam pelajaran saat lembaga pendidikan berubah
-  useEffect(() => {
-    if (!educationalInstitutionId) return;
-    setDetails((prev) =>
-      prev.map((d) => ({
-        ...d,
-        classroomId: '',
-        classGroupId: '',
-        lessonHourId: '',
-      }))
-    );
-  }, [educationalInstitutionId]);
 
   const handleDetailChange = (index: number, field: keyof LessonScheduleDetail, value: string | number) => {
     const newDetails = [...details];
@@ -194,7 +172,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 </Select>
               </div>
               <div>
-                <Label htmlFor="educationalInstitution">Lembaga Pendidikan</Label>
+                <Label htmlFor="educationalInstitution">{t('institusiPendidikanTable.namaInstitusi')}</Label>
                 <Select value={educationalInstitutionId} onValueChange={setEducationalInstitutionId}>
                   <SelectTrigger id="educationalInstitution" className="w-full">
                     <SelectValue placeholder="Pilih lembaga pendidikan" />
@@ -272,23 +250,14 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           <Select
                             value={detail.classroomId}
                             onValueChange={(value) => handleDetailChange(index, 'classroomId', value)}
-                            disabled={!educationalInstitutionId}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder={t('lessonScheduleForm.selectClass')} />
                             </SelectTrigger>
                             <SelectContent>
-                              {filteredClassrooms.length > 0 ? (
-                                filteredClassrooms.map(classroom => (
-                                  <SelectItem key={classroom.id} value={String(classroom.id)}>
-                                    {classroom.name}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="placeholder" disabled>
-                                  {educationalInstitutionId ? 'Tidak ada kelas untuk lembaga ini' : 'Pilih lembaga terlebih dahulu'}
-                                </SelectItem>
-                              )}
+                              {classroomsData?.data.map(classroom => (
+                                <SelectItem key={classroom.id} value={String(classroom.id)}>{classroom.name}</SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </TableCell>
