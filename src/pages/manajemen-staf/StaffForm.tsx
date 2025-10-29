@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -77,7 +77,7 @@ interface StaffFormProps {
       zip_code: string;
     };
     email: string;
-    roles: { name: string }[];
+    roles: { id?: number; name: string }[];
     username: string;
   };
   onSuccess: () => void;
@@ -105,7 +105,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       phone: initialData.staff.phone || '', // Changed from 'employee' to 'staff'
       address: initialData.staff.address || '', // Changed from 'employee' to 'staff'
       zip_code: initialData.staff.zip_code || '', // Changed from 'employee' to 'staff'
-      role_ids: initialData.roles.map(initialRole => availableRoles.find(ar => ar.name === initialRole.name)?.id).filter(Boolean) as number[] || [],
+      // role_ids akan di-set setelah roles tersedia (lihat useEffect di bawah)
+      role_ids: [],
       username: initialData.username || '',
       password: '',
       password_confirmation: '',
@@ -124,6 +125,26 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       password_confirmation: '',
     },
   });
+
+  // Set role_ids begitu daftar roles tersedia dan initialData ada.
+  useEffect(() => {
+    if (!initialData) return;
+    if (!availableRoles.length) return;
+    const current = form.getValues('role_ids') || [];
+    if (current.length > 0) return; // jangan override jika user sudah mengubah
+    const ids = initialData.roles
+      .map((r) => {
+        // Prioritas cocok berdasarkan id jika tersedia, fallback ke name
+        const byId = r.id ? availableRoles.find((ar) => ar.id === r.id) : undefined;
+        if (byId) return byId.id;
+        const byName = availableRoles.find((ar) => ar.name === r.name);
+        return byName?.id;
+      })
+      .filter((id): id is number => typeof id === 'number');
+    if (ids.length > 0) {
+      form.setValue('role_ids', ids, { shouldValidate: true, shouldDirty: false });
+    }
+  }, [initialData, availableRoles, form]);
 
   const onSubmit = async (values: FormValues) => {
     // Konversi role_ids (number[]) menjadi roles (string[])
