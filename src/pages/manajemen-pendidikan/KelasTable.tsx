@@ -146,6 +146,13 @@ const KelasTable: React.FC = () => {
           if (!school || !school.institution_name) return <span className="text-muted-foreground">-</span>;
           return <span>{school.institution_name}</span>;
         },
+        // Terapkan filter berdasarkan educational_institution_id
+        filterFn: (row, _columnId, filterValue) => {
+          const selected = String(filterValue || '');
+          if (!selected) return true;
+          const eduId = row.original.educational_institution_id;
+          return String(eduId ?? '') === selected;
+        },
       },
       {
         accessorKey: 'name',
@@ -218,6 +225,22 @@ const KelasTable: React.FC = () => {
     [institutionsData]
   );
 
+  // Konfigurasi filter select untuk kolom Pendidikan
+  const filterableColumns = useMemo(() => {
+    const options =
+      (institutionsData ?? []).map((inst: any) => ({
+        label: inst.institution_name,
+        value: String(inst.id),
+      })) ?? [];
+    return {
+      school: {
+        type: 'select' as const,
+        placeholder: 'Filter Pendidikan',
+        options,
+      },
+    };
+  }, [institutionsData]);
+
   if (isLoading) return <TableLoadingSkeleton numCols={5} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
@@ -234,6 +257,8 @@ const KelasTable: React.FC = () => {
         exportTitle="Data Kelas"
         onAddData={handleAddData}
         addButtonLabel="Tambah Kelas"
+        // Tambahkan filter Pendidikan
+        filterableColumns={filterableColumns}
         // Aktifkan manual pagination khusus untuk halaman Kelas
         pageCount={pageCount}
         pagination={pagination}
