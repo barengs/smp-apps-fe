@@ -84,7 +84,8 @@ export function generatePresensiPdf({
       name,
       ...Array.from({ length: meetingCount }, (_, i) => {
         const meetingNumber = i + 1;
-        return presenceData?.[student?.id]?.[meetingNumber] || '-';
+        // Kosongkan jika belum ada data kehadiran: tidak gunakan tanda "-"
+        return presenceData?.[student?.id]?.[meetingNumber] ?? '';
       }),
     ];
     return row;
@@ -94,9 +95,14 @@ export function generatePresensiPdf({
     head,
     body,
     startY: y,
-    styles: { fontSize: 9, cellPadding: 4 },
-    headStyles: { fillColor: [240, 240, 240] },
-    columnStyles: { 0: { cellWidth: 180 } },
+    // Gunakan tema grid agar garis kotak tabel terlihat
+    theme: 'grid',
+    // Pertegas garis dan ruang sel
+    styles: { fontSize: 10, cellPadding: 6, lineColor: [160, 160, 160], lineWidth: 0.3 },
+    // Header lebih jelas: bold, kontras, dan rata tengah
+    headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
+    // Nama siswa rata kiri, kolom pertemuan rata tengah
+    columnStyles: { 0: { cellWidth: 180, halign: 'left' } },
     didDrawPage(data) {
       const pageCount = doc.getNumberOfPages();
       doc.setFontSize(9);
