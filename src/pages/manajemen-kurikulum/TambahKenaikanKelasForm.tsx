@@ -137,13 +137,33 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
   // Filter hasil berdasarkan pencarian nama atau NIS
   const filteredStudents = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return availableStudents;
-    return availableStudents.filter((student) => {
-      const fullName = `${student.first_name} ${student.last_name || ''}`.trim().toLowerCase();
-      const nis = String(student.nis || '').toLowerCase();
-      return fullName.includes(term) || nis.includes(term);
+    const baseList = term
+      ? availableStudents.filter((student) => {
+          const fullName = `${student.first_name} ${student.last_name || ''}`.trim().toLowerCase();
+          const nis = String(student.nis || '').toLowerCase();
+          return fullName.includes(term) || nis.includes(term);
+        })
+      : availableStudents;
+
+    const hasAssignmentInCurrentYear = (studentId: number) => {
+      const assignment = studentAssignments[studentId];
+      return !!assignment && assignment.academic_year_id.toString() === selectedAcademicYear;
+    };
+
+    const normalizeName = (s: any) =>
+      `${s.first_name} ${s.last_name || ''}`.trim().toLowerCase();
+
+    // Urutkan: yang sudah punya kelas (tahun ajaran terpilih) diletakkan di akhir
+    return [...baseList].sort((a, b) => {
+      const aHas = hasAssignmentInCurrentYear(a.id);
+      const bHas = hasAssignmentInCurrentYear(b.id);
+      if (aHas !== bHas) {
+        return aHas ? 1 : -1;
+      }
+      // Urutan sekunder: nama untuk konsistensi
+      return normalizeName(a).localeCompare(normalizeName(b));
     });
-  }, [availableStudents, searchTerm]);
+  }, [availableStudents, searchTerm, selectedAcademicYear, studentAssignments]);
 
   // Update: pilih semua/deselect hanya pada hasil filter yang sedang tampil
   const handleSelectAll = (checked: boolean) => {
