@@ -27,7 +27,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 
 const formSchema = z.object({
-  educational_institution_id: z.number().min(1, {
+  educational_institution_id: z.coerce.number().min(1, {
     message: 'Lembaga Pendidikan harus dipilih.',
   }),
   name: z.string().min(1, {
@@ -57,7 +57,7 @@ const KelasForm: React.FC<KelasFormProps> = ({ initialData, onSuccess, onCancel 
     defaultValues: initialData ? {
       name: initialData.name,
       description: initialData.description,
-      educational_institution_id: initialData.educational_institution_id || 0,
+      educational_institution_id: Number(initialData.educational_institution_id ?? 0),
     } : {
       name: '',
       description: '',
