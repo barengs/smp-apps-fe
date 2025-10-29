@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery } from '@/store/slices/classScheduleApi';
 import { BookCopy, UserCheck, ArrowLeft, Printer } from 'lucide-react';
+import { generatePresensiPdf } from '@/utils/presensiPdf';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -138,15 +139,29 @@ const PresensiDetailPage: React.FC = () => {
       <div className="container mx-auto py-4 px-4 space-y-4">
         <div className="flex justify-between items-center">
           <CustomBreadcrumb items={breadcrumbItems} />
-          <Button onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
-          </Button>
+          {/* Back button dipindahkan ke dalam Card header */}
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Detail Jadwal Pelajaran</CardTitle>
-            <CardDescription>Informasi lengkap mengenai jadwal pelajaran yang dipilih.</CardDescription>
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <CardTitle>Detail Jadwal Pelajaran</CardTitle>
+                <CardDescription>Informasi lengkap mengenai jadwal pelajaran yang dipilih.</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button onClick={() => navigate(-1)} variant="outline">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+                </Button>
+                <Button
+                  onClick={() =>
+                    generatePresensiPdf({ schedule, detail, students, presenceData, meetingCount })
+                  }
+                >
+                  <Printer className="mr-2 h-4 w-4" /> Print
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 text-sm">
@@ -191,16 +206,7 @@ const PresensiDetailPage: React.FC = () => {
             <Separator className="mt-6 mb-0" />
             
             <div>
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Lembar Presensi</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.print()}
-                >
-                  <Printer className="mr-2 h-4 w-4" /> Print
-                </Button>
-              </div>
+              <h3 className="text-lg font-semibold">Lembar Presensi</h3>
               <p className="text-sm text-muted-foreground mb-4">Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</p>
               <div className="overflow-x-auto">
                 <Table>
