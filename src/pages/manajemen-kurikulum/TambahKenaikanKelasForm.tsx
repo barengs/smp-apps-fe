@@ -44,6 +44,7 @@ interface Classroom {
   created_at: string;
   updated_at: string;
   class_groups: ClassGroup[];
+  educational_institution_id: number;
 }
 
 interface StudentClassAssignment {
@@ -260,9 +261,14 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
   };
 
   const renderClassrooms = () => {
-    if (!classroomsResponse?.data || !Array.isArray(classroomsResponse.data)) return null;
-    return classroomsResponse.data.map(classroom => (
-      <SelectItem key={classroom.id} value={classroom.id.toString()}>{classroom.name}</SelectItem>
+    if (!classroomsResponse?.data || !Array.isArray(classroomsResponse.data) || !selectedLevel) return null;
+    const filtered = classroomsResponse.data.filter(
+      (classroom: Classroom) => String(classroom.educational_institution_id) === selectedLevel
+    );
+    return filtered.map((classroom) => (
+      <SelectItem key={classroom.id} value={classroom.id.toString()}>
+        {classroom.name}
+      </SelectItem>
     ));
   };
 
