@@ -49,6 +49,16 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: lessonHoursData } = useGetLessonHoursQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
 
+  // Kelas yang difilter berdasarkan Lembaga Pendidikan terpilih
+  const filteredClassrooms = React.useMemo(() => {
+    if (!classroomsData?.data) return [];
+    if (!educationalInstitutionId) return [];
+    const instId = parseInt(educationalInstitutionId, 10);
+    return classroomsData.data.filter(
+      (c) => Number(c.educational_institution_id) === instId
+    );
+  }, [classroomsData, educationalInstitutionId]);
+
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
 
@@ -128,6 +138,19 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     }
   }, [isOpen]);
 
+  // Reset kelas/rombel ketika Lembaga Pendidikan berubah atau ketika kelas tidak lagi valid
+  useEffect(() => {
+    setDetails((prev) =>
+      prev.map((d) => {
+        if (!educationalInstitutionId) {
+          return { ...d, classroomId: '', classGroupId: '' };
+        }
+        const stillValid = filteredClassrooms.some((c) => String(c.id) === d.classroomId);
+        return stillValid ? d : { ...d, classroomId: '', classGroupId: '' };
+      })
+    );
+  }, [educationalInstitutionId, filteredClassrooms]);
+
   // Helper function to format academic year display
   const formatAcademicYearDisplay = (academicYear: any) => {
     if (!academicYear) return 'Loading...';
@@ -172,7 +195,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                 </Select>
               </div>
               <div>
-                <Label htmlFor="educationalInstitution">{t('institusiPendidikanTable.namaInstitusi')}</Label>
+                <Label htmlFor="educationalInstitution">Lembaga Pendidikan</Label>
                 <Select value={educationalInstitutionId} onValueChange={setEducationalInstitutionId}>
                   <SelectTrigger id="educationalInstitution" className="w-full">
                     <SelectValue placeholder="Pilih lembaga pendidikan" />
@@ -250,14 +273,29 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           <Select
                             value={detail.classroomId}
                             onValueChange={(value) => handleDetailChange(index, 'classroomId', value)}
+                            disabled={!educationalInstitutionId}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder={t('lessonScheduleForm.selectClass')} />
                             </SelectTrigger>
                             <SelectContent>
-                              {classroomsData?.data.map(classroom => (
-                                <SelectItem key={classroom.id} value={String(classroom.id)}>{classroom.name}</SelectItem>
-                              ))}
+                              {educationalInstitutionId ? (
+                                filteredClassrooms.length > 0 ? (
+                                  filteredClassrooms.map((classroom) => (
+                                    <SelectItem key={classroom.id} value={String(classroom.id)}>
+                                      {classroom.name}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem value="placeholder" disabled>
+                                    Tidak ada kelas untuk lembaga ini
+                                  </SelectItem>
+                                )
+                              ) : (
+                                <SelectItem value="placeholder" disabled>
+                                  Pilih lembaga pendidikan terlebih dahulu
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>
