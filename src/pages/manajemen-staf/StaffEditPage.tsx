@@ -22,7 +22,7 @@ const StaffEditPage: React.FC = () => {
 
   const { data: responseData, error, isLoading } = useGetEmployeeByIdQuery(staffId);
 
-  // Use the correct data structure - data is directly in responseData.data
+  // Normalisasi: jika API mengembalikan data.staff, gunakan itu; jika tidak, fallback ke data langsung.
   const staffData = responseData?.data;
   const fullName = staffData ? `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() : 'Edit Staf';
 
@@ -80,7 +80,7 @@ const StaffEditPage: React.FC = () => {
 
   // Prepare initialData for StaffForm - use data directly from staff object
   const initialFormData = {
-    id: responseData.data.id,
+    id: staffData.id, // gunakan ID staf dari detail response
     staff: {
       first_name: staffData.first_name,
       last_name: staffData.last_name,
@@ -90,9 +90,9 @@ const StaffEditPage: React.FC = () => {
       address: staffData.address,
       zip_code: staffData.zip_code,
     },
-    email: staffData.email,
-    roles: staffData.user?.roles || [], // Get roles from user.roles
-    username: staffData.user?.name || '', // Get username from user.name
+    email: staffData.user?.email ?? staffData.email ?? '',
+    roles: staffData.user?.roles || [],
+    username: staffData.user?.name || '',
   };
 
   return (
