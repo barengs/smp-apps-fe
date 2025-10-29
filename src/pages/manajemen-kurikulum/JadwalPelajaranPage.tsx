@@ -44,12 +44,12 @@ const JadwalPelajaranPage: React.FC = () => {
 
   const columns: ColumnDef<any>[] = [
     {
-      accessorKey: 'education',
+      id: 'education',
+      accessorFn: (row: any) => row?.education?.institution_name || '',
       header: t('lessonSchedulePage.educationLevel'),
-      cell: ({ row }) => {
-        const education = row.original.education;
-        if (!education || !education.institution_name) return <div className="text-gray-400">-</div>;
-        return <div className="capitalize">{education.institution_name}</div>;
+      cell: ({ getValue }) => {
+        const name = (getValue() as string) || '';
+        return name ? <div className="capitalize">{name}</div> : <div className="text-gray-400">-</div>;
       },
     },
     {
@@ -105,6 +105,52 @@ const JadwalPelajaranPage: React.FC = () => {
     return flattenScheduleData(raw);
   }, [schedulesResponse]);
 
+  // Siapkan opsi filter unik dari data yang sudah diratakan
+  const educationOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (data || [])
+            .map((r: any) => r?.education?.institution_name)
+            .filter((v: any): v is string => typeof v === 'string' && v.trim() !== '')
+        )
+      ).map((name) => ({ label: name, value: name })),
+    [data]
+  );
+  const classOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (data || [])
+            .map((r: any) => r?.classroom?.name)
+            .filter((v: any): v is string => typeof v === 'string' && v.trim() !== '')
+        )
+      ).map((name) => ({ label: name, value: name })),
+    [data]
+  );
+  const classGroupOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (data || [])
+            .map((r: any) => r?.class_group?.name)
+            .filter((v: any): v is string => typeof v === 'string' && v.trim() !== '')
+        )
+      ).map((name) => ({ label: name, value: name })),
+    [data]
+  );
+  const dayOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (data || [])
+            .map((r: any) => r?.day)
+            .filter((v: any): v is string => typeof v === 'string' && v.trim() !== '')
+        )
+      ).map((name) => ({ label: name, value: name })),
+    [data]
+  );
+
   return (
     <DashboardLayout title={t('sidebar.lessonSchedule')} role="administrasi">
       <div className="container mx-auto py-4 px-4">
@@ -127,6 +173,28 @@ const JadwalPelajaranPage: React.FC = () => {
                 exportTitle={t('sidebar.lessonSchedule')}
                 onAddData={handleAddSchedule}
                 addButtonLabel="Tambah Jadwal Pelajaran"
+                filterableColumns={{
+                  education: {
+                    type: 'select',
+                    placeholder: t('lessonSchedulePage.educationLevel'),
+                    options: educationOptions,
+                  },
+                  'classroom.name': {
+                    type: 'select',
+                    placeholder: t('lessonSchedulePage.class'),
+                    options: classOptions,
+                  },
+                  'class_group.name': {
+                    type: 'select',
+                    placeholder: t('lessonSchedulePage.classGroup'),
+                    options: classGroupOptions,
+                  },
+                  day: {
+                    type: 'select',
+                    placeholder: t('lessonSchedulePage.day'),
+                    options: dayOptions,
+                  },
+                }}
               />
             )}
           </CardContent>
