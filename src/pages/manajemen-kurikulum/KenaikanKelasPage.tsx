@@ -56,6 +56,7 @@ export default function KenaikanKelasPage() {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
   const navigate = useNavigate();
   // Tambahkan state pagination (pageIndex berbasis 0, pageSize default 10)
   const [pagination, setPagination] = useState<PaginationState>({
@@ -132,25 +133,17 @@ export default function KenaikanKelasPage() {
     });
   }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading]);
 
-  // Utility: toggle pilih baris
-  const toggleSelect = (id: number, checked: boolean) => {
-    setSelectedIds((prev) => {
-      if (checked) {
-        if (prev.includes(id)) return prev;
-        return [...prev, id];
-      } else {
-        return prev.filter((x) => x !== id);
-      }
-    });
-  };
-
-  // Bersihkan seleksi jika data berubah drastis (opsional aman)
+  // Bersihkan seleksi jika data berubah drastis atau status jadi disetujui
   React.useEffect(() => {
     if (!promotionData?.length) {
       if (selectedIds.length) setSelectedIds([]);
       return;
     }
-    const validIds = new Set(promotionData.map((p) => p.id));
+    const validIds = new Set(
+      promotionData
+        .filter((p) => p.statusApproval?.toLowerCase() !== 'disetujui')
+        .map((p) => p.id)
+    );
     setSelectedIds((prev) => prev.filter((id) => validIds.has(id)));
   }, [promotionData]);
 
@@ -202,17 +195,149 @@ export default function KenaikanKelasPage() {
     }
   };
 
+  // Utility: toggle pilih baris
+  const toggleSelect = (id: number, checked: boolean) => {
+    setSelectedIds((prev) => {
+      if (checked) {
+        if (prev.includes(id)) return prev;
+        return [...prev, id];
+      } else {
+        return prev.filter((x) => x !== id);
+      }
+    });
+  };
+
+  // Utility: toggle pilih semua baris yang sedang tampil (mengabaikan yang sudah disetujui)
+  const handleToggleSelectAllDisplayed = (checked: boolean, displayedSelectableIds: number[]) => {
+    setSelectedIds((prev) => {
+      if (checked) {
+        const set = new Set(prev);
+        displayedSelectableIds.forEach((id) => set.add(id));
+        return Array.from(set);
+      } else {
+        return prev.filter((id) => !displayedSelectableIds.includes(id));
+      }
+    });
+  };
+
+  // Fungsi untuk menangani kenaikan kelas
+  const handlePromotion = (data: PromotionData) => {
+    // Implementasi logika kenaikan kelas akan ditambahkan di sini
+  };
+
+  // Fungsi untuk menambah data kenaikan kelas
+  const handleAddData = () => {
+    setIsAddModalOpen(true);
+  };
+
+  // Fungsi untuk proses penugasan
+  const handleAssignment = () => {
+    // Implementasi logika penugasan akan ditambahkan di sini
+  };
+
+  // Opsi filter dropdown untuk Pendidikan, Kelas, Rombel
+  const educationOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(promotionData.map((p) => p.jenjangPendidikan).filter(Boolean))
+      ).map((v) => ({ label: String(v), value: String(v) })),
+    [promotionData]
+  );
+  const classOptions = React.useMemo(
+    () =>
+      Array.from(new Set(promotionData.map((p) => p.kelas).filter(Boolean))).map(
+        (v) => ({ label: String(v), value: String(v) })
+      ),
+    [promotionData]
+  );
+  const groupOptions = React.useMemo(
+    () =>
+      Array.from(new Set(promotionData.map((p) => p.rombel).filter(Boolean))).map(
+        (v) => ({ label: String(v), value: String(v) })
+      ),
+    [promotionData]
+  );
+
+  // Tombol persetujuan kolektif di sisi kiri header tabel
+  const leftActions = selectedIds.length > 0 ? (
+    <Button
+      variant="success"
+      size="sm"
+      onClick={() => setIsBulkDialogOpen(true)}
+      disabled={isBulkUpdating}
+      className="whitespace-nowrap"
+    >
+      <CheckCircle2 className="h-4 w-4 mr-1" />
+      {isBulkUpdating ? 'Memproses...' : `Setujui Terpilih (${selectedIds.length})`}
+    </Button>
+  ) : null;
+
+  const handleBulkApprove = async () => {
+    if (!selectedIds.length) return;
+    const selectedMap = new Map(promotionData.map((p) => [p.id, p]));
+    const targets = selectedIds
+      .map((id) => selectedMap.get(id))
+      .filter((x): x is PromotionData => !!x);
+
+    const toastId = showLoading(`Menyetujui ${targets.length} data...`);
+    setIsBulkUpdating(true);
+    try {
+      await Promise.all(
+        targets.map((item) =>
+          updateStudentClass({
+            id: item.id,
+            data: {
+              classroom_id: item.class_id,
+              class_group_id: item.class_group_id ?? item.class_id,
+              educational_institution_id: item.education_id,
+              approval_status: 'disetujui',
+              approval_note: 'Persetujuan kolektif',
+            },
+          }).unwrap()
+        )
+      );
+      dismissToast(toastId);
+      showSuccess(`Berhasil menyetujui ${targets.length} data.`);
+      setSelectedIds([]);
+    } catch (err) {
+      dismissToast(toastId);
+      showError('Gagal menyetujui data terpilih.');
+      console.error(err);
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
   // Kolom untuk DataTable
   const columns: ColumnDef<PromotionData>[] = [
     {
       id: 'select',
-      header: '',
+      header: ({ table }) => {
+        const displayedRows = table.getRowModel().rows;
+        const displayedSelectableIds = displayedRows
+          .map((r) => r.original as PromotionData)
+          .filter((p) => (p.statusApproval || '').toLowerCase() !== 'disetujui')
+          .map((p) => p.id);
+        const isAllSelected =
+          displayedSelectableIds.length > 0 &&
+          displayedSelectableIds.every((id) => selectedIds.includes(id));
+        return (
+          <Checkbox
+            checked={isAllSelected}
+            onCheckedChange={(checked) =>
+              handleToggleSelectAllDisplayed(!!checked, displayedSelectableIds)
+            }
+            aria-label="Pilih semua yang tampil"
+          />
+        );
+      },
       cell: ({ row }) => {
         const data = row.original;
         return (
           <Checkbox
             checked={selectedIds.includes(data.id)}
             onCheckedChange={(checked) => toggleSelect(data.id, !!checked)}
+            disabled={(data.statusApproval || '').toLowerCase() === 'disetujui'}
             aria-label="Pilih data"
           />
         );
@@ -293,71 +418,6 @@ export default function KenaikanKelasPage() {
     },
   ];
 
-  // Tombol persetujuan kolektif di sisi kiri header tabel
-  const leftActions = selectedIds.length > 0 ? (
-    <Button
-      variant="success"
-      size="sm"
-      onClick={() => handleBulkApprove()}
-      disabled={isBulkUpdating}
-      className="whitespace-nowrap"
-    >
-      <CheckCircle2 className="h-4 w-4 mr-1" />
-      {isBulkUpdating ? 'Memproses...' : `Setujui Terpilih (${selectedIds.length})`}
-    </Button>
-  ) : null;
-
-  const handleBulkApprove = async () => {
-    if (!selectedIds.length) return;
-    const selectedMap = new Map(promotionData.map((p) => [p.id, p]));
-    const targets = selectedIds
-      .map((id) => selectedMap.get(id))
-      .filter((x): x is PromotionData => !!x);
-
-    const toastId = showLoading(`Menyetujui ${targets.length} data...`);
-    setIsBulkUpdating(true);
-    try {
-      await Promise.all(
-        targets.map((item) =>
-          updateStudentClass({
-            id: item.id,
-            data: {
-              classroom_id: item.class_id,
-              class_group_id: item.class_group_id ?? item.class_id,
-              educational_institution_id: item.education_id,
-              approval_status: 'disetujui',
-              approval_note: 'Persetujuan kolektif',
-            },
-          }).unwrap()
-        )
-      );
-      dismissToast(toastId);
-      showSuccess(`Berhasil menyetujui ${targets.length} data.`);
-      setSelectedIds([]);
-    } catch (err) {
-      dismissToast(toastId);
-      showError('Gagal menyetujui data terpilih.');
-      console.error(err);
-    } finally {
-      setIsBulkUpdating(false);
-    }
-  };
-
-  // Fungsi untuk menangani kenaikan kelas
-  const handlePromotion = (data: PromotionData) => {
-    // Implementasi logika kenaikan kelas akan ditambahkan di sini
-  };
-
-  // Fungsi untuk menambah data kenaikan kelas
-  const handleAddData = () => {
-    setIsAddModalOpen(true);
-  };
-
-  // Fungsi untuk proses penugasan
-  const handleAssignment = () => {
-    // Implementasi logika penugasan akan ditambahkan di sini
-  };
-
   return (
     <DashboardLayout title="Manajemen Kenaikan Kelas" role="administrasi">
       <div className="container mx-auto py-4 px-4">
@@ -380,6 +440,11 @@ export default function KenaikanKelasPage() {
                 onAssignment={handleAssignment}
                 addButtonLabel="Atur Kelas"
                 leftActions={leftActions}
+                filterableColumns={{
+                  jenjangPendidikan: { type: 'select', placeholder: 'Pendidikan', options: educationOptions },
+                  kelas: { type: 'select', placeholder: 'Kelas', options: classOptions },
+                  rombel: { type: 'select', placeholder: 'Rombel', options: groupOptions },
+                }}
                 // Tambahan: aktifkan server-side pagination
                 pageCount={pageCount || 0}
                 pagination={pagination}
@@ -389,6 +454,29 @@ export default function KenaikanKelasPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Modal konfirmasi persetujuan kolektif */}
+      <AlertDialog open={isBulkDialogOpen} onOpenChange={setIsBulkDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Persetujuan Kolektif</AlertDialogTitle>
+            <AlertDialogDescription>
+              Anda akan menyetujui {selectedIds.length} data yang dipilih. Tindakan ini akan memperbarui status menjadi "Disetujui".
+              Apakah Anda yakin ingin melanjutkan?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsBulkDialogOpen(false)}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                await handleBulkApprove();
+                setIsBulkDialogOpen(false);
+              }}
+            >
+              Setujui
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <TambahKenaikanKelasForm isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
 
       <AlertDialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
