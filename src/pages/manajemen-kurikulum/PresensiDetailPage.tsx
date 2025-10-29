@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -12,10 +12,40 @@ import { generatePresensiPdf } from '@/utils/presensiPdf';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 const PresensiDetailPage: React.FC = () => {
   const { detailId } = useParams<{ detailId: string }>();
   const navigate = useNavigate();
+
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; fileName: string } | null>(null);
+  const [openPdf, setOpenPdf] = useState(false);
+
+  const handlePrint = () => {
+    if (!pdfPreview?.url) return;
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+    iframe.src = pdfPreview.url;
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    };
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pdfPreview?.url) URL.revokeObjectURL(pdfPreview.url);
+    };
+  }, [pdfPreview]);
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
 
@@ -154,9 +184,11 @@ const PresensiDetailPage: React.FC = () => {
                   <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                 </Button>
                 <Button
-                  onClick={() =>
-                    generatePresensiPdf({ schedule, detail, students, presenceData, meetingCount })
-                  }
+                  onClick={() => {
+                    const { blobUrl, fileName } = generatePresensiPdf({ schedule, detail, students, presenceData, meetingCount });
+                    setPdfPreview({ url: blobUrl, fileName });
+                    setOpenPdf(true);
+                  }}
                 >
                   <Printer className="mr-2 h-4 w-4" /> Print
                 </Button>
@@ -287,6 +319,42 @@ const PresensiDetailPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* ADDED: Dialog preview PDF */}
+        <Dialog
+          open={openPdf}
+          onOpenChange={(open) => {
+            setOpenPdf(open);
+            if (!open && pdfPreview?.url) {
+              URL.revokeObjectURL(pdfPreview.url);
+              setPdfPreview(null);
+            }
+          }}
+        >
+          <DialogContent className="max-w-5xl">
+            <DialogHeader>
+              <DialogTitle>Preview PDF Presensi</DialogTitle>
+            </DialogHeader>
+            <div className="h-[70vh]">
+              {pdfPreview?.url ? (
+                <iframe src={pdfPreview.url} className="w-full h-full rounded border" />
+              ) : (
+                <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                  Tidak ada preview yang tersedia.
+                </div>
+              )}
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setOpenPdf(false)}>Tutup</Button>
+              {pdfPreview?.url && pdfPreview?.fileName && (
+                <Button variant="secondary" asChild>
+                  <a href={pdfPreview.url} download={pdfPreview.fileName}>Unduh</a>
+                </Button>
+              )}
+              <Button onClick={handlePrint}>Cetak</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

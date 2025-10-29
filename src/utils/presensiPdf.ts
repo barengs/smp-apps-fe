@@ -72,7 +72,6 @@ export function generatePresensiPdf({
     headStyles: { fillColor: [240, 240, 240] },
     columnStyles: { 0: { cellWidth: 180 } },
     didDrawPage(data) {
-      // Footer halaman
       const pageCount = doc.getNumberOfPages();
       doc.setFontSize(9);
       doc.setTextColor(120);
@@ -83,5 +82,10 @@ export function generatePresensiPdf({
   const clean = (v: string | undefined) => (v || '').toString().trim().replace(/\s+/g, '-');
   const fileName = `Presensi_${clean(detail?.study?.name) || 'MataPelajaran'}_${clean(detail?.class_group?.name) || clean(detail?.classroom?.name) || 'Kelas'}.pdf`;
 
-  doc.save(fileName);
+  // RETURN: blob URL & fileName untuk preview; tidak langsung menyimpan
+  const blob = doc.output('blob');
+  const blobUrl = URL.createObjectURL(blob);
+  const dataUrl = doc.output('dataurlstring');
+
+  return { blobUrl, dataUrl, fileName };
 }
