@@ -25,7 +25,8 @@ const formSchema = z.object({
     message: 'Nama Jenjang Pendidikan harus minimal 2 karakter.',
   }),
   description: z.string().optional(),
-  education_class_codes: z.array(z.string()).optional(),
+  // Simpan ID sebagai string di form, nanti dikonversi ke number saat submit
+  education_class_ids: z.array(z.string()).optional(),
 });
 
 interface JenjangPendidikanFormProps {
@@ -33,7 +34,9 @@ interface JenjangPendidikanFormProps {
     id: number;
     name: string;
     description: string;
-    education_class: { code: string; name: string }[];
+    // Idealnya API sudah mengembalikan id; jika tidak, code akan dipakai untuk fallback
+    education_class: { id?: number; code?: string; name: string }[];
+    level?: number;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -49,7 +52,11 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     defaultValues: {
       name: initialData?.name || '',
       description: initialData?.description || '',
-      education_class_codes: initialData?.education_class?.map(ec => ec.code) || [],
+      // Default gunakan id jika tersedia; fallback mapping code -> id ditangani di useEffect di bawah
+      education_class_ids:
+        initialData?.education_class
+          ?.map(ec => (ec.id != null ? String(ec.id) : undefined))
+          .filter(Boolean) as string[] || [],
     },
   });
 
@@ -57,7 +64,8 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
     const payload: CreateUpdateEducationLevelRequest = {
       name: values.name,
       description: values.description,
-      education_class_ids: (values.education_class_codes || []).map((code) => Number(code)),
+      // Konversi string id -> number id untuk API
+      education_class_ids: (values.education_class_ids || []).map((id) => Number(id)),
       level: Number((initialData as any)?.level ?? 0),
     };
 
@@ -92,10 +100,33 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
 
   const educationGroupOptions: Option[] = React.useMemo(() => {
     return educationGroupsData?.map(group => ({
-      value: group.code,
+      value: String(group.id), // gunakan ID sebagai value
       label: group.name,
     })) || [];
   }, [educationGroupsData]);
+
+  // Fallback: jika initialData hanya memiliki code, map code -> id saat data groups sudah tersedia
+  React.useEffect(() => {
+    if (!initialData?.education_class || !educationGroupsData) return;
+    const current = form.getValues('education_class_ids') || [];
+    // Jika sudah ada id di form, tidak perlu override
+    const hasIds = current.length > 0;
+    if (hasIds) return;
+    // Coba mapping code -> id
+    const mappedIds = initialData.education_class
+      .map(ec => {
+        if (ec.id != null) return String(ec.id);
+        if (ec.code) {
+          const found = educationGroupsData.find(g => g.code === ec.code);
+          return found ? String(found.id) : undefined;
+        }
+        return undefined;
+      })
+      .filter(Boolean) as string[];
+    if (mappedIds.length > 0) {
+      form.setValue('education_class_ids', mappedIds, { shouldValidate: true });
+    }
+  }, [initialData, educationGroupsData, form]);
 
   return (
     <Form {...form}>
@@ -128,7 +159,7 @@ const JenjangPendidikanForm: React.FC<JenjangPendidikanFormProps> = ({ initialDa
         />
         <FormField
           control={form.control}
-          name="education_class_codes"
+          name="education_class_ids"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Kelompok Pendidikan</FormLabel>
