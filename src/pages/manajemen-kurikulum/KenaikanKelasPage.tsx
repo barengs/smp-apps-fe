@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { DataTable } from '@/components/DataTable';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, FilterFn } from '@tanstack/react-table';
 import { PaginationState } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -82,6 +82,14 @@ export default function KenaikanKelasPage() {
   const [updateStudentClass] = useUpdateStudentClassMutation();
 
   const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms;
+
+  // Filter exact match untuk select filters (case-insensitive)
+  const equalsStringFilter: FilterFn<PromotionData> = (row, columnId, filterValue) => {
+    if (!filterValue) return true;
+    const cellValue = row.getValue(columnId);
+    if (cellValue == null) return false;
+    return String(cellValue).toLowerCase() === String(filterValue).toLowerCase();
+  };
 
   // Memproses dan menggabungkan data dengan validasi yang lebih baik
   const promotionData = React.useMemo(() => {
@@ -351,14 +359,17 @@ export default function KenaikanKelasPage() {
     {
       accessorKey: 'jenjangPendidikan',
       header: 'Pendidikan',
+      filterFn: equalsStringFilter,
     },
     {
       accessorKey: 'kelas',
       header: 'Kelas',
+      filterFn: equalsStringFilter,
     },
     {
       accessorKey: 'rombel',
       header: 'Rombel',
+      filterFn: equalsStringFilter,
     },
     {
       accessorKey: 'siswa',
