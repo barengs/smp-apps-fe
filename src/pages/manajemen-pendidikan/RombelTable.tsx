@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast'; // Updated import
 import { DataTable } from '../../components/DataTable';
 import {
@@ -127,13 +127,7 @@ const RombelTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              <Button
-                variant="danger"
-                className="h-8 px-2 text-xs"
-                onClick={() => handleDeleteClick(rombel)}
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Hapus
-              </Button>
+              {/* REMOVED: tombol Hapus sesuai permintaan */}
             </div>
           );
         },
