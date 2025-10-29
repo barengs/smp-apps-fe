@@ -96,6 +96,31 @@ const PresensiPage: React.FC = () => {
     return processedData;
   }, [classSchedulesResponse, isLoadingSchedules]);
 
+  // Opsi filter unik untuk Kelas dan Rombel
+  const kelasOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (presensiData || [])
+            .map((r) => r.kelas)
+            .filter((v): v is string => typeof v === 'string' && v.trim() !== '')
+        )
+      ).map((name) => ({ label: name, value: name })),
+    [presensiData]
+  );
+
+  const rombelOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (presensiData || [])
+            .map((r) => r.rombel)
+            .filter((v): v is string => typeof v === 'string' && v.trim() !== '')
+        )
+      ).map((name) => ({ label: name, value: name })),
+    [presensiData]
+  );
+
   // Kolom untuk tabel
   const columns: ColumnDef<PresensiData>[] = [
     {
@@ -189,6 +214,18 @@ const PresensiPage: React.FC = () => {
                 exportFileName="data-presensi" 
                 exportTitle="Data Presensi"
                 onRowClick={handleRowClick}
+                filterableColumns={{
+                  kelas: {
+                    type: 'select',
+                    placeholder: 'Kelas',
+                    options: kelasOptions,
+                  },
+                  rombel: {
+                    type: 'select',
+                    placeholder: 'Rombel',
+                    options: rombelOptions,
+                  },
+                }}
               />
             )}
           </CardContent>
