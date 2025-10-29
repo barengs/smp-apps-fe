@@ -83,6 +83,8 @@ const StaffEditPage: React.FC = () => {
     // gunakan staff.id sesuai kebutuhan backend
     id: (staffData as any)?.staff?.id ?? staffData?.id,
     staff: {
+      // Sertakan ID staf untuk dipakai saat update
+      id: (staffData as any)?.staff?.id ?? staffData?.id,
       first_name: staffData.first_name,
       last_name: staffData.last_name,
       code: staffData.code,

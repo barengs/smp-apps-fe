@@ -67,7 +67,8 @@ const steps = [
 interface StaffFormProps {
   initialData?: {
     id: number;
-    staff: { // Changed from 'employee' to 'staff'
+    staff: { // Changed dari 'employee' ke 'staff'
+      id: number;
       first_name: string;
       last_name: string;
       code: string;
@@ -97,14 +98,14 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
     defaultValues: initialData ? {
-      first_name: initialData.staff.first_name, // Changed from 'employee' to 'staff'
-      last_name: initialData.staff.last_name, // Changed from 'employee' to 'staff'
+      first_name: initialData.staff.first_name, // Changed dari 'employee' ke 'staff'
+      last_name: initialData.staff.last_name, // Changed dari 'employee' ke 'staff'
       email: initialData.email,
-      code: initialData.staff.code, // Changed from 'employee' to 'staff'
-      nik: initialData.staff.nik || '', // Changed from 'employee' to 'staff'
-      phone: initialData.staff.phone || '', // Changed from 'employee' to 'staff'
-      address: initialData.staff.address || '', // Changed from 'employee' to 'staff'
-      zip_code: initialData.staff.zip_code || '', // Changed from 'employee' to 'staff'
+      code: initialData.staff.code, // Changed dari 'employee' ke 'staff'
+      nik: initialData.staff.nik || '', // Changed dari 'employee' ke 'staff'
+      phone: initialData.staff.phone || '', // Changed dari 'employee' ke 'staff'
+      address: initialData.staff.address || '', // Changed dari 'employee' ke 'staff'
+      zip_code: initialData.staff.zip_code || '', // Changed dari 'employee' ke 'staff'
       // role_ids akan di-set setelah roles tersedia (lihat useEffect di bawah)
       role_ids: [],
       username: initialData.username || '',
@@ -167,7 +168,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
 
     try {
       if (initialData) {
-        await updateEmployee({ id: initialData.id, data: payload }).unwrap();
+        // Penting: gunakan staff.id untuk update
+        await updateEmployee({ id: initialData.staff.id, data: payload }).unwrap();
         toast.showSuccess(`Data staf "${values.first_name}" berhasil diperbarui.`);
       } else {
         await createEmployee(payload).unwrap();

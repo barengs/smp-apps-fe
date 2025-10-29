@@ -39,6 +39,7 @@ import { useLocalPagination } from '@/hooks/useLocalPagination';
 interface Staff {
   id: number;
   staff: {
+    id: number;
     first_name: string;
     last_name: string;
     code: string;
@@ -77,6 +78,7 @@ const StaffTable: React.FC = () => {
           return {
             id: apiEmployee.id,
             staff: {
+              id: (staffData as any)?.id ?? 0,
               first_name: staffData.first_name || '',
               last_name: staffData.last_name || '',
               code: staffData.code || '',
