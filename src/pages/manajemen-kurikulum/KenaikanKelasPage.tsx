@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { BookCopy, TrendingUp, PlusCircle, FileText } from 'lucide-react';
+import { BookCopy, TrendingUp, PlusCircle, FileText, CheckCircle2 } from 'lucide-react';
 import { useGetStudentClassesQuery, useUpdateStudentClassMutation } from '@/store/slices/studentClassApi';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
@@ -45,6 +45,7 @@ interface PromotionData {
   statusApproval: string;
   tanggalPembuatan: string;
   education_id: number; // Tambahkan properti education_id
+  class_group_id?: number | null; // id rombel untuk update
 }
 
 export default function KenaikanKelasPage() {
@@ -53,6 +54,8 @@ export default function KenaikanKelasPage() {
   const [selectedPromotion, setSelectedPromotion] = useState<PromotionData | null>(null);
   const [approvalNote, setApprovalNote] = useState('');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const navigate = useNavigate();
   // Tambahkan state pagination (pageIndex berbasis 0, pageSize default 10)
   const [pagination, setPagination] = useState<PaginationState>({
@@ -122,11 +125,34 @@ export default function KenaikanKelasPage() {
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
         education_id: studentClass.education_id,
+        class_group_id: classGroup?.id ?? null,
       };
       
       return result;
     });
   }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading]);
+
+  // Utility: toggle pilih baris
+  const toggleSelect = (id: number, checked: boolean) => {
+    setSelectedIds((prev) => {
+      if (checked) {
+        if (prev.includes(id)) return prev;
+        return [...prev, id];
+      } else {
+        return prev.filter((x) => x !== id);
+      }
+    });
+  };
+
+  // Bersihkan seleksi jika data berubah drastis (opsional aman)
+  React.useEffect(() => {
+    if (!promotionData?.length) {
+      if (selectedIds.length) setSelectedIds([]);
+      return;
+    }
+    const validIds = new Set(promotionData.map((p) => p.id));
+    setSelectedIds((prev) => prev.filter((id) => validIds.has(id)));
+  }, [promotionData]);
 
   // Hitung total halaman dari response paginasi backend
   const pageCount =
@@ -156,7 +182,7 @@ export default function KenaikanKelasPage() {
         id: selectedPromotion.id,
         data: {
           classroom_id: selectedPromotion.class_id, // Tambahkan classroom_id
-          class_group_id: selectedPromotion.class_id, // Tambahkan class_group_id
+          class_group_id: selectedPromotion.class_group_id ?? selectedPromotion.class_id, // gunakan id rombel jika ada
           educational_institution_id: selectedPromotion.education_id, // Ganti dari education_id
           approval_status: action === 'approve' ? 'disetujui' : 'ditolak',
           approval_note: approvalNote,
@@ -178,6 +204,21 @@ export default function KenaikanKelasPage() {
 
   // Kolom untuk DataTable
   const columns: ColumnDef<PromotionData>[] = [
+    {
+      id: 'select',
+      header: '',
+      cell: ({ row }) => {
+        const data = row.original;
+        return (
+          <Checkbox
+            checked={selectedIds.includes(data.id)}
+            onCheckedChange={(checked) => toggleSelect(data.id, !!checked)}
+            aria-label="Pilih data"
+          />
+        );
+      },
+      size: 32,
+    },
     {
       accessorKey: 'tahunAjaran',
       header: 'Tahun Ajaran',
@@ -252,6 +293,56 @@ export default function KenaikanKelasPage() {
     },
   ];
 
+  // Tombol persetujuan kolektif di sisi kiri header tabel
+  const leftActions = selectedIds.length > 0 ? (
+    <Button
+      variant="success"
+      size="sm"
+      onClick={() => handleBulkApprove()}
+      disabled={isBulkUpdating}
+      className="whitespace-nowrap"
+    >
+      <CheckCircle2 className="h-4 w-4 mr-1" />
+      {isBulkUpdating ? 'Memproses...' : `Setujui Terpilih (${selectedIds.length})`}
+    </Button>
+  ) : null;
+
+  const handleBulkApprove = async () => {
+    if (!selectedIds.length) return;
+    const selectedMap = new Map(promotionData.map((p) => [p.id, p]));
+    const targets = selectedIds
+      .map((id) => selectedMap.get(id))
+      .filter((x): x is PromotionData => !!x);
+
+    const toastId = showLoading(`Menyetujui ${targets.length} data...`);
+    setIsBulkUpdating(true);
+    try {
+      await Promise.all(
+        targets.map((item) =>
+          updateStudentClass({
+            id: item.id,
+            data: {
+              classroom_id: item.class_id,
+              class_group_id: item.class_group_id ?? item.class_id,
+              educational_institution_id: item.education_id,
+              approval_status: 'disetujui',
+              approval_note: 'Persetujuan kolektif',
+            },
+          }).unwrap()
+        )
+      );
+      dismissToast(toastId);
+      showSuccess(`Berhasil menyetujui ${targets.length} data.`);
+      setSelectedIds([]);
+    } catch (err) {
+      dismissToast(toastId);
+      showError('Gagal menyetujui data terpilih.');
+      console.error(err);
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
   // Fungsi untuk menangani kenaikan kelas
   const handlePromotion = (data: PromotionData) => {
     // Implementasi logika kenaikan kelas akan ditambahkan di sini
@@ -288,6 +379,7 @@ export default function KenaikanKelasPage() {
                 onAddData={handleAddData}
                 onAssignment={handleAssignment}
                 addButtonLabel="Atur Kelas"
+                leftActions={leftActions}
                 // Tambahan: aktifkan server-side pagination
                 pageCount={pageCount || 0}
                 pagination={pagination}

@@ -55,6 +55,9 @@ interface DataTableProps<TData, TValue> {
   expanded?: ExpandedState;
   onExpandedChange?: (updater: ExpandedState) => void;
   getSubRows?: (row: TData) => TData[] | undefined;
+
+  // Aksi tambahan di sisi kiri (sebelah pencarian/filters)
+  leftActions?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -77,6 +80,7 @@ export function DataTable<TData, TValue>({
   expanded,
   onExpandedChange,
   getSubRows,
+  leftActions,
 }: DataTableProps<TData, TValue>) {
   // Hapus penguncian pagination default; gunakan hanya saat manual pagination aktif
   // const defaultPagination: PaginationState = {
@@ -293,6 +297,7 @@ export function DataTable<TData, TValue>({
                 />
               );
             })}
+          {leftActions ? <div className="ml-2">{leftActions}</div> : null}
         </div>
 
         <div className="flex items-center gap-2">
