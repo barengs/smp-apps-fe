@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery } from '@/store/slices/classScheduleApi';
-import { BookCopy, UserCheck, ArrowLeft } from 'lucide-react';
+import { BookCopy, UserCheck, ArrowLeft, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -188,10 +188,19 @@ const PresensiDetailPage: React.FC = () => {
               </div>
             </div>
             
-            <Separator className="my-6" />
+            <Separator className="mt-6 mb-0" />
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Lembar Presensi</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Lembar Presensi</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                >
+                  <Printer className="mr-2 h-4 w-4" /> Print
+                </Button>
+              </div>
               <p className="text-sm text-muted-foreground mb-4">Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</p>
               <div className="overflow-x-auto">
                 <Table>
