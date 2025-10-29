@@ -149,7 +149,7 @@ const PresensiDetailPage: React.FC = () => {
             <CardDescription>Informasi lengkap mengenai jadwal pelajaran yang dipilih.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 text-sm">
               <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
                 <div className="font-semibold text-muted-foreground">Tahun Ajaran</div>
                 <div className="font-medium truncate">{schedule.academic_year?.year || '-'}</div>
