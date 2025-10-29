@@ -31,22 +31,48 @@ export function generatePresensiPdf({
   const teacherName = (`${detail?.teacher?.first_name || ''} ${detail?.teacher?.last_name || ''}`).trim() || '-';
   const jamPelajaran = `${detail?.lesson_hour?.start_time ? detail.lesson_hour.start_time.substring(0, 5) : ''} - ${detail?.lesson_hour?.end_time ? detail.lesson_hour.end_time.substring(0, 5) : ''}`;
 
-  const infoLines = [
-    `Tahun Ajaran: ${schedule?.academic_year?.year || '-'}`,
-    `Sesi: ${schedule?.session || '-'}`,
-    `Jenjang Pendidikan: ${schedule?.education?.institution_name || '-'}`,
-    `Kelas: ${detail?.classroom?.name || '-'}`,
-    `Rombel: ${detail?.class_group?.name || '-'}`,
-    `Mata Pelajaran: ${detail?.study?.name || '-'}`,
-    `Guru Pengampu: ${teacherName}`,
-    `Jam Pelajaran: ${jamPelajaran}`,
+  // HEADER: tabel dua kolom (kiri dan kanan), masing-masing berisi pasangan label–nilai
+  const headerLeft: [string, string][] = [
+    ['Tahun Ajaran', schedule?.academic_year?.year || '-'],
+    ['Sesi', schedule?.session || '-'],
+    ['Jenjang Pendidikan', schedule?.education?.institution_name || '-'],
+    ['Kelas', detail?.classroom?.name || '-'],
+  ];
+  const headerRight: [string, string][] = [
+    ['Rombel', detail?.class_group?.name || '-'],
+    ['Mata Pelajaran', detail?.study?.name || '-'],
+    ['Guru Pengampu', teacherName],
+    ['Jam Pelajaran', jamPelajaran],
   ];
 
-  let y = 60;
-  infoLines.forEach((line) => {
-    doc.text(line, 40, y);
-    y += 16;
+  const maxRows = Math.max(headerLeft.length, headerRight.length);
+  const headerRows: RowInput[] = Array.from({ length: maxRows }, (_, i) => {
+    const left = headerLeft[i] || ['', ''];
+    const right = headerRight[i] || ['', ''];
+    return [left[0], left[1], right[0], right[1]];
   });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginLeft = 40;
+  const marginRight = 40;
+  const usableWidth = pageWidth - marginLeft - marginRight;
+
+  autoTable(doc, {
+    body: headerRows,
+    startY: 60,
+    theme: 'plain',
+    styles: { fontSize: 11, cellPadding: 4 },
+    columnStyles: {
+      0: { cellWidth: usableWidth * 0.18, fontStyle: 'bold', textColor: [100, 100, 100] },
+      1: { cellWidth: usableWidth * 0.32 },
+      2: { cellWidth: usableWidth * 0.18, fontStyle: 'bold', textColor: [100, 100, 100] },
+      3: { cellWidth: usableWidth * 0.32 },
+    },
+    margin: { left: marginLeft, right: marginRight },
+  });
+
+  // Posisi mulai tabel presensi setelah header
+  const y = ((doc as any).lastAutoTable?.finalY || 60) + 14;
 
   const head: RowInput[] = [
     ['Nama Siswa', ...Array.from({ length: meetingCount }, (_, i) => `P ${i + 1}`)],
@@ -67,7 +93,7 @@ export function generatePresensiPdf({
   autoTable(doc, {
     head,
     body,
-    startY: y + 10,
+    startY: y,
     styles: { fontSize: 9, cellPadding: 4 },
     headStyles: { fillColor: [240, 240, 240] },
     columnStyles: { 0: { cellWidth: 180 } },
