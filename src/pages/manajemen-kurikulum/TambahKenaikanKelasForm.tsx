@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { Label } from '@/components/ui/label';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
@@ -77,6 +79,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
   const [selectedClassGroup, setSelectedClassGroup] = useState<string>('');
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [studentAssignments, setStudentAssignments] = useState<Record<number, StudentClassAssignment>>({});
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const isLoading = isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms || isLoadingStudentClasses;
 
@@ -130,11 +133,29 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
     });
   }, [studentsResponse, studentAssignments, selectedAcademicYear]);
 
+  // Filter hasil berdasarkan pencarian nama atau NIS
+  const filteredStudents = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return availableStudents;
+    return availableStudents.filter((student) => {
+      const fullName = `${student.first_name} ${student.last_name || ''}`.trim().toLowerCase();
+      const nis = String(student.nis || '').toLowerCase();
+      return fullName.includes(term) || nis.includes(term);
+    });
+  }, [availableStudents, searchTerm]);
+
+  // Update: pilih semua/deselect hanya pada hasil filter yang sedang tampil
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedStudents(availableStudents.map(s => s.id));
+      setSelectedStudents((prev) => {
+        const idsToAdd = filteredStudents.map((s) => s.id);
+        const set = new Set([...prev, ...idsToAdd]);
+        return Array.from(set);
+      });
     } else {
-      setSelectedStudents([]);
+      setSelectedStudents((prev) =>
+        prev.filter((id) => !filteredStudents.some((s) => s.id === id))
+      );
     }
   };
 
@@ -333,6 +354,25 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
                 <br/>• Siswa yang sudah ada kelas di tahun ajaran ini: dapat diubah
                 <br/>• Siswa yang sudah ada kelas di tahun ajaran lain: tidak dapat dipilih
               </div>
+              
+              {/* Kolom pencarian siswa */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="relative w-full max-w-md">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Cari nama atau NIS siswa..."
+                    className="pl-8"
+                  />
+                </div>
+                {searchTerm && (
+                  <Button variant="outline" onClick={() => setSearchTerm('')}>
+                    Bersihkan
+                  </Button>
+                )}
+              </div>
+
               <ScrollArea className="h-64 border rounded-md">
                 <Table>
                   <TableHeader className="sticky top-0 bg-background">
@@ -340,7 +380,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
                       <TableHead className="w-12 py-2">
                         <Checkbox
                           onCheckedChange={handleSelectAll}
-                          checked={selectedStudents.length > 0 && selectedStudents.length === availableStudents.length}
+                          checked={filteredStudents.length > 0 && filteredStudents.every((s) => selectedStudents.includes(s.id))}
                           aria-label="Pilih semua"
                         />
                       </TableHead>
@@ -350,8 +390,8 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {availableStudents.length > 0 ? (
-                      availableStudents.map(student => {
+                    {filteredStudents.length > 0 ? (
+                      filteredStudents.map(student => {
                         const status = getStudentStatus(student.id);
                         const isDisabled = status.text.includes('tahun ajaran lain');
                         return (
@@ -374,10 +414,11 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
                     ) : (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-4">
-                          {studentsResponse && studentsResponse.length > 0 
-                            ? 'Tidak ada siswa yang tersedia untuk tahun ajaran ini.' 
-                            : 'Tidak ada data siswa yang tersedia.'
-                          }
+                          {availableStudents.length > 0
+                            ? 'Tidak ada siswa yang cocok dengan pencarian.'
+                            : (studentsResponse && studentsResponse.length > 0
+                                ? 'Tidak ada siswa yang tersedia untuk tahun ajaran ini.'
+                                : 'Tidak ada data siswa yang tersedia.')}
                         </TableCell>
                       </TableRow>
                     )}
