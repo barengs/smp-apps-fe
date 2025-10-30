@@ -250,8 +250,9 @@ export function DataTable<TData, TValue>({
           {/* Render filter tambahan: input atau select sesuai konfigurasi */}
           {filterableColumns &&
             Object.entries(filterableColumns).map(([columnId, cfg]) => {
-              const currentValue =
-                (table.getColumn(columnId)?.getFilterValue() as string) ?? '';
+              // Cari kolom secara aman agar tidak memicu error saat id tidak ditemukan
+              const colInstance = table.getAllColumns().find((c) => c.id === columnId);
+              const currentValue = (colInstance?.getFilterValue() as string) ?? '';
 
               if (cfg.type === 'select' && cfg.options && Array.isArray(cfg.options)) {
                 const CLEAR_FILTER_VALUE = '__ALL__';
@@ -265,9 +266,8 @@ export function DataTable<TData, TValue>({
                     key={columnId}
                     value={currentValue}
                     onValueChange={(value) => {
-                      const col = table.getColumn(columnId);
-                      if (!col) return;
-                      col.setFilterValue(value === CLEAR_FILTER_VALUE ? '' : value);
+                      if (!colInstance) return;
+                      colInstance.setFilterValue(value === CLEAR_FILTER_VALUE ? '' : value);
                     }}
                   >
                     <SelectTrigger className="w-40 h-8">
@@ -291,7 +291,7 @@ export function DataTable<TData, TValue>({
                   placeholder={cfg.placeholder || `Filter ${columnId}`}
                   value={currentValue}
                   onChange={(event) =>
-                    table.getColumn(columnId)?.setFilterValue(event.target.value)
+                    colInstance?.setFilterValue(event.target.value)
                   }
                   className="max-w-sm"
                 />
