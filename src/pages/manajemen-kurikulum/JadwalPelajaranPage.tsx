@@ -9,11 +9,13 @@ import { useTranslation } from 'react-i18next';
 import LessonScheduleForm from './LessonScheduleForm';
 import { useGetClassSchedulesQuery, type ClassScheduleData } from '@/store/slices/classScheduleApi';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { useNavigate } from 'react-router-dom';
 
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery({});
+  const navigate = useNavigate();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: t('sidebar.curriculum'), href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -99,6 +101,12 @@ const JadwalPelajaranPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
+  const handleRowClick = (row: any) => {
+    if (!row?.id) return;
+    // Detil Jadwal menggunakan halaman Detil Presensi yang sudah ada
+    navigate(`/dashboard/manajemen-kurikulum/presensi/${row.id}`);
+  };
+
   const data = React.useMemo(() => {
     const raw: ClassScheduleData[] =
       (Array.isArray(schedulesResponse) ? schedulesResponse : schedulesResponse?.data) || [];
@@ -173,6 +181,7 @@ const JadwalPelajaranPage: React.FC = () => {
                 exportTitle={t('sidebar.lessonSchedule')}
                 onAddData={handleAddSchedule}
                 addButtonLabel="Tambah Jadwal Pelajaran"
+                onRowClick={handleRowClick}
                 filterableColumns={{
                   education: {
                     type: 'select',
