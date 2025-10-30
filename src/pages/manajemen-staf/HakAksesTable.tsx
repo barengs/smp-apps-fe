@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
@@ -124,14 +124,6 @@ const HakAksesTable: React.FC = () => {
                 icon={<Edit className="h-4 w-4" />}
               >
                 Edit
-              </ActionButton>
-              <ActionButton
-                variant="danger"
-                size="sm"
-                onClick={() => handleDeleteClick(hakAkses)}
-                icon={<Trash2 className="h-4 w-4" />}
-              >
-                Hapus
               </ActionButton>
             </div>
           );
