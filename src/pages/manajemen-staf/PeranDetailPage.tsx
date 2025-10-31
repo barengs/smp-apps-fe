@@ -5,7 +5,7 @@ import { useGetRoleByIdQuery } from '@/store/slices/roleApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeft, Info, Shield } from 'lucide-react';
+import { ArrowLeft, Info, Briefcase, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
@@ -19,7 +19,8 @@ const PeranDetailPage: React.FC = () => {
 
   const title = role ? `Detail Peran: ${role.name}` : 'Detail Peran';
   const breadcrumbItems = [
-    { label: 'Peran', href: '/dashboard/peran', icon: <Shield className="h-4 w-4" /> },
+    { label: 'Manajemen Staf', href: '/dashboard/staf', icon: <Briefcase className="h-4 w-4" /> },
+    { label: 'Peran', href: '/dashboard/peran', icon: <UserCog className="h-4 w-4" /> },
     { label: title, icon: <Info className="h-4 w-4" /> },
   ];
 
