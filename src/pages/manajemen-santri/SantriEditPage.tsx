@@ -14,6 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { studentEditSchema } from '@/validation/studentSchema';
 import { useGetStudentByIdQuery, useUpdateStudentMutation, type Student, type CreateUpdateStudentRequest } from '@/store/slices/studentApi';
 import * as toast from '@/utils/toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -80,6 +82,7 @@ const SantriEditPage: React.FC = () => {
       user_id: undefined,
       deleted_at: undefined,
     },
+    resolver: zodResolver(studentEditSchema),
   });
 
   // ADDED: state untuk step wizard
@@ -141,7 +144,17 @@ const SantriEditPage: React.FC = () => {
       toast.showSuccess('Data santri berhasil diperbarui.');
       navigate(`/dashboard/santri/${santriId}`);
     } else {
-      toast.showError('Gagal memperbarui data santri.');
+      const errData: any = (result as any).error?.data;
+      const backendErrors = errData?.errors;
+      if (backendErrors && typeof backendErrors === 'object') {
+        Object.entries(backendErrors).forEach(([field, messages]) => {
+          const message = Array.isArray(messages) ? messages[0] : String(messages);
+          form.setError(field as keyof CreateUpdateStudentRequest, { type: 'server', message });
+        });
+        toast.showError('Validasi gagal. Mohon periksa field yang ditandai.');
+      } else {
+        toast.showError('Gagal memperbarui data santri.');
+      }
     }
   };
 
@@ -209,7 +222,6 @@ const SantriEditPage: React.FC = () => {
                     <FormField
                       control={form.control}
                       name="nis"
-                      rules={{ required: 'NIS wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>NIS</FormLabel>
@@ -223,7 +235,6 @@ const SantriEditPage: React.FC = () => {
                     <FormField
                       control={form.control}
                       name="nik"
-                      rules={{ required: 'NIK wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>NIK</FormLabel>
@@ -249,7 +260,6 @@ const SantriEditPage: React.FC = () => {
                     <FormField
                       control={form.control}
                       name="first_name"
-                      rules={{ required: 'Nama depan wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Nama Depan</FormLabel>
@@ -294,13 +304,13 @@ const SantriEditPage: React.FC = () => {
                               </div>
                             </RadioGroup>
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
                       name="status"
-                      rules={{ required: 'Status wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Status</FormLabel>
@@ -450,7 +460,6 @@ const SantriEditPage: React.FC = () => {
                     <FormField
                       control={form.control}
                       name="period"
-                      rules={{ required: 'Periode wajib diisi' }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Periode</FormLabel>
@@ -532,6 +541,7 @@ const SantriEditPage: React.FC = () => {
                               </SelectContent>
                             </Select>
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
