@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Combobox } from '@/components/ui/combobox';
 import {
   Form,
   FormControl,
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast'; // Updated import
-import { useCreateClassGroupMutation, useUpdateClassGroupMutation, type CreateUpdateClassGroupRequest } from '@/store/slices/classGroupApi';
+import { useCreateClassGroupMutation, useUpdateClassGroupMutation, useGetClassGroupAdvisorsQuery, type CreateUpdateClassGroupRequest } from '@/store/slices/classGroupApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
@@ -31,8 +32,8 @@ const formSchema = z.object({
   classroom_id: z.number({
     required_error: 'Kelas harus dipilih.',
   }),
-  // Field tambahan untuk Wali Kelas (tidak dikirim ke API untuk saat ini)
-  homeroom_teacher: z.string().optional(),
+  // Wali Kelas dipetakan ke advisor_id dan dikirim ke backend
+  advisor_id: z.number().nullable().optional(),
 });
 
 interface RombelFormProps {
@@ -40,7 +41,7 @@ interface RombelFormProps {
     id: number;
     name: string;
     classroom_id: number;
-    homeroom_teacher?: string;
+    advisor_id?: number | null;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -50,13 +51,14 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
   const [createClassGroup, { isLoading: isCreating }] = useCreateClassGroupMutation();
   const [updateClassGroup, { isLoading: isUpdating }] = useUpdateClassGroupMutation();
   const { data: classroomsData, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
+  const { data: advisorsData, isLoading: isLoadingAdvisors } = useGetClassGroupAdvisorsQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: '',
       classroom_id: undefined,
-      homeroom_teacher: '',
+      advisor_id: undefined,
     },
   });
 
@@ -65,6 +67,7 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
     const payload: CreateUpdateClassGroupRequest = {
       name: values.name,
       classroom_id: values.classroom_id,
+      advisor_id: values.advisor_id ?? null,
     };
 
     try {
@@ -135,16 +138,32 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
         />
         <FormField
           control={form.control}
-          name="homeroom_teacher"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Wali Kelas</FormLabel>
-              <FormControl>
-                <Input placeholder="Nama Wali Kelas (opsional)" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          name="advisor_id"
+          render={({ field }) => {
+            const advisorOptions =
+              advisorsData?.data?.map((a) => ({
+                value: a.id,
+                label: [a.first_name, a.last_name].filter(Boolean).join(' ').trim(),
+              })) ?? [];
+            return (
+              <FormItem>
+                <FormLabel>Wali Kelas</FormLabel>
+                <FormControl>
+                  <Combobox
+                    options={advisorOptions}
+                    value={field.value as number | undefined}
+                    onChange={(val) => field.onChange(val as number)}
+                    placeholder="Pilih wali kelas (opsional)..."
+                    searchPlaceholder="Cari wali kelas..."
+                    notFoundMessage="Tidak ada wali kelas."
+                    disabled={isLoadingAdvisors}
+                    isLoading={isLoadingAdvisors}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
