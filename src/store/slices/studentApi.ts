@@ -107,11 +107,23 @@ export const studentApi = smpApi.injectEndpoints({
       invalidatesTags: [{ type: 'Student', id: 'LIST' }],
     }),
     updateStudent: builder.mutation<Student, { id: number; data: CreateUpdateStudentRequest }>({
-      query: ({ id, data }) => ({
-        url: `main/student/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
+      query: ({ id, data }) => {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          if (value === undefined || value === null) return;
+          // Kirim angka sebagai string
+          if (typeof value === 'number') {
+            formData.append(key, String(value));
+          } else {
+            formData.append(key, value as string);
+          }
+        });
+        return {
+          url: `main/student/${id}`,
+          method: 'PUT',
+          body: formData,
+        };
+      },
       invalidatesTags: (result, error, { id }) => [{ type: 'Student', id }, { type: 'Student', id: 'LIST' }],
     }),
     deleteStudent: builder.mutation<void, number>({

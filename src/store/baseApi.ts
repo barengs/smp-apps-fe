@@ -34,7 +34,8 @@ const baseQuery = fetchBaseQuery({
       'updateBerita', 
       'updateControlPanelSettings',
       'addTeacher',
-      'updateTeacher'
+      'updateTeacher',
+      'updateStudent'
     ];
     
     if (!formDataEndpoints.includes(endpoint)) {
