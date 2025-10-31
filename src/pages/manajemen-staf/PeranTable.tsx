@@ -31,6 +31,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
+import { useNavigate } from 'react-router-dom';
 
 interface Peran {
   id: number;
@@ -44,6 +45,7 @@ interface Peran {
 const PeranTable: React.FC = () => {
   const { data: rolesData, error, isLoading } = useGetRolesQuery({});
   const [deleteRole] = useDeleteRoleMutation();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPeran, setEditingPeran] = useState<Omit<Peran, 'menus'> | undefined>(undefined);
@@ -211,7 +213,10 @@ const PeranTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
-                onClick={() => handleEditData(peran)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditData(peran);
+                }}
                 disabled={false}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
@@ -219,7 +224,10 @@ const PeranTable: React.FC = () => {
               <Button
                 variant="danger"
                 className="h-8 px-2 text-xs"
-                onClick={() => handleDeleteClick(peran)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(peran);
+                }}
                 disabled={!isDeletable}
               >
                 <Trash2 className="h-4 w-4 mr-1" /> Hapus
@@ -262,6 +270,7 @@ const PeranTable: React.FC = () => {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        onRowClick={(peran) => navigate(`/dashboard/peran/${peran.id}`)}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
