@@ -57,8 +57,8 @@ const PeranDetailPage: React.FC = () => {
 
   return (
     <DashboardLayout title={title} role="administrasi">
-      <CustomBreadcrumb items={breadcrumbItems} />
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-between">
+        <CustomBreadcrumb items={breadcrumbItems} />
         <Button variant="outline" asChild>
           <Link to="/dashboard/peran">
             <ArrowLeft className="mr-2 h-4 w-4" />
