@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetParentsQuery } from '@/store/slices/parentApi';
@@ -88,7 +88,7 @@ const WaliSantriTable: React.FC = () => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.showWarning(`Mengedit wali santri: ${waliSantri.fullName}`);
+                  navigate(`/dashboard/wali-santri/${waliSantri.id}/edit`);
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
