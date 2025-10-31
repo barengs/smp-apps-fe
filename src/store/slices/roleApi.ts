@@ -58,6 +58,13 @@ export const roleApi = smpApi.injectEndpoints({
             ]
           : [{ type: 'Role', id: 'LIST' }],
     }),
+    getRoleById: builder.query<RoleApiResponse, number>({
+      query: (id) => `main/role/${id}`,
+      transformResponse: (response: RoleApiResponse | { data: RoleApiResponse }) =>
+        (typeof response === 'object' && response !== null && 'data' in response ? (response as { data: RoleApiResponse }).data : (response as RoleApiResponse)),
+      providesTags: (result) =>
+        result ? [{ type: 'Role', id: result.id }] : [{ type: 'Role', id: 'DETAIL' }],
+    }),
     createRole: builder.mutation<RoleApiResponse, CreateUpdateRoleRequest>({
       query: (newRole) => ({
         url: 'main/role',
@@ -85,3 +92,4 @@ export const roleApi = smpApi.injectEndpoints({
 });
 
 export const { useGetRolesQuery, useCreateRoleMutation, useUpdateRoleMutation, useDeleteRoleMutation } = roleApi;
+export const { useGetRoleByIdQuery } = roleApi;
