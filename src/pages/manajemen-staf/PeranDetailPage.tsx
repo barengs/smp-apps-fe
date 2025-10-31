@@ -5,9 +5,10 @@ import { useGetRoleByIdQuery } from '@/store/slices/roleApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 
 const PeranDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -17,10 +18,15 @@ const PeranDetailPage: React.FC = () => {
   });
 
   const title = role ? `Detail Peran: ${role.name}` : 'Detail Peran';
+  const breadcrumbItems = [
+    { label: 'Peran', href: '/dashboard/peran', icon: <Shield className="h-4 w-4" /> },
+    { label: title, icon: <Info className="h-4 w-4" /> },
+  ];
 
   if (isLoading) {
     return (
       <DashboardLayout title="Detail Peran" role="administrasi">
+        <CustomBreadcrumb items={breadcrumbItems} />
         <TableLoadingSkeleton numCols={3} />
       </DashboardLayout>
     );
@@ -29,6 +35,7 @@ const PeranDetailPage: React.FC = () => {
   if (isError || !role) {
     return (
       <DashboardLayout title="Detail Peran" role="administrasi">
+        <CustomBreadcrumb items={breadcrumbItems} />
         <Alert variant="destructive">
           <AlertTitle>Gagal memuat</AlertTitle>
           <AlertDescription>Data peran tidak ditemukan atau terjadi kesalahan.</AlertDescription>
@@ -50,6 +57,7 @@ const PeranDetailPage: React.FC = () => {
 
   return (
     <DashboardLayout title={title} role="administrasi">
+      <CustomBreadcrumb items={breadcrumbItems} />
       <div className="mb-4">
         <Button variant="outline" asChild>
           <Link to="/dashboard/peran">
