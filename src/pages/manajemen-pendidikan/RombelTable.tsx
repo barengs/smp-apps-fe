@@ -34,8 +34,11 @@ interface Rombel {
   classroom: {
     name: string;
   };
-  // Kolom tambahan untuk Wali Kelas (data mungkin belum tersedia)
-  homeroom_teacher?: string;
+  // Data wali kelas dari API
+  advisor?: {
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 const RombelTable: React.FC = () => {
@@ -106,11 +109,19 @@ const RombelTable: React.FC = () => {
         header: 'Nama Rombel',
       },
       {
-        accessorKey: 'homeroom_teacher',
+        // gunakan advisor untuk menampilkan nama lengkap wali kelas
+        accessorFn: row =>
+          row.advisor
+            ? `${row.advisor.first_name ?? ''} ${row.advisor.last_name ?? ''}`.trim()
+            : '',
+        id: 'homeroom_teacher',
         header: 'Wali Kelas',
         cell: ({ row }) => {
-          const wali = row.original.homeroom_teacher;
-          return <span>{wali && wali.trim() !== '' ? wali : '-'}</span>;
+          const adv = row.original.advisor;
+          const fullName = adv
+            ? [adv.first_name, adv.last_name].filter(Boolean).join(' ').trim()
+            : '';
+          return <span>{fullName !== '' ? fullName : '-'}</span>;
         },
       },
       {
