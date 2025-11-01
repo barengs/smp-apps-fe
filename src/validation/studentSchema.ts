@@ -15,16 +15,28 @@ export const studentEditSchema = z.object({
   born_in: z.string().optional().nullable(),
   born_at: z.string().optional().nullable(),
   last_education: z.string().optional().nullable(),
-  village_id: z.number().int().optional().nullable(),
+  village_id: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().optional()
+  ),
   village: z.string().optional().nullable(),
   district: z.string().optional().nullable(),
   postal_code: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
-  hostel_id: z.number().int().optional().nullable(),
-  program_id: z.number({ required_error: 'Program wajib dipilih' }).int(),
+  hostel_id: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().optional()
+  ),
+  program_id: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number({ required_error: 'Program wajib dipilih' }).int()
+  ),
   status: z.string().min(1, 'Status wajib diisi'),
   photo: z.string().optional().nullable(),
-  user_id: z.number().int().optional().nullable(),
+  user_id: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().optional()
+  ),
   deleted_at: z.string().optional().nullable(),
 });
 
