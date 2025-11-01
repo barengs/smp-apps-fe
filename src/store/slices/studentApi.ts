@@ -118,9 +118,12 @@ export const studentApi = smpApi.injectEndpoints({
             formData.append(key, value as string);
           }
         });
+        // Laravel/Symfony lebih andal membaca field pada POST multipart,
+        // jadi spoof method PUT agar validasi tidak kehilangan field.
+        formData.append('_method', 'PUT');
         return {
           url: `main/student/${id}`,
-          method: 'PUT',
+          method: 'POST',
           body: formData,
         };
       },
