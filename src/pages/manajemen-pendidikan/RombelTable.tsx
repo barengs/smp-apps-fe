@@ -23,6 +23,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import RombelForm from './RombelForm';
 import { useGetClassGroupsQuery, useDeleteClassGroupMutation } from '@/store/slices/classGroupApi';
+import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
@@ -34,7 +36,6 @@ interface Rombel {
   classroom: {
     name: string;
   };
-  // Data wali kelas dari API
   advisor?: {
     first_name: string;
     last_name: string;
@@ -44,6 +45,8 @@ interface Rombel {
 const RombelTable: React.FC = () => {
   const { data: classGroupsData, error, isLoading } = useGetClassGroupsQuery();
   const [deleteClassGroup] = useDeleteClassGroupMutation();
+  const { data: classroomsData } = useGetClassroomsQuery();
+  const { data: institutionsData } = useGetInstitusiPendidikanQuery({ page: 1, per_page: 200 });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRombel, setEditingRombel] = useState<Rombel | undefined>(undefined);
@@ -53,6 +56,24 @@ const RombelTable: React.FC = () => {
   const rombels: Rombel[] = useMemo(() => {
     return classGroupsData?.data || [];
   }, [classGroupsData]);
+
+  const classroomToInstitutionId = useMemo(() => {
+    const map = new Map<number, number | null>();
+    (classroomsData?.data ?? []).forEach((c: any) => {
+      const instIdAny = c?.educational_institution_id ?? c?.school?.id ?? null;
+      const instId = instIdAny !== null && instIdAny !== undefined ? Number(instIdAny) : null;
+      map.set(Number(c.id), instId);
+    });
+    return map;
+  }, [classroomsData]);
+
+  const instNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    (institutionsData ?? []).forEach((inst: any) => {
+      map.set(Number(inst.id), inst.institution_name);
+    });
+    return map;
+  }, [institutionsData]);
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Rombel>(rombels);
 
@@ -75,11 +96,11 @@ const RombelTable: React.FC = () => {
     if (rombelToDelete) {
       try {
         await deleteClassGroup(rombelToDelete.id).unwrap();
-        showSuccess(`Rombel "${rombelToDelete.name}" berhasil dihapus.`); // Updated call
+        showSuccess(`Rombel "${rombelToDelete.name}" berhasil dihapus.`);
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus rombel.';
-        showError(errorMessage); // Updated call
+        showError(errorMessage);
       } finally {
         setRombelToDelete(undefined);
         setIsDeleteDialogOpen(false);
@@ -100,6 +121,20 @@ const RombelTable: React.FC = () => {
   const columns: ColumnDef<Rombel>[] = useMemo(
     () => [
       {
+        id: 'institution',
+        header: 'Institusi Pendidikan',
+        accessorFn: (row) => {
+          const instId = classroomToInstitutionId.get(row.classroom_id) ?? null;
+          if (instId == null) return '';
+          return instNameById.get(instId) ?? '';
+        },
+        cell: ({ row }) => {
+          const instId = classroomToInstitutionId.get(row.original.classroom_id) ?? null;
+          const name = instId == null ? '' : instNameById.get(instId) ?? '';
+          return <span>{name !== '' ? name : '-'}</span>;
+        },
+      },
+      {
         accessorFn: row => row.classroom.name,
         id: 'classroomName',
         header: 'Kelas',
@@ -109,7 +144,6 @@ const RombelTable: React.FC = () => {
         header: 'Nama Rombel',
       },
       {
-        // gunakan advisor untuk menampilkan nama lengkap wali kelas
         accessorFn: row =>
           row.advisor
             ? `${row.advisor.first_name ?? ''} ${row.advisor.last_name ?? ''}`.trim()
@@ -138,16 +172,15 @@ const RombelTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
-              {/* REMOVED: tombol Hapus sesuai permintaan */}
             </div>
           );
         },
       },
     ],
-    []
+    [classroomToInstitutionId, instNameById]
   );
 
-  if (isLoading) return <TableLoadingSkeleton numCols={3} />;
+  if (isLoading) return <TableLoadingSkeleton numCols={4} />;
 
   const isNotFound = error && (error as FetchBaseQueryError).status === 404;
   if (error && !isNotFound) {
