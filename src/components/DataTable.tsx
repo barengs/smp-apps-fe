@@ -252,7 +252,7 @@ export function DataTable<TData, TValue>({
             Object.entries(filterableColumns).map(([columnId, cfg]) => {
               // Cari kolom secara aman agar tidak memicu error saat id tidak ditemukan
               const colInstance = table.getAllColumns().find((c) => c.id === columnId);
-              const currentValue = (colInstance?.getFilterValue() as string) ?? '';
+              const currentValue = colInstance?.getFilterValue() as string | undefined;
 
               if (cfg.type === 'select' && cfg.options && Array.isArray(cfg.options)) {
                 const CLEAR_FILTER_VALUE = '__ALL__';
@@ -264,10 +264,10 @@ export function DataTable<TData, TValue>({
                 return (
                   <Select
                     key={columnId}
-                    value={currentValue}
+                    value={currentValue ?? undefined}
                     onValueChange={(value) => {
                       if (!colInstance) return;
-                      colInstance.setFilterValue(value === CLEAR_FILTER_VALUE ? '' : value);
+                      colInstance.setFilterValue(value === CLEAR_FILTER_VALUE ? undefined : value);
                     }}
                   >
                     <SelectTrigger className="w-40 h-8">

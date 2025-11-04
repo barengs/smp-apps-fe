@@ -130,6 +130,12 @@ const RombelTable: React.FC = () => {
         id: 'institution',
         header: 'Institusi Pendidikan',
         accessorFn: (row) => row.educational_institution?.institution_name ?? '',
+        // Pastikan filter melakukan pencocokan exact, bukan substring
+        filterFn: (row, columnId, filterValue) => {
+          if (filterValue == null || filterValue === '') return true;
+          const value = row.getValue<string>(columnId) ?? '';
+          return String(value) === String(filterValue);
+        },
         cell: ({ row }) => {
           const name = row.original.educational_institution?.institution_name ?? '';
           return <span>{name !== '' ? name : '-'}</span>;
@@ -139,6 +145,12 @@ const RombelTable: React.FC = () => {
         accessorFn: row => row.classroom.name,
         id: 'classroomName',
         header: 'Kelas',
+        // Exact match untuk filter kelas
+        filterFn: (row, columnId, filterValue) => {
+          if (filterValue == null || filterValue === '') return true;
+          const value = row.getValue<string>(columnId) ?? '';
+          return String(value) === String(filterValue);
+        },
       },
       {
         accessorKey: 'name',
