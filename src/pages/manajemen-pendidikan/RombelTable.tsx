@@ -23,8 +23,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import RombelForm from './RombelForm';
 import { useGetClassGroupsQuery, useDeleteClassGroupMutation } from '@/store/slices/classGroupApi';
-import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
-import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
@@ -40,13 +38,15 @@ interface Rombel {
     first_name: string;
     last_name: string;
   } | null;
+  // Tambahkan properti optional untuk nested institusi
+  educational_institution?: {
+    institution_name: string;
+  } | null;
 }
 
 const RombelTable: React.FC = () => {
   const { data: classGroupsData, error, isLoading } = useGetClassGroupsQuery();
   const [deleteClassGroup] = useDeleteClassGroupMutation();
-  const { data: classroomsData } = useGetClassroomsQuery();
-  const { data: institutionsData } = useGetInstitusiPendidikanQuery({ page: 1, per_page: 200 });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRombel, setEditingRombel] = useState<Rombel | undefined>(undefined);
@@ -57,23 +57,7 @@ const RombelTable: React.FC = () => {
     return classGroupsData?.data || [];
   }, [classGroupsData]);
 
-  const classroomToInstitutionId = useMemo(() => {
-    const map = new Map<number, number | null>();
-    (classroomsData?.data ?? []).forEach((c: any) => {
-      const instIdAny = c?.educational_institution_id ?? c?.school?.id ?? null;
-      const instId = instIdAny !== null && instIdAny !== undefined ? Number(instIdAny) : null;
-      map.set(Number(c.id), instId);
-    });
-    return map;
-  }, [classroomsData]);
-
-  const instNameById = useMemo(() => {
-    const map = new Map<number, string>();
-    (institutionsData ?? []).forEach((inst: any) => {
-      map.set(Number(inst.id), inst.institution_name);
-    });
-    return map;
-  }, [institutionsData]);
+  // REMOVED: pemetaan classroom -> institution dan institution_id -> name
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Rombel>(rombels);
 
@@ -123,14 +107,9 @@ const RombelTable: React.FC = () => {
       {
         id: 'institution',
         header: 'Institusi Pendidikan',
-        accessorFn: (row) => {
-          const instId = classroomToInstitutionId.get(row.classroom_id) ?? null;
-          if (instId == null) return '';
-          return instNameById.get(instId) ?? '';
-        },
+        accessorFn: (row) => row.educational_institution?.institution_name ?? '',
         cell: ({ row }) => {
-          const instId = classroomToInstitutionId.get(row.original.classroom_id) ?? null;
-          const name = instId == null ? '' : instNameById.get(instId) ?? '';
+          const name = row.original.educational_institution?.institution_name ?? '';
           return <span>{name !== '' ? name : '-'}</span>;
         },
       },
@@ -177,7 +156,7 @@ const RombelTable: React.FC = () => {
         },
       },
     ],
-    [classroomToInstitutionId, instNameById]
+    []
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={4} />;
