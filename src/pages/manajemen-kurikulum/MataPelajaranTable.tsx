@@ -33,6 +33,7 @@ import MataPelajaranForm from './MataPelajaranForm';
 import MataPelajaranImportDialog from './MataPelajaranImportDialog'; // Import dialog impor
 import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 const MataPelajaranTable: React.FC = () => {
   const { data: studies, isLoading, isError, refetch } = useGetStudiesQuery({});
@@ -40,6 +41,11 @@ const MataPelajaranTable: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedStudy, setSelectedStudy] = useState<MataPelajaran | undefined>(undefined);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
+
+  // Siapkan data dan kontrol pagination lokal
+  const studiesData = studies || [];
+  const { paginatedData, pagination, setPagination, pageCount } =
+    useLocalPagination<MataPelajaran>(studiesData, 10);
 
   const handleDelete = async (id: string) => {
     try {
@@ -150,12 +156,16 @@ const MataPelajaranTable: React.FC = () => {
       </Dialog>
       <DataTable
         columns={columns}
-        data={studies || []}
+        data={paginatedData}
         exportFileName="DaftarMataPelajaran"
         exportTitle="Daftar Mata Pelajaran"
         onAddData={handleAddDataClick}
         onImportData={handleImportData}
         addButtonLabel="Tambah Mata Pelajaran"
+        // Aktifkan pagination manual agar page size & navigasi konsisten
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
 
       <MataPelajaranImportDialog
