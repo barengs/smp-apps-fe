@@ -57,7 +57,29 @@ const RombelTable: React.FC = () => {
     return classGroupsData?.data || [];
   }, [classGroupsData]);
 
-  // REMOVED: pemetaan classroom -> institution dan institution_id -> name
+  // Tambahkan opsi filter untuk Institusi Pendidikan (unik, terurut)
+  const institutionFilterOptions = useMemo(() => {
+    const names = new Set<string>();
+    rombels.forEach((r) => {
+      const name = r.educational_institution?.institution_name?.trim();
+      if (name) names.add(name);
+    });
+    return Array.from(names)
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => ({ label: name, value: name }));
+  }, [rombels]);
+
+  // Tambahkan opsi filter untuk Kelas (unik, terurut)
+  const classroomFilterOptions = useMemo(() => {
+    const names = new Set<string>();
+    rombels.forEach((r) => {
+      const name = r.classroom?.name?.trim();
+      if (name) names.add(name);
+    });
+    return Array.from(names)
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => ({ label: name, value: name }));
+  }, [rombels]);
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Rombel>(rombels);
 
@@ -178,6 +200,18 @@ const RombelTable: React.FC = () => {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        filterableColumns={{
+          institution: {
+            type: 'select',
+            placeholder: 'Pilih Institusi',
+            options: institutionFilterOptions,
+          },
+          classroomName: {
+            type: 'select',
+            placeholder: 'Pilih Kelas',
+            options: classroomFilterOptions,
+          },
+        }}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
