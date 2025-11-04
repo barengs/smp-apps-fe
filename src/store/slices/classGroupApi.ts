@@ -34,6 +34,7 @@ interface GetAdvisorsResponse {
 export interface CreateUpdateClassGroupRequest {
   name: string;
   classroom_id: number;
+  educational_institution_id: number; // ditambahkan agar diterima backend
   advisor_id?: number | null; // tambahkan advisor_id untuk payload
 }
 

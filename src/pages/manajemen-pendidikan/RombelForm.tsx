@@ -106,6 +106,7 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
     const payload: CreateUpdateClassGroupRequest = {
       name: values.name,
       classroom_id: values.classroom_id,
+      educational_institution_id: values.educational_institution_id,
       advisor_id: values.advisor_id ?? null,
     };
 
