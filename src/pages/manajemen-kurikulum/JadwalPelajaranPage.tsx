@@ -8,7 +8,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import LessonScheduleForm from './LessonScheduleForm';
 import { useGetClassSchedulesQuery, type ClassScheduleData } from '@/store/slices/classScheduleApi';
-// import { useLocalPagination } from '@/hooks/useLocalPagination';
+import { useLocalPagination } from '@/hooks/useLocalPagination';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 
@@ -114,6 +114,10 @@ const JadwalPelajaranPage: React.FC = () => {
     return flattenScheduleData(raw);
   }, [schedulesResponse]);
 
+  // Kendalikan pagination lokal (page index & page size) untuk tabel Jadwal Pelajaran
+  const { paginatedData, pagination, setPagination, pageCount } =
+    useLocalPagination<any>(data, 10);
+
   // Siapkan opsi filter unik dari data yang sudah diratakan
   const educationOptions = useMemo(
     () =>
@@ -177,7 +181,7 @@ const JadwalPelajaranPage: React.FC = () => {
             ) : (
               <DataTable
                 columns={columns}
-                data={data}
+                data={paginatedData}
                 exportFileName="JadwalPelajaran"
                 exportTitle={t('sidebar.lessonSchedule')}
                 onAddData={handleAddSchedule}
@@ -205,6 +209,10 @@ const JadwalPelajaranPage: React.FC = () => {
                     options: dayOptions,
                   },
                 }}
+                // Aktifkan pagination manual agar navigasi dan pilihan jumlah baris per halaman konsisten
+                pageCount={pageCount}
+                pagination={pagination}
+                onPaginationChange={setPagination}
               />
             )}
           </CardContent>
