@@ -9,8 +9,9 @@ import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Eye, ArrowUpRight } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, ArrowUpRight, ArrowRightLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
@@ -231,6 +232,12 @@ export default function KenaikanKelasPage() {
   // Fungsi untuk menangani kenaikan kelas
   const handlePromotion = (data: PromotionData) => {
     // Implementasi logika kenaikan kelas akan ditambahkan di sini
+    showSuccess(`Aksi "Naik Kelas" dipilih untuk siswa "${data.siswa}".`);
+  };
+
+  // Fungsi untuk menangani pindah kelas
+  const handleTransferClass = (data: PromotionData) => {
+    showSuccess(`Aksi "Pindah Kelas" dipilih untuk siswa "${data.siswa}".`);
   };
 
   // Fungsi untuk menambah data kenaikan kelas
@@ -413,17 +420,24 @@ export default function KenaikanKelasPage() {
       cell: ({ row }) => {
         const data = row.original;
         return (
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePromotion(data)}
-              className="h-8"
-            >
-              <ArrowUpRight className="h-4 w-4 mr-1" />
-              Naikkan
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8">
+                Aksi
+                <ChevronDown className="h-4 w-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handlePromotion(data)}>
+                <ArrowUpRight className="h-4 w-4 mr-2" />
+                Naik Kelas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleTransferClass(data)}>
+                <ArrowRightLeft className="h-4 w-4 mr-2" />
+                Pindah Kelas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },
