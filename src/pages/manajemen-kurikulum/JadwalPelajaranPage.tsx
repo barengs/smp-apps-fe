@@ -56,12 +56,14 @@ const JadwalPelajaranPage: React.FC = () => {
       },
     },
     {
-      accessorKey: 'classroom.name',
+      id: 'classroom.name',
+      accessorFn: (row: any) => row?.classroom?.name || '',
       header: t('lessonSchedulePage.class'),
       cell: ({ row }) => <div className="capitalize">{row.original.classroom.name}</div>,
     },
     {
-      accessorKey: 'class_group.name',
+      id: 'class_group.name',
+      accessorFn: (row: any) => row?.class_group?.name || '',
       header: t('lessonSchedulePage.classGroup'),
       cell: ({ row }) => <div className="capitalize">{row.original.class_group.name}</div>,
     },
@@ -71,7 +73,8 @@ const JadwalPelajaranPage: React.FC = () => {
       cell: ({ row }) => <div className="capitalize">{row.getValue('day')}</div>,
     },
     {
-      accessorKey: 'study.name',
+      id: 'study.name',
+      accessorFn: (row: any) => row?.study?.name || '',
       header: t('lessonSchedulePage.subject'),
       cell: ({ row }) => <div className="capitalize">{row.original.study.name}</div>,
     },
