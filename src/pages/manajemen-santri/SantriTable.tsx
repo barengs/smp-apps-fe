@@ -172,7 +172,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   return (
     <DataTable
       columns={columns}
-      data={paginatedData}
+      data={santriList}
       exportFileName="data_santri"
       exportTitle="Data Santri Pesantren"
       onRowClick={handleRowClick}

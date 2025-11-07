@@ -116,7 +116,7 @@ const WaliSantriTable: React.FC = () => {
   return (
     <DataTable
       columns={columns}
-      data={paginatedData}
+      data={waliSantriList}
       pageCount={pageCount}
       pagination={pagination}
       onPaginationChange={setPagination}
