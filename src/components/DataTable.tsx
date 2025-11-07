@@ -50,6 +50,7 @@ interface DataTableProps<TData, TValue> {
   onImportData?: () => void;
   onAssignment?: () => void;
   assignmentButtonLabel?: string;
+  assignmentButtonClassName?: string;
 
   // Ubah tipe filterableColumns agar mendukung select
   filterableColumns?: Record<string, FilterConfig>;
@@ -83,6 +84,7 @@ export function DataTable<TData, TValue>({
   onImportData,
   onAssignment,
   assignmentButtonLabel,
+  assignmentButtonClassName,
   filterableColumns,
   sorting,
   onSortingChange,
@@ -358,7 +360,7 @@ export function DataTable<TData, TValue>({
             </Button>
           )}
           {onAssignment && (
-            <Button onClick={onAssignment} variant="outline" size="sm">
+            <Button onClick={onAssignment} variant="outline" size="sm" className={assignmentButtonClassName}>
               {assignmentButtonLabel || 'Penugasan'}
             </Button>
           )}

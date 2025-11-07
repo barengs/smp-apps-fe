@@ -464,6 +464,7 @@ export default function KenaikanKelasPage() {
                 onAddData={handleAddData}
                 onAssignment={handleAssignment}
                 assignmentButtonLabel="Kenaikan Kelas"
+                assignmentButtonClassName="bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500"
                 addButtonLabel="Atur Kelas"
                 leftActions={leftActions}
                 filterableColumns={{
@@ -471,7 +472,6 @@ export default function KenaikanKelasPage() {
                   kelas: { type: 'select', placeholder: 'Kelas', options: classOptions },
                   rombel: { type: 'select', placeholder: 'Rombel', options: groupOptions },
                 }}
-                // Tambahan: aktifkan server-side pagination
                 pageCount={pageCount || 0}
                 pagination={pagination}
                 onPaginationChange={setPagination}
