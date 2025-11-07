@@ -11,6 +11,7 @@ import {
   SortingState,
   ExpandedState,
   getExpandedRowModel,
+  FilterFn,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,16 @@ type FilterConfig = {
   placeholder?: string;
   type?: 'input' | 'select';
   options?: { label: string; value: string }[];
+};
+
+// Filter tepat: nilai kolom harus sama persis dengan nilai filter (case-insensitive)
+const exactMatchFilter: FilterFn<any> = (row, columnId, filterValue) => {
+  if (filterValue == null || filterValue === '') return true;
+  const value = row.getValue(columnId);
+  if (value == null) return false;
+  const v = String(value).trim().toLowerCase();
+  const f = String(filterValue).trim().toLowerCase();
+  return v === f;
 };
 
 interface DataTableProps<TData, TValue> {
@@ -142,9 +153,20 @@ export function DataTable<TData, TValue>({
     });
   }, [data, columns, globalSearch]);
 
+  // Tetapkan filterFn='exact' untuk kolom yang dikonfigurasi sebagai select
+  const processedColumns = React.useMemo(() => {
+    return (columns as ColumnDef<TData, TValue>[]).map((col: any) => {
+      const id = (col.id as string) || (col.accessorKey as string);
+      if (id && filterableColumns && filterableColumns[id]?.type === 'select') {
+        return { ...col, filterFn: 'exact' } as ColumnDef<TData, TValue>;
+      }
+      return col as ColumnDef<TData, TValue>;
+    });
+  }, [columns, filterableColumns]);
+
   const table = useReactTable({
     data: processedData,
-    columns,
+    columns: processedColumns,
     state: {
       sorting: sorting,
       expanded: expanded,
@@ -161,6 +183,8 @@ export function DataTable<TData, TValue>({
     manualPagination: manualPaginationEnabled,
     pageCount: manualPaginationEnabled ? pageCount : undefined,
     getSubRows: getSubRows || ((row: any) => row.subRows),
+    // Daftarkan filter kustom agar bisa direferensikan dengan id 'exact'
+    filterFns: { exact: exactMatchFilter },
     initialState: {
       pagination: { pageIndex: 0, pageSize: 10 },
     },
@@ -253,6 +277,11 @@ export function DataTable<TData, TValue>({
               // Cari kolom secara aman agar tidak memicu error saat id tidak ditemukan
               const colInstance = table.getAllColumns().find((c) => c.id === columnId);
               const currentValue = colInstance?.getFilterValue() as string | undefined;
+
+              // Untuk filter bertipe select, gunakan pencocokan tepat agar tidak ada match substring
+              if (cfg.type === 'select' && colInstance) {
+                // filterFn telah di-set statis di processedColumns untuk kolom select
+              }
 
               if (cfg.type === 'select' && cfg.options && Array.isArray(cfg.options)) {
                 const CLEAR_FILTER_VALUE = '__ALL__';
