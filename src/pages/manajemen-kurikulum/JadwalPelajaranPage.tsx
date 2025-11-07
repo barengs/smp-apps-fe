@@ -184,7 +184,7 @@ const JadwalPelajaranPage: React.FC = () => {
             ) : (
               <DataTable
                 columns={columns}
-                data={paginatedData}
+                data={data}
                 exportFileName="JadwalPelajaran"
                 exportTitle={t('sidebar.lessonSchedule')}
                 onAddData={handleAddSchedule}

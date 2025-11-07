@@ -195,6 +195,9 @@ export function DataTable<TData, TValue>({
     return <Skeleton className="h-64 w-full" />;
   }
 
+  // Ambil seluruh baris setelah sorting & filtering (bukan hanya halaman saat ini)
+  const allRows = table.getRowModel().rows;
+
   const handleExport = () => {
     if (exportFileName && exportTitle) {
       exportToExcel(data as Record<string, any>[], exportFileName, exportTitle);
@@ -223,8 +226,11 @@ export function DataTable<TData, TValue>({
     ? pagination!.pageIndex
     : table.getState().pagination.pageIndex;
 
-  const totalPageCount = manualPaginationEnabled ? pageCount : table.getPageCount();
-  const shownTotalPageCount = Math.max((totalPageCount as number) || 0, 1);
+  // Hitung total halaman dari hasil filter agar navigasi akurat
+  const computedTotalPageCount = manualPaginationEnabled
+    ? Math.ceil(allRows.length / Math.max(currentPageSize, 1))
+    : table.getPageCount();
+  const shownTotalPageCount = Math.max((computedTotalPageCount as number) || 0, 1);
 
   // Handle pagination button clicks — panggil parent hanya saat manual mode
   const handleFirstPage = () => {
@@ -259,6 +265,14 @@ export function DataTable<TData, TValue>({
       table.setPageIndex(lastPage);
     }
   };
+
+  // Baris yang ditampilkan: lakukan slicing manual setelah filter
+  const displayedRows = manualPaginationEnabled
+    ? allRows.slice(
+        currentPageIndex * currentPageSize,
+        currentPageIndex * currentPageSize + currentPageSize
+      )
+    : table.getRowModel().rows;
 
   return (
     <div className="space-y-4">
@@ -375,8 +389,8 @@ export function DataTable<TData, TValue>({
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+              {displayedRows?.length ? (
+                displayedRows.map((row) => (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
