@@ -463,6 +463,7 @@ export default function KenaikanKelasPage() {
                 exportTitle="Data Kenaikan Kelas"
                 onAddData={handleAddData}
                 onAssignment={handleAssignment}
+                assignmentButtonLabel="Kenaikan Kelas"
                 addButtonLabel="Atur Kelas"
                 leftActions={leftActions}
                 filterableColumns={{
