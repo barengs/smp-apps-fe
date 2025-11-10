@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Eye, ArrowUpRight, ArrowRightLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
+import KenaikanKelasModal from './KenaikanKelasModal';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { useDeleteStudentClassMutation } from '@/store/slices/studentClassApi';
@@ -51,6 +52,7 @@ interface PromotionData {
 
 export default function KenaikanKelasPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState<PromotionData | null>(null);
   const [approvalNote, setApprovalNote] = useState('');
@@ -247,7 +249,7 @@ export default function KenaikanKelasPage() {
 
   // Fungsi untuk proses penugasan
   const handleAssignment = () => {
-    // Implementasi logika penugasan akan ditambahkan di sini
+    setIsPromotionModalOpen(true);
   };
 
   // Opsi filter dropdown untuk Pendidikan, Kelas, Rombel
@@ -504,7 +506,11 @@ export default function KenaikanKelasPage() {
         </AlertDialogContent>
       </AlertDialog>
       <TambahKenaikanKelasForm isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
-
+      <KenaikanKelasModal
+        isOpen={isPromotionModalOpen}
+        onClose={() => setIsPromotionModalOpen(false)}
+        onSuccess={() => setIsPromotionModalOpen(false)}
+      />
       <AlertDialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
