@@ -2,6 +2,8 @@
 
 import React from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
@@ -9,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { useTranslation } from 'react-i18next';
 import InstitusiTugasFormModal, { InstitusiTugas } from './InstitusiTugasFormModal';
 import * as toast from '@/utils/toast';
-import { Pencil, Trash2, PlusCircle } from 'lucide-react';
+import { Pencil, Trash2, PlusCircle, Briefcase, Building2 } from 'lucide-react';
 
 const STORAGE_KEY = 'institusi_tugas_store';
 
@@ -18,6 +20,10 @@ const InstitusiTugasPage: React.FC = () => {
   const [items, setItems] = React.useState<InstitusiTugas[]>([]);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<InstitusiTugas | null>(null);
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: t('sidebar.internshipManagement'), href: '/dashboard/guru-tugas', icon: <Briefcase className="h-4 w-4" /> },
+    { label: t('sidebar.taskInstitution'), icon: <Building2 className="h-4 w-4" /> },
+  ];
 
   // Load from localStorage
   React.useEffect(() => {
@@ -118,31 +124,38 @@ const InstitusiTugasPage: React.FC = () => {
 
   return (
     <DashboardLayout title={t('sidebar.taskInstitution')} role="administrasi">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-xl font-semibold">{t('sidebar.taskInstitution')}</h2>
-          <p className="text-sm text-muted-foreground">Kelola institusi tujuan tugas santri (data lokal sementara).</p>
-        </div>
-        <Button onClick={openAddModal}>
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Tambah Institusi
-        </Button>
+      <div className="container mx-auto py-4 px-4">
+        <CustomBreadcrumb items={breadcrumbItems} />
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('sidebar.taskInstitution')}</CardTitle>
+            <CardDescription>Kelola institusi tujuan tugas santri (data lokal sementara).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-end mb-4">
+              <Button onClick={openAddModal}>
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Tambah Institusi
+              </Button>
+            </div>
+
+            <DataTable
+              columns={columns}
+              data={items}
+              leftActions={leftActions}
+              exportFileName="institusi-tugas"
+              exportTitle="Institusi Tugas"
+            />
+
+            <InstitusiTugasFormModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              initialData={editingItem}
+              onSave={handleSave}
+            />
+          </CardContent>
+        </Card>
       </div>
-
-      <DataTable
-        columns={columns}
-        data={items}
-        leftActions={leftActions}
-        exportFileName="institusi-tugas"
-        exportTitle="Institusi Tugas"
-      />
-
-      <InstitusiTugasFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialData={editingItem}
-        onSave={handleSave}
-      />
     </DashboardLayout>
   );
 };
