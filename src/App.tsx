@@ -50,6 +50,7 @@ import UserProfilePage from '@/pages/profile/UserProfilePage';
 import ProfileEditPage from '@/pages/profile/ProfileEditPage';
 import BeritaDetailPage from '@/pages/landing/BeritaDetailPage';
 import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
+import InstitusiTugasPage from './pages/manajemen-magang/InstitusiTugasPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
 import CalonSantriEditPage from './pages/manajemen-santri/CalonSantriEditPage';
 import TransaksiPage from '@/pages/keuangan/TransaksiPage';
@@ -161,6 +162,7 @@ function App() {
                 <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
                 <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
                 <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
+                <Route path="/dashboard/institusi-tugas" element={<InstitusiTugasPage />} />
                 <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
                 <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
                 <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
