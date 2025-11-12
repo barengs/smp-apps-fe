@@ -92,6 +92,16 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     [santriList]
   );
 
+  // Opsi filter unik untuk Kamar
+  const roomOptions = useMemo(
+    () => {
+      const set = new Set<string>();
+      santriList.forEach(s => { if (s.roomName) set.add(s.roomName); });
+      return Array.from(set).map(v => ({ label: v, value: v }));
+    },
+    [santriList]
+  );
+
   // Pagination client-side
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(santriList, 10);
 
@@ -187,6 +197,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         period: { type: 'select', placeholder: 'Periode', options: periodOptions },
         status: { type: 'select', placeholder: 'Status', options: statusOptions },
         programName: { type: 'select', placeholder: 'Program', options: programOptions },
+        roomName: { type: 'select', placeholder: 'Kamar', options: roomOptions },
       }}
       onAddData={onAddData}
       sorting={sorting}
