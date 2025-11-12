@@ -11,6 +11,7 @@ export interface Student {
   gender: string;
   status: string;
   program?: { name: string };
+  hostel?: { name: string };
   created_at: string;
   updated_at: string;
   // Opsional untuk halaman detail (sesuai struktur baru)

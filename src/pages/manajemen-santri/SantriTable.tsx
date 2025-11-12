@@ -41,8 +41,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         id: student.id,
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
-        // Data kamar belum tersedia di Student; tampilkan default yang konsisten
-        roomName: 'Belum diatur',
+        // Ambil nama kamar dari properti hostel.name, fallback ke 'Belum diatur'
+        roomName: student.hostel?.name ?? 'Belum diatur',
         period: student.period,
         gender:
           student.gender === 'L'
