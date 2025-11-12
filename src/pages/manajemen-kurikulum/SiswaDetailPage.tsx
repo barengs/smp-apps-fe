@@ -40,16 +40,17 @@ const SiswaDetailPage: React.FC = () => {
 
   const studentsInGroup: StudentListRow[] = useMemo(() => {
     const list = students ?? [];
-    return list.map((s: any) => {
-      const firstName = s?.first_name ?? '';
-      const lastName = s?.last_name ?? '';
-      const fullName = `${firstName} ${lastName}`.trim() || s?.name || '-';
+    return list.map((item: any) => {
+      const st = item?.student ?? {};
+      const firstName = st?.first_name ?? '';
+      const lastName = st?.last_name ?? '';
+      const fullName = `${firstName} ${lastName}`.trim() || st?.name || '-';
       return {
-        id: s.id,
-        studentId: s.id,
+        id: st?.id ?? item?.id,
+        studentId: st?.id ?? item?.id,
         studentName: fullName,
-        nis: s?.nis ?? '-',
-        gender: s?.gender ?? '-',
+        nis: st?.nis ?? '-', // jika API tidak menyediakan NIS, tampilkan '-'
+        gender: st?.gender ?? '-',
       };
     });
   }, [students]);
