@@ -15,7 +15,7 @@ interface Santri {
   id: number;
   fullName: string;
   nis: string;
-  nik: string;
+  roomName: string;
   period: string;
   gender: string;
   status: string;
@@ -41,7 +41,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         id: student.id,
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
-        nik: student.nik,
+        // Data kamar belum tersedia di Student; tampilkan default yang konsisten
+        roomName: 'Belum diatur',
         period: student.period,
         gender:
           student.gender === 'L'
@@ -108,9 +109,19 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         accessorKey: 'nis',
         header: 'NIS',
       },
+      // Program dipindahkan ke sebelah kiri kolom Kamar
       {
-        accessorKey: 'nik',
-        header: 'NIK',
+        accessorKey: 'programName',
+        header: 'Program',
+      },
+      {
+        accessorKey: 'roomName',
+        header: 'Kamar',
+        cell: ({ row }) => (
+          <span className={row.original.roomName === 'Belum diatur' ? 'text-muted-foreground' : ''}>
+            {row.original.roomName || 'Belum diatur'}
+          </span>
+        ),
       },
       {
         accessorKey: 'period',
@@ -123,10 +134,6 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       {
         accessorKey: 'status',
         header: 'Status',
-      },
-      {
-        accessorKey: 'programName',
-        header: 'Program',
       },
       {
         accessorKey: 'updated_at',
