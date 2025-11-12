@@ -41,7 +41,7 @@ const SiswaPage: React.FC = () => {
         id: sc.id,
         studentId: sc.student_id,
         studentName: fullName,
-        educationName: sc?.educations?.name ?? '-',
+        educationName: sc?.educations?.institution_name ?? '-',
         classroomName: sc?.classrooms?.name ?? '-',
         classGroupName: sc?.class_group?.name ?? '-',
       };
