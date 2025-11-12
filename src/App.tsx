@@ -71,6 +71,7 @@ import GuruDetailPage from '@/pages/manajemen-kurikulum/GuruDetailPage'; // Impo
 import PenugasanGuruPage from '@/pages/manajemen-kurikulum/PenugasanGuruPage'; // Import the new PenugasanGuruPage
 import TeachingHoursPage from '@/pages/manajemen-kurikulum/TeachingHoursPage'; // Import the new TeachingHoursPage
 import JamPelajaranPage from '@/pages/manajemen-kurikulum/JamPelajaranPage';
+import SiswaPage from '@/pages/manajemen-kurikulum/SiswaPage';
 import PresensiPage from './pages/manajemen-kurikulum/PresensiPage';
 import PresensiDetailPage from './pages/manajemen-kurikulum/PresensiDetailPage';
 import PresensiFormPage from './pages/manajemen-kurikulum/PresensiFormPage'; // Import baru
@@ -180,6 +181,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/add" element={<MataPelajaranForm />} />
                 <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/:id/edit" element={<MataPelajaranForm />} />
                 <Route path="/dashboard/manajemen-kurikulum/jam-pelajaran" element={<JamPelajaranPage />} />
+                <Route path="/dashboard/manajemen-kurikulum/siswa" element={<SiswaPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/guru" element={<GuruPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/guru/add" element={<GuruFormPage />} />
                 <Route path="/dashboard/manajemen-kurikulum/guru/:id/edit" element={<GuruFormPage />} />
