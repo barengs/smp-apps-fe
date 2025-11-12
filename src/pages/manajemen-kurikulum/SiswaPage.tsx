@@ -8,7 +8,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
+import { useGetClassGroupDetailsQuery } from '@/store/slices/classGroupApi';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface StudentClassRow {
@@ -30,7 +30,7 @@ interface ClassGroupStatRow {
 
 const SiswaPage: React.FC = () => {
   const { t } = useTranslation();
-  const { data: paged, isLoading, isError } = useGetStudentClassesQuery({});
+  const { data: details, isLoading, isError } = useGetClassGroupDetailsQuery();
   const navigate = useNavigate();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -39,22 +39,14 @@ const SiswaPage: React.FC = () => {
   ];
 
   const rows: ClassGroupStatRow[] = useMemo(() => {
-    const list = paged?.data ?? [];
-    const map = new Map<string, ClassGroupStatRow>();
-    list.forEach((sc: any) => {
-      const educationName = sc?.educations?.institution_name ?? '-';
-      const classroomName = sc?.classrooms?.name ?? '-';
-      const classGroupName = sc?.class_group?.name ?? '-';
-      const key = `${educationName}||${classroomName}||${classGroupName}`;
-      const existing = map.get(key);
-      if (existing) {
-        existing.studentCount += 1;
-      } else {
-        map.set(key, { educationName, classroomName, classGroupName, studentCount: 1 });
-      }
-    });
-    return Array.from(map.values());
-  }, [paged]);
+    const list = details?.data ?? [];
+    return list.map((item) => ({
+      educationName: item?.educational_institution?.institution_name ?? '-',
+      classroomName: item?.classroom?.name ?? '-',
+      classGroupName: item?.name ?? '-',
+      studentCount: Number(item?.total_students ?? 0),
+    }));
+  }, [details]);
 
   const columns: ColumnDef<ClassGroupStatRow>[] = [
     {

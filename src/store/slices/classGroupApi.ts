@@ -31,6 +31,36 @@ interface GetAdvisorsResponse {
   data: Advisor[];
 }
 
+// Tambahkan tipe untuk endpoint /master/class-group/details
+interface ClassGroupDetailsItem {
+  id: number;
+  name: string;
+  classroom: {
+    id: number;
+    name: string;
+  };
+  educational_institution: {
+    id: number;
+    institution_name: string;
+  };
+  advisor?: {
+    id: number;
+    user: {
+      id: number;
+      name: string;
+    };
+  };
+  total_students: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface GetClassGroupDetailsResponse {
+  success: boolean;
+  message: string;
+  data: ClassGroupDetailsItem[];
+}
+
 export interface CreateUpdateClassGroupRequest {
   name: string;
   classroom_id: number;
@@ -46,6 +76,10 @@ export const classGroupApi = smpApi.injectEndpoints({
     }),
     getClassGroupAdvisors: builder.query<GetAdvisorsResponse, void>({
       query: () => 'master/class-group/advisors',
+    }),
+    getClassGroupDetails: builder.query<GetClassGroupDetailsResponse, void>({
+      query: () => 'master/class-group/details',
+      providesTags: ['ClassGroup'],
     }),
     createClassGroup: builder.mutation<ClassGroupApiData, CreateUpdateClassGroupRequest>({
       query: (newClassGroup) => ({
@@ -76,6 +110,7 @@ export const classGroupApi = smpApi.injectEndpoints({
 export const {
   useGetClassGroupsQuery,
   useGetClassGroupAdvisorsQuery,
+  useGetClassGroupDetailsQuery,
   useCreateClassGroupMutation,
   useUpdateClassGroupMutation,
   useDeleteClassGroupMutation,
