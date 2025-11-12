@@ -5,7 +5,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { BookCopy, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
+import { useGetClassGroupStudentsQuery } from '@/store/slices/studentClassApi';
 import { useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
@@ -28,8 +28,9 @@ const SiswaDetailPage: React.FC = () => {
   const classroomName = searchParams.get('classroom') || '-';
   const classGroupName = searchParams.get('group') || '-';
 
-  // Ambil data cukup besar agar daftar rombel relatif lengkap; filter dilakukan lokal
-  const { data: paged, isLoading, isError } = useGetStudentClassesQuery({ per_page: 1000 });
+  const classGroupIdParam = searchParams.get('classGroupId') || '';
+  const classGroupId = Number(classGroupIdParam) || 0;
+  const { data: students, isLoading, isError } = useGetClassGroupStudentsQuery(classGroupId);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: t('sidebar.curriculum'), href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -37,29 +38,21 @@ const SiswaDetailPage: React.FC = () => {
     { label: 'Detil Rombel', icon: <Users className="h-4 w-4" /> },
   ];
 
-  const allList = paged?.data ?? [];
-
   const studentsInGroup: StudentListRow[] = useMemo(() => {
-    return allList
-      .filter((sc: any) => {
-        const edu = sc?.educations?.institution_name ?? '-';
-        const cls = sc?.classrooms?.name ?? '-';
-        const grp = sc?.class_group?.name ?? '-';
-        return edu === educationName && cls === classroomName && grp === classGroupName;
-      })
-      .map((sc: any) => {
-        const firstName = sc?.students?.first_name ?? '';
-        const lastName = sc?.students?.last_name ?? '';
-        const fullName = `${firstName} ${lastName}`.trim() || sc?.students?.name || '-';
-        return {
-          id: sc.id,
-          studentId: sc.student_id,
-          studentName: fullName,
-          nis: sc?.students?.nis ?? '-',
-          gender: sc?.students?.gender ?? '-',
-        };
-      });
-  }, [allList, educationName, classroomName, classGroupName]);
+    const list = students ?? [];
+    return list.map((s: any) => {
+      const firstName = s?.first_name ?? '';
+      const lastName = s?.last_name ?? '';
+      const fullName = `${firstName} ${lastName}`.trim() || s?.name || '-';
+      return {
+        id: s.id,
+        studentId: s.id,
+        studentName: fullName,
+        nis: s?.nis ?? '-',
+        gender: s?.gender ?? '-',
+      };
+    });
+  }, [students]);
 
   const columns: ColumnDef<StudentListRow>[] = [
     {

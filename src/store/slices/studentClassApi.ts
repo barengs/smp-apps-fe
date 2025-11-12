@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import type { Student } from './studentApi';
 
 // Interface untuk response API dengan pagination
 interface StudentClassPaginatedResponse {
@@ -145,6 +146,21 @@ export const studentClassApi = smpApi.injectEndpoints({
         return [{ type: 'Student', id: 'LIST' }];
       },
     }),
+    getClassGroupStudents: builder.query<Student[], number>({
+      query: (classGroupId) => `main/student-class/class-group/${classGroupId}/students`,
+      transformResponse: (response: any): Student[] => {
+        if (Array.isArray(response?.data)) return response.data as Student[];
+        if (Array.isArray(response)) return response as Student[];
+        return [];
+      },
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map(({ id }) => ({ type: 'Student' as const, id })),
+              { type: 'Student', id: 'LIST' },
+            ]
+          : [{ type: 'Student', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -155,4 +171,5 @@ export const {
   useUpdateStudentClassMutation,
   useDeleteStudentClassMutation,
   useGetStudentClassesByStatusQuery,
+  useGetClassGroupStudentsQuery,
 } = studentClassApi;

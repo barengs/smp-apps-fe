@@ -22,6 +22,7 @@ interface StudentClassRow {
 
 // REPLACED: interface untuk baris siswa menjadi agregasi per rombel
 interface ClassGroupStatRow {
+  classGroupId: number;
   educationName: string;
   classroomName: string;
   classGroupName: string;
@@ -41,6 +42,7 @@ const SiswaPage: React.FC = () => {
   const rows: ClassGroupStatRow[] = useMemo(() => {
     const list = details?.data ?? [];
     return list.map((item) => ({
+      classGroupId: Number(item?.id ?? 0),
       educationName: item?.educational_institution?.institution_name ?? '-',
       classroomName: item?.classroom?.name ?? '-',
       classGroupName: item?.name ?? '-',
@@ -89,6 +91,7 @@ const SiswaPage: React.FC = () => {
 
   const handleRowClick = (row: ClassGroupStatRow) => {
     const q = new URLSearchParams({
+      classGroupId: String(row.classGroupId || ''),
       education: row.educationName || '-',
       classroom: row.classroomName || '-',
       group: row.classGroupName || '-',
