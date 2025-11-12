@@ -156,7 +156,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
                 className="h-8 px-2 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toast.showWarning('Fitur edit santri akan segera tersedia.');
+                  navigate(`/dashboard/santri/${santri.id}/edit`);
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
