@@ -8,7 +8,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
-import { useNavigate } from 'react-router-dom';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface StudentClassRow {
@@ -20,9 +19,16 @@ interface StudentClassRow {
   classGroupName: string;
 }
 
+// REPLACED: interface untuk baris siswa menjadi agregasi per rombel
+interface ClassGroupStatRow {
+  educationName: string;
+  classroomName: string;
+  classGroupName: string;
+  studentCount: number;
+}
+
 const SiswaPage: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { data: paged, isLoading, isError } = useGetStudentClassesQuery({});
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -30,30 +36,25 @@ const SiswaPage: React.FC = () => {
     { label: t('sidebar.students'), icon: <Users className="h-4 w-4" /> },
   ];
 
-  const rows: StudentClassRow[] = useMemo(() => {
+  const rows: ClassGroupStatRow[] = useMemo(() => {
     const list = paged?.data ?? [];
-    return list.map((sc: any) => {
-      const firstName = sc?.students?.first_name ?? '';
-      const lastName = sc?.students?.last_name ?? '';
-      const fullName = `${firstName} ${lastName}`.trim() || sc?.students?.name || '-';
-
-      return {
-        id: sc.id,
-        studentId: sc.student_id,
-        studentName: fullName,
-        educationName: sc?.educations?.institution_name ?? '-',
-        classroomName: sc?.classrooms?.name ?? '-',
-        classGroupName: sc?.class_group?.name ?? '-',
-      };
+    const map = new Map<string, ClassGroupStatRow>();
+    list.forEach((sc: any) => {
+      const educationName = sc?.educations?.institution_name ?? '-';
+      const classroomName = sc?.classrooms?.name ?? '-';
+      const classGroupName = sc?.class_group?.name ?? '-';
+      const key = `${educationName}||${classroomName}||${classGroupName}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.studentCount += 1;
+      } else {
+        map.set(key, { educationName, classroomName, classGroupName, studentCount: 1 });
+      }
     });
+    return Array.from(map.values());
   }, [paged]);
 
-  const columns: ColumnDef<StudentClassRow>[] = [
-    {
-      accessorKey: 'studentName',
-      header: 'Nama Siswa',
-      cell: ({ row }) => <div className="capitalize">{row.original.studentName}</div>,
-    },
+  const columns: ColumnDef<ClassGroupStatRow>[] = [
     {
       accessorKey: 'educationName',
       header: 'Tingkat Pendidikan',
@@ -68,6 +69,11 @@ const SiswaPage: React.FC = () => {
       accessorKey: 'classGroupName',
       header: 'Rombel',
       cell: ({ row }) => <div className="capitalize">{row.original.classGroupName || '-'}</div>,
+    },
+    {
+      accessorKey: 'studentCount',
+      header: 'Jumlah Siswa',
+      cell: ({ row }) => <div className="font-medium">{row.original.studentCount}</div>,
     },
   ];
 
@@ -87,10 +93,7 @@ const SiswaPage: React.FC = () => {
     [rows]
   );
 
-  const handleRowClick = (row: StudentClassRow) => {
-    if (!row.studentId) return;
-    navigate(`/dashboard/santri/${row.studentId}`);
-  };
+  // REMOVED: handleRowClick karena tidak lagi menavigasi ke detail siswa
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(rows, 10);
 
@@ -101,7 +104,7 @@ const SiswaPage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>{t('sidebar.students')}</CardTitle>
-            <CardDescription>Daftar siswa dengan info tingkat pendidikan, kelas, dan rombel.</CardDescription>
+            <CardDescription>Jumlah siswa per kombinasi Tingkat Pendidikan, Kelas, dan Rombel.</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -114,7 +117,6 @@ const SiswaPage: React.FC = () => {
                 data={paginatedData}
                 exportFileName="SiswaKurikulum"
                 exportTitle="Data Siswa Kurikulum"
-                onRowClick={handleRowClick}
                 filterableColumns={{
                   educationName: { type: 'select', placeholder: 'Tingkat Pendidikan', options: educationOptions },
                   classroomName: { type: 'select', placeholder: 'Kelas', options: classOptions },
