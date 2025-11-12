@@ -6,6 +6,7 @@ import { BookCopy, Users } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useGetStudentClassesQuery } from '@/store/slices/studentClassApi';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
@@ -30,6 +31,7 @@ interface ClassGroupStatRow {
 const SiswaPage: React.FC = () => {
   const { t } = useTranslation();
   const { data: paged, isLoading, isError } = useGetStudentClassesQuery({});
+  const navigate = useNavigate();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: t('sidebar.curriculum'), href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
@@ -93,7 +95,14 @@ const SiswaPage: React.FC = () => {
     [rows]
   );
 
-  // REMOVED: handleRowClick karena tidak lagi menavigasi ke detail siswa
+  const handleRowClick = (row: ClassGroupStatRow) => {
+    const q = new URLSearchParams({
+      education: row.educationName || '-',
+      classroom: row.classroomName || '-',
+      group: row.classGroupName || '-',
+    }).toString();
+    navigate(`/dashboard/manajemen-kurikulum/siswa/detail?${q}`);
+  };
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(rows, 10);
 
@@ -125,6 +134,7 @@ const SiswaPage: React.FC = () => {
                 pageCount={pageCount}
                 pagination={pagination}
                 onPaginationChange={setPagination}
+                onRowClick={handleRowClick}
               />
             )}
           </CardContent>
