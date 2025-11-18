@@ -37,6 +37,7 @@ interface Asrama {
     name: string;
   };
   capacity: number; // Menambahkan properti capacity
+  headName?: string; // Menambahkan properti kepala asrama
 }
 
 const AsramaTable: React.FC = () => {
@@ -51,12 +52,18 @@ const AsramaTable: React.FC = () => {
 
   const asramas: Asrama[] = useMemo(() => {
     if (hostelsData?.data) {
-      return hostelsData.data.map(apiHostel => ({
+      return hostelsData.data.map((apiHostel: any) => ({
         id: apiHostel.id,
         name: apiHostel.name,
         description: apiHostel.description || 'Tidak ada deskripsi',
         program: apiHostel.program,
         capacity: apiHostel.capacity,
+        headName:
+          apiHostel?.head_name ??
+          apiHostel?.head?.name ??
+          apiHostel?.kepala ??
+          apiHostel?.kepala_nama ??
+          undefined,
       }));
     }
     return [];
@@ -124,6 +131,11 @@ const AsramaTable: React.FC = () => {
         accessorKey: 'program.name', // Mengakses nama program
         header: 'Program',
         cell: ({ row }) => row.original.program?.name || '-', // Tampilkan nama program atau '-' jika tidak ada
+      },
+      {
+        accessorKey: 'headName',
+        header: 'Kepala',
+        cell: ({ row }) => row.original.headName || 'Belum Ada',
       },
       {
         accessorKey: 'capacity', // Mengakses kapasitas
