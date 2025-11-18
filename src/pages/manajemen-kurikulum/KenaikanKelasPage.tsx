@@ -15,6 +15,7 @@ import { Plus, Edit, Trash2, Eye, ArrowUpRight, ArrowRightLeft, ChevronDown } fr
 import { useNavigate } from 'react-router-dom';
 import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
 import KenaikanKelasModal from './KenaikanKelasModal';
+import TransferClassModal from './TransferClassModal';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { useDeleteStudentClassMutation } from '@/store/slices/studentClassApi';
@@ -60,6 +61,7 @@ export default function KenaikanKelasPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const navigate = useNavigate();
   // Tambahkan state pagination (pageIndex berbasis 0, pageSize default 10)
   const [pagination, setPagination] = useState<PaginationState>({
@@ -239,7 +241,8 @@ export default function KenaikanKelasPage() {
 
   // Fungsi untuk menangani pindah kelas
   const handleTransferClass = (data: PromotionData) => {
-    showSuccess(`Aksi "Pindah Kelas" dipilih untuk siswa "${data.siswa}".`);
+    setSelectedPromotion(data);
+    setIsTransferModalOpen(true);
   };
 
   // Fungsi untuk menambah data kenaikan kelas
@@ -510,6 +513,14 @@ export default function KenaikanKelasPage() {
         isOpen={isPromotionModalOpen}
         onClose={() => setIsPromotionModalOpen(false)}
         onSuccess={() => setIsPromotionModalOpen(false)}
+      />
+      <TransferClassModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        selected={selectedPromotion ?? undefined}
+        onSuccess={() => {
+          setIsTransferModalOpen(false);
+        }}
       />
       <AlertDialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
         <AlertDialogContent>
