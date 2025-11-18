@@ -54,6 +54,15 @@ export interface ImportHostelResponse {
   message: string;
 }
 
+export interface AssignHostelHeadRequest {
+  staff_id: number;
+  position_id: number;
+  academic_year_id: number;
+  start_date: string;
+  end_date?: string;
+  notes?: string;
+}
+
 export const hostelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getHostels: builder.query<PaginatedData<HostelApiData>, void>({ // Change return type to PaginatedData<HostelApiData>
@@ -92,6 +101,14 @@ export const hostelApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
+    assignHostelHead: builder.mutation<{ message: string }, { id: number; data: AssignHostelHeadRequest }>({
+      query: ({ id, data }) => ({
+        url: `master/hostel/${id}/assign-head`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Hostel'],
+    }),
   }),
 });
 
@@ -101,4 +118,5 @@ export const {
   useUpdateHostelMutation,
   useDeleteHostelMutation,
   useImportHostelsMutation,
+  useAssignHostelHeadMutation,
 } = hostelApi;

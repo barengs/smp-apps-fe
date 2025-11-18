@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import AsramaForm from './AsramaForm';
+import AssignHostelHeadModal from './AssignHostelHeadModal';
 import AsramaImportDialog from './AsramaImportDialog'; // Import dialog impor
 import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -49,22 +50,28 @@ const AsramaTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [asramaToDelete, setAsramaToDelete] = useState<Asrama | undefined>(undefined);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
+  const [isAssignHeadOpen, setIsAssignHeadOpen] = useState(false);
+  const [selectedHostelId, setSelectedHostelId] = useState<number | null>(null);
+  const [selectedHostelName, setSelectedHostelName] = useState<string | undefined>(undefined);
 
   const asramas: Asrama[] = useMemo(() => {
     if (hostelsData?.data) {
-      return hostelsData.data.map((apiHostel: any) => ({
-        id: apiHostel.id,
-        name: apiHostel.name,
-        description: apiHostel.description || 'Tidak ada deskripsi',
-        program: apiHostel.program,
-        capacity: apiHostel.capacity,
-        headName:
-          apiHostel?.head_name ??
-          apiHostel?.head?.name ??
-          apiHostel?.kepala ??
-          apiHostel?.kepala_nama ??
-          undefined,
-      }));
+      return hostelsData.data.map((apiHostel: any) => {
+        const currentHead = apiHostel?.current_head;
+        const headFirst = currentHead?.staff?.first_name ?? '';
+        const headLast = currentHead?.staff?.last_name ?? '';
+        const derivedHeadName = `${headFirst} ${headLast}`.trim() || currentHead?.staff?.user?.name || currentHead?.name || undefined;
+        return ({
+          id: apiHostel.id,
+          name: apiHostel.name,
+          description: apiHostel.description || 'Tidak ada deskripsi',
+          program: apiHostel.program,
+          capacity: apiHostel.capacity,
+          headName: derivedHeadName,
+          // simpan current_head untuk pengecekan null di kolom
+          current_head: currentHead,
+        });
+      });
     }
     return [];
   }, [hostelsData]);
@@ -135,7 +142,23 @@ const AsramaTable: React.FC = () => {
       {
         accessorKey: 'headName',
         header: 'Kepala',
-        cell: ({ row }) => row.original.headName || 'Belum Ada',
+        cell: ({ row }) => {
+          const h = row.original.headName;
+          if (h) return h;
+          return (
+            <Button
+              variant="link"
+              className="p-0 h-auto text-primary underline-offset-4 hover:underline"
+              onClick={() => {
+                setSelectedHostelId(row.original.id);
+                setSelectedHostelName(row.original.name);
+                setIsAssignHeadOpen(true);
+              }}
+            >
+              Belum Ada
+            </Button>
+          );
+        },
       },
       {
         accessorKey: 'capacity', // Mengakses kapasitas
@@ -230,6 +253,19 @@ const AsramaTable: React.FC = () => {
       <AsramaImportDialog
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+      />
+
+      <AssignHostelHeadModal
+        isOpen={isAssignHeadOpen}
+        onClose={() => setIsAssignHeadOpen(false)}
+        hostelId={selectedHostelId}
+        hostelName={selectedHostelName}
+        onSuccess={() => {
+          setIsAssignHeadOpen(false);
+          setSelectedHostelId(null);
+          setSelectedHostelName(undefined);
+          toast.showSuccess("Data kepala asrama diperbarui.");
+        }}
       />
     </>
   );
