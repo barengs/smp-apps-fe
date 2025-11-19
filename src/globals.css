@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* React Toastify CSS */
-@import 'react-toastify/dist/ReactToastify.css';
-
 @layer base {
   :root {
     --background: 0 0% 100%;
