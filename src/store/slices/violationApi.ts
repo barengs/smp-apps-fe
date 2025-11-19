@@ -12,13 +12,23 @@ export interface Violation {
 interface GetViolationApiResponse {
   success: boolean;
   message: string;
-  data: Violation[] | (Omit<Violation, 'point'> & { point: string })[];
+  data: Array<
+    Omit<Violation, 'category_id' | 'point'> & {
+      category_id: number | string;
+      point: number | string;
+      category?: unknown;
+    }
+  >;
 }
 
 interface SingleViolationApiResponse {
   success: boolean;
   message: string;
-  data: Violation | (Omit<Violation, 'point'> & { point: string });
+  data: Omit<Violation, 'category_id' | 'point'> & {
+    category_id: number | string;
+    point: number | string;
+    category?: unknown;
+  };
 }
 
 export interface CreateUpdateViolationRequest {
@@ -34,9 +44,13 @@ export const violationApi = smpApi.injectEndpoints({
     getViolations: builder.query<Violation[], void>({
       query: () => 'master/violation',
       transformResponse: (response: GetViolationApiResponse) =>
-        (response.data as any[]).map((item) => ({
-          ...item,
+        response.data.map((item) => ({
+          id: item.id,
+          category_id: typeof item.category_id === 'string' ? Number(item.category_id) : item.category_id,
+          name: item.name,
+          description: item.description,
           point: typeof item.point === 'string' ? Number(item.point) : item.point,
+          is_active: item.is_active,
         })),
       providesTags: ['Violation'],
     }),
@@ -46,10 +60,17 @@ export const violationApi = smpApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      transformResponse: (response: SingleViolationApiResponse) => {
-        const data: any = response.data;
-        return { ...data, point: typeof data.point === 'string' ? Number(data.point) : data.point };
-      },
+      transformResponse: (response: SingleViolationApiResponse) => ({
+        id: response.data.id,
+        category_id:
+          typeof response.data.category_id === 'string'
+            ? Number(response.data.category_id)
+            : response.data.category_id,
+        name: response.data.name,
+        description: response.data.description,
+        point: typeof response.data.point === 'string' ? Number(response.data.point) : response.data.point,
+        is_active: response.data.is_active,
+      }),
       invalidatesTags: ['Violation'],
     }),
     updateViolation: builder.mutation<Violation, { id: number; data: CreateUpdateViolationRequest }>({
@@ -58,10 +79,17 @@ export const violationApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      transformResponse: (response: SingleViolationApiResponse) => {
-        const data: any = response.data;
-        return { ...data, point: typeof data.point === 'string' ? Number(data.point) : data.point };
-      },
+      transformResponse: (response: SingleViolationApiResponse) => ({
+        id: response.data.id,
+        category_id:
+          typeof response.data.category_id === 'string'
+            ? Number(response.data.category_id)
+            : response.data.category_id,
+        name: response.data.name,
+        description: response.data.description,
+        point: typeof response.data.point === 'string' ? Number(response.data.point) : response.data.point,
+        is_active: response.data.is_active,
+      }),
       invalidatesTags: ['Violation'],
     }),
     deleteViolation: builder.mutation<void, number>({
