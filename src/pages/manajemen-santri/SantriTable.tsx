@@ -126,7 +126,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       },
       {
         accessorKey: 'roomName',
-        header: 'Kamar',
+        header: 'Asrama',
         cell: ({ row }) => (
           <span className={row.original.roomName === 'Belum diatur' ? 'text-muted-foreground' : ''}>
             {row.original.roomName || 'Belum diatur'}
