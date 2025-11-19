@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Eye } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import AsramaForm from './AsramaForm';
 import AssignHostelHeadModal from './AssignHostelHeadModal';
+import AsramaDetailModal from './AsramaDetailModal';
 import AsramaImportDialog from './AsramaImportDialog'; // Import dialog impor
 import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
@@ -54,6 +55,8 @@ const AsramaTable: React.FC = () => {
   const [isAssignHeadOpen, setIsAssignHeadOpen] = useState(false);
   const [selectedHostelId, setSelectedHostelId] = useState<number | null>(null);
   const [selectedHostelName, setSelectedHostelName] = useState<string | undefined>(undefined);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedAsrama, setSelectedAsrama] = useState<Asrama | undefined>(undefined);
 
   const asramas: Asrama[] = useMemo(() => {
     if (hostelsData?.data) {
@@ -191,6 +194,16 @@ const AsramaTable: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
+                onClick={() => {
+                  setSelectedAsrama(asrama);
+                  setIsDetailOpen(true);
+                }}
+              >
+                <Eye className="h-4 w-4 mr-1" /> Detail
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 px-2 text-xs"
                 onClick={() => handleEditData(asrama)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
@@ -286,6 +299,15 @@ const AsramaTable: React.FC = () => {
           setSelectedHostelName(undefined);
           toast.showSuccess("Data kepala asrama diperbarui.");
         }}
+      />
+
+      <AsramaDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => {
+          setIsDetailOpen(false);
+          setSelectedAsrama(undefined);
+        }}
+        asrama={selectedAsrama}
       />
     </>
   );
