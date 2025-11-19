@@ -61,6 +61,7 @@ import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import RekeningDetailPage from './pages/keuangan/RekeningDetailPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
+import LaporanKamtibPage from '@/pages/manajemen-kamtib/LaporanPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -203,6 +204,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
                 <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
                 <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
+                <Route path="/dashboard/manajemen-kamtib/laporan" element={<LaporanKamtibPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />

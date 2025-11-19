@@ -151,6 +151,8 @@ export const smpApi = createApi({
     'ViolationCategory',
     // ADDED: Sanction
     'Sanction',
+    // ADDED: StudentViolation
+    'StudentViolation',
   ],
   endpoints: () => ({}),
 });
