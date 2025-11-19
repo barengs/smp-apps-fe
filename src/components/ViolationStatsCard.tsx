@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3, AlertTriangle, CheckCircle2, Cog, XCircle, Users, LucideIcon } from 'lucide-react';
-import CategoryBarChart from '@/components/CategoryBarChart';
+import CategoryPieChart from '@/components/CategoryPieChart';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 // Update tipe agar cocok dengan data backend (string/number/array)
@@ -140,7 +140,7 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
                 <div className="text-sm text-muted-foreground">Per kategori</div>
               </div>
               {categories.length > 0 ? (
-                <CategoryBarChart data={categories} title="Jumlah" />
+                <CategoryPieChart data={categories} title="Jumlah" />
               ) : (
                 <div className="text-sm text-muted-foreground">Tidak ada data.</div>
               )}
@@ -154,12 +154,10 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
               </div>
               {topViolators.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <Table className="min-w-[520px]">
+                  <Table className="min-w-[420px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-12">No</TableHead>
                         <TableHead>Nama</TableHead>
-                        <TableHead>NIS</TableHead>
                         <TableHead className="text-right">Jumlah</TableHead>
                         <TableHead className="text-right">Persentase</TableHead>
                       </TableRow>
@@ -167,7 +165,6 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
                     <TableBody>
                       {topViolators.map((v, idx) => {
                         const name = [v.first_name, v.last_name].filter(Boolean).join(' ') || 'Tanpa nama';
-                        const nis = v.nis || '-';
                         const count =
                           typeof v.total_violations === 'string'
                             ? Number(v.total_violations)
@@ -175,9 +172,7 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
                         const percent = totalAll ? (count / totalAll) * 100 : 0;
                         return (
                           <TableRow key={String(v.id ?? idx)}>
-                            <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
                             <TableCell className="font-medium">{name}</TableCell>
-                            <TableCell>{nis}</TableCell>
                             <TableCell className="text-right">{formatNumber(count)}</TableCell>
                             <TableCell className="text-right">{percent.toFixed(1)}%</TableCell>
                           </TableRow>
