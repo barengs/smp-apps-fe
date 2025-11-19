@@ -26,9 +26,12 @@ import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import type { Violation } from '@/store/slices/violationApi';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 import * as toast from '@/utils/toast';
+import { Badge } from '@/components/ui/badge';
+import { useGetViolationCategoriesQuery } from '@/store/slices/violationCategoryApi';
 
 const PelanggaranTable: React.FC = () => {
   const { data: violationData, error, isLoading } = useGetViolationsQuery();
+  const { data: categories } = useGetViolationCategoriesQuery();
   const [deleteViolation, { isLoading: isDeleting }] = useDeleteViolationMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +42,12 @@ const PelanggaranTable: React.FC = () => {
   const violationList: Violation[] = useMemo(() => {
     return violationData || [];
   }, [violationData]);
+
+  const categoryMap = useMemo(() => {
+    const map = new Map<number, string>();
+    (categories ?? []).forEach((c) => map.set(c.id, c.name));
+    return map;
+  }, [categories]);
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Violation>(violationList);
 
@@ -92,17 +101,27 @@ const PelanggaranTable: React.FC = () => {
 
   const columns: ColumnDef<Violation>[] = useMemo(
     () => [
+      { accessorKey: 'name', header: 'Nama Pelanggaran' },
       {
-        accessorKey: 'name',
-        header: 'Nama Pelanggaran',
+        id: 'category',
+        header: 'Kategori',
+        cell: ({ row }) => <span>{categoryMap.get(row.original.category_id) ?? '-'}</span>,
       },
       {
-        accessorKey: 'code',
-        header: 'Kode',
+        accessorKey: 'point',
+        header: 'Poin',
+        cell: ({ row }) => <span className="font-medium">{row.original.point}</span>,
       },
+      { accessorKey: 'description', header: 'Deskripsi' },
       {
-        accessorKey: 'description',
-        header: 'Deskripsi',
+        id: 'status',
+        header: 'Status',
+        cell: ({ row }) =>
+          row.original.is_active ? (
+            <Badge variant="success">Aktif</Badge>
+          ) : (
+            <Badge variant="outline">Nonaktif</Badge>
+          ),
       },
       {
         id: 'actions',
@@ -135,7 +154,7 @@ const PelanggaranTable: React.FC = () => {
         },
       },
     ],
-    [isDeleting]
+    [isDeleting, categoryMap]
   );
 
   if (isLoading) return <TableLoadingSkeleton numCols={4} />;

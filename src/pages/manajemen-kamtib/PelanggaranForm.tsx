@@ -13,16 +13,27 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import * as toast from '@/utils/toast';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import type { Violation, CreateUpdateViolationRequest } from '@/store/slices/violationApi';
 import { useCreateViolationMutation, useUpdateViolationMutation } from '@/store/slices/violationApi';
+import { useGetViolationCategoriesQuery } from '@/store/slices/violationCategoryApi';
 
 const formSchema = z.object({
+  category_id: z.coerce.number().int().min(0, { message: 'Kategori tidak valid.' }),
   name: z.string().min(2, { message: 'Nama pelanggaran harus minimal 2 karakter.' }),
-  code: z.string().min(1, { message: 'Kode harus diisi.' }),
   description: z.string().optional(),
+  point: z.coerce.number().int().min(0, { message: 'Poin minimal 0.' }),
+  is_active: z.boolean(),
 });
 
 interface PelanggaranFormProps {
@@ -34,21 +45,26 @@ interface PelanggaranFormProps {
 const PelanggaranForm: React.FC<PelanggaranFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createViolation, { isLoading: isCreating }] = useCreateViolationMutation();
   const [updateViolation, { isLoading: isUpdating }] = useUpdateViolationMutation();
+  const { data: categories } = useGetViolationCategoriesQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
+      category_id: 0,
       name: '',
-      code: '',
       description: '',
+      point: 0,
+      is_active: true,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateViolationRequest = {
+      category_id: values.category_id,
       name: values.name,
-      code: values.code,
       description: values.description || '',
+      point: values.point,
+      is_active: values.is_active,
     };
 
     try {
@@ -85,6 +101,33 @@ const PelanggaranForm: React.FC<PelanggaranFormProps> = ({ initialData, onSucces
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
+          name="category_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kategori</FormLabel>
+              <FormControl>
+                <Select
+                  value={String(field.value ?? '')}
+                  onValueChange={(val) => field.onChange(Number(val))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(categories ?? []).map((cat) => (
+                      <SelectItem key={cat.id} value={String(cat.id)}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -96,19 +139,33 @@ const PelanggaranForm: React.FC<PelanggaranFormProps> = ({ initialData, onSucces
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kode</FormLabel>
-              <FormControl>
-                <Input placeholder="Contoh: VLT-01" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="point"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Poin</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} placeholder="Contoh: 5" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="is_active"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between space-y-0">
+                <FormLabel>Aktif</FormLabel>
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="description"
