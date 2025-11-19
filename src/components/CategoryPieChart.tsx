@@ -42,8 +42,8 @@ const CategoryPieChart: React.FC<Props> = ({ data, title }) => {
   };
 
   return (
-    <div className="space-y-2">
-      <ChartContainer config={config} className="h-64">
+    <div className="w-full flex items-center justify-center">
+      <ChartContainer config={config} className="h-64 w-full max-w-[420px] flex items-center justify-center">
         <PieChart>
           <Pie
             data={chartData}
