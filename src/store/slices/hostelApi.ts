@@ -56,7 +56,6 @@ export interface ImportHostelResponse {
 
 export interface AssignHostelHeadRequest {
   staff_id: number;
-  position_id: number;
   academic_year_id: number;
   start_date: string;
   end_date?: string;

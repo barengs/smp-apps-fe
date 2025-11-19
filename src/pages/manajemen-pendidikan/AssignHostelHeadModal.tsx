@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { showError, showSuccess, showLoading, dismissToast } from "@/utils/toast";
 import { useGetEmployeesQuery } from "@/store/slices/employeeApi";
-import { useGetPositionsQuery } from "@/store/slices/positionApi";
 import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from "@/store/slices/tahunAjaranApi";
 import { useAssignHostelHeadMutation } from "@/store/slices/hostelApi";
 
@@ -23,12 +22,10 @@ interface AssignHostelHeadModalProps {
 
 const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, onClose, hostelId, hostelName, onSuccess }) => {
   const { data: staffList } = useGetEmployeesQuery();
-  const { data: positions } = useGetPositionsQuery();
   const { data: activeYear } = useGetActiveTahunAjaranQuery();
   const { data: years } = useGetTahunAjaranQuery();
 
   const [staffId, setStaffId] = React.useState<string>("");
-  const [positionId, setPositionId] = React.useState<string>("");
   const [academicYearId, setAcademicYearId] = React.useState<string>("");
   const [startDate, setStartDate] = React.useState<string>("");
   const [endDate, setEndDate] = React.useState<string>("");
@@ -52,10 +49,6 @@ const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, o
     }));
   }, [staffList]);
 
-  const positionOptions = React.useMemo(() => {
-    return Array.isArray(positions) ? positions : [];
-  }, [positions]);
-
   const yearOptions = React.useMemo(() => {
     return Array.isArray(years) ? years : [];
   }, [years]);
@@ -67,15 +60,14 @@ const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, o
     }
     const payload = {
       staff_id: Number(staffId),
-      position_id: Number(positionId),
       academic_year_id: Number(academicYearId),
       start_date: startDate,
       end_date: endDate || undefined,
       notes: notes || undefined,
     };
 
-    if (!payload.staff_id || !payload.position_id || !payload.academic_year_id || !payload.start_date) {
-      showError("Silakan lengkapi staf, posisi, tahun ajaran, dan tanggal mulai.");
+    if (!payload.staff_id || !payload.academic_year_id || !payload.start_date) {
+      showError("Silakan lengkapi staf, tahun ajaran, dan tanggal mulai.");
       return;
     }
 
@@ -120,20 +112,8 @@ const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, o
             </Select>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="position" className="text-right">Posisi</Label>
-            <Select value={positionId} onValueChange={setPositionId}>
-              <SelectTrigger id="position" className="col-span-3">
-                <SelectValue placeholder="Pilih posisi" />
-              </SelectTrigger>
-              <SelectContent>
-                {positionOptions.map((p) => (
-                  <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* REMOVED: Field Posisi karena endpoint tidak lagi membutuhkan position_id */}
+          
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="year" className="text-right">Tahun Ajaran</Label>
             <Select value={academicYearId} onValueChange={setAcademicYearId}>
