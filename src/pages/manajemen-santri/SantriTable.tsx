@@ -44,7 +44,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
         roomName: student.hostel?.name ?? 'Belum diatur',
-        assignedRoomName: (student as any)?.room?.name ?? '',
+        assignedRoomName: (student as any)?.current_room?.room_name ?? '',
         period: student.period,
         gender:
           student.gender === 'L'

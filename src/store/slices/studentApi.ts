@@ -32,6 +32,11 @@ export interface Student {
   program_id?: number;
   user_id?: number;
   deleted_at?: string;
+
+  // Tambahan: informasi kamar saat ini
+  current_room?: {
+    room_name?: string;
+  } | null;
 }
 
 export interface CreateUpdateStudentRequest {
