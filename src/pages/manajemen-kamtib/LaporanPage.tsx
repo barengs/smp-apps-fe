@@ -2,20 +2,20 @@ import React from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { DatePicker } from '@/components/ui/datepicker';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import ActionButton from '@/components/ActionButton';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { selectCurrentUser } from '@/store/slices/authSlice';
-import { Combobox } from '@/components/ui/combobox';
+import { DataTable } from '@/components/DataTable';
+import { ColumnDef } from '@tanstack/react-table';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
 import { useGetViolationsQuery } from '@/store/slices/violationApi';
-import { useGetTahunAjaranQuery, useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
-import { useCreateStudentViolationReportMutation, useGetStudentViolationReportQuery } from '@/store/slices/studentViolationApi';
+import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
+import {
+  StudentViolation,
+  useGetStudentViolationsQuery,
+  useDeleteStudentViolationMutation,
+  useGetStudentViolationReportQuery,
+} from '@/store/slices/studentViolationApi';
+import StudentViolationFormDialog from '@/components/StudentViolationFormDialog';
+import { Pencil, Trash } from 'lucide-react';
 import * as toast from '@/utils/toast';
 
 const LaporanPage: React.FC = () => {
@@ -24,223 +24,168 @@ const LaporanPage: React.FC = () => {
     { label: 'Laporan' },
   ];
 
-  // State form
-  const [studentId, setStudentId] = React.useState<number | undefined>(undefined);
-  const [violationId, setViolationId] = React.useState<number | undefined>(undefined);
-  const [academicYearId, setAcademicYearId] = React.useState<number | undefined>(undefined);
-  const [violationDate, setViolationDate] = React.useState<Date | undefined>(new Date());
-  const [violationTime, setViolationTime] = React.useState<string>(''); // HH:mm
-  const [location, setLocation] = React.useState<string>('');
-  const [description, setDescription] = React.useState<string>('');
-  const [notes, setNotes] = React.useState<string>('');
-
-  const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
-  const reportedBy = Number(currentUser?.id ?? 0);
-
-  // Load dropdown data
-  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 100 });
+  // Fetch data untuk mapping tampilan
+  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 200 });
   const { data: violations = [] } = useGetViolationsQuery();
-  const { data: academicYears = [] } = useGetTahunAjaranQuery();
-  const { data: activeYear } = useGetActiveTahunAjaranQuery();
+  useGetTahunAjaranQuery(); // prefetch
 
-  React.useEffect(() => {
-    if (activeYear?.id && !academicYearId) {
-      setAcademicYearId(activeYear.id);
+  const { data: reports = [], isFetching } = useGetStudentViolationsQuery();
+  const [deleteReport, { isLoading: isDeleting }] = useDeleteStudentViolationMutation();
+
+  const studentMap = React.useMemo(() => {
+    const m = new Map<number, string>();
+    for (const s of students) {
+      m.set(s.id, `${s.nis} — ${s.first_name}${s.last_name ? ' ' + s.last_name : ''}`);
     }
-  }, [activeYear, academicYearId]);
+    return m;
+  }, [students]);
 
-  // Report per student
-  const { data: studentReport, isFetching: isFetchingReport } = useGetStudentViolationReportQuery(studentId as number, {
-    skip: !studentId,
-  });
-
-  const [createReport, { isLoading: isCreating }] = useCreateStudentViolationReportMutation();
-
-  const studentOptions = students.map((s) => ({
-    value: s.id,
-    label: `${s.nis} — ${s.first_name}${s.last_name ? ' ' + s.last_name : ''}`,
-  }));
-
-  const violationOptions = violations.map((v) => ({
-    value: v.id,
-    label: `${v.name} (${v.point} poin)`,
-  }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!studentId || !violationId || !academicYearId || !violationDate || !violationTime) {
-      toast.showError('Lengkapi semua field wajib.');
-      return;
+  const violationMap = React.useMemo(() => {
+    const m = new Map<number, string>();
+    for (const v of violations) {
+      m.set(v.id, `${v.name} (${v.point} poin)`);
     }
+    return m;
+  }, [violations]);
 
-    const payload = {
-      student_id: studentId,
-      violation_id: violationId,
-      academic_year_id: academicYearId,
-      violation_date: violationDate.toISOString(),
-      violation_time: violationTime,
-      location: location || undefined,
-      description: description || undefined,
-      reported_by: reportedBy,
-      notes: notes || undefined,
-    };
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editingData, setEditingData] = React.useState<StudentViolation | null>(null);
 
-    const loadingId = toast.showLoading('Menyimpan laporan pelanggaran...');
+  const handleAdd = () => {
+    setEditingData(null);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (row: StudentViolation) => {
+    setEditingData(row);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (row: StudentViolation) => {
+    if (!window.confirm('Hapus laporan ini?')) return;
+    const loadingId = toast.showLoading('Menghapus laporan...');
     try {
-      await createReport(payload).unwrap();
-      toast.showSuccess('Laporan pelanggaran berhasil disimpan!');
-      // Refresh report
-      if (studentId) {
-        // Trigger refetch by resetting state (or rely on cache invalidation)
-        // Using a small timeout to ensure backend update completes
-        setTimeout(() => {
-          // no-op; RTK Query invalidation triggers refetch automatically
-        }, 300);
-      }
-      // Reset sebagian field (opsional)
-      setViolationId(undefined);
-      setViolationTime('');
-      setLocation('');
-      setDescription('');
-      setNotes('');
+      await deleteReport(row.id).unwrap();
+      toast.showSuccess('Laporan berhasil dihapus!');
     } finally {
       toast.dismissToast(loadingId);
     }
   };
 
+  const columns: ColumnDef<StudentViolation>[] = [
+    {
+      header: 'Santri',
+      accessorKey: 'student_id',
+      cell: ({ row }) => <span>{studentMap.get(row.original.student_id) || row.original.student_id}</span>,
+    },
+    {
+      header: 'Pelanggaran',
+      accessorKey: 'violation_id',
+      cell: ({ row }) => <span>{violationMap.get(row.original.violation_id) || row.original.violation_id}</span>,
+    },
+    {
+      header: 'Tanggal',
+      accessorKey: 'violation_date',
+      cell: ({ row }) => {
+        const d = row.original.violation_date ? new Date(row.original.violation_date) : null;
+        return <span>{d ? d.toLocaleString('id-ID') : '-'}</span>;
+      },
+    },
+    {
+      header: 'Waktu',
+      accessorKey: 'violation_time',
+    },
+    {
+      header: 'Lokasi',
+      accessorKey: 'location',
+    },
+    {
+      header: 'Deskripsi',
+      accessorKey: 'description',
+    },
+    {
+      header: 'Catatan',
+      accessorKey: 'notes',
+    },
+    {
+      id: 'aksi',
+      header: 'Aksi',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => handleEdit(row.original)}>
+            <Pencil className="h-4 w-4 mr-2" /> Edit
+          </Button>
+          <Button variant="outline-danger" size="sm" onClick={() => handleDelete(row.original)} disabled={isDeleting}>
+            <Trash className="h-4 w-4 mr-2" /> Hapus
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const filterableColumns = {
+    student_id: {
+      type: 'select' as const,
+      placeholder: 'Filter Santri',
+      options: students.map((s) => ({ label: `${s.nis} — ${s.first_name}`, value: String(s.id) })),
+    },
+    violation_id: {
+      type: 'select' as const,
+      placeholder: 'Filter Pelanggaran',
+      options: violations.map((v) => ({ label: v.name, value: String(v.id) })),
+    },
+    location: { type: 'input' as const, placeholder: 'Filter Lokasi' },
+  };
+
+  // Ringkasan laporan per santri
+  const [selectedStudentId, setSelectedStudentId] = React.useState<number | undefined>(undefined);
+  const { data: studentReport, isFetching: isFetchingReport } = useGetStudentViolationReportQuery(selectedStudentId as number, {
+    skip: !selectedStudentId,
+  });
+
   return (
     <DashboardLayout title="Laporan Pelanggaran" role="administrasi">
       <div className="container mx-auto pt-2 pb-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Form Pencatatan */}
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Tabel Laporan (2/3 lebar layar) */}
+          <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Catat Pelanggaran</CardTitle>
-              <CardDescription>Isi form di bawah untuk mencatat pelanggaran santri.</CardDescription>
+              <CardTitle>Data Laporan Pelanggaran</CardTitle>
+              <CardDescription>Daftar laporan pelanggaran santri dengan fitur CRUD.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Santri</label>
-                    <Combobox
-                      options={studentOptions}
-                      value={studentId}
-                      onChange={(val) => setStudentId(Number(val))}
-                      placeholder="Pilih santri..."
-                      searchPlaceholder="Cari santri..."
-                      notFoundMessage="Santri tidak ditemukan."
-                      isLoading={false}
+              <DataTable<StudentViolation, any>
+                columns={columns}
+                data={reports}
+                isLoading={isFetching}
+                onAddData={handleAdd}
+                addButtonLabel="Tambah Data"
+                filterableColumns={filterableColumns}
+                leftActions={
+                  <div className="w-64">
+                    <SelectStudentForSummary
+                      students={students}
+                      value={selectedStudentId}
+                      onChange={setSelectedStudentId}
                     />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Pelanggaran</label>
-                    <Combobox
-                      options={violationOptions}
-                      value={violationId}
-                      onChange={(val) => setViolationId(Number(val))}
-                      placeholder="Pilih pelanggaran..."
-                      searchPlaceholder="Cari pelanggaran..."
-                      notFoundMessage="Pelanggaran tidak ditemukan."
-                      isLoading={false}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Tahun Ajaran</label>
-                    <Select
-                      value={academicYearId ? String(academicYearId) : undefined}
-                      onValueChange={(val) => setAcademicYearId(Number(val))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih tahun ajaran" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {academicYears.map((ay) => (
-                          <SelectItem key={ay.id} value={String(ay.id)}>
-                            {ay.year} — {ay.type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Tanggal Pelanggaran</label>
-                    <DatePicker
-                      value={violationDate}
-                      onValueChange={setViolationDate}
-                      placeholder="Pilih tanggal"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Waktu Pelanggaran</label>
-                    <Input
-                      type="time"
-                      value={violationTime}
-                      onChange={(e) => setViolationTime(e.target.value)}
-                      placeholder="HH:MM"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Lokasi</label>
-                    <Input
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      placeholder="Misal: Kelas 7A"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Deskripsi</label>
-                  <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Tuliskan detail pelanggaran..."
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Catatan</label>
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Catatan tambahan (opsional)"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <div className="text-sm text-muted-foreground">
-                    Dilaporkan oleh: <span className="font-medium">{currentUser?.name || 'User'}</span> (ID: {reportedBy || 0})
-                  </div>
-                  <ActionButton
-                    type="submit"
-                    variant="primary"
-                    isLoading={isCreating}
-                  >
-                    Simpan Laporan
-                  </ActionButton>
-                </div>
-              </form>
+                }
+              />
             </CardContent>
           </Card>
 
-          {/* Ringkasan Laporan Per Santri */}
+          {/* Ringkasan Laporan Per Santri (1/3 lebar layar) */}
           <Card>
             <CardHeader>
               <CardTitle>Ringkasan Laporan</CardTitle>
               <CardDescription>
-                Pilih santri untuk melihat ringkasan pelanggaran dan total poin.
+                Pilih santri di kiri (Filter “Santri”) untuk melihat ringkasan pelanggaran dan total poin.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {!studentId ? (
+              {!selectedStudentId ? (
                 <div className="text-sm text-muted-foreground">Silakan pilih santri terlebih dahulu.</div>
               ) : isFetchingReport ? (
                 <div className="text-sm">Memuat laporan...</div>
@@ -278,7 +223,44 @@ const LaporanPage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Dialog Form */}
+      <StudentViolationFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initialData={editingData}
+        onSuccess={() => {
+          // RTK Query invalidation akan otomatis refresh tabel
+        }}
+      />
     </DashboardLayout>
+  );
+};
+
+const SelectStudentForSummary: React.FC<{
+  students: { id: number; nis: string; first_name: string; last_name?: string | null }[];
+  value?: number;
+  onChange: (id?: number) => void;
+}> = ({ students, value, onChange }) => {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">Santri:</span>
+      <select
+        className="border rounded-md h-8 px-2 text-sm bg-background"
+        value={value ?? ''}
+        onChange={(e) => {
+          const v = e.target.value;
+          onChange(v ? Number(v) : undefined);
+        }}
+      >
+        <option value="">Semua</option>
+        {students.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.nis} — {s.first_name}{s.last_name ? ' ' + s.last_name : ''}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
 
