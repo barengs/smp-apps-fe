@@ -125,11 +125,6 @@ const LaporanPage: React.FC = () => {
   ];
 
   const filterableColumns = {
-    student_id: {
-      type: 'select' as const,
-      placeholder: 'Filter Santri',
-      options: students.map((s) => ({ label: `${s.nis} — ${s.first_name}`, value: String(s.id) })),
-    },
     violation_id: {
       type: 'select' as const,
       placeholder: 'Filter Pelanggaran',
@@ -181,7 +176,7 @@ const LaporanPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Ringkasan Laporan</CardTitle>
               <CardDescription>
-                Pilih santri di kiri (Filter "Santri") untuk melihat ringkasan pelanggaran dan total poin.
+                Pilih santri di kiri untuk melihat ringkasan pelanggaran dan total poin.
               </CardDescription>
             </CardHeader>
             <CardContent>
