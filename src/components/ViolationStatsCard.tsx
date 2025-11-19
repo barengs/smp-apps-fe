@@ -7,16 +7,17 @@ import TopViolatorsChart from '@/components/TopViolatorsChart';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
+// Update tipe agar cocok dengan data backend (string/number/array)
 type ViolationStats = {
-  total_violations: string;
+  total_violations: string | number;
   by_status?: {
-    pending?: string;
-    verified?: string;
-    processed?: string;
-    cancelled?: string;
+    pending?: string | number;
+    verified?: string | number;
+    processed?: string | number;
+    cancelled?: string | number;
   };
-  by_category?: string;
-  top_violators?: string;
+  by_category?: string | Array<{ category?: string; name?: string; total?: string | number }>;
+  top_violators?: string | Array<{ id?: string | number; first_name?: string; last_name?: string | null; nis?: string; total_violations?: string | number }>;
 };
 
 type Props = {
@@ -30,7 +31,7 @@ const safeParse = (value?: string) => {
   try {
     return JSON.parse(value);
   } catch {
-    // Fallback: coba ganti kutip tunggal ke kutip ganda jika backend mengirimkan JSON dengan single quotes
+    // Fallback jika backend kadang memakai single quotes
     try {
       const normalized = value.replace(/'/g, '"');
       return JSON.parse(normalized);
@@ -57,7 +58,7 @@ const StatItem = ({
   colorClass,
 }: {
   label: string;
-  value?: string;
+  value?: string | number;
   icon: LucideIcon;
   colorClass: string;
 }) => (
@@ -66,14 +67,16 @@ const StatItem = ({
       <Icon className={`h-4 w-4 ${colorClass}`} />
       <span className="text-sm text-muted-foreground">{label}</span>
     </div>
-    <span className="font-semibold">{value ?? '-'}</span>
+    <span className="font-semibold">{formatNumber(value)}</span>
   </div>
 );
 
 const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
-  // Olah data kategori
+  // Olah data kategori: dukung array langsung atau string JSON
   const categories: CategoryItem[] = React.useMemo(() => {
-    const parsed = safeParse(stats?.by_category);
+    const src = stats?.by_category;
+    if (Array.isArray(src)) return src as CategoryItem[];
+    const parsed = typeof src === 'string' ? safeParse(src) : null;
     if (Array.isArray(parsed)) return parsed as CategoryItem[];
     if (parsed && typeof parsed === 'object') {
       return Object.entries(parsed as Record<string, string | number>).map(([key, val]) => ({
@@ -84,9 +87,11 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
     return [];
   }, [stats?.by_category]);
 
-  // Olah data top violators
+  // Olah data top violators: dukung array langsung atau string JSON
   const topViolators: TopViolator[] = React.useMemo(() => {
-    const parsed = safeParse(stats?.top_violators);
+    const src = stats?.top_violators;
+    if (Array.isArray(src)) return (src as TopViolator[]).slice(0, 10);
+    const parsed = typeof src === 'string' ? safeParse(src) : null;
     if (Array.isArray(parsed)) return (parsed as TopViolator[]).slice(0, 10);
     return [];
   }, [stats?.top_violators]);

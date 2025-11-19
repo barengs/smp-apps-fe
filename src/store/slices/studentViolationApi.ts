@@ -78,15 +78,15 @@ export interface StudentViolationReportData {
 }
 
 export interface StudentViolationStatistics {
-  total_violations: string;
+  total_violations: string | number;
   by_status: {
-    pending: string;
-    verified: string;
-    processed: string;
-    cancelled: string;
+    pending: string | number;
+    verified: string | number;
+    processed: string | number;
+    cancelled: string | number;
   };
-  by_category?: string;
-  top_violators?: string;
+  by_category?: string | Array<{ category?: string; name?: string; total?: string | number }>;
+  top_violators?: string | Array<{ id?: string | number; first_name?: string; last_name?: string | null; nis?: string; total_violations?: string | number }>;
 }
 
 export interface StudentViolationReportResponse {
