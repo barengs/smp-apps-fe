@@ -147,8 +147,8 @@ const AsramaTable: React.FC = () => {
           if (h) return h;
           return (
             <Button
-              variant="link"
-              className="p-0 h-auto text-primary underline-offset-4 hover:underline"
+              variant="secondary"
+              className="h-6 px-2 text-xs"
               onClick={() => {
                 setSelectedHostelId(row.original.id);
                 setSelectedHostelName(row.original.name);
