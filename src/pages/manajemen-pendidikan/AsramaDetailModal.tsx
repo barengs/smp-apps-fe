@@ -19,7 +19,7 @@ type AsramaDetailProps = {
 const AsramaDetailModal: React.FC<AsramaDetailProps> = ({ isOpen, onClose, asrama }) => {
   const programName = asrama?.program?.name ?? '-';
   const headName = asrama?.headName ?? undefined;
-  const capacity = typeof asrama?.capacity === 'number' ? asrama?.capacity : '-';
+  const capacity = asrama?.capacity ?? '-';
   const description = asrama?.description || '-';
 
   return (
