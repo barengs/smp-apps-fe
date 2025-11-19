@@ -121,14 +121,6 @@ const LaporanPage: React.FC = () => {
       accessorKey: 'location',
     },
     {
-      header: 'Deskripsi',
-      accessorKey: 'description',
-    },
-    {
-      header: 'Catatan',
-      accessorKey: 'notes',
-    },
-    {
       id: 'aksi',
       header: 'Aksi',
       cell: ({ row }) => (
