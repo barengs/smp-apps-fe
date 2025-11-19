@@ -79,7 +79,16 @@ const RoomAssignDialog: React.FC<Props> = ({ studentId, triggerLabel = "Tentukan
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline-primary" size="sm">{triggerLabel}</Button>
+        <Button
+          variant="outline-primary"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          {triggerLabel}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
