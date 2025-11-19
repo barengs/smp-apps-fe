@@ -130,7 +130,6 @@ const LaporanPage: React.FC = () => {
       placeholder: 'Filter Pelanggaran',
       options: violations.map((v) => ({ label: v.name, value: String(v.id) })),
     },
-    location: { type: 'input' as const, placeholder: 'Filter Lokasi' },
   };
 
   // Ringkasan laporan per santri
@@ -158,15 +157,6 @@ const LaporanPage: React.FC = () => {
                 onAddData={handleAdd}
                 addButtonLabel="Tambah Data"
                 filterableColumns={filterableColumns}
-                leftActions={
-                  <div className="w-64">
-                    <SelectStudentForSummary
-                      students={students}
-                      value={selectedStudentId}
-                      onChange={setSelectedStudentId}
-                    />
-                  </div>
-                }
               />
             </CardContent>
           </Card>
@@ -176,10 +166,17 @@ const LaporanPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Ringkasan Laporan</CardTitle>
               <CardDescription>
-                Pilih santri di kiri untuk melihat ringkasan pelanggaran dan total poin.
+                Pilih santri di bawah untuk melihat ringkasan pelanggaran dan total poin.
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+                <SelectStudentForSummary
+                  students={students}
+                  value={selectedStudentId}
+                  onChange={setSelectedStudentId}
+                />
+              </div>
               {!selectedStudentId ? (
                 <div className="text-sm text-muted-foreground">Silakan pilih santri terlebih dahulu.</div>
               ) : isFetchingReport ? (
