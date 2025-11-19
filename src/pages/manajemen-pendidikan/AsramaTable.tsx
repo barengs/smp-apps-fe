@@ -152,8 +152,8 @@ const AsramaTable: React.FC = () => {
       {
         id: 'program.name',
         header: 'Program',
-        accessorFn: (row) => row.program?.name ?? '-', // Gunakan accessorFn agar filter exact bekerja konsisten
-        cell: ({ row }) => row.original.program?.name || '-', // Tampilkan nama program atau '-' jika tidak ada
+        accessorFn: (row) => row.program?.name ?? '-',
+        cell: ({ row }) => row.original.program?.name || '-',
       },
       {
         accessorKey: 'headName',
@@ -177,12 +177,8 @@ const AsramaTable: React.FC = () => {
         },
       },
       {
-        accessorKey: 'capacity', // Mengakses kapasitas
+        accessorKey: 'capacity',
         header: 'Kapasitas',
-      },
-      {
-        accessorKey: 'description',
-        header: 'Deskripsi',
       },
       {
         id: 'actions',
