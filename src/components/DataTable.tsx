@@ -232,9 +232,9 @@ export function DataTable<TData, TValue>({
 
   // Hitung total halaman dari hasil filter agar navigasi akurat
   const computedTotalPageCount = manualPaginationEnabled
-    ? Math.ceil(allRows.length / Math.max(currentPageSize, 1))
+    ? pageCount ?? 1
     : table.getPageCount();
-  const shownTotalPageCount = Math.max((computedTotalPageCount as number) || 0, 1);
+  const shownTotalPageCount = Math.max((computedTotalPageCount as number) || 1, 1);
 
   // Handle pagination button clicks — panggil parent hanya saat manual mode
   const handleFirstPage = () => {
@@ -272,10 +272,7 @@ export function DataTable<TData, TValue>({
 
   // Baris yang ditampilkan: lakukan slicing manual setelah filter
   const displayedRows = manualPaginationEnabled
-    ? allRows.slice(
-        currentPageIndex * currentPageSize,
-        currentPageIndex * currentPageSize + currentPageSize
-      )
+    ? table.getRowModel().rows
     : table.getRowModel().rows;
 
   return (

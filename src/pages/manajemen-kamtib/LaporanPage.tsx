@@ -13,6 +13,7 @@ import {
   useGetStudentViolationsQuery,
   useDeleteStudentViolationMutation,
 } from '@/store/slices/studentViolationApi';
+import { PaginationState } from '@tanstack/react-table';
 import StudentViolationFormDialog from '@/components/StudentViolationFormDialog';
 import StudentViolationDetailModal from '@/components/StudentViolationDetailModal';
 import { Pencil, Trash } from 'lucide-react';
@@ -29,7 +30,18 @@ const LaporanPage: React.FC = () => {
   const { data: violations = [] } = useGetViolationsQuery();
   useGetTahunAjaranQuery(); // prefetch
 
-  const { data: reports = [], isFetching } = useGetStudentViolationsQuery();
+  // Server-side pagination state (0-based pageIndex)
+  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const {
+    data: reportsResp,
+    isFetching,
+  } = useGetStudentViolationsQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+  });
+  const reports = reportsResp?.data ?? [];
+  const totalPages = reportsResp?.last_page ?? 1;
+
   const [deleteReport, { isLoading: isDeleting }] = useDeleteStudentViolationMutation();
 
   const studentMap = React.useMemo(() => {
@@ -176,6 +188,10 @@ const LaporanPage: React.FC = () => {
                 addButtonLabel="Tambah Data"
                 filterableColumns={filterableColumns}
                 onRowClick={handleRowClick}
+                // Aktifkan server-side pagination
+                pageCount={totalPages}
+                pagination={pagination}
+                onPaginationChange={setPagination}
               />
             </CardContent>
           </Card>

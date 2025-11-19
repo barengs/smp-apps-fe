@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginationParams, PaginatedResponse } from '@/types/master-data';
 
 export interface CreateStudentViolationReportRequest {
   student_id: number;
@@ -25,6 +26,43 @@ export interface StudentViolation {
   notes?: string | null;
   created_at?: string;
   updated_at?: string;
+  deleted_at?: string | null;
+  status?: string;
+  // relasi dari backend
+  student?: {
+    id: number;
+    first_name: string;
+    last_name?: string | null;
+    nis: string;
+  };
+  violation?: {
+    id: number;
+    category_id: number | string;
+    name: string;
+    description: string;
+    point: number | string;
+    is_active?: boolean;
+    category?: unknown;
+  };
+  academic_year?: {
+    id: number;
+    year: string;
+    type?: string;
+    periode?: string;
+    start_date?: string;
+    end_date?: string;
+    active?: boolean;
+    description?: string | null;
+    deleted_at?: string | null;
+    created_at?: string;
+    updated_at?: string;
+  };
+  reporter?: {
+    id: number;
+    first_name: string;
+    last_name?: string | null;
+  };
+  sanctions?: unknown[];
 }
 
 export interface StudentViolationSummary {
@@ -61,18 +99,102 @@ export const studentViolationApi = smpApi.injectEndpoints({
       providesTags: (result, _error, studentId) => [{ type: 'StudentViolation', id: studentId }],
     }),
 
-    // NEW: List semua laporan
-    getStudentViolations: builder.query<StudentViolation[], void>({
-      query: () => 'main/student-violation',
-      transformResponse: (response: any): StudentViolation[] => {
-        if (Array.isArray(response?.data)) return response.data as StudentViolation[];
-        if (Array.isArray(response?.data?.data)) return response.data.data as StudentViolation[];
-        return [];
+    // List laporan dengan pagination dari backend
+    getStudentViolations: builder.query<PaginatedResponse<StudentViolation>, PaginationParams>({
+      query: (params = {}) => {
+        const qp = new URLSearchParams();
+        if (params.page) qp.append('page', String(params.page));
+        if (params.per_page) qp.append('per_page', String(params.per_page));
+        if (params.search) qp.append('search', params.search);
+        if (params.sort_by) qp.append('sort_by', params.sort_by);
+        if (params.sort_order) qp.append('sort_order', params.sort_order);
+        return `main/student-violation?${qp.toString()}`;
+      },
+      transformResponse: (response: any): PaginatedResponse<StudentViolation> => {
+        const paginated = response?.data;
+        const items: StudentViolation[] = Array.isArray(paginated?.data)
+          ? paginated.data.map((item: any): StudentViolation => ({
+              id: typeof item.id === 'string' ? Number(item.id) : item.id,
+              student_id:
+                typeof item.student_id === 'string' ? Number(item.student_id) : item.student_id,
+              violation_id:
+                typeof item.violation_id === 'string' ? Number(item.violation_id) : item.violation_id,
+              academic_year_id:
+                typeof item.academic_year_id === 'string' ? Number(item.academic_year_id) : item.academic_year_id,
+              violation_date: item.violation_date,
+              violation_time: item.violation_time,
+              location: item.location ?? null,
+              description: item.description ?? null,
+              reported_by:
+                typeof item.reported_by === 'string' ? Number(item.reported_by) : item.reported_by,
+              notes: item.notes ?? null,
+              created_at: item.created_at,
+              updated_at: item.updated_at,
+              deleted_at: item.deleted_at ?? null,
+              status: item.status,
+              student: item.student
+                ? {
+                    id: typeof item.student.id === 'string' ? Number(item.student.id) : item.student.id,
+                    first_name: item.student.first_name,
+                    last_name: item.student.last_name ?? null,
+                    nis: item.student.nis,
+                  }
+                : undefined,
+              violation: item.violation
+                ? {
+                    id: typeof item.violation.id === 'string' ? Number(item.violation.id) : item.violation.id,
+                    category_id:
+                      typeof item.violation.category_id === 'string'
+                        ? Number(item.violation.category_id)
+                        : item.violation.category_id,
+                    name: item.violation.name,
+                    description: item.violation.description,
+                    point:
+                      typeof item.violation.point === 'string'
+                        ? Number(item.violation.point)
+                        : item.violation.point,
+                    is_active: item.violation.is_active,
+                    category: item.violation.category,
+                  }
+                : undefined,
+              academic_year: item.academic_year
+                ? {
+                    id:
+                      typeof item.academic_year.id === 'string'
+                        ? Number(item.academic_year.id)
+                        : item.academic_year.id,
+                    year: item.academic_year.year,
+                    type: item.academic_year.type,
+                    periode: item.academic_year.periode,
+                    start_date: item.academic_year.start_date,
+                    end_date: item.academic_year.end_date,
+                    active: item.academic_year.active,
+                    description: item.academic_year.description ?? null,
+                    deleted_at: item.academic_year.deleted_at ?? null,
+                    created_at: item.academic_year.created_at,
+                    updated_at: item.academic_year.updated_at,
+                  }
+                : undefined,
+              reporter: item.reporter
+                ? {
+                    id: typeof item.reporter.id === 'string' ? Number(item.reporter.id) : item.reporter.id,
+                    first_name: item.reporter.first_name,
+                    last_name: item.reporter.last_name ?? null,
+                  }
+                : undefined,
+              sanctions: Array.isArray(item.sanctions) ? item.sanctions : [],
+            }))
+          : [];
+
+        return {
+          ...paginated,
+          data: items,
+        } as PaginatedResponse<StudentViolation>;
       },
       providesTags: (result) =>
-        result && Array.isArray(result)
+        result && Array.isArray(result.data)
           ? [
-              ...result.map(({ id }) => ({ type: 'StudentViolation' as const, id })),
+              ...result.data.map(({ id }) => ({ type: 'StudentViolation' as const, id })),
               { type: 'StudentViolation', id: 'LIST' },
             ]
           : [{ type: 'StudentViolation', id: 'LIST' }],
