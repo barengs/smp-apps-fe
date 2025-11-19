@@ -25,6 +25,7 @@ import AsramaForm from './AsramaForm';
 import AssignHostelHeadModal from './AssignHostelHeadModal';
 import AsramaImportDialog from './AsramaImportDialog'; // Import dialog impor
 import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
+import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
@@ -75,6 +76,17 @@ const AsramaTable: React.FC = () => {
     }
     return [];
   }, [hostelsData]);
+
+  // Ambil daftar program untuk opsi filter
+  const { data: programsResp } = useGetProgramsQuery({ per_page: 1000 });
+  const programFilterOptions = useMemo(
+    () =>
+      (programsResp?.data ?? []).map((p: any) => ({
+        label: p.name,
+        value: p.name,
+      })),
+    [programsResp]
+  );
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Asrama>(asramas);
 
@@ -135,8 +147,9 @@ const AsramaTable: React.FC = () => {
         header: 'Nama Asrama',
       },
       {
-        accessorKey: 'program.name', // Mengakses nama program
+        id: 'program.name',
         header: 'Program',
+        accessorFn: (row) => row.program?.name ?? '-', // Gunakan accessorFn agar filter exact bekerja konsisten
         cell: ({ row }) => row.original.program?.name || '-', // Tampilkan nama program atau '-' jika tidak ada
       },
       {
@@ -216,6 +229,13 @@ const AsramaTable: React.FC = () => {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        filterableColumns={{
+          'program.name': {
+            type: 'select',
+            placeholder: 'Filter Program',
+            options: programFilterOptions,
+          },
+        }}
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
