@@ -77,6 +77,18 @@ export interface StudentViolationReportData {
   summary: StudentViolationSummary;
 }
 
+export interface StudentViolationStatistics {
+  total_violations: string;
+  by_status: {
+    pending: string;
+    verified: string;
+    processed: string;
+    cancelled: string;
+  };
+  by_category?: string;
+  top_violators?: string;
+}
+
 export interface StudentViolationReportResponse {
   success: boolean;
   message: string;
@@ -225,6 +237,14 @@ export const studentViolationApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'StudentViolation', id: 'LIST' }],
     }),
+
+    // NEW: Statistik pelanggaran
+    getStudentViolationStatistics: builder.query<StudentViolationStatistics, void>({
+      query: () => 'main/student-violation/statistics',
+      transformResponse: (response: { success: boolean; message: string; data: StudentViolationStatistics }) =>
+        response.data,
+      providesTags: [{ type: 'StudentViolation', id: 'STATISTICS' }],
+    }),
   }),
 });
 
@@ -235,4 +255,5 @@ export const {
   useGetStudentViolationByIdQuery,
   useUpdateStudentViolationMutation,
   useDeleteStudentViolationMutation,
+  useGetStudentViolationStatisticsQuery,
 } = studentViolationApi;

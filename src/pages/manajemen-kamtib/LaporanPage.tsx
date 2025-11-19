@@ -18,6 +18,8 @@ import StudentViolationFormDialog from '@/components/StudentViolationFormDialog'
 import StudentViolationDetailModal from '@/components/StudentViolationDetailModal';
 import { Pencil } from 'lucide-react';
 import * as toast from '@/utils/toast';
+import ViolationStatsCard from '@/components/ViolationStatsCard';
+import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
 
 const LaporanPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -59,6 +61,9 @@ const LaporanPage: React.FC = () => {
     }
     return m;
   }, [violations]);
+
+  // Statistik pelanggaran
+  const { data: stats, isFetching: isStatsLoading } = useGetStudentViolationStatisticsQuery();
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -148,8 +153,8 @@ const LaporanPage: React.FC = () => {
     <DashboardLayout title="Laporan Pelanggaran" role="administrasi">
       <div className="container mx-auto pt-2 pb-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
-        <div className="grid grid-cols-1 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle>Data Laporan Pelanggaran</CardTitle>
               <CardDescription>Daftar laporan pelanggaran santri dengan fitur CRUD.</CardDescription>
@@ -170,6 +175,9 @@ const LaporanPage: React.FC = () => {
               />
             </CardContent>
           </Card>
+          <div className="lg:col-span-1">
+            <ViolationStatsCard stats={stats} isLoading={isStatsLoading} />
+          </div>
         </div>
       </div>
 
