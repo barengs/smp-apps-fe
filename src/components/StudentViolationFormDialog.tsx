@@ -14,6 +14,8 @@ import { useGetTahunAjaranQuery, useGetActiveTahunAjaranQuery } from '@/store/sl
 import { useCreateStudentViolationReportMutation, useUpdateStudentViolationMutation, StudentViolation } from '@/store/slices/studentViolationApi';
 import * as toast from '@/utils/toast';
 import { format } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/slices/authSlice';
 
 interface StudentViolationFormDialogProps {
   open: boolean;
@@ -24,6 +26,7 @@ interface StudentViolationFormDialogProps {
 
 const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({ open, onOpenChange, initialData, onSuccess }) => {
   const isEdit = !!initialData?.id;
+  const currentUser = useSelector(selectCurrentUser);
 
   const [studentId, setStudentId] = React.useState<number | undefined>(initialData?.student_id);
   const [violationId, setViolationId] = React.useState<number | undefined>(initialData?.violation_id);
@@ -73,6 +76,11 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
   const [updateReport, { isLoading: isUpdating }] = useUpdateStudentViolationMutation();
 
   const handleSubmit = async () => {
+    if (!currentUser?.id) {
+      toast.showError('Anda belum login. Silakan login terlebih dahulu.');
+      return;
+    }
+
     if (!studentId || !violationId || !academicYearId || !violationDate || !violationTime) {
       toast.showError('Lengkapi semua field wajib.');
       return;
@@ -86,7 +94,7 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
       violation_time: violationTime,
       location: location || undefined,
       description: description || undefined,
-      reported_by: 0, // backend dapat menentukan dari token; jika perlu, kirim dari halaman induk
+      reported_by: currentUser.id,
       notes: notes || undefined,
     };
 
