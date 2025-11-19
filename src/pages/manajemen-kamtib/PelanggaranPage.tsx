@@ -13,7 +13,7 @@ const PelanggaranPage: React.FC = () => {
 
   return (
     <DashboardLayout title="Manajemen Pelanggaran" role="administrasi">
-      <div className="container mx-auto py-4 px-4">
+      <div className="container mx-auto pt-2 pb-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
           <CardHeader>
