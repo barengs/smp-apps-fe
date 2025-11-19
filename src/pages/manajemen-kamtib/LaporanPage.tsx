@@ -156,7 +156,7 @@ const LaporanPage: React.FC = () => {
               <CardDescription>Daftar laporan pelanggaran santri dengan fitur CRUD.</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTable<StudentViolation, any>
+              <DataTable
                 columns={columns}
                 data={reports}
                 isLoading={isFetching}
@@ -181,7 +181,7 @@ const LaporanPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Ringkasan Laporan</CardTitle>
               <CardDescription>
-                Pilih santri di kiri (Filter “Santri”) untuk melihat ringkasan pelanggaran dan total poin.
+                Pilih santri di kiri (Filter "Santri") untuk melihat ringkasan pelanggaran dan total poin.
               </CardDescription>
             </CardHeader>
             <CardContent>
