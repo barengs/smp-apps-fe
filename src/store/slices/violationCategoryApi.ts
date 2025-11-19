@@ -9,13 +9,15 @@ export interface ViolationCategory {
 }
 
 interface GetViolationCategoryResponse {
-  data: {
-    data: ViolationCategory[];
-  };
+  success: boolean;
+  message: string;
+  data: (Omit<ViolationCategory, 'severity_level'> & { severity_level: string })[];
 }
 
 interface SingleViolationCategoryResponse {
-  data: ViolationCategory;
+  success: boolean;
+  message: string;
+  data: Omit<ViolationCategory, 'severity_level'> & { severity_level: string };
 }
 
 export interface CreateUpdateViolationCategoryRequest {
@@ -29,7 +31,11 @@ export const violationCategoryApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getViolationCategories: builder.query<ViolationCategory[], void>({
       query: () => 'master/violation-category',
-      transformResponse: (response: GetViolationCategoryResponse) => response.data.data,
+      transformResponse: (response: GetViolationCategoryResponse) =>
+        response.data.map((item) => ({
+          ...item,
+          severity_level: Number(item.severity_level),
+        })),
       providesTags: ['ViolationCategory'],
     }),
     createViolationCategory: builder.mutation<ViolationCategory, CreateUpdateViolationCategoryRequest>({
@@ -38,7 +44,10 @@ export const violationCategoryApi = smpApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      transformResponse: (response: SingleViolationCategoryResponse) => response.data,
+      transformResponse: (response: SingleViolationCategoryResponse) => ({
+        ...response.data,
+        severity_level: Number(response.data.severity_level),
+      }),
       invalidatesTags: ['ViolationCategory'],
     }),
     updateViolationCategory: builder.mutation<ViolationCategory, { id: number; data: CreateUpdateViolationCategoryRequest }>({
@@ -47,7 +56,10 @@ export const violationCategoryApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      transformResponse: (response: SingleViolationCategoryResponse) => response.data,
+      transformResponse: (response: SingleViolationCategoryResponse) => ({
+        ...response.data,
+        severity_level: Number(response.data.severity_level),
+      }),
       invalidatesTags: ['ViolationCategory'],
     }),
     deleteViolationCategory: builder.mutation<void, number>({
