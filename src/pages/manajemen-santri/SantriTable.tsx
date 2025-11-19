@@ -9,6 +9,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
+import RoomAssignDialog from '@/components/RoomAssignDialog';
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -16,12 +17,13 @@ interface Santri {
   fullName: string;
   nis: string;
   roomName: string;
+  assignedRoomName?: string;
   period: string;
   gender: string;
   status: string;
   programName: string;
-  created_at: string; // Tambahkan created_at
-  updated_at: string; // Tambahkan updated_at
+  created_at: string;
+  updated_at: string;
 }
 
 interface SantriTableProps {
@@ -41,8 +43,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         id: student.id,
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
-        // Ambil nama kamar dari properti hostel.name, fallback ke 'Belum diatur'
         roomName: student.hostel?.name ?? 'Belum diatur',
+        assignedRoomName: (student as any)?.room?.name ?? '',
         period: student.period,
         gender:
           student.gender === 'L'
@@ -119,7 +121,6 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         accessorKey: 'nis',
         header: 'NIS',
       },
-      // Program dipindahkan ke sebelah kiri kolom Kamar
       {
         accessorKey: 'programName',
         header: 'Program',
@@ -132,6 +133,22 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
             {row.original.roomName || 'Belum diatur'}
           </span>
         ),
+      },
+      {
+        accessorKey: 'assignedRoomName',
+        header: 'Kamar',
+        cell: ({ row }) => {
+          const assigned = row.original.assignedRoomName;
+          if (assigned) {
+            return <span>{assigned}</span>;
+          }
+          return (
+            <RoomAssignDialog
+              studentId={row.original.id}
+              triggerLabel="Tentukan Kamar"
+            />
+          );
+        },
       },
       {
         accessorKey: 'period',

@@ -60,6 +60,13 @@ export interface CreateUpdateStudentRequest {
   deleted_at?: string | null;
 }
 
+export interface AssignStudentRoomRequest {
+  room_id: number;
+  academic_year_id: number;
+  start_date: string;
+  notes?: string;
+}
+
 interface GetStudentsResponse {
   data: Student[];
 }
@@ -137,6 +144,14 @@ export const studentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Student', id: 'LIST' }],
     }),
+    assignStudentRoom: builder.mutation<{ message?: string }, { id: number; data: AssignStudentRoomRequest }>({
+      query: ({ id, data }) => ({
+        url: `main/student/${id}/room/assign`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Student', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -146,4 +161,5 @@ export const {
   useCreateStudentMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
+  useAssignStudentRoomMutation,
 } = studentApi;
