@@ -79,6 +79,7 @@ import PresensiDetailPage from './pages/manajemen-kurikulum/PresensiDetailPage';
 import PresensiFormPage from './pages/manajemen-kurikulum/PresensiFormPage'; // Import baru
 import InstitusiPendidikanPage from './pages/manajemen-kurikulum/InstitusiPendidikanPage';
 import InstitusiPendidikanForm from './pages/manajemen-kurikulum/InstitusiPendidikanForm';
+import SanksiPage from '@/pages/manajemen-kamtib/SanksiPage';
 
 // Redux imports
 import { Provider } from 'react-redux';
@@ -201,6 +202,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/:id" element={<InstitusiPendidikanPage />} />
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
                 <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
+                <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />

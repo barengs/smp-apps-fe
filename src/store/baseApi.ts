@@ -149,6 +149,8 @@ export const smpApi = createApi({
     'Violation',
     // Tambahan untuk kategori pelanggaran
     'ViolationCategory',
+    // ADDED: Sanction
+    'Sanction',
   ],
   endpoints: () => ({}),
 });
