@@ -16,7 +16,7 @@ import {
 import { PaginationState } from '@tanstack/react-table';
 import StudentViolationFormDialog from '@/components/StudentViolationFormDialog';
 import StudentViolationDetailModal from '@/components/StudentViolationDetailModal';
-import { Pencil, Trash } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import * as toast from '@/utils/toast';
 
 const LaporanPage: React.FC = () => {
@@ -112,14 +112,7 @@ const LaporanPage: React.FC = () => {
         return <span>{d ? d.toLocaleString('id-ID') : '-'}</span>;
       },
     },
-    {
-      header: 'Waktu',
-      accessorKey: 'violation_time',
-    },
-    {
-      header: 'Lokasi',
-      accessorKey: 'location',
-    },
+    // REMOVED: Kolom 'Waktu' dan 'Lokasi'
     {
       id: 'aksi',
       header: 'Aksi',
@@ -135,17 +128,7 @@ const LaporanPage: React.FC = () => {
           >
             <Pencil className="h-4 w-4 mr-2" /> Edit
           </Button>
-          <Button
-            variant="outline-danger"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(row.original);
-            }}
-            disabled={isDeleting}
-          >
-            <Trash className="h-4 w-4 mr-2" /> Hapus
-          </Button>
+          {/* REMOVED: Tombol Hapus */}
         </div>
       ),
     },
