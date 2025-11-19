@@ -23,9 +23,8 @@ const formatDateTimeLocal = (d: Date) => {
   const year = d.getFullYear();
   const month = pad(d.getMonth() + 1);
   const day = pad(d.getDate());
-  const hours = pad(d.getHours());
-  const minutes = pad(d.getMinutes());
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  // Ubah ke format tanggal saja (YYYY-MM-DD) agar sesuai dengan kolom DATE
+  return `${year}-${month}-${day}`;
 };
 
 const RoomAssignDialog: React.FC<Props> = ({ studentId, triggerLabel = "Tentukan Kamar", onAssigned }) => {
@@ -56,13 +55,13 @@ const RoomAssignDialog: React.FC<Props> = ({ studentId, triggerLabel = "Tentukan
     }
     const toastId = showLoading("Menyimpan penentuan kamar...");
     try {
-      const isoStart = new Date(startDateTime).toISOString();
+      // REMOVED: isoStart (toISOString) karena backend mengharapkan DATE (YYYY-MM-DD)
       await assignStudentRoom({
         id: studentId,
         data: {
           room_id: Number(roomId),
           academic_year_id: Number(academicYearId),
-          start_date: isoStart,
+          start_date: startDateTime, // kirim string tanggal langsung
           notes: notes || "",
         },
       }).unwrap();
@@ -133,7 +132,7 @@ const RoomAssignDialog: React.FC<Props> = ({ studentId, triggerLabel = "Tentukan
             <Label htmlFor="startDateTime">Tanggal Mulai</Label>
             <Input
               id="startDateTime"
-              type="datetime-local"
+              type="date" // ganti ke date agar menghasilkan YYYY-MM-DD
               value={startDateTime}
               onChange={(e) => setStartDateTime(e.target.value)}
             />
