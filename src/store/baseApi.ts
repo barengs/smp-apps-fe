@@ -146,8 +146,9 @@ export const smpApi = createApi({
     'Staff',
     'Attendance',
     'Presence',
-    // Tambahan untuk pelanggaran
     'Violation',
+    // Tambahan untuk kategori pelanggaran
+    'ViolationCategory',
   ],
   endpoints: () => ({}),
 });

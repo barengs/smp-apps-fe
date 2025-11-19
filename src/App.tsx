@@ -31,6 +31,7 @@ import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import MataPelajaranForm from "@/pages/manajemen-kurikulum/MataPelajaranForm";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
+import KategoriPelanggaranPage from '@/pages/manajemen-kamtib/KategoriPelanggaranPage';
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
@@ -199,6 +200,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/tambah" element={<InstitusiPendidikanForm onSuccess={() => {}} onCancel={() => {}} />} />
                 <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/:id" element={<InstitusiPendidikanPage />} />
                 <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
+                <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
