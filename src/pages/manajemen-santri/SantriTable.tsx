@@ -140,13 +140,27 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         cell: ({ row }) => {
           const assigned = row.original.assignedRoomName;
           if (assigned) {
-            return <span>{assigned}</span>;
+            return (
+              <div
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                className="inline-block"
+              >
+                <span>{assigned}</span>
+              </div>
+            );
           }
           return (
-            <RoomAssignDialog
-              studentId={row.original.id}
-              triggerLabel="Tentukan Kamar"
-            />
+            <div
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-block"
+            >
+              <RoomAssignDialog
+                studentId={row.original.id}
+                triggerLabel="Tentukan Kamar"
+              />
+            </div>
           );
         },
       },
