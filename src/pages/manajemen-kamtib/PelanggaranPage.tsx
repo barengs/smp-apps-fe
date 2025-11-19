@@ -3,6 +3,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Shield, AlertTriangle } from 'lucide-react';
+import PelanggaranTable from './PelanggaranTable';
 
 const PelanggaranPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -20,9 +21,7 @@ const PelanggaranPage: React.FC = () => {
             <CardDescription>Kelola data pelanggaran yang dilakukan oleh santri.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center h-40">
-              <p className="text-muted-foreground">Fitur ini sedang dalam pengembangan.</p>
-            </div>
+            <PelanggaranTable />
           </CardContent>
         </Card>
       </div>
