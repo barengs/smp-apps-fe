@@ -11,7 +11,7 @@ const SanksiPage: React.FC = () => {
   const { t } = useTranslation();
   return (
     <DashboardLayout title={t('sidebar.sanction')} role="administrasi">
-      <div className="container mx-auto space-y-4">
+      <div className="space-y-4 px-2 sm:px-4">
         <CustomBreadcrumb
           items={[
             { label: t('sidebar.securityManagement'), href: '/dashboard/manajemen-kamtib/pelanggaran' },
