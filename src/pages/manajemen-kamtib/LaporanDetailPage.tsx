@@ -68,19 +68,18 @@ const LaporanDetailPage: React.FC = () => {
           ]}
         />
 
-        <div className="mb-4">
-          <Link to="/dashboard/manajemen-kamtib/laporan" className="text-sm text-muted-foreground hover:underline">
-            ← Kembali ke Laporan
-          </Link>
-        </div>
-
         <Card>
           <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Detail Laporan Pelanggaran</CardTitle>
               <CardDescription>Informasi lengkap mengenai laporan yang dipilih.</CardDescription>
             </div>
-            <Button onClick={() => setAssignOpen(true)}>Beri Sanksi</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" asChild>
+                <Link to="/dashboard/manajemen-kamtib/laporan">Kembali ke Laporan</Link>
+              </Button>
+              <Button onClick={() => setAssignOpen(true)}>Beri Sanksi</Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
