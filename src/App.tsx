@@ -70,6 +70,7 @@ import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
 import GuruPage from '@/pages/manajemen-kurikulum/GuruPage';
 import GuruFormPage from '@/pages/manajemen-kurikulum/GuruFormPage'; // Import the new GuruFormPage
 import GuruDetailPage from '@/pages/manajemen-kurikulum/GuruDetailPage'; // Import the new GuruDetailPage
+import LaporanDetailPage from '@/pages/manajemen-kamtib/LaporanDetailPage';
 import PenugasanGuruPage from '@/pages/manajemen-kurikulum/PenugasanGuruPage'; // Import the new PenugasanGuruPage
 import TeachingHoursPage from '@/pages/manajemen-kurikulum/TeachingHoursPage'; // Import the new TeachingHoursPage
 import JamPelajaranPage from '@/pages/manajemen-kurikulum/JamPelajaranPage';
@@ -205,6 +206,7 @@ function App() {
                 <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
                 <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
                 <Route path="/dashboard/manajemen-kamtib/laporan" element={<LaporanKamtibPage />} />
+                <Route path="/dashboard/manajemen-kamtib/laporan/:id" element={<LaporanDetailPage />} />
                 <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
                 <Route path="/dashboard/berita" element={<BeritaPage />} />
                 <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />

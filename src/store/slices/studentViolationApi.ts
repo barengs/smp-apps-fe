@@ -89,6 +89,14 @@ export interface StudentViolationStatistics {
   top_violators?: string | Array<{ id?: string | number; first_name?: string; last_name?: string | null; nis?: string; total_violations?: string | number }>;
 }
 
+// NEW: Payload untuk assign sanksi
+export interface AssignSanctionRequest {
+  sanction_id: number;
+  start_date: string;
+  end_date: string;
+  notes?: string;
+}
+
 export interface StudentViolationReportResponse {
   success: boolean;
   message: string;
@@ -245,6 +253,19 @@ export const studentViolationApi = smpApi.injectEndpoints({
         response.data,
       providesTags: [{ type: 'StudentViolation', id: 'STATISTICS' }],
     }),
+
+    // NEW: Assign sanksi ke laporan pelanggaran
+    assignSanctionToViolation: builder.mutation<{ message?: string }, { id: number; data: AssignSanctionRequest }>({
+      query: ({ id, data }) => ({
+        url: `main/student-violation/${id}/assign-sanction`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (result, _error, { id }) => [
+        { type: 'StudentViolation', id },
+        { type: 'StudentViolation', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -256,4 +277,6 @@ export const {
   useUpdateStudentViolationMutation,
   useDeleteStudentViolationMutation,
   useGetStudentViolationStatisticsQuery,
+  // NEW: Export hook assign sanksi
+  useAssignSanctionToViolationMutation,
 } = studentViolationApi;

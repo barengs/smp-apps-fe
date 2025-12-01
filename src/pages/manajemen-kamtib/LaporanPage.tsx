@@ -15,11 +15,11 @@ import {
 } from '@/store/slices/studentViolationApi';
 import { PaginationState } from '@tanstack/react-table';
 import StudentViolationFormDialog from '@/components/StudentViolationFormDialog';
-import StudentViolationDetailModal from '@/components/StudentViolationDetailModal';
-import { Pencil } from 'lucide-react';
-import * as toast from '@/utils/toast';
 import ViolationStatsCard from '@/components/ViolationStatsCard';
 import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
+import { useNavigate } from 'react-router-dom';
+import * as toast from '@/utils/toast';
+import { Pencil } from 'lucide-react';
 
 const LaporanPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -68,9 +68,8 @@ const LaporanPage: React.FC = () => {
   // Dialog state
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingData, setEditingData] = React.useState<StudentViolation | null>(null);
-  // State untuk modal detail saat baris diklik
-  const [detailOpen, setDetailOpen] = React.useState(false);
-  const [selectedReport, setSelectedReport] = React.useState<StudentViolation | null>(null);
+
+  const navigate = require("react-router-dom").useNavigate();
 
   const handleAdd = () => {
     setEditingData(null);
@@ -94,8 +93,7 @@ const LaporanPage: React.FC = () => {
   };
 
   const handleRowClick = (row: StudentViolation) => {
-    setSelectedReport(row);
-    setDetailOpen(true);
+    navigate(`/dashboard/manajemen-kamtib/laporan/${row.id}`);
   };
 
   const columns: ColumnDef<StudentViolation>[] = [
@@ -190,19 +188,6 @@ const LaporanPage: React.FC = () => {
         onSuccess={() => {
           // RTK Query invalidation akan otomatis refresh tabel
         }}
-      />
-
-      {/* Modal Detail Laporan */}
-      <StudentViolationDetailModal
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        report={selectedReport}
-        studentLabel={
-          selectedReport ? (studentMap.get(selectedReport.student_id) ?? String(selectedReport.student_id)) : undefined
-        }
-        violationLabel={
-          selectedReport ? (violationMap.get(selectedReport.violation_id) ?? String(selectedReport.violation_id)) : undefined
-        }
       />
     </DashboardLayout>
   );
