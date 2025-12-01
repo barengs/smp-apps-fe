@@ -52,6 +52,11 @@ const SanctionAssignDialog: React.FC<SanctionAssignDialogProps> = ({
       toast.showError("Lengkapi tanggal mulai dan tanggal selesai.");
       return;
     }
+    // NEW: Validasi urutan tanggal
+    if (endDate <= startDate) {
+      toast.showError("Tanggal selesai harus setelah tanggal mulai.");
+      return;
+    }
     const loadingId = toast.showLoading("Mengirim penetapan sanksi...");
     try {
       await assignSanction({
