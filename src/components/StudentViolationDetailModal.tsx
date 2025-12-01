@@ -33,9 +33,20 @@ const StudentViolationDetailModal: React.FC<Props> = ({
   studentLabel,
   violationLabel,
 }) => {
+  const rows = [
+    { label: "Santri", value: studentLabel ?? "-" },
+    { label: "Pelanggaran", value: violationLabel ?? "-" },
+    { label: "Tanggal", value: formatDate(report?.violation_date) },
+    { label: "Waktu", value: report?.violation_time ?? "-" },
+    { label: "Lokasi", value: report?.location ?? "-" },
+    { label: "Dilaporkan oleh", value: report?.reported_by ?? "-" },
+    { label: "Tahun Ajaran", value: report?.academic_year_id ?? "-" },
+    { label: "Dibuat", value: formatDate(report?.created_at) },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="w-[95vw] max-w-[1200px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Detail Laporan Pelanggaran</DialogTitle>
           <DialogDescription>
@@ -43,50 +54,34 @@ const StudentViolationDetailModal: React.FC<Props> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div>
-            <div className="text-muted-foreground">Santri</div>
-            <div className="font-medium">{studentLabel ?? "-"}</div>
+        <div className="space-y-6">
+          <div className="rounded-md border">
+            <table className="w-full text-sm">
+              <tbody>
+                {rows.map((row, idx) => (
+                  <tr key={idx} className="border-b last:border-0">
+                    <td className="w-1/3 p-3 text-muted-foreground align-top">{row.label}</td>
+                    <td className="p-3 font-medium align-top">{row.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div>
-            <div className="text-muted-foreground">Pelanggaran</div>
-            <div className="font-medium">{violationLabel ?? "-"}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Tanggal</div>
-            <div className="font-medium">{formatDate(report?.violation_date)}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Waktu</div>
-            <div className="font-medium">{report?.violation_time ?? "-"}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Lokasi</div>
-            <div className="font-medium">{report?.location ?? "-"}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Dilaporkan oleh</div>
-            <div className="font-medium">{report?.reported_by ?? "-"}</div>
-          </div>
-          <div className="sm:col-span-2">
-            <div className="text-muted-foreground">Deskripsi</div>
-            <div className="font-medium whitespace-pre-wrap">
-              {report?.description ?? "-"}
+
+          <div className="grid grid-cols-1 gap-4">
+            <div className="rounded-md border p-3">
+              <div className="text-sm text-muted-foreground mb-1">Deskripsi</div>
+              <div className="font-medium whitespace-pre-wrap">
+                {report?.description ?? "-"}
+              </div>
             </div>
-          </div>
-          <div className="sm:col-span-2">
-            <div className="text-muted-foreground">Catatan</div>
-            <div className="font-medium whitespace-pre-wrap">
-              {report?.notes ?? "-"}
+
+            <div className="rounded-md border p-3">
+              <div className="text-sm text-muted-foreground mb-1">Catatan</div>
+              <div className="font-medium whitespace-pre-wrap">
+                {report?.notes ?? "-"}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Tahun Ajaran</div>
-            <div className="font-medium">{report?.academic_year_id ?? "-"}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Dibuat</div>
-            <div className="font-medium">{formatDate(report?.created_at)}</div>
           </div>
         </div>
 
