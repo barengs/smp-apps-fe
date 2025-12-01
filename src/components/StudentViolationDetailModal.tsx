@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StudentViolation } from "@/store/slices/studentViolationApi";
+import { Link } from "react-router-dom";
 
 interface Props {
   open: boolean;
@@ -47,11 +48,16 @@ const StudentViolationDetailModal: React.FC<Props> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-[1200px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Detail Laporan Pelanggaran</DialogTitle>
-          <DialogDescription>
-            Informasi lengkap mengenai laporan yang dipilih.
-          </DialogDescription>
+        <DialogHeader className="flex items-start justify-between gap-2">
+          <div>
+            <DialogTitle>Detail Laporan Pelanggaran</DialogTitle>
+            <DialogDescription>
+              Informasi lengkap mengenai laporan yang dipilih.
+            </DialogDescription>
+          </div>
+          <Button asChild variant="success">
+            <Link to="/dashboard/manajemen-kamtib/sanksi">Beri Sanksi</Link>
+          </Button>
         </DialogHeader>
 
         <div className="space-y-6">

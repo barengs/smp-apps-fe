@@ -20,7 +20,6 @@ import { Pencil } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import ViolationStatsCard from '@/components/ViolationStatsCard';
 import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
-import { Link } from 'react-router-dom';
 
 const LaporanPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -161,9 +160,6 @@ const LaporanPage: React.FC = () => {
                 <CardTitle>Data Laporan Pelanggaran</CardTitle>
                 <CardDescription>Daftar laporan pelanggaran santri dengan fitur CRUD.</CardDescription>
               </div>
-              <Button asChild variant="success">
-                <Link to="/dashboard/manajemen-kamtib/sanksi">Beri Sanksi</Link>
-              </Button>
             </CardHeader>
             <CardContent>
               <DataTable
@@ -174,7 +170,6 @@ const LaporanPage: React.FC = () => {
                 addButtonLabel="Tambah Data"
                 filterableColumns={filterableColumns}
                 onRowClick={handleRowClick}
-                // Aktifkan server-side pagination
                 pageCount={totalPages}
                 pagination={pagination}
                 onPaginationChange={setPagination}
