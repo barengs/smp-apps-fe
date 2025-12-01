@@ -69,7 +69,7 @@ const LaporanPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingData, setEditingData] = React.useState<StudentViolation | null>(null);
 
-  const navigate = require("react-router-dom").useNavigate();
+  const navigate = useNavigate();
 
   const handleAdd = () => {
     setEditingData(null);
