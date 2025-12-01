@@ -9,6 +9,8 @@ import { StudentViolation, useGetStudentViolationByIdQuery } from "@/store/slice
 import SanctionAssignDialog from "@/components/SanctionAssignDialog";
 import CustomBreadcrumb from "@/components/CustomBreadcrumb";
 import { List, Info, Gavel } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
@@ -49,6 +51,55 @@ const LaporanDetailPage: React.FC = () => {
     { label: "Diperbarui", value: formatDate(report?.updated_at) },
     { label: "Status", value: report?.status ?? "-" },
   ];
+
+  // Mapping data sanksi dari respons backend (aman meskipun tipe sanctions adalah unknown[])
+  const sanctionsData = React.useMemo(() => {
+    const raw = Array.isArray(report?.sanctions) ? (report!.sanctions as any[]) : [];
+    return raw.map((s) => {
+      const duration =
+        typeof s?.sanction?.duration_days === "string"
+          ? Number(s.sanction.duration_days)
+          : s?.sanction?.duration_days;
+      return {
+        id: typeof s?.id === "string" ? Number(s.id) : s?.id ?? 0,
+        name: s?.sanction?.name ?? "-",
+        type: s?.sanction?.type ?? "-",
+        duration_days: duration ?? null,
+        start_date: s?.start_date as string | undefined,
+        end_date: s?.end_date as string | undefined,
+        status: s?.status ?? "-",
+        notes: s?.notes ?? "-",
+        assigned_by_name: s?.assigned_by
+          ? `${s.assigned_by.first_name}${s.assigned_by.last_name ? " " + s.assigned_by.last_name : ""}`
+          : "-",
+      };
+    });
+  }, [report?.sanctions]);
+
+  // Variant badge berdasarkan tipe sanksi
+  const typeVariant = (type: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" => {
+    switch (String(type).toLowerCase()) {
+      case "peringatan":
+        return "warning";
+      case "skorsing":
+        return "destructive";
+      case "pembinaan":
+        return "success";
+      case "denda":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
+
+  // Variant badge untuk status sanksi
+  const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" => {
+    const s = String(status).toLowerCase();
+    if (s === "active") return "success";
+    if (s === "cancelled") return "destructive";
+    if (s === "processed" || s === "completed") return "secondary";
+    return "outline";
+  };
 
   return (
     <DashboardLayout title="Detail Laporan Pelanggaran" role="administrasi">
@@ -112,6 +163,53 @@ const LaporanDetailPage: React.FC = () => {
                   {report?.notes ?? "-"}
                 </div>
               </div>
+            </div>
+
+            {/* NEW: Bagian Sanksi */}
+            <div className="rounded-md border p-3 mt-4">
+              <div className="text-sm text-muted-foreground mb-2">Sanksi</div>
+              {sanctionsData.length === 0 ? (
+                <div className="text-sm">Belum ada sanksi untuk laporan ini.</div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nama Sanksi</TableHead>
+                      <TableHead>Jenis</TableHead>
+                      <TableHead>Durasi</TableHead>
+                      <TableHead>Periode</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Catatan</TableHead>
+                      <TableHead>Ditetapkan Oleh</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sanctionsData.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-medium">{s.name}</TableCell>
+                        <TableCell>
+                          <Badge variant={typeVariant(s.type)} className="capitalize">
+                            {s.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {s.duration_days != null ? `${s.duration_days} hari` : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {`${formatDate(s.start_date)} — ${formatDate(s.end_date)}`}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={statusVariant(s.status)} className="capitalize">
+                            {s.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{s.notes}</TableCell>
+                        <TableCell>{s.assigned_by_name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </CardContent>
         </Card>
