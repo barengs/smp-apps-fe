@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useParams, Link } from "react-router-dom";
 import { StudentViolation, useGetStudentViolationByIdQuery } from "@/store/slices/studentViolationApi";
 import SanctionAssignDialog from "@/components/SanctionAssignDialog";
+import CustomBreadcrumb from "@/components/CustomBreadcrumb";
+import { List, Info } from "lucide-react";
 
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
@@ -51,6 +53,21 @@ const LaporanDetailPage: React.FC = () => {
   return (
     <DashboardLayout title="Detail Laporan Pelanggaran" role="administrasi">
       <div className="container mx-auto pt-2 pb-4 px-4">
+        {/* Breadcrumb */}
+        <CustomBreadcrumb
+          items={[
+            {
+              label: "Laporan Pelanggaran",
+              href: "/dashboard/manajemen-kamtib/laporan",
+              icon: <List className="h-4 w-4" />,
+            },
+            {
+              label: "Detail Laporan",
+              icon: <Info className="h-4 w-4" />,
+            },
+          ]}
+        />
+
         <div className="mb-4">
           <Link to="/dashboard/manajemen-kamtib/laporan" className="text-sm text-muted-foreground hover:underline">
             ← Kembali ke Laporan
@@ -58,7 +75,7 @@ const LaporanDetailPage: React.FC = () => {
         </div>
 
         <Card>
-          <CardHeader className="flex items-center justify-between">
+          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Detail Laporan Pelanggaran</CardTitle>
               <CardDescription>Informasi lengkap mengenai laporan yang dipilih.</CardDescription>
