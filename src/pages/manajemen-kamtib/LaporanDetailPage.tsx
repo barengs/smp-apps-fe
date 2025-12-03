@@ -8,7 +8,7 @@ import { useParams, Link } from "react-router-dom";
 import { StudentViolation, useGetStudentViolationByIdQuery } from "@/store/slices/studentViolationApi";
 import SanctionAssignDialog from "@/components/SanctionAssignDialog";
 import CustomBreadcrumb from "@/components/CustomBreadcrumb";
-import { List, Info, Gavel } from "lucide-react";
+import { List, Info, Gavel, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import StatusUpdateDialog from "@/components/StatusUpdateDialog";
@@ -84,8 +84,14 @@ const LaporanDetailPage: React.FC = () => {
           <Badge variant={statusVariant(report?.status ?? "")} className="capitalize">
             {toIndonesianStatus(report?.status)}
           </Badge>
-          <Button size="sm" variant="outline" onClick={() => setStatusOpen(true)}>
-            Ganti Status
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => setStatusOpen(true)}
+            aria-label="Ganti Status"
+          >
+            <RefreshCw className="h-4 w-4" />
+            <span className="sr-only">Ganti Status</span>
           </Button>
         </div>
       ),
