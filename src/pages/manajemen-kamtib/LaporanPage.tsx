@@ -44,6 +44,40 @@ const LaporanPage: React.FC = () => {
   const reports = reportsResp?.data ?? [];
   const totalPages = reportsResp?.last_page ?? 1;
 
+  // NEW: Hitung urutan pelanggaran per bulan (berdasarkan created_at; fallback ke violation_date jika perlu)
+  const monthlyOrderMap = React.useMemo(() => {
+    const map = new Map<number, number>();
+    const groups = new Map<string, StudentViolation[]>();
+
+    for (const r of reports) {
+      const iso = r.created_at ?? r.violation_date;
+      if (!iso) continue;
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) continue;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const arr = groups.get(key) ?? [];
+      arr.push(r);
+      groups.set(key, arr);
+    }
+
+    for (const [, arr] of groups) {
+      arr.sort((a, b) => {
+        const ta = new Date(a.created_at ?? a.violation_date ?? 0).getTime();
+        const tb = new Date(b.created_at ?? b.violation_date ?? 0).getTime();
+        if (ta !== tb) return ta - tb;
+        const ai = typeof a.id === "number" ? a.id : Number(a.id ?? 0);
+        const bi = typeof b.id === "number" ? b.id : Number(b.id ?? 0);
+        return ai - bi;
+      });
+      arr.forEach((item, idx) => {
+        const idNum = typeof item.id === "number" ? item.id : Number(item.id ?? 0);
+        map.set(idNum, idx + 1);
+      });
+    }
+
+    return map;
+  }, [reports]);
+
   const [deleteReport, { isLoading: isDeleting }] = useDeleteStudentViolationMutation();
 
   const studentMap = React.useMemo(() => {
@@ -106,6 +140,16 @@ const LaporanPage: React.FC = () => {
       header: 'Pelanggaran',
       accessorKey: 'violation_id',
       cell: ({ row }) => <span>{violationMap.get(row.original.violation_id) || row.original.violation_id}</span>,
+    },
+    // NEW: Kolom Pelanggaran Ke (urut per bulan)
+    {
+      id: 'pelanggaran_ke',
+      header: 'Pelanggaran Ke',
+      cell: ({ row }) => {
+        const idNum = typeof row.original.id === "number" ? row.original.id : Number(row.original.id ?? 0);
+        const idx = monthlyOrderMap.get(idNum);
+        return <span>{idx ?? '-'}</span>;
+      },
     },
     {
       header: 'Tanggal',
