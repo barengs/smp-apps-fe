@@ -35,6 +35,38 @@ const toIndonesian = (status: string) => {
   }
 };
 
+// Helper: normalisasi waktu ke format HH:mm (sesuai H:i di Laravel)
+const normalizeViolationTime = (timeRaw?: string): string => {
+  const src = String(timeRaw || "").trim();
+
+  // Jika sudah dalam bentuk HH:mm atau H:mm (dengan optional :ss), ambil hh:mm
+  const m = src.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (m) {
+    const hh = String(m[1]).padStart(2, "0");
+    const mm = m[2];
+    return `${hh}:${mm}`;
+  }
+
+  // Coba parse via Date (untuk ISO atau datetime string)
+  const d = new Date(src);
+  if (!isNaN(d.getTime())) {
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  }
+
+  // Fallback aman: jika ada ":" tapi format tidak cocok, ambil dua segmen pertama
+  if (src.includes(":")) {
+    const [h, m2] = src.split(":");
+    const hh = String(Number(h)).padStart(2, "0");
+    const mm = String(Number(m2)).padStart(2, "0");
+    return `${hh}:${mm}`;
+  }
+
+  // Default jika tidak bisa diparse
+  return "00:00";
+};
+
 const StatusUpdateDialog: React.FC<StatusUpdateDialogProps> = ({
   open,
   onOpenChange,
@@ -66,7 +98,7 @@ const StatusUpdateDialog: React.FC<StatusUpdateDialogProps> = ({
       violation_id: currentReport.violation_id,
       academic_year_id: currentReport.academic_year_id,
       violation_date: currentReport.violation_date,
-      violation_time: currentReport.violation_time,
+      violation_time: normalizeViolationTime(currentReport.violation_time),
       location: currentReport.location ?? undefined,
       description: currentReport.description ?? undefined,
       reported_by: currentReport.reported_by,
