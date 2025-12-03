@@ -268,6 +268,7 @@ const LaporanDetailPage: React.FC = () => {
           onOpenChange={setStatusOpen}
           violationId={violationId}
           currentStatus={report?.status}
+          currentReport={report ?? null}
         />
       )}
     </DashboardLayout>

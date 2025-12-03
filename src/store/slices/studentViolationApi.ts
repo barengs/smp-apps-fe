@@ -13,6 +13,10 @@ export interface CreateStudentViolationReportRequest {
   notes?: string;
 }
 
+export interface UpdateStudentViolationRequest extends CreateStudentViolationReportRequest {
+  status?: 'pending' | 'verified' | 'processed' | 'cancelled';
+}
+
 export interface StudentViolation {
   id: number;
   student_id: number;
@@ -267,12 +271,12 @@ export const studentViolationApi = smpApi.injectEndpoints({
       ],
     }),
 
-    // NEW: Ubah status laporan pelanggaran
-    updateStudentViolationStatus: builder.mutation<{ message?: string }, { id: number; status: 'verified' | 'cancelled' }>({
-      query: ({ id, status }) => ({
+    // NEW: Ubah status laporan pelanggaran dengan payload lengkap
+    updateStudentViolationStatus: builder.mutation<{ message?: string }, { id: number; data: UpdateStudentViolationRequest }>({
+      query: ({ id, data }) => ({
         url: `main/student-violation/${id}`,
         method: 'PUT',
-        body: { status },
+        body: data,
       }),
       invalidatesTags: (result, _error, { id }) => [
         { type: 'StudentViolation', id },
@@ -290,8 +294,6 @@ export const {
   useUpdateStudentViolationMutation,
   useDeleteStudentViolationMutation,
   useGetStudentViolationStatisticsQuery,
-  // NEW: Export hook assign sanksi
   useAssignSanctionToViolationMutation,
-  // NEW: Export hook update status
   useUpdateStudentViolationStatusMutation,
 } = studentViolationApi;

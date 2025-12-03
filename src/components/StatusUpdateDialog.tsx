@@ -14,13 +14,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ActionButton from "@/components/ActionButton";
 import { Button } from "@/components/ui/button";
 import { showSuccess, showError } from "@/utils/toast";
-import { useUpdateStudentViolationStatusMutation } from "@/store/slices/studentViolationApi";
+import { useUpdateStudentViolationStatusMutation, type StudentViolation, type UpdateStudentViolationRequest } from "@/store/slices/studentViolationApi";
 
 interface StatusUpdateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   violationId: number;
   currentStatus?: string | null;
+  currentReport?: StudentViolation | null;
 }
 
 const toIndonesian = (status: string) => {
@@ -39,6 +40,7 @@ const StatusUpdateDialog: React.FC<StatusUpdateDialogProps> = ({
   onOpenChange,
   violationId,
   currentStatus,
+  currentReport,
 }) => {
   const [selected, setSelected] = React.useState<"verified" | "cancelled" | null>(null);
   const [updateStatus, { isLoading }] = useUpdateStudentViolationStatusMutation();
@@ -54,7 +56,25 @@ const StatusUpdateDialog: React.FC<StatusUpdateDialogProps> = ({
 
   const handleSubmit = () => {
     if (!selected) return;
-    updateStatus({ id: violationId, status: selected })
+    if (!currentReport) {
+      showError("Data laporan tidak tersedia. Muat ulang halaman lalu coba lagi.");
+      return;
+    }
+
+    const payload: UpdateStudentViolationRequest = {
+      student_id: currentReport.student_id,
+      violation_id: currentReport.violation_id,
+      academic_year_id: currentReport.academic_year_id,
+      violation_date: currentReport.violation_date,
+      violation_time: currentReport.violation_time,
+      location: currentReport.location ?? undefined,
+      description: currentReport.description ?? undefined,
+      reported_by: currentReport.reported_by,
+      notes: currentReport.notes ?? undefined,
+      status: selected,
+    };
+
+    updateStatus({ id: violationId, data: payload })
       .unwrap()
       .then(() => {
         showSuccess(`Status berhasil diubah menjadi "${toIndonesian(selected)}"`);
