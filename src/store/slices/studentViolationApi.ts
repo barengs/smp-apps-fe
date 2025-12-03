@@ -270,8 +270,8 @@ export const studentViolationApi = smpApi.injectEndpoints({
     // NEW: Ubah status laporan pelanggaran
     updateStudentViolationStatus: builder.mutation<{ message?: string }, { id: number; status: 'verified' | 'cancelled' }>({
       query: ({ id, status }) => ({
-        url: `main/student-violation/${id}/status`,
-        method: 'PATCH',
+        url: `main/student-violation/${id}`,
+        method: 'PUT',
         body: { status },
       }),
       invalidatesTags: (result, _error, { id }) => [
