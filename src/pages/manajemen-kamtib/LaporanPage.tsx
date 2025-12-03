@@ -44,7 +44,7 @@ const LaporanPage: React.FC = () => {
   const reports = reportsResp?.data ?? [];
   const totalPages = reportsResp?.last_page ?? 1;
 
-  // NEW: Hitung urutan pelanggaran per bulan (berdasarkan created_at; fallback ke violation_date jika perlu)
+  // UPDATED: Hitung urutan pelanggaran per bulan PER SANTRI (berdasarkan created_at; fallback ke violation_date)
   const monthlyOrderMap = React.useMemo(() => {
     const map = new Map<number, number>();
     const groups = new Map<string, StudentViolation[]>();
@@ -54,7 +54,13 @@ const LaporanPage: React.FC = () => {
       if (!iso) continue;
       const d = new Date(iso);
       if (isNaN(d.getTime())) continue;
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      // Pastikan grouping per santri
+      const sidNum = typeof r.student_id === "number" ? r.student_id : Number((r as any).student_id ?? 0);
+      const key = `${sidNum}-${year}-${month}`;
+
       const arr = groups.get(key) ?? [];
       arr.push(r);
       groups.set(key, arr);
