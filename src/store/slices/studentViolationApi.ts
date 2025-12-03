@@ -266,6 +266,19 @@ export const studentViolationApi = smpApi.injectEndpoints({
         { type: 'StudentViolation', id: 'LIST' },
       ],
     }),
+
+    // NEW: Ubah status laporan pelanggaran
+    updateStudentViolationStatus: builder.mutation<{ message?: string }, { id: number; status: 'verified' | 'cancelled' }>({
+      query: ({ id, status }) => ({
+        url: `main/student-violation/${id}/status`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: (result, _error, { id }) => [
+        { type: 'StudentViolation', id },
+        { type: 'StudentViolation', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -279,4 +292,6 @@ export const {
   useGetStudentViolationStatisticsQuery,
   // NEW: Export hook assign sanksi
   useAssignSanctionToViolationMutation,
+  // NEW: Export hook update status
+  useUpdateStudentViolationStatusMutation,
 } = studentViolationApi;

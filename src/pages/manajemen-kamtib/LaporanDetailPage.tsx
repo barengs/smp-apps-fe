@@ -11,6 +11,7 @@ import CustomBreadcrumb from "@/components/CustomBreadcrumb";
 import { List, Info, Gavel } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import StatusUpdateDialog from "@/components/StatusUpdateDialog";
 
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
@@ -24,6 +25,7 @@ const LaporanDetailPage: React.FC = () => {
   const { data: report } = useGetStudentViolationByIdQuery(violationId, { skip: isNaN(violationId) });
 
   const [assignOpen, setAssignOpen] = React.useState(false);
+  const [statusOpen, setStatusOpen] = React.useState(false);
 
   const studentLabel =
     report?.student
@@ -39,6 +41,32 @@ const LaporanDetailPage: React.FC = () => {
       ? String(report.violation_id)
       : "-";
 
+  // ADDED: Helper statusVariant dan toIndonesianStatus dipindah ke atas agar tidak digunakan sebelum deklarasi
+  const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" => {
+    const s = String(status).toLowerCase();
+    if (s === "active") return "success";
+    if (s === "cancelled") return "destructive";
+    if (s === "processed" || s === "completed") return "secondary";
+    if (s === "verified") return "success";
+    return "outline";
+  };
+
+  const toIndonesianStatus = (status?: string) => {
+    const s = String(status || "").toLowerCase();
+    switch (s) {
+      case "pending":
+        return "Menunggu";
+      case "verified":
+        return "Terverifikasi";
+      case "processed":
+        return "Diproses";
+      case "cancelled":
+        return "Dibatalkan";
+      default:
+        return "-";
+    }
+  };
+
   const rows = [
     { label: "Santri", value: studentLabel },
     { label: "Pelanggaran", value: violationLabel },
@@ -49,7 +77,19 @@ const LaporanDetailPage: React.FC = () => {
     { label: "Tahun Ajaran", value: report?.academic_year?.year ?? report?.academic_year_id ?? "-" },
     { label: "Dibuat", value: formatDate(report?.created_at) },
     { label: "Diperbarui", value: formatDate(report?.updated_at) },
-    { label: "Status", value: report?.status ?? "-" },
+    {
+      label: "Status",
+      value: (
+        <div className="flex items-center gap-2">
+          <Badge variant={statusVariant(report?.status ?? "")} className="capitalize">
+            {toIndonesianStatus(report?.status)}
+          </Badge>
+          <Button size="sm" variant="outline" onClick={() => setStatusOpen(true)}>
+            Ganti Status
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   // Mapping data sanksi dari respons backend (aman meskipun tipe sanctions adalah unknown[])
@@ -90,15 +130,6 @@ const LaporanDetailPage: React.FC = () => {
       default:
         return "outline";
     }
-  };
-
-  // Variant badge untuk status sanksi
-  const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" => {
-    const s = String(status).toLowerCase();
-    if (s === "active") return "success";
-    if (s === "cancelled") return "destructive";
-    if (s === "processed" || s === "completed") return "secondary";
-    return "outline";
   };
 
   return (
@@ -221,6 +252,16 @@ const LaporanDetailPage: React.FC = () => {
           open={assignOpen}
           onOpenChange={setAssignOpen}
           violationId={violationId}
+        />
+      )}
+
+      {/* Modal Ganti Status */}
+      {!isNaN(violationId) && (
+        <StatusUpdateDialog
+          open={statusOpen}
+          onOpenChange={setStatusOpen}
+          violationId={violationId}
+          currentStatus={report?.status}
         />
       )}
     </DashboardLayout>
