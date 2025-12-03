@@ -15,6 +15,7 @@ import SantriCard from './SantriCard';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ActionButton from '@/components/ActionButton';
+import SantriViolationTimeline from '@/components/SantriViolationTimeline';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -270,7 +271,7 @@ const SantriDetailPage: React.FC = () => {
                           <CardTitle>Riwayat Pelanggaran</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-sm text-muted-foreground">Data pelanggaran akan ditampilkan di sini.</p>
+                          <SantriViolationTimeline studentId={santri.id} />
                         </CardContent>
                       </Card>
                     </TabsContent>
