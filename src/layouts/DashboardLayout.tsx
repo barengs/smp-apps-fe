@@ -122,6 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.violations", href: "/dashboard/manajemen-kamtib/pelanggaran", icon: <AlertTriangle className="h-4 w-4" /> },
         { titleKey: "sidebar.violationCategory", href: "/dashboard/manajemen-kamtib/kategori-pelanggaran", icon: <BookMarked className="h-4 w-4" /> },
         { titleKey: "sidebar.sanction", href: "/dashboard/manajemen-kamtib/sanksi", icon: <Shield className="h-4 w-4" /> },
+        { titleKey: "sidebar.permission", href: "/dashboard/manajemen-kamtib/perizinan", icon: <ClipboardList className="h-4 w-4" /> },
       ],
     },
     {
