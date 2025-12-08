@@ -356,7 +356,7 @@ const PerizinanPage: React.FC = () => {
             <CardDescription>{t('permissionPage.description')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable<PermissionRecord, unknown>
+            <DataTable
               columns={columns}
               data={records}
               isLoading={isFetching}
