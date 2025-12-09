@@ -17,6 +17,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Combobox } from '@/components/ui/combobox';
+import { Badge } from '@/components/ui/badge';
 import * as toast from '@/utils/toast';
 
 const IssuePermissionDialog: React.FC<{
@@ -321,7 +322,31 @@ const PerizinanPage: React.FC = () => {
     { header: 'Mulai', id: 'start', accessorFn: (row) => row.start_date },
     { header: 'Kembali (perkiraan)', id: 'expected_return', accessorFn: (row) => row.expected_return_date || '-' },
     { header: 'Tujuan', accessorKey: 'destination' },
-    { header: 'Status', accessorKey: 'status' },
+    {
+      header: 'Status',
+      id: 'status',
+      cell: ({ row }) => {
+        const statusRaw = (row.original.status || '').toLowerCase();
+
+        // Map status ke variant badge
+        const statusVariant =
+          statusRaw === 'approved' || statusRaw === 'returned' || statusRaw === 'completed'
+            ? 'success'
+            : statusRaw === 'pending' || statusRaw === 'requested' || statusRaw === 'in_progress'
+            ? 'warning'
+            : statusRaw === 'rejected' || statusRaw === 'cancelled' || statusRaw === 'overdue'
+            ? 'destructive'
+            : 'secondary';
+
+        // Teks ditampilkan apa adanya (capitalize)
+        const label =
+          statusRaw
+            ? statusRaw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+            : '-';
+
+        return <Badge variant={statusVariant as any}>{label}</Badge>;
+      },
+    },
     { header: 'Pengembalian', id: 'return', accessorFn: (row) => row.actual_return_date || '-' },
   ];
 
