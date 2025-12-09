@@ -16,6 +16,7 @@ import {
   useDeleteLeaveTypeMutation,
   type LeaveType,
 } from '@/store/slices/leaveTypeApi';
+import { RefreshCcw } from 'lucide-react';
 
 const TipeIzinPage: React.FC = () => {
   const { data: items = [], isFetching, refetch } = useGetLeaveTypesQuery({ page: 1, per_page: 200 });
@@ -84,7 +85,9 @@ const TipeIzinPage: React.FC = () => {
   const leftActions = (
     <div className="flex items-center gap-2">
       <Button onClick={handleAdd} size="sm">Tambah Tipe Izin</Button>
-      <Button variant="outline" size="sm" onClick={() => refetch()}>Muat Ulang</Button>
+      <Button variant="outline" size="sm" onClick={() => refetch()} aria-label="Muat Ulang">
+        <RefreshCcw className="h-4 w-4" />
+      </Button>
     </div>
   );
 
