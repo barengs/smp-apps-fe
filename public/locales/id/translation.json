@@ -176,6 +176,7 @@
     "ganjil": "Ganjil",
     "sidebar.permission": "Perizinan",
     "permissionPage.title": "Manajemen Perizinan",
+    "sidebar.leaveType": "Tipe Izin",
     "permissionPage.description": "Kelola perizinan santri: data santri, pengambilan izin, dan pelaporan pengembalian.",
     "permission.tabs.students": "Data Santri",
     "permission.tabs.issue": "Perizinan",

@@ -63,6 +63,7 @@
   "sidebar.kepesantrenan": "Pesantren Affairs",
   "sidebar.sanction": "Sanctions",
   "sidebar.permission": "Permission",
+  "sidebar.leaveType": "Leave Type",
   "permissionPage.title": "Permission Management",
   "permissionPage.description": "Manage student permissions: student data, issuing permission, and return reporting.",
   "permission.tabs.students": "Students Data",

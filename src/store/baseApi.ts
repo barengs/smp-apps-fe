@@ -153,6 +153,8 @@ export const smpApi = createApi({
     'Sanction',
     // ADDED: StudentViolation
     'StudentViolation',
+    // ADDED: LeaveType
+    'LeaveType',
   ],
   endpoints: () => ({}),
 });

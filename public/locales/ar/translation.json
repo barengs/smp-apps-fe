@@ -107,6 +107,8 @@
   "sidebar.produk": "المنتجات",
   "sidebar.coa": "حسابات دفتر الأستاذ العام",
   "sidebar.masterBank": "البنك الرئيسي",
+  "sidebar.permission": "إدارة الأمان",
+  "sidebar.leaveType": "نوع الإذن",
   "header.toggleFullscreen": "تبديل وضع ملء الشاشة",
   "header.toggleTheme": "تبديل السمة",
   "header.selectLanguage": "اختر اللغة",
