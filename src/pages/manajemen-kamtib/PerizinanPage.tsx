@@ -15,6 +15,7 @@ import { DataTable } from '@/components/DataTable';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import * as toast from '@/utils/toast';
 
 const IssuePermissionDialog: React.FC<{
@@ -90,18 +91,16 @@ const IssuePermissionDialog: React.FC<{
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm mb-1">{t('permission.form.student')}</label>
-            <Select value={studentId} onValueChange={setStudentId}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t('permission.form.selectStudent')} />
-              </SelectTrigger>
-              <SelectContent>
-                {students.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>
-                    {s.nis} — {s.first_name}{s.last_name ? ' ' + s.last_name : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={students.map((s) => ({
+                value: String(s.id),
+                label: `${s.nis} — ${s.first_name}${s.last_name ? ' ' + s.last_name : ''}`,
+              }))}
+              value={studentId}
+              onChange={(val) => setStudentId(String(val))}
+              placeholder={t('permission.form.selectStudent')}
+              isLoading={false /* gunakan loading dari parent */}
+            />
           </div>
 
           <div>
@@ -267,7 +266,7 @@ const ReturnReportDialog: React.FC<{
 
 const PerizinanPage: React.FC = () => {
   const { t } = useTranslation();
-  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 200 });
+  const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 200 });
   const { data: leaves = [], isFetching: isFetchingLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
 
   const [issueOpen, setIssueOpen] = React.useState(false);
