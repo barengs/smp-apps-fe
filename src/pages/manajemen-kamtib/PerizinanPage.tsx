@@ -31,9 +31,7 @@ const IssuePermissionDialog: React.FC<{
   const [leaveTypeId, setLeaveTypeId] = React.useState<string>('');
   const [academicYearId, setAcademicYearId] = React.useState<string>('');
   const [startDate, setStartDate] = React.useState('');
-  const [startTime, setStartTime] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
-  const [endTime, setEndTime] = React.useState('');
   const [reason, setReason] = React.useState('');
   const [destination, setDestination] = React.useState('');
   const [contactPerson, setContactPerson] = React.useState('');
@@ -49,9 +47,7 @@ const IssuePermissionDialog: React.FC<{
     setLeaveTypeId('');
     setAcademicYearId('');
     setStartDate('');
-    setStartTime('');
     setEndDate('');
-    setEndTime('');
     setReason('');
     setDestination('');
     setContactPerson('');
@@ -60,7 +56,7 @@ const IssuePermissionDialog: React.FC<{
   };
 
   const handleSave = () => {
-    if (!studentId || !leaveTypeId || !academicYearId || !startDate || !startTime || !endDate || !endTime) {
+    if (!studentId || !leaveTypeId || !academicYearId || !startDate || !endDate) {
       toast.showError(t('permission.form.validationRequired'));
       return;
     }
@@ -69,8 +65,8 @@ const IssuePermissionDialog: React.FC<{
       student_id: Number(studentId),
       leave_type_id: Number(leaveTypeId),
       academic_year_id: Number(academicYearId),
-      start_date: new Date(`${startDate}T${startTime}`).toISOString(),
-      end_date: new Date(`${endDate}T${endTime}`).toISOString(),
+      start_date: new Date(`${startDate}T00:00:00Z`).toISOString(),
+      end_date: new Date(`${endDate}T00:00:00Z`).toISOString(),
       reason,
       destination,
       contact_person: contactPerson,
@@ -144,18 +140,10 @@ const IssuePermissionDialog: React.FC<{
             <label className="block text-sm mb-1">{t('permission.form.startDate')}</label>
             <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
-          <div>
-            <label className="block text-sm mb-1">{t('permission.form.startTime')}</label>
-            <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-          </div>
 
           <div>
             <label className="block text-sm mb-1">Tanggal Selesai</label>
             <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Waktu Selesai</label>
-            <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
           </div>
 
           <div className="md:col-span-2">
