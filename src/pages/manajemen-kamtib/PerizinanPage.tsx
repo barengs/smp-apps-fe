@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Combobox } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import * as toast from '@/utils/toast';
+import { openLeavePermitPdf } from '@/components/LeavePermitPdf';
 
 const IssuePermissionDialog: React.FC<{
   open: boolean;
@@ -353,7 +354,7 @@ const PerizinanPage: React.FC = () => {
               size="icon"
               variant="ghost"
               aria-label="Print izin"
-              onClick={() => window.print()}
+              onClick={() => openLeavePermitPdf(leave)}
               title="Print"
             >
               <Printer className="h-4 w-4" />
