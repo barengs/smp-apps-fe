@@ -9,7 +9,7 @@ import { Save, Printer } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useGetStudentsQuery, type Student } from '@/store/slices/studentApi';
-import { useGetStudentLeavesQuery, type StudentLeave } from '@/store/slices/studentLeaveApi';
+import { useGetStudentLeavesQuery, type StudentLeave, useCreateStudentLeaveMutation } from '@/store/slices/studentLeaveApi';
 import { useGetLeaveTypesQuery } from '@/store/slices/leaveTypeApi';
 import { useGetTahunAjaranQuery, useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { DataTable } from '@/components/DataTable';
@@ -23,7 +23,8 @@ const IssuePermissionDialog: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   students: Student[];
-}> = ({ open, onOpenChange, students }) => {
+  onCreated?: () => void; // TAMBAH: callback setelah sukses kirim
+}> = ({ open, onOpenChange, students, onCreated }) => {
   const { t } = useTranslation();
   const { data: leaveTypes = [] } = useGetLeaveTypesQuery({ page: 1, per_page: 200 });
   const { data: years = [] } = useGetTahunAjaranQuery();
@@ -57,7 +58,10 @@ const IssuePermissionDialog: React.FC<{
     setNotes('');
   };
 
-  const handleSave = () => {
+  // TAMBAH: mutation untuk create student leave
+  const [createStudentLeave, { isLoading: isCreating }] = useCreateStudentLeaveMutation();
+
+  const handleSave = async () => {
     if (!studentId || !leaveTypeId || !academicYearId || !startDate || !endDate) {
       toast.showError(t('permission.form.validationRequired'));
       return;
@@ -76,13 +80,15 @@ const IssuePermissionDialog: React.FC<{
       notes,
     };
 
-    console.log('Payload Pengambilan Izin:', payload);
+    // KIRIM KE BACKEND
+    await createStudentLeave(payload).unwrap();
     toast.showSuccess(t('permission.form.issueSuccess'));
     reset();
     onOpenChange(false);
+    onCreated?.();
   };
 
-  const handleSaveAndPrint = () => {
+  const handleSaveAndPrint = async () => {
     if (!studentId || !leaveTypeId || !academicYearId || !startDate || !endDate) {
       toast.showError(t('permission.form.validationRequired'));
       return;
@@ -101,10 +107,12 @@ const IssuePermissionDialog: React.FC<{
       notes,
     };
 
-    console.log('Payload Pengambilan Izin (Print):', payload);
+    // KIRIM KE BACKEND, lalu print
+    await createStudentLeave(payload).unwrap();
     toast.showSuccess(t('permission.form.issueSuccess'));
     reset();
     onOpenChange(false);
+    onCreated?.();
     setTimeout(() => window.print(), 300);
   };
 
@@ -197,11 +205,11 @@ const IssuePermissionDialog: React.FC<{
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSave} className="gap-2">
+          <Button onClick={handleSave} className="gap-2" disabled={isCreating}>
             <Save className="h-4 w-4" />
             {t('actions.save')}
           </Button>
-          <Button onClick={handleSaveAndPrint} variant="outline" className="gap-2">
+          <Button onClick={handleSaveAndPrint} variant="outline" className="gap-2" disabled={isCreating}>
             <Printer className="h-4 w-4" />
             Simpan dan Print
           </Button>
@@ -301,7 +309,7 @@ const ReturnReportDialog: React.FC<{
 const PerizinanPage: React.FC = () => {
   const { t } = useTranslation();
   const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 200 });
-  const { data: leaves = [], isFetching: isFetchingLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
+  const { data: leaves = [], isFetching: isFetchingLeaves, refetch: refetchLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
 
   const [issueOpen, setIssueOpen] = React.useState(false);
   const [returnOpen, setReturnOpen] = React.useState(false);
@@ -358,6 +366,7 @@ const PerizinanPage: React.FC = () => {
           open={issueOpen}
           onOpenChange={setIssueOpen}
           students={students}
+          onCreated={() => refetchLeaves()} // Refresh data setelah sukses
         />
         <ReturnReportDialog
           open={returnOpen}

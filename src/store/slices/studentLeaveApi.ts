@@ -67,6 +67,20 @@ export interface StudentLeave {
   updated_at: string;
 }
 
+// TAMBAH: request body untuk membuat student leave
+export interface CreateStudentLeaveRequest {
+  student_id: number;
+  leave_type_id: number;
+  academic_year_id: number;
+  start_date: string;
+  end_date: string;
+  reason?: string;
+  destination?: string;
+  contact_person?: string;
+  contact_phone?: string;
+  notes?: string;
+}
+
 interface GetStudentLeavesResponse {
   data: StudentLeave[] | { data: StudentLeave[] };
   links?: any;
@@ -97,7 +111,16 @@ export const studentLeaveApi = smpApi.injectEndpoints({
       },
       // Tidak menggunakan tags agar tidak perlu menambah tagTypes baru di baseApi
     }),
+
+    // TAMBAH: mutation create student leave
+    createStudentLeave: builder.mutation<StudentLeave, CreateStudentLeaveRequest>({
+      query: (body) => ({
+        url: 'main/student-leave',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useGetStudentLeavesQuery } = studentLeaveApi;
+export const { useGetStudentLeavesQuery, useCreateStudentLeaveMutation } = studentLeaveApi;
