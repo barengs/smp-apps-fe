@@ -5,6 +5,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Save, Printer } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useGetStudentsQuery, type Student } from '@/store/slices/studentApi';
@@ -79,6 +80,32 @@ const IssuePermissionDialog: React.FC<{
     toast.showSuccess(t('permission.form.issueSuccess'));
     reset();
     onOpenChange(false);
+  };
+
+  const handleSaveAndPrint = () => {
+    if (!studentId || !leaveTypeId || !academicYearId || !startDate || !endDate) {
+      toast.showError(t('permission.form.validationRequired'));
+      return;
+    }
+
+    const payload = {
+      student_id: Number(studentId),
+      leave_type_id: Number(leaveTypeId),
+      academic_year_id: Number(academicYearId),
+      start_date: new Date(`${startDate}T00:00:00Z`).toISOString(),
+      end_date: new Date(`${endDate}T00:00:00Z`).toISOString(),
+      reason,
+      destination,
+      contact_person: contactPerson,
+      contact_phone: contactPhone,
+      notes,
+    };
+
+    console.log('Payload Pengambilan Izin (Print):', payload);
+    toast.showSuccess(t('permission.form.issueSuccess'));
+    reset();
+    onOpenChange(false);
+    setTimeout(() => window.print(), 300);
   };
 
   return (
@@ -170,7 +197,14 @@ const IssuePermissionDialog: React.FC<{
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSave}>{t('actions.save')}</Button>
+          <Button onClick={handleSave} className="gap-2">
+            <Save className="h-4 w-4" />
+            {t('actions.save')}
+          </Button>
+          <Button onClick={handleSaveAndPrint} variant="outline" className="gap-2">
+            <Printer className="h-4 w-4" />
+            Simpan dan Print
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
