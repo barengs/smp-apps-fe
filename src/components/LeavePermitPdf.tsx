@@ -7,8 +7,8 @@ import type { StudentLeave } from '@/store/slices/studentLeaveApi';
 const styles = StyleSheet.create({
   page: {
     padding: 24,
-    fontSize: 11,
-    lineHeight: 1.5,
+    fontSize: 9,
+    lineHeight: 1.35,
   },
   header: {
     borderBottomWidth: 1,
@@ -17,12 +17,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 16,
+    fontSize: 13,
     textAlign: 'center',
     fontWeight: 700,
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 8,
     textAlign: 'center',
     color: '#6b7280',
     marginTop: 4,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 16,
-    fontSize: 9,
+    fontSize: 8,
     color: '#6b7280',
     textAlign: 'center',
   },
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     minHeight: 80,
   },
   signTitle: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 700,
     marginBottom: 8,
     textAlign: 'center',
@@ -104,7 +104,7 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave }> = ({ leave }
         </View>
 
         <View style={styles.section}>
-          <Text style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Identitas Santri</Text>
+          <Text style={{ fontSize: 10, fontWeight: 700, marginBottom: 6 }}>Identitas Santri</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Nama</Text>
             <Text style={styles.value}>{normalizeText(leave.student?.name)}</Text>
@@ -120,7 +120,7 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave }> = ({ leave }
         </View>
 
         <View style={styles.section}>
-          <Text style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Detail Perizinan</Text>
+          <Text style={{ fontSize: 10, fontWeight: 700, marginBottom: 6 }}>Detail Perizinan</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Jenis Izin</Text>
             <Text style={styles.value}>{normalizeText(leave.leave_type?.name)}</Text>
