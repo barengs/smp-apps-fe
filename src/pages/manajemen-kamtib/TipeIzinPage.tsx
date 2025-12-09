@@ -113,10 +113,6 @@ const TipeIzinPage: React.FC = () => {
               exportFileName="tipe-izin"
               exportTitle="Daftar Tipe Izin"
               leftActions={leftActions}
-              filterableColumns={{
-                name: { placeholder: 'Filter nama...' },
-                description: { placeholder: 'Filter deskripsi...' },
-              }}
             />
           </CardContent>
         </Card>
