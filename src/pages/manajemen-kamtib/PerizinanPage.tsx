@@ -8,54 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useGetStudentsQuery, type Student } from '@/store/slices/studentApi';
+import { useGetStudentLeavesQuery, type StudentLeave } from '@/store/slices/studentLeaveApi';
 import { DataTable } from '@/components/DataTable';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as toast from '@/utils/toast';
 
-type PermissionRecordStatus = 'issued' | 'returned';
-
-type PermissionRecord = {
-  id: number;
-  studentId: number;
-  nis: string;
-  name: string;
-  permitType: string;
-  startDate: string;
-  startTime: string;
-  expectedReturnDate?: string;
-  expectedReturnTime?: string;
-  destination?: string;
-  purpose?: string;
-  officer: string;
-  status: PermissionRecordStatus;
-  returnDate?: string;
-  returnTime?: string;
-  returnOfficer?: string;
-  notes?: string;
-  createdAt: string;
-};
-
-const normalizeTime = (raw?: string) => {
-  const src = String(raw || '').trim();
-  const m = src.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
-  if (m) return `${String(m[1]).padStart(2, '0')}:${m[2]}`;
-  const d = new Date(src);
-  if (!isNaN(d.getTime())) return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  if (src.includes(':')) {
-    const [h, mm] = src.split(':');
-    return `${String(Number(h)).padStart(2, '0')}:${String(Number(mm)).padStart(2, '0')}`;
-  }
-  return '00:00';
-};
-
 const IssuePermissionDialog: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   students: Student[];
-  onSave: (record: PermissionRecord) => void;
-}> = ({ open, onOpenChange, students, onSave }) => {
+}> = ({ open, onOpenChange, students }) => {
   const { t } = useTranslation();
   const [studentId, setStudentId] = React.useState<string>('');
   const [permitType, setPermitType] = React.useState('');
@@ -84,29 +48,7 @@ const IssuePermissionDialog: React.FC<{
       toast.showError(t('permission.form.validationRequired'));
       return;
     }
-    const s = students.find((x) => String(x.id) === studentId);
-    if (!s) {
-      toast.showError(t('permission.form.validationRequired'));
-      return;
-    }
-    const name = `${s.first_name}${s.last_name ? ' ' + s.last_name : ''}`;
-    const record: PermissionRecord = {
-      id: Date.now(),
-      studentId: s.id,
-      nis: s.nis,
-      name,
-      permitType,
-      startDate,
-      startTime: normalizeTime(startTime),
-      expectedReturnDate: expectedReturnDate || undefined,
-      expectedReturnTime: expectedReturnTime ? normalizeTime(expectedReturnTime) : undefined,
-      destination: destination || undefined,
-      purpose: purpose || undefined,
-      officer,
-      status: 'issued',
-      createdAt: new Date().toISOString(),
-    };
-    onSave(record);
+    // Simulasi: tampilkan toast sukses dan tutup dialog
     toast.showSuccess(t('permission.form.issueSuccess'));
     reset();
     onOpenChange(false);
@@ -179,20 +121,19 @@ const IssuePermissionDialog: React.FC<{
 const ReturnReportDialog: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  records: PermissionRecord[];
-  onSave: (recordId: number, update: Pick<PermissionRecord, 'returnDate' | 'returnTime' | 'returnOfficer' | 'notes'>) => void;
-}> = ({ open, onOpenChange, records, onSave }) => {
+  leaves: StudentLeave[];
+}> = ({ open, onOpenChange, leaves }) => {
   const { t } = useTranslation();
-  const issuedRecords = records.filter((r) => r.status === 'issued');
+  const openLeaves = leaves.filter((l) => !l.actual_return_date);
 
-  const [selectedRecordId, setSelectedRecordId] = React.useState<string>('');
+  const [selectedLeaveId, setSelectedLeaveId] = React.useState<string>('');
   const [returnDate, setReturnDate] = React.useState('');
   const [returnTime, setReturnTime] = React.useState('');
   const [officer, setOfficer] = React.useState('');
   const [notes, setNotes] = React.useState('');
 
   const reset = () => {
-    setSelectedRecordId('');
+    setSelectedLeaveId('');
     setReturnDate('');
     setReturnTime('');
     setOfficer('');
@@ -200,17 +141,11 @@ const ReturnReportDialog: React.FC<{
   };
 
   const handleSave = () => {
-    if (!selectedRecordId || !returnDate || !returnTime || !officer) {
+    if (!selectedLeaveId || !returnDate || !returnTime || !officer) {
       toast.showError(t('permission.form.validationRequired'));
       return;
     }
-    const idNum = Number(selectedRecordId);
-    onSave(idNum, {
-      returnDate,
-      returnTime: normalizeTime(returnTime),
-      returnOfficer: officer,
-      notes: notes || undefined,
-    });
+    // Simulasi: tampilkan toast sukses dan tutup dialog
     toast.showSuccess(t('permission.form.returnSuccess'));
     reset();
     onOpenChange(false);
@@ -226,19 +161,19 @@ const ReturnReportDialog: React.FC<{
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm mb-1">{t('permission.form.permitId')}</label>
-            <Select value={selectedRecordId} onValueChange={setSelectedRecordId}>
+            <Select value={selectedLeaveId} onValueChange={setSelectedLeaveId}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('permission.form.permitIdPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
-                {issuedRecords.length === 0 ? (
+                {openLeaves.length === 0 ? (
                   <SelectItem value="__none__" disabled>
                     Tidak ada perizinan aktif
                   </SelectItem>
                 ) : (
-                  issuedRecords.map((r) => (
-                    <SelectItem key={r.id} value={String(r.id)}>
-                      {r.nis} — {r.name} — {r.permitType} — {r.startDate} {r.startTime}
+                  openLeaves.map((l) => (
+                    <SelectItem key={l.id} value={String(l.id)}>
+                      {l.student.nis} — {l.student.name} — {l.leave_type?.name} — {l.start_date}
                     </SelectItem>
                   ))
                 )}
@@ -272,41 +207,21 @@ const ReturnReportDialog: React.FC<{
 
 const PerizinanPage: React.FC = () => {
   const { t } = useTranslation();
-  const { data: students = [], isFetching } = useGetStudentsQuery({ page: 1, per_page: 200 });
+  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 200 });
+  const { data: leaves = [], isFetching: isFetchingLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
 
-  const [records, setRecords] = React.useState<PermissionRecord[]>([]);
   const [issueOpen, setIssueOpen] = React.useState(false);
   const [returnOpen, setReturnOpen] = React.useState(false);
 
-  const columns: ColumnDef<PermissionRecord>[] = [
-    { header: 'NIS', accessorKey: 'nis' },
-    { header: 'Nama', accessorKey: 'name' },
-    { header: 'Jenis Izin', accessorKey: 'permitType' },
-    {
-      header: 'Mulai',
-      id: 'start',
-      accessorFn: (row) => `${row.startDate} ${row.startTime}`,
-    },
-    {
-      header: 'Kembali (perkiraan)',
-      id: 'expected_return',
-      accessorFn: (row) => `${row.expectedReturnDate ?? '-'} ${row.expectedReturnTime ?? ''}`.trim(),
-    },
+  const columns: ColumnDef<StudentLeave>[] = [
+    { header: 'NIS', id: 'nis', accessorFn: (row) => row.student?.nis ?? '-' },
+    { header: 'Nama', id: 'name', accessorFn: (row) => row.student?.name ?? '-' },
+    { header: 'Jenis Izin', id: 'leave_type', accessorFn: (row) => row.leave_type?.name ?? '-' },
+    { header: 'Mulai', id: 'start', accessorFn: (row) => row.start_date },
+    { header: 'Kembali (perkiraan)', id: 'expected_return', accessorFn: (row) => row.expected_return_date || '-' },
     { header: 'Tujuan', accessorKey: 'destination' },
-    { header: 'Petugas', accessorKey: 'officer' },
-    {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ getValue }) => {
-        const v = getValue() as PermissionRecordStatus;
-        return v === 'returned' ? 'Sudah Kembali' : 'Izin Aktif';
-      },
-    },
-    {
-      header: 'Pengembalian',
-      id: 'return',
-      accessorFn: (row) => (row.returnDate ? `${row.returnDate} ${row.returnTime ?? ''}`.trim() : '-'),
-    },
+    { header: 'Status', accessorKey: 'status' },
+    { header: 'Pengembalian', id: 'return', accessorFn: (row) => row.actual_return_date || '-' },
   ];
 
   const leftActions = (
@@ -319,27 +234,6 @@ const PerizinanPage: React.FC = () => {
       </Button>
     </div>
   );
-
-  const handleAddRecord = (rec: PermissionRecord) => {
-    setRecords((prev) => [rec, ...prev]);
-  };
-
-  const handleReturnUpdate = (recordId: number, update: Pick<PermissionRecord, 'returnDate' | 'returnTime' | 'returnOfficer' | 'notes'>) => {
-    setRecords((prev) =>
-      prev.map((r) =>
-        r.id === recordId
-          ? {
-              ...r,
-              status: 'returned',
-              returnDate: update.returnDate,
-              returnTime: update.returnTime,
-              returnOfficer: update.returnOfficer,
-              notes: update.notes,
-            }
-          : r
-      )
-    );
-  };
 
   return (
     <DashboardLayout title={t('sidebar.permission')} role="administrasi">
@@ -358,8 +252,8 @@ const PerizinanPage: React.FC = () => {
           <CardContent>
             <DataTable
               columns={columns}
-              data={records}
-              isLoading={isFetching}
+              data={leaves}
+              isLoading={isFetchingLeaves}
               exportFileName="data-perizinan"
               exportTitle="Data Perizinan Santri"
               leftActions={leftActions}
@@ -371,13 +265,11 @@ const PerizinanPage: React.FC = () => {
           open={issueOpen}
           onOpenChange={setIssueOpen}
           students={students}
-          onSave={handleAddRecord}
         />
         <ReturnReportDialog
           open={returnOpen}
           onOpenChange={setReturnOpen}
-          records={records}
-          onSave={handleReturnUpdate}
+          leaves={leaves}
         />
       </div>
     </DashboardLayout>
