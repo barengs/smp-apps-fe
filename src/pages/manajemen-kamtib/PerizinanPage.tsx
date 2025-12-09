@@ -5,7 +5,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Save, Printer } from 'lucide-react';
+import { Save, Printer, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { useGetStudentsQuery, type Student } from '@/store/slices/studentApi';
@@ -321,14 +321,11 @@ const PerizinanPage: React.FC = () => {
     { header: 'Jenis Izin', id: 'leave_type', accessorFn: (row) => row.leave_type?.name ?? '-' },
     { header: 'Mulai', id: 'start', accessorFn: (row) => row.start_date },
     { header: 'Kembali (perkiraan)', id: 'expected_return', accessorFn: (row) => row.expected_return_date || '-' },
-    { header: 'Tujuan', accessorKey: 'destination' },
     {
       header: 'Status',
       id: 'status',
       cell: ({ row }) => {
         const statusRaw = (row.original.status || '').toLowerCase();
-
-        // Map status ke variant badge
         const statusVariant =
           statusRaw === 'approved' || statusRaw === 'returned' || statusRaw === 'completed'
             ? 'success'
@@ -337,17 +334,43 @@ const PerizinanPage: React.FC = () => {
             : statusRaw === 'rejected' || statusRaw === 'cancelled' || statusRaw === 'overdue'
             ? 'destructive'
             : 'secondary';
-
-        // Teks ditampilkan apa adanya (capitalize)
         const label =
           statusRaw
             ? statusRaw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
             : '-';
-
         return <Badge variant={statusVariant as any}>{label}</Badge>;
       },
     },
     { header: 'Pengembalian', id: 'return', accessorFn: (row) => row.actual_return_date || '-' },
+    {
+      header: 'Aksi',
+      id: 'actions',
+      cell: ({ row }) => {
+        const leave = row.original;
+        return (
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Print izin"
+              onClick={() => window.print()}
+              title="Print"
+            >
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Edit izin"
+              onClick={() => console.log('Edit leave', leave.id)}
+              title="Edit"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
   ];
 
   const leftActions = (
