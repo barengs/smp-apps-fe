@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useTranslation } from 'react-i18next';
 import { useGetStudentsQuery, type Student } from '@/store/slices/studentApi';
 import { useGetStudentLeavesQuery, type StudentLeave } from '@/store/slices/studentLeaveApi';
+import { useGetLeaveTypesQuery } from '@/store/slices/leaveTypeApi';
+import { useGetTahunAjaranQuery, useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { DataTable } from '@/components/DataTable';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Input } from '@/components/ui/input';
@@ -21,34 +23,62 @@ const IssuePermissionDialog: React.FC<{
   students: Student[];
 }> = ({ open, onOpenChange, students }) => {
   const { t } = useTranslation();
+  const { data: leaveTypes = [] } = useGetLeaveTypesQuery({ page: 1, per_page: 200 });
+  const { data: years = [] } = useGetTahunAjaranQuery();
+  const { data: activeYear } = useGetActiveTahunAjaranQuery();
+
   const [studentId, setStudentId] = React.useState<string>('');
-  const [permitType, setPermitType] = React.useState('');
+  const [leaveTypeId, setLeaveTypeId] = React.useState<string>('');
+  const [academicYearId, setAcademicYearId] = React.useState<string>('');
   const [startDate, setStartDate] = React.useState('');
   const [startTime, setStartTime] = React.useState('');
-  const [expectedReturnDate, setExpectedReturnDate] = React.useState('');
-  const [expectedReturnTime, setExpectedReturnTime] = React.useState('');
+  const [endDate, setEndDate] = React.useState('');
+  const [endTime, setEndTime] = React.useState('');
+  const [reason, setReason] = React.useState('');
   const [destination, setDestination] = React.useState('');
-  const [purpose, setPurpose] = React.useState('');
-  const [officer, setOfficer] = React.useState('');
+  const [contactPerson, setContactPerson] = React.useState('');
+  const [contactPhone, setContactPhone] = React.useState('');
+  const [notes, setNotes] = React.useState('');
+
+  React.useEffect(() => {
+    if (activeYear?.id) setAcademicYearId(String(activeYear.id));
+  }, [activeYear]);
 
   const reset = () => {
     setStudentId('');
-    setPermitType('');
+    setLeaveTypeId('');
+    setAcademicYearId('');
     setStartDate('');
     setStartTime('');
-    setExpectedReturnDate('');
-    setExpectedReturnTime('');
+    setEndDate('');
+    setEndTime('');
+    setReason('');
     setDestination('');
-    setPurpose('');
-    setOfficer('');
+    setContactPerson('');
+    setContactPhone('');
+    setNotes('');
   };
 
   const handleSave = () => {
-    if (!studentId || !permitType || !startDate || !startTime || !officer) {
+    if (!studentId || !leaveTypeId || !academicYearId || !startDate || !startTime || !endDate || !endTime) {
       toast.showError(t('permission.form.validationRequired'));
       return;
     }
-    // Simulasi: tampilkan toast sukses dan tutup dialog
+
+    const payload = {
+      student_id: Number(studentId),
+      leave_type_id: Number(leaveTypeId),
+      academic_year_id: Number(academicYearId),
+      start_date: new Date(`${startDate}T${startTime}`).toISOString(),
+      end_date: new Date(`${endDate}T${endTime}`).toISOString(),
+      reason,
+      destination,
+      contact_person: contactPerson,
+      contact_phone: contactPhone,
+      notes,
+    };
+
+    console.log('Payload Pengambilan Izin:', payload);
     toast.showSuccess(t('permission.form.issueSuccess'));
     reset();
     onOpenChange(false);
@@ -77,10 +107,39 @@ const IssuePermissionDialog: React.FC<{
               </SelectContent>
             </Select>
           </div>
+
           <div>
-            <label className="block text-sm mb-1">{t('permission.form.permitType')}</label>
-            <Input value={permitType} onChange={(e) => setPermitType(e.target.value)} placeholder={t('permission.form.permitTypePlaceholder')} />
+            <label className="block text-sm mb-1">{t('sidebar.leaveType')}</label>
+            <Select value={leaveTypeId} onValueChange={setLeaveTypeId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t('permission.form.permitType')} />
+              </SelectTrigger>
+              <SelectContent>
+                {leaveTypes.map((lt) => (
+                  <SelectItem key={lt.id} value={String(lt.id)}>
+                    {lt.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          <div>
+            <label className="block text-sm mb-1">Tahun Ajaran</label>
+            <Select value={academicYearId} onValueChange={setAcademicYearId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t('teachingHoursPage.selectAcademicYear')} />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((y) => (
+                  <SelectItem key={y.id} value={String(y.id)}>
+                    {y.year} {y.type ? `(${t(y.type.toLowerCase()) || y.type})` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <label className="block text-sm mb-1">{t('permission.form.startDate')}</label>
             <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -89,25 +148,38 @@ const IssuePermissionDialog: React.FC<{
             <label className="block text-sm mb-1">{t('permission.form.startTime')}</label>
             <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
           </div>
+
           <div>
-            <label className="block text-sm mb-1">{t('permission.form.expectedReturnDate')}</label>
-            <Input type="date" value={expectedReturnDate} onChange={(e) => setExpectedReturnDate(e.target.value)} />
+            <label className="block text-sm mb-1">Tanggal Selesai</label>
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm mb-1">{t('permission.form.expectedReturnTime')}</label>
-            <Input type="time" value={expectedReturnTime} onChange={(e) => setExpectedReturnTime(e.target.value)} />
+            <label className="block text-sm mb-1">Waktu Selesai</label>
+            <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
           </div>
+
           <div className="md:col-span-2">
             <label className="block text-sm mb-1">{t('permission.form.destination')}</label>
             <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder={t('permission.form.destinationPlaceholder')} />
           </div>
+
           <div className="md:col-span-2">
-            <label className="block text-sm mb-1">{t('permission.form.purpose')}</label>
-            <Input value={purpose} onChange={(e) => setPurpose(e.target.value)} placeholder={t('permission.form.purposePlaceholder')} />
+            <label className="block text-sm mb-1">Alasan</label>
+            <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Contoh: Mengunjungi keluarga" />
           </div>
+
+          <div>
+            <label className="block text-sm mb-1">Kontak</label>
+            <Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} placeholder="Nama kontak" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Nomor Kontak</label>
+            <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="Contoh: 08123456789" />
+          </div>
+
           <div className="md:col-span-2">
-            <label className="block text-sm mb-1">{t('permission.form.officer')}</label>
-            <Input value={officer} onChange={(e) => setOfficer(e.target.value)} placeholder={t('permission.form.officerPlaceholder')} />
+            <label className="block text-sm mb-1">{t('permission.form.notes')}</label>
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('permission.form.notesPlaceholder')} />
           </div>
         </div>
         <DialogFooter>
