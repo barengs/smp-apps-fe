@@ -83,7 +83,7 @@ const IssuePermissionDialog: React.FC<{
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{t('permission.form.issue.title')}</DialogTitle>
           <DialogDescription>{t('permission.form.issue.desc')}</DialogDescription>
