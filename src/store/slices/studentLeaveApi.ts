@@ -171,6 +171,27 @@ export const studentLeaveApi = smpApi.injectEndpoints({
         return (response?.data ?? response) as StudentLeave;
       },
     }),
+
+    // NEW: Submit laporan pengembalian izin
+    submitStudentLeaveReport: builder.mutation<
+      { message?: string },
+      {
+        id: number;
+        data: {
+          report_date: string;
+          report_time: string; // "HH:MM:SS"
+          report_notes?: string;
+          condition: string; // contoh: "sehat"
+          reported_to: number;
+        };
+      }
+    >({
+      query: ({ id, data }) => ({
+        url: `main/student-leave/${id}/submit-report`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -181,4 +202,5 @@ export const {
   useRejectStudentLeaveMutation,
   useCancelStudentLeaveMutation,
   useGetStudentLeaveByIdQuery,
+  useSubmitStudentLeaveReportMutation,
 } = studentLeaveApi;

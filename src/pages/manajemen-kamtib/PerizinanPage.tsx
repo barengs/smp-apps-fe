@@ -227,33 +227,72 @@ const ReturnReportDialog: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   leaves: StudentLeave[];
-}> = ({ open, onOpenChange, leaves }) => {
+  onSubmitted?: () => void;
+}> = ({ open, onOpenChange, leaves, onSubmitted }) => {
   const { t } = useTranslation();
   const openLeaves = leaves.filter((l) => !l.actual_return_date);
 
   const [selectedLeaveId, setSelectedLeaveId] = React.useState<string>('');
-  const [returnDate, setReturnDate] = React.useState('');
-  const [returnTime, setReturnTime] = React.useState('');
-  const [officer, setOfficer] = React.useState('');
-  const [notes, setNotes] = React.useState('');
+  // UPDATED: Field sesuai kebutuhan backend
+  const [reportDate, setReportDate] = React.useState('');
+  const [reportTime, setReportTime] = React.useState('');
+  const [reportNotes, setReportNotes] = React.useState('');
+  const [condition, setCondition] = React.useState<'sehat' | 'sakit' | 'lainnya'>('sehat');
+  const [reportedTo, setReportedTo] = React.useState<string>(''); // id petugas
+
+  // NEW: mutation submit report
+  const { useSubmitStudentLeaveReportMutation } = require('@/store/slices/studentLeaveApi');
+  const [submitReport, { isLoading: isSubmitting }] = useSubmitStudentLeaveReportMutation();
+
+  const normalizeTimeToHMS = (raw?: string): string => {
+    const src = String(raw || '').trim();
+    const m = src.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if (m) {
+      const hh = String(m[1]).padStart(2, '0');
+      const mm = String(m[2]).padStart(2, '0');
+      const ss = String(m[3] ?? '00').padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    }
+    // fallback: if only HH or HHMM
+    const parts = src.split(':');
+    const hh = String(Number(parts[0] || 0)).padStart(2, '0');
+    const mm = String(Number(parts[1] || 0)).padStart(2, '0');
+    return `${hh}:${mm}:00`;
+  };
 
   const reset = () => {
     setSelectedLeaveId('');
-    setReturnDate('');
-    setReturnTime('');
-    setOfficer('');
-    setNotes('');
+    setReportDate('');
+    setReportTime('');
+    setReportNotes('');
+    setCondition('sehat');
+    setReportedTo('');
   };
 
-  const handleSave = () => {
-    if (!selectedLeaveId || !returnDate || !returnTime || !officer) {
+  const handleSave = async () => {
+    if (!selectedLeaveId || !reportDate || !reportTime || !reportedTo) {
       toast.showError(t('permission.form.validationRequired'));
       return;
     }
-    // Simulasi: tampilkan toast sukses dan tutup dialog
-    toast.showSuccess(t('permission.form.returnSuccess'));
-    reset();
-    onOpenChange(false);
+    const idNum = Number(selectedLeaveId);
+    const payload = {
+      report_date: new Date(`${reportDate}T00:00:00Z`).toISOString(),
+      report_time: normalizeTimeToHMS(reportTime),
+      report_notes: reportNotes || undefined,
+      condition,
+      reported_to: Number(reportedTo),
+    };
+
+    const loadingId = toast.showLoading('Mengirim pelaporan...');
+    try {
+      await submitReport({ id: idNum, data: payload }).unwrap();
+      toast.showSuccess('Pelaporan pengembalian izin berhasil dikirim.');
+      onOpenChange(false);
+      onSubmitted?.();
+      reset();
+    } finally {
+      toast.dismissToast(loadingId);
+    }
   };
 
   return (
@@ -285,25 +324,50 @@ const ReturnReportDialog: React.FC<{
               </SelectContent>
             </Select>
           </div>
+
           <div>
-            <label className="block text-sm mb-1">{t('permission.form.returnDate')}</label>
-            <Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+            <label className="block text-sm mb-1">Tanggal Laporan</label>
+            <Input type="date" value={reportDate} onChange={(e) => setReportDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm mb-1">{t('permission.form.returnTime')}</label>
-            <Input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
+            <label className="block text-sm mb-1">Waktu Laporan</label>
+            <Input type="time" value={reportTime} onChange={(e) => setReportTime(e.target.value)} />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm mb-1">{t('permission.form.officer')}</label>
-            <Input value={officer} onChange={(e) => setOfficer(e.target.value)} placeholder={t('permission.form.officerPlaceholder')} />
+
+          <div>
+            <label className="block text-sm mb-1">Kondisi</label>
+            <Select value={condition} onValueChange={(v) => setCondition(v as any)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih kondisi" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="sehat">Sehat</SelectItem>
+                <SelectItem value="sakit">Sakit</SelectItem>
+                <SelectItem value="lainnya">Lainnya</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <div>
+            <label className="block text-sm mb-1">Dilaporkan kepada (ID)</label>
+            <Input
+              type="number"
+              value={reportedTo}
+              onChange={(e) => setReportedTo(e.target.value)}
+              placeholder="Masukkan ID petugas"
+            />
+          </div>
+
           <div className="md:col-span-2">
-            <label className="block text-sm mb-1">{t('permission.form.notes')}</label>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('permission.form.notesPlaceholder')} />
+            <label className="block text-sm mb-1">Catatan Laporan</label>
+            <Input
+              value={reportNotes}
+              onChange={(e) => setReportNotes(e.target.value)}
+              placeholder="Catatan tambahan (opsional)"
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSave}>{t('actions.save')}</Button>
+          <Button onClick={handleSave} disabled={isSubmitting}>{isSubmitting ? 'Menyimpan...' : t('actions.save')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -456,6 +520,7 @@ const PerizinanPage: React.FC = () => {
           open={returnOpen}
           onOpenChange={setReturnOpen}
           leaves={leaves}
+          onSubmitted={() => refetchLeaves()}
         />
         {/* NEW: Modal ubah status */}
         <LeaveStatusUpdateDialog
