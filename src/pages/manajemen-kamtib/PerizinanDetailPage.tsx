@@ -105,8 +105,8 @@ const PerizinanDetailPage: React.FC = () => {
                 <tbody>
                   {rows.map((row, idx) => (
                     <tr key={idx} className="border-b last:border-0">
-                      <td className="w-1/3 p-3 text-muted-foreground align-top">{row.label}</td>
-                      <td className="p-3 font-medium align-top">{row.value}</td>
+                      <td className="w-1/3 px-3 py-1.5 text-muted-foreground align-top">{row.label}</td>
+                      <td className="px-3 py-1.5 font-medium align-top">{row.value}</td>
                     </tr>
                   ))}
                 </tbody>
