@@ -106,6 +106,14 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave }> = ({ leave }
         <View style={styles.section}>
           <Text style={{ fontSize: 10, fontWeight: 700, marginBottom: 6 }}>Identitas Santri</Text>
           <View style={styles.row}>
+            <Text style={styles.label}>Nomor Izin</Text>
+            <Text style={styles.value}>
+              {normalizeText(
+                (leave.leave_number != null ? String(leave.leave_number) : '').trim()
+              )}
+            </Text>
+          </View>
+          <View style={styles.row}>
             <Text style={styles.label}>Nama</Text>
             <Text style={styles.value}>{normalizeText(leave.student?.name)}</Text>
           </View>

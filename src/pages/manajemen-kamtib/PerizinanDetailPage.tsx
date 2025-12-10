@@ -31,6 +31,7 @@ const PerizinanDetailPage: React.FC = () => {
   const { data: leave } = useGetStudentLeaveByIdQuery(leaveId, { skip: isNaN(leaveId) });
 
   const rows: Array<{ label: string; value: React.ReactNode }> = [
+    { label: "Nomor Izin", value: leave?.leave_number != null && String(leave.leave_number).trim() !== "" ? String(leave.leave_number) : "-" },
     { label: "Nama Santri", value: leave?.student?.name ?? "-" },
     { label: "NIS", value: leave?.student?.nis ?? "-" },
     { label: "Tahun Ajaran", value: leave?.academic_year?.name ?? "-" },
