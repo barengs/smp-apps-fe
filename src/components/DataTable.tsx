@@ -222,6 +222,17 @@ export function DataTable<TData, TValue>({
     }
   };
 
+  // Baris yang ditampilkan: gunakan baris paginasi saat mode lokal
+  const displayedRows = manualPaginationEnabled
+    ? table.getRowModel().rows // Server pagination: subset dari backend
+    : table.getPaginationRowModel().rows; // Lokal: hasil paginasi internal
+
+  // Hitung total halaman
+  const computedTotalPageCount = manualPaginationEnabled
+    ? pageCount ?? 1
+    : table.getPageCount();
+  const shownTotalPageCount = Math.max((computedTotalPageCount as number) || 1, 1);
+
   // Get current page info — hanya gunakan prop saat manual mode
   const currentPageSize = manualPaginationEnabled
     ? pagination!.pageSize
@@ -230,11 +241,13 @@ export function DataTable<TData, TValue>({
     ? pagination!.pageIndex
     : table.getState().pagination.pageIndex;
 
-  // Hitung total halaman dari hasil filter agar navigasi akurat
-  const computedTotalPageCount = manualPaginationEnabled
-    ? pageCount ?? 1
-    : table.getPageCount();
-  const shownTotalPageCount = Math.max((computedTotalPageCount as number) || 1, 1);
+  // Enable/disable tombol berdasarkan mode
+  const canPrev = manualPaginationEnabled
+    ? currentPageIndex > 0
+    : table.getCanPreviousPage();
+  const canNext = manualPaginationEnabled
+    ? currentPageIndex < shownTotalPageCount - 1
+    : table.getCanNextPage();
 
   // Handle pagination button clicks — panggil parent hanya saat manual mode
   const handleFirstPage = () => {
@@ -247,7 +260,7 @@ export function DataTable<TData, TValue>({
 
   const handlePreviousPage = () => {
     if (manualPaginationEnabled) {
-      onPaginationChange!({ pageIndex: currentPageIndex - 1, pageSize: currentPageSize });
+      onPaginationChange!({ pageIndex: Math.max(currentPageIndex - 1, 0), pageSize: currentPageSize });
     } else {
       table.previousPage();
     }
@@ -255,7 +268,7 @@ export function DataTable<TData, TValue>({
 
   const handleNextPage = () => {
     if (manualPaginationEnabled) {
-      onPaginationChange!({ pageIndex: currentPageIndex + 1, pageSize: currentPageSize });
+      onPaginationChange!({ pageIndex: Math.min(currentPageIndex + 1, shownTotalPageCount - 1), pageSize: currentPageSize });
     } else {
       table.nextPage();
     }
@@ -269,11 +282,6 @@ export function DataTable<TData, TValue>({
       table.setPageIndex(lastPage);
     }
   };
-
-  // Baris yang ditampilkan: gunakan baris paginasi saat mode lokal
-  const displayedRows = manualPaginationEnabled
-    ? table.getRowModel().rows // Server pagination: data sudah subset dari backend
-    : table.getPaginationRowModel().rows; // Lokal: gunakan row model yang terpaginasikan
 
   return (
     <div className="space-y-4">
@@ -439,7 +447,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={handleFirstPage}
-            disabled={currentPageIndex === 0}
+            disabled={!canPrev}
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -447,7 +455,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={handlePreviousPage}
-            disabled={currentPageIndex === 0}
+            disabled={!canPrev}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -458,7 +466,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={handleNextPage}
-            disabled={currentPageIndex >= shownTotalPageCount - 1}
+            disabled={!canNext}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -466,7 +474,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={handleLastPage}
-            disabled={currentPageIndex >= shownTotalPageCount - 1}
+            disabled={!canNext}
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>
