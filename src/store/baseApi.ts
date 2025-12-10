@@ -35,7 +35,11 @@ const baseQuery = fetchBaseQuery({
       'updateControlPanelSettings',
       'addTeacher',
       'updateTeacher',
-      'updateStudent'
+      'updateStudent',
+      // ADDED: student leave status endpoints use FormData
+      'approveStudentLeave',
+      'rejectStudentLeave',
+      'cancelStudentLeave',
     ];
     
     if (!formDataEndpoints.includes(endpoint)) {

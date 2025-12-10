@@ -119,31 +119,46 @@ export const studentLeaveApi = smpApi.injectEndpoints({
       }),
     }),
 
-    // UPDATED: Approve student leave (opsional kirim approval_notes)
+    // UPDATED: Approve student leave (opsional kirim approval_notes via FormData)
     approveStudentLeave: builder.mutation<{ message?: string }, { id: number; approval_notes?: string }>({
-      query: ({ id, approval_notes }) => ({
-        url: `main/student-leave/${id}/approve`,
-        method: 'POST',
-        body: approval_notes ? { approval_notes } : undefined,
-      }),
+      query: ({ id, approval_notes }) => {
+        const formData = new FormData();
+        if (approval_notes && approval_notes.trim()) {
+          formData.append('approval_notes', approval_notes.trim());
+        }
+        return {
+          url: `main/student-leave/${id}/approve`,
+          method: 'POST',
+          body: formData,
+        };
+      },
     }),
 
-    // UPDATED: Reject student leave (WAJIB kirim approval_notes)
+    // UPDATED: Reject student leave (WAJIB kirim approval_notes via FormData)
     rejectStudentLeave: builder.mutation<{ message?: string }, { id: number; approval_notes: string }>({
-      query: ({ id, approval_notes }) => ({
-        url: `main/student-leave/${id}/reject`,
-        method: 'POST',
-        body: { approval_notes },
-      }),
+      query: ({ id, approval_notes }) => {
+        const formData = new FormData();
+        formData.append('approval_notes', approval_notes.trim());
+        return {
+          url: `main/student-leave/${id}/reject`,
+          method: 'POST',
+          body: formData,
+        };
+      },
     }),
 
-    // UPDATED: Cancel (delete) student leave (kirim approval_notes dalam body)
+    // UPDATED: Cancel (delete) student leave via POST spoof + FormData
     cancelStudentLeave: builder.mutation<{ message?: string }, { id: number; approval_notes: string }>({
-      query: ({ id, approval_notes }) => ({
-        url: `main/student-leave/${id}`,
-        method: 'DELETE',
-        body: { approval_notes },
-      }),
+      query: ({ id, approval_notes }) => {
+        const formData = new FormData();
+        formData.append('_method', 'DELETE');
+        formData.append('approval_notes', approval_notes.trim());
+        return {
+          url: `main/student-leave/${id}`,
+          method: 'POST',
+          body: formData,
+        };
+      },
     }),
 
     // NEW: Ambil detail perizinan berdasarkan ID
