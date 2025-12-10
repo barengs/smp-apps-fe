@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import * as toast from "@/utils/toast";
 import { useApproveStudentLeaveMutation, useRejectStudentLeaveMutation, useCancelStudentLeaveMutation } from "@/store/slices/studentLeaveApi";
+import { Textarea } from "@/components/ui/textarea";
 
 type StatusChoice = "approved" | "rejected" | "cancelled";
 
@@ -27,6 +28,8 @@ const LeaveStatusUpdateDialog: React.FC<LeaveStatusUpdateDialogProps> = ({
   onUpdated,
 }) => {
   const [selected, setSelected] = React.useState<StatusChoice>("approved");
+  const [notes, setNotes] = React.useState<string>("");
+
   const [approve, { isLoading: isApproving }] = useApproveStudentLeaveMutation();
   const [reject, { isLoading: isRejecting }] = useRejectStudentLeaveMutation();
   const [cancel, { isLoading: isCancelling }] = useCancelStudentLeaveMutation();
@@ -38,6 +41,7 @@ const LeaveStatusUpdateDialog: React.FC<LeaveStatusUpdateDialogProps> = ({
     } else {
       setSelected("approved");
     }
+    setNotes("");
   }, [currentStatus, open]);
 
   const handleSubmit = async () => {
@@ -45,19 +49,26 @@ const LeaveStatusUpdateDialog: React.FC<LeaveStatusUpdateDialogProps> = ({
       toast.showError("Data izin tidak tersedia.");
       return;
     }
+
+    // Wajib catatan untuk ditolak atau dibatalkan
+    if ((selected === "rejected" || selected === "cancelled") && !notes.trim()) {
+      toast.showError("Mohon isi catatan untuk tindakan penolakan atau pembatalan.");
+      return;
+    }
+
     const loadingId = toast.showLoading("Memproses status...");
     try {
       switch (selected) {
         case "approved":
-          await approve({ id: leaveId }).unwrap();
+          await approve({ id: leaveId, approval_notes: notes?.trim() || undefined }).unwrap();
           toast.showSuccess("Izin disetujui.");
           break;
         case "rejected":
-          await reject({ id: leaveId }).unwrap();
+          await reject({ id: leaveId, approval_notes: notes.trim() }).unwrap();
           toast.showSuccess("Izin ditolak.");
           break;
         case "cancelled":
-          await cancel({ id: leaveId }).unwrap();
+          await cancel({ id: leaveId, approval_notes: notes.trim() }).unwrap();
           toast.showSuccess("Izin dibatalkan.");
           break;
       }
@@ -98,6 +109,20 @@ const LeaveStatusUpdateDialog: React.FC<LeaveStatusUpdateDialogProps> = ({
               <Label htmlFor="leave-status-cancelled" className="cursor-pointer">Dibatalkan</Label>
             </div>
           </RadioGroup>
+
+          {/* Catatan persetujuan/penolakan/pembatalan */}
+          <div className="space-y-2">
+            <Label className="text-sm">Catatan</Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Isi catatan untuk tindakan Disetujui/Ditolak/Dibatalkan"
+              rows={4}
+            />
+            {(selected === "rejected" || selected === "cancelled") && !notes.trim() ? (
+              <div className="text-xs text-destructive">Catatan wajib diisi untuk Ditolak atau Dibatalkan.</div>
+            ) : null}
+          </div>
         </div>
 
         <DialogFooter className="gap-2">

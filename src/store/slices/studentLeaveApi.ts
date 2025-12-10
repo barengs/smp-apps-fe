@@ -119,27 +119,30 @@ export const studentLeaveApi = smpApi.injectEndpoints({
       }),
     }),
 
-    // NEW: Approve student leave
-    approveStudentLeave: builder.mutation<{ message?: string }, { id: number }>({
-      query: ({ id }) => ({
+    // UPDATED: Approve student leave (opsional kirim approval_notes)
+    approveStudentLeave: builder.mutation<{ message?: string }, { id: number; approval_notes?: string }>({
+      query: ({ id, approval_notes }) => ({
         url: `main/student-leave/${id}/approve`,
         method: 'POST',
+        body: approval_notes ? { approval_notes } : undefined,
       }),
     }),
 
-    // NEW: Reject student leave
-    rejectStudentLeave: builder.mutation<{ message?: string }, { id: number }>({
-      query: ({ id }) => ({
+    // UPDATED: Reject student leave (WAJIB kirim approval_notes)
+    rejectStudentLeave: builder.mutation<{ message?: string }, { id: number; approval_notes: string }>({
+      query: ({ id, approval_notes }) => ({
         url: `main/student-leave/${id}/reject`,
         method: 'POST',
+        body: { approval_notes },
       }),
     }),
 
-    // NEW: Cancel (delete) student leave
-    cancelStudentLeave: builder.mutation<{ message?: string }, { id: number }>({
-      query: ({ id }) => ({
+    // UPDATED: Cancel (delete) student leave (kirim approval_notes dalam body)
+    cancelStudentLeave: builder.mutation<{ message?: string }, { id: number; approval_notes: string }>({
+      query: ({ id, approval_notes }) => ({
         url: `main/student-leave/${id}`,
         method: 'DELETE',
+        body: { approval_notes },
       }),
     }),
 
@@ -147,7 +150,7 @@ export const studentLeaveApi = smpApi.injectEndpoints({
     getStudentLeaveById: builder.query<StudentLeave, number>({
       query: (id) => `main/student-leave/${id}`,
       transformResponse: (response: any): StudentLeave => {
-        // Normalisasi respons: if response is { data: StudentLeave }, ambil data-nya
+        // Normalisasi: jika API membungkus dengan { data }, ambil data-nya
         return (response?.data ?? response) as StudentLeave;
       },
     }),
