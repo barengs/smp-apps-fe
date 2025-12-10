@@ -75,9 +75,6 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
     data={data}
     exportFileName="data_kamar"
     exportTitle="Data Kamar"
-    pagination={pagination}
-    onPaginationChange={onPaginationChange}
-    pageCount={pageCount}
     sorting={sorting}
     onSortingChange={onSortingChange}
   />;

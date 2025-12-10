@@ -270,10 +270,10 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  // Baris yang ditampilkan: lakukan slicing sesuai mode
+  // Baris yang ditampilkan: gunakan baris paginasi saat mode lokal
   const displayedRows = manualPaginationEnabled
-    ? table.getRowModel().rows
-    : table.getPaginationRowModel().rows;
+    ? table.getRowModel().rows // Server pagination: data sudah subset dari backend
+    : table.getPaginationRowModel().rows; // Lokal: gunakan row model yang terpaginasikan
 
   return (
     <div className="space-y-4">
