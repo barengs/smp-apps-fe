@@ -5,14 +5,9 @@ import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 export const roomApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRooms: builder.query<PaginatedResponse<Room>, PaginationParams>({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
-        return `master/room?${queryParams.toString()}`;
+      query: (_params) => {
+        // Endpoint tanpa parameter query sesuai permintaan
+        return 'master/room';
       },
       transformResponse: (response: any): PaginatedResponse<Room> => {
         const raw = response?.data;
@@ -33,7 +28,6 @@ export const roomApi = smpApi.injectEndpoints({
           },
         });
 
-        // Jika backend mengirim array sederhana: { success, message, data: [...] }
         if (Array.isArray(raw)) {
           const data = raw.map(normalizeRoom);
           return {
@@ -53,7 +47,6 @@ export const roomApi = smpApi.injectEndpoints({
           };
         }
 
-        // Jika backend sudah mengirim format paginasi, normalisasi itemnya saja
         const paginated = raw as PaginatedResponse<any>;
         const normalizedData = Array.isArray(paginated?.data)
           ? paginated.data.map(normalizeRoom)
