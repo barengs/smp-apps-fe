@@ -42,6 +42,14 @@ export interface AssignHostelHeadRequest {
   notes?: string;
 }
 
+// NEW: tipe ringkas untuk kepala asrama
+export interface HostelHeadCandidate {
+  id: number;
+  name: string;
+  code?: string;
+  email?: string | null;
+}
+
 export const hostelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getHostels: builder.query<{ data: HostelApiData[] }, void>({
@@ -111,6 +119,27 @@ export const hostelApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
+
+    // NEW: ambil kandidat kepala asrama dari endpoint terbaru
+    getHostelHeads: builder.query<HostelHeadCandidate[], void>({
+      query: () => 'master/hostel/staff/heads',
+      transformResponse: (response: any): HostelHeadCandidate[] => {
+        const arr = Array.isArray(response?.data) ? response.data : Array.isArray(response) ? response : [];
+        return arr.map((it: any) => ({
+          id: Number(it?.id ?? it?.staff_id ?? 0),
+          name:
+            it?.name ||
+            [it?.first_name, it?.last_name].filter(Boolean).join(' ') ||
+            it?.user?.name ||
+            it?.staff?.user?.name ||
+            it?.staff?.name ||
+            '',
+          code: it?.code ?? undefined,
+          email: it?.email ?? it?.user?.email ?? it?.staff?.user?.email ?? null,
+        }));
+      },
+      providesTags: ['Hostel'],
+    }),
   }),
 });
 
@@ -121,4 +150,6 @@ export const {
   useDeleteHostelMutation,
   useImportHostelsMutation,
   useAssignHostelHeadMutation,
+  // NEW: export hook kandidat kepala asrama
+  useGetHostelHeadsQuery,
 } = hostelApi;

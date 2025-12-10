@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { showError, showSuccess, showLoading, dismissToast } from "@/utils/toast";
 import { useGetEmployeesQuery } from "@/store/slices/employeeApi";
 import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from "@/store/slices/tahunAjaranApi";
-import { useAssignHostelHeadMutation } from "@/store/slices/hostelApi";
+import { useAssignHostelHeadMutation, useGetHostelHeadsQuery } from '@/store/slices/hostelApi';
 
 interface AssignHostelHeadModalProps {
   isOpen: boolean;
@@ -24,6 +24,9 @@ const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, o
   const { data: staffList } = useGetEmployeesQuery();
   const { data: activeYear } = useGetActiveTahunAjaranQuery();
   const { data: years } = useGetTahunAjaranQuery();
+
+  // UPDATED: Ambil kandidat kepala dari endpoint baru
+  const { data: headCandidates = [], isLoading: headsLoading } = useGetHostelHeadsQuery();
 
   const [staffId, setStaffId] = React.useState<string>("");
   const [academicYearId, setAcademicYearId] = React.useState<string>("");
@@ -41,13 +44,16 @@ const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, o
     }
   }, [activeYear, isOpen]);
 
-  const staffOptions = React.useMemo(() => {
-    const list = Array.isArray(staffList) ? staffList : [];
-    return list.map((u) => ({
-      id: u.staff?.id ?? u.id,
-      name: `${u.staff?.first_name ?? u.name}${u.staff?.last_name ? " " + u.staff.last_name : ""}`,
-    }));
-  }, [staffList]);
+  // Jika sebelumnya ada sumber lain untuk staff, ganti ke headCandidates
+  const staffOptions = React.useMemo(
+    () =>
+      (headCandidates || []).map((s: any) => ({
+        label: s.name,
+        value: String(s.id),
+        extra: s.code ? ` • ${s.code}` : '',
+      })),
+    [headCandidates]
+  );
 
   const yearOptions = React.useMemo(() => {
     return Array.isArray(years) ? years : [];
@@ -106,7 +112,7 @@ const AssignHostelHeadModal: React.FC<AssignHostelHeadModalProps> = ({ isOpen, o
               </SelectTrigger>
               <SelectContent>
                 {staffOptions.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                  <SelectItem key={s.value} value={s.value}>{s.label}{s.extra}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
