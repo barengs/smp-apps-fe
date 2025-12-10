@@ -3,6 +3,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { StudentLeave } from '@/store/slices/studentLeaveApi';
+import { Image } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
@@ -15,17 +16,28 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
     paddingBottom: 8,
     marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 13,
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: 700,
   },
   subtitle: {
     fontSize: 8,
-    textAlign: 'center',
+    textAlign: 'left',
     color: '#6b7280',
     marginTop: 4,
+  },
+  qrBox: {
+    width: 56,
+    height: 56,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 4,
+    overflow: 'hidden',
   },
   section: {
     marginTop: 10,
@@ -94,13 +106,20 @@ const normalizeText = (v?: string) => (v && v.trim().length > 0 ? v : '-');
 const prettyStatus = (s?: string) =>
   s ? s.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '-';
 
-export const LeavePermitDocument: React.FC<{ leave: StudentLeave }> = ({ leave }) => {
+export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: string }> = ({ leave, qrDataUrl }) => {
   return (
     <Document>
       <Page size="A5" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>Kartu Izin Santri</Text>
-          <Text style={styles.subtitle}>Dokumen perizinan resmi — mohon dibawa saat keluar/masuk pesantren</Text>
+          <View>
+            <Text style={styles.title}>Kartu Izin Santri</Text>
+            <Text style={styles.subtitle}>Dokumen perizinan resmi — mohon dibawa saat keluar/masuk pesantren</Text>
+          </View>
+          {qrDataUrl ? (
+            <View style={styles.qrBox}>
+              <Image src={qrDataUrl} style={{ width: '100%', height: '100%' }} />
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.section}>
@@ -203,7 +222,19 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave }> = ({ leave }
 // Utilitas untuk membuka PDF di tab baru
 export async function openLeavePermitPdf(leave: StudentLeave) {
   const { pdf } = await import('@react-pdf/renderer');
-  const blob = await pdf(<LeavePermitDocument leave={leave} />).toBlob();
+  let qrDataUrl: string | undefined;
+  const rawNumber = leave.leave_number != null ? String(leave.leave_number) : '';
+  const content = rawNumber.trim();
+  if (content) {
+    const { default: QRCode } = await import('qrcode');
+    qrDataUrl = await QRCode.toDataURL(content, {
+      errorCorrectionLevel: 'H',
+      margin: 0,
+      scale: 4,
+    });
+  }
+
+  const blob = await pdf(<LeavePermitDocument leave={leave} qrDataUrl={qrDataUrl} />).toBlob();
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
   if (!win) {
