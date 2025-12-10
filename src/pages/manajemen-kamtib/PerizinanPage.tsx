@@ -20,6 +20,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import * as toast from '@/utils/toast';
 import { openLeavePermitPdf } from '@/components/LeavePermitPdf';
+import LeaveStatusUpdateDialog from '@/components/LeaveStatusUpdateDialog';
 
 const IssuePermissionDialog: React.FC<{
   open: boolean;
@@ -315,6 +316,9 @@ const PerizinanPage: React.FC = () => {
 
   const [issueOpen, setIssueOpen] = React.useState(false);
   const [returnOpen, setReturnOpen] = React.useState(false);
+  // NEW: state untuk dialog ubah status
+  const [statusOpen, setStatusOpen] = React.useState(false);
+  const [selectedForStatus, setSelectedForStatus] = React.useState<StudentLeave | null>(null);
 
   const columns: ColumnDef<StudentLeave>[] = [
     { header: 'NIS', id: 'nis', accessorFn: (row) => row.student?.nis ?? '-' },
@@ -339,7 +343,19 @@ const PerizinanPage: React.FC = () => {
           statusRaw
             ? statusRaw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
             : '-';
-        return <Badge variant={statusVariant as any}>{label}</Badge>;
+        return (
+          <Badge
+            variant={statusVariant as any}
+            className="cursor-pointer select-none"
+            onClick={() => {
+              setSelectedForStatus(row.original);
+              setStatusOpen(true);
+            }}
+            title="Klik untuk ubah status"
+          >
+            {label}
+          </Badge>
+        );
       },
     },
     { header: 'Pengembalian', id: 'return', accessorFn: (row) => row.actual_return_date || '-' },
@@ -415,12 +431,20 @@ const PerizinanPage: React.FC = () => {
           open={issueOpen}
           onOpenChange={setIssueOpen}
           students={students}
-          onCreated={() => refetchLeaves()} // Refresh data setelah sukses
+          onCreated={() => refetchLeaves()}
         />
         <ReturnReportDialog
           open={returnOpen}
           onOpenChange={setReturnOpen}
           leaves={leaves}
+        />
+        {/* NEW: Modal ubah status */}
+        <LeaveStatusUpdateDialog
+          open={statusOpen}
+          onOpenChange={setStatusOpen}
+          leaveId={selectedForStatus?.id ?? null}
+          currentStatus={selectedForStatus?.status}
+          onUpdated={() => refetchLeaves()}
         />
       </div>
     </DashboardLayout>

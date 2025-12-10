@@ -109,10 +109,8 @@ export const studentLeaveApi = smpApi.injectEndpoints({
         }
         return [];
       },
-      // Tidak menggunakan tags agar tidak perlu menambah tagTypes baru di baseApi
     }),
 
-    // TAMBAH: mutation create student leave
     createStudentLeave: builder.mutation<StudentLeave, CreateStudentLeaveRequest>({
       query: (body) => ({
         url: 'main/student-leave',
@@ -120,7 +118,37 @@ export const studentLeaveApi = smpApi.injectEndpoints({
         body,
       }),
     }),
+
+    // NEW: Approve student leave
+    approveStudentLeave: builder.mutation<{ message?: string }, { id: number }>({
+      query: ({ id }) => ({
+        url: `main/student-leave/${id}/approve`,
+        method: 'POST',
+      }),
+    }),
+
+    // NEW: Reject student leave
+    rejectStudentLeave: builder.mutation<{ message?: string }, { id: number }>({
+      query: ({ id }) => ({
+        url: `main/student-leave/${id}/reject`,
+        method: 'POST',
+      }),
+    }),
+
+    // NEW: Cancel (delete) student leave
+    cancelStudentLeave: builder.mutation<{ message?: string }, { id: number }>({
+      query: ({ id }) => ({
+        url: `main/student-leave/${id}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
-export const { useGetStudentLeavesQuery, useCreateStudentLeaveMutation } = studentLeaveApi;
+export const {
+  useGetStudentLeavesQuery,
+  useCreateStudentLeaveMutation,
+  useApproveStudentLeaveMutation,
+  useRejectStudentLeaveMutation,
+  useCancelStudentLeaveMutation,
+} = studentLeaveApi;
