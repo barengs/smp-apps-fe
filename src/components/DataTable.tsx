@@ -117,13 +117,16 @@ export function DataTable<TData, TValue>({
     return (data as any[]).filter((row) => {
       for (const col of columns as any[]) {
         const id = (col.id as string) || (col.accessorKey as string) || '';
-        if (!id) continue;
-        if (excludedIds.has(id.toLowerCase())) continue;
+        const hasAccessorFn = typeof (col as any).accessorFn === 'function';
+
+        // Jangan ikutkan kolom aksi; tetap izinkan kolom tanpa id jika punya accessorFn
+        if (id && excludedIds.has(id.toLowerCase())) continue;
+        if (!id && !hasAccessorFn) continue;
 
         let value: any;
 
-        // Jika kolom memiliki accessorFn, gunakan itu untuk mendapatkan nilai yang ditampilkan
-        if (typeof (col as any).accessorFn === 'function') {
+        // Prioritaskan accessorFn bila ada
+        if (hasAccessorFn) {
           try {
             value = (col as any).accessorFn(row);
           } catch {
