@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from "@/components/ui/table";
 import { useParams, Link } from "react-router-dom";
 import { useGetStudentLeaveByIdQuery, type StudentLeave } from "@/store/slices/studentLeaveApi";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Printer } from "lucide-react";
+import { openLeavePermitPdf } from "@/components/LeavePermitPdf";
 
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
@@ -79,7 +82,22 @@ const PerizinanDetailPage: React.FC = () => {
               <CardTitle>Detail Perizinan</CardTitle>
               <CardDescription>Informasi lengkap data perizinan santri.</CardDescription>
             </div>
-            <ButtonRow />
+            <div className="flex items-center gap-2">
+              <Button size="icon" variant="outline" asChild aria-label="Kembali">
+                <Link to="/dashboard/manajemen-kamtib/perizinan">
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                size="icon"
+                aria-label="Print kartu izin"
+                onClick={() => leave && openLeavePermitPdf(leave)}
+                disabled={!leave}
+                title="Print kartu izin"
+              >
+                <Printer className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
@@ -95,11 +113,10 @@ const PerizinanDetailPage: React.FC = () => {
               </table>
             </div>
 
-            {/* Report dari pengembalian izin */}
-            <div className="rounded-md border p-3 mt-4">
-              <div className="text-sm text-muted-foreground mb-2">Laporan Pengembalian</div>
+            <div className="rounded-md border p-2 mt-2">
+              <div className="text-sm text-muted-foreground mb-1">Laporan Pengembalian</div>
               {leave?.report ? (
-                <div className="grid grid-cols-1 gap-2 text-sm">
+                <div className="grid grid-cols-1 gap-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tanggal Laporan</span>
                     <span className="font-medium">{formatDate(leave.report.report_date)}</span>
@@ -137,8 +154,7 @@ const PerizinanDetailPage: React.FC = () => {
                     <span className="font-medium">{leave.report.verified_by?.name ?? "-"}</span>
                   </div>
 
-                  {/* Penalti dari laporan */}
-                  <div className="mt-3">
+                  <div className="mt-2">
                     <div className="text-sm text-muted-foreground mb-1">Penalti dari Laporan</div>
                     {Array.isArray(leave.report.penalties) && leave.report.penalties.length ? (
                       <Table>
@@ -177,9 +193,8 @@ const PerizinanDetailPage: React.FC = () => {
               )}
             </div>
 
-            {/* Penalti dari perizinan */}
-            <div className="rounded-md border p-3 mt-4">
-              <div className="text-sm text-muted-foreground mb-2">Penalti Perizinan</div>
+            <div className="rounded-md border p-2 mt-2">
+              <div className="text-sm text-muted-foreground mb-1">Penalti Perizinan</div>
               {Array.isArray(leave?.penalties) && leave!.penalties.length ? (
                 <Table>
                   <TableHeader>
@@ -213,16 +228,6 @@ const PerizinanDetailPage: React.FC = () => {
         </Card>
       </div>
     </DashboardLayout>
-  );
-};
-
-const ButtonRow: React.FC = () => {
-  return (
-    <div className="flex items-center gap-2">
-      <Link to="/dashboard/manajemen-kamtib/perizinan" className="text-sm text-muted-foreground hover:underline">
-        Kembali ke Perizinan
-      </Link>
-    </div>
   );
 };
 
