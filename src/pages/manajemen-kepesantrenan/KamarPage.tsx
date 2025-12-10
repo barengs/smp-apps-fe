@@ -112,12 +112,19 @@ const KamarPage: React.FC = () => {
             ) : (
               // Gunakan pagination manual hanya jika backend mengembalikan metadata paginasi valid
               (() => {
+                const meta = roomsResponse;
+                const normalizedData = meta?.data || [];
+
+                // UPDATED: server pagination hanya aktif jika last_page > 1 atau per_page < total
                 const isServerPaginated =
-                  !!roomsResponse &&
-                  typeof roomsResponse.last_page === 'number' &&
-                  typeof roomsResponse.current_page === 'number' &&
-                  roomsResponse.last_page >= 1;
-                const normalizedData = roomsResponse?.data || [];
+                  !!meta &&
+                  typeof meta.last_page === 'number' &&
+                  typeof meta.current_page === 'number' &&
+                  (
+                    meta.last_page > 1 ||
+                    (typeof meta.per_page === 'number' && typeof meta.total === 'number' && meta.per_page < meta.total)
+                  );
+
                 return (
                   <KamarTable
                     data={normalizedData}
@@ -125,7 +132,7 @@ const KamarPage: React.FC = () => {
                     onDelete={handleDeleteConfirmOpen}
                     pagination={isServerPaginated ? pagination : undefined}
                     onPaginationChange={isServerPaginated ? setPagination : undefined}
-                    pageCount={isServerPaginated ? roomsResponse!.last_page : undefined}
+                    pageCount={isServerPaginated ? meta!.last_page : undefined}
                     sorting={sorting}
                     onSortingChange={setSorting}
                   />
