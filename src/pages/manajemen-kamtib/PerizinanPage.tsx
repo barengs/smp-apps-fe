@@ -244,20 +244,21 @@ const ReturnReportDialog: React.FC<{
   // UPDATED: gunakan hook langsung dari import
   const [submitReport, { isLoading: isSubmitting }] = useSubmitStudentLeaveReportMutation();
 
-  const normalizeTimeToHMS = (raw?: string): string => {
+  // GANTI: Normalisasi waktu ke format HH:mm (tanpa detik)
+  const normalizeTimeToHM = (raw?: string): string => {
     const src = String(raw || '').trim();
-    const m = src.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    // Cocokkan HH:mm atau H:mm (dengan opsional :ss)
+    const m = src.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
     if (m) {
       const hh = String(m[1]).padStart(2, '0');
-      const mm = String(m[2]).padStart(2, '0');
-      const ss = String(m[3] ?? '00').padStart(2, '0');
-      return `${hh}:${mm}:${ss}`;
+      const mm = m[2];
+      return `${hh}:${mm}`;
     }
-    // fallback: if only HH or HHMM
+    // Fallback: jika hanya HH atau HH:MM tidak valid, paksa ke HH:mm
     const parts = src.split(':');
     const hh = String(Number(parts[0] || 0)).padStart(2, '0');
     const mm = String(Number(parts[1] || 0)).padStart(2, '0');
-    return `${hh}:${mm}:00`;
+    return `${hh}:${mm}`;
   };
 
   const reset = () => {
@@ -277,7 +278,8 @@ const ReturnReportDialog: React.FC<{
     const idNum = Number(selectedLeaveId);
     const payload = {
       report_date: new Date(`${reportDate}T00:00:00Z`).toISOString(),
-      report_time: normalizeTimeToHMS(reportTime),
+      // UPDATED: kirim hanya HH:mm
+      report_time: normalizeTimeToHM(reportTime),
       report_notes: reportNotes || undefined,
       condition,
       reported_to: Number(reportedTo),
