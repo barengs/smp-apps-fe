@@ -14,31 +14,11 @@ interface HostelApiData {
   capacity: number; // Menambahkan properti capacity
 }
 
-// Structure for the paginated data wrapper (Laravel pagination)
-interface PaginatedData<T> {
-  current_page: number;
-  data: T[]; // This is the array of actual items
-  first_page_url: string | null;
-  from: number;
-  last_page: number;
-  last_page_url: string | null;
-  links: Array<{
-    url: string | null;
-    label: string;
-    active: boolean;
-  }>;
-  next_page_url: string | null;
-  path: string;
-  per_page: number;
-  prev_page_url: string | null;
-  to: number;
-  total: number;
-}
-
 // Structure for the raw GET /hostel response with pagination
 interface GetHostelsRawResponse {
   message: string;
-  data: PaginatedData<HostelApiData>; // The actual paginated data is here
+  status?: number;
+  data: any[]; // array of hostel items
 }
 
 // Structure for the POST/PUT request body
@@ -64,10 +44,33 @@ export interface AssignHostelHeadRequest {
 
 export const hostelApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getHostels: builder.query<PaginatedData<HostelApiData>, void>({ // Change return type to PaginatedData<HostelApiData>
+    getHostels: builder.query<{ data: HostelApiData[] }, void>({
       query: () => 'master/hostel',
-      transformResponse: (response: GetHostelsRawResponse) => response.data, // Extract the PaginatedData object
-      providesTags: ['Hostel'],
+      transformResponse: (response: GetHostelsRawResponse) => {
+        const arr = Array.isArray(response?.data) ? response.data : [];
+        // Normalisasi minimal (capacity ke number jika string)
+        const normalized: HostelApiData[] = arr.map((item: any) => ({
+          id: Number(item.id),
+          name: item.name,
+          description: item.description ?? '',
+          program: {
+            id: Number(item?.program?.id ?? item.program_id ?? 0),
+            name: item?.program?.name ?? '',
+          },
+          capacity:
+            typeof item.capacity === 'string'
+              ? parseInt(item.capacity || '0', 10)
+              : Number(item.capacity ?? 0),
+        }));
+        return { data: normalized };
+      },
+      providesTags: (result) =>
+        result && Array.isArray(result.data)
+          ? [
+              ...result.data.map((h) => ({ type: 'Hostel' as const, id: h.id })),
+              { type: 'Hostel' as const, id: 'LIST' },
+            ]
+          : [{ type: 'Hostel' as const, id: 'LIST' }],
     }),
     createHostel: builder.mutation<HostelApiData, CreateUpdateHostelRequest>({
       query: (newHostel) => ({
