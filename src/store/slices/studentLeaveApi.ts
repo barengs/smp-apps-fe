@@ -142,6 +142,15 @@ export const studentLeaveApi = smpApi.injectEndpoints({
         method: 'DELETE',
       }),
     }),
+
+    // NEW: Ambil detail perizinan berdasarkan ID
+    getStudentLeaveById: builder.query<StudentLeave, number>({
+      query: (id) => `main/student-leave/${id}`,
+      transformResponse: (response: any): StudentLeave => {
+        // Normalisasi respons: if response is { data: StudentLeave }, ambil data-nya
+        return (response?.data ?? response) as StudentLeave;
+      },
+    }),
   }),
 });
 
@@ -151,4 +160,5 @@ export const {
   useApproveStudentLeaveMutation,
   useRejectStudentLeaveMutation,
   useCancelStudentLeaveMutation,
+  useGetStudentLeaveByIdQuery,
 } = studentLeaveApi;

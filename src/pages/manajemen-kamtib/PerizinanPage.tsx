@@ -20,6 +20,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import * as toast from '@/utils/toast';
 import { openLeavePermitPdf } from '@/components/LeavePermitPdf';
+import { useNavigate } from 'react-router-dom';
 import LeaveStatusUpdateDialog from '@/components/LeaveStatusUpdateDialog';
 
 const IssuePermissionDialog: React.FC<{
@@ -313,6 +314,7 @@ const PerizinanPage: React.FC = () => {
   const { t } = useTranslation();
   const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 200 });
   const { data: leaves = [], isFetching: isFetchingLeaves, refetch: refetchLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
+  const navigate = useNavigate();
 
   const [issueOpen, setIssueOpen] = React.useState(false);
   const [returnOpen, setReturnOpen] = React.useState(false);
@@ -423,6 +425,7 @@ const PerizinanPage: React.FC = () => {
               exportFileName="data-perizinan"
               exportTitle="Data Perizinan Santri"
               leftActions={leftActions}
+              onRowClick={(row) => navigate(`/dashboard/manajemen-kamtib/perizinan/${(row as StudentLeave).id}`)}
             />
           </CardContent>
         </Card>
