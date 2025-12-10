@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useTranslation } from 'react-i18next';
 import { useGetStudentsQuery, type Student } from '@/store/slices/studentApi';
 import { useGetStudentLeavesQuery, type StudentLeave, useCreateStudentLeaveMutation } from '@/store/slices/studentLeaveApi';
+import { useSubmitStudentLeaveReportMutation } from '@/store/slices/studentLeaveApi';
 import { useGetLeaveTypesQuery } from '@/store/slices/leaveTypeApi';
 import { useGetTahunAjaranQuery, useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { DataTable } from '@/components/DataTable';
@@ -240,8 +241,7 @@ const ReturnReportDialog: React.FC<{
   const [condition, setCondition] = React.useState<'sehat' | 'sakit' | 'lainnya'>('sehat');
   const [reportedTo, setReportedTo] = React.useState<string>(''); // id petugas
 
-  // NEW: mutation submit report
-  const { useSubmitStudentLeaveReportMutation } = require('@/store/slices/studentLeaveApi');
+  // UPDATED: gunakan hook langsung dari import
   const [submitReport, { isLoading: isSubmitting }] = useSubmitStudentLeaveReportMutation();
 
   const normalizeTimeToHMS = (raw?: string): string => {
