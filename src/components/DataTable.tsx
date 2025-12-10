@@ -270,10 +270,10 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  // Baris yang ditampilkan: lakukan slicing manual setelah filter
+  // Baris yang ditampilkan: lakukan slicing sesuai mode
   const displayedRows = manualPaginationEnabled
     ? table.getRowModel().rows
-    : table.getRowModel().rows;
+    : table.getPaginationRowModel().rows;
 
   return (
     <div className="space-y-4">
