@@ -77,7 +77,7 @@ const PerizinanDetailPage: React.FC = () => {
         />
 
         <Card>
-          <CardHeader className="flex items-center justify-between">
+          <CardHeader className="p-6 flex-row items-center justify-between gap-2 space-y-0">
             <div>
               <CardTitle>Detail Perizinan</CardTitle>
               <CardDescription>Informasi lengkap data perizinan santri.</CardDescription>
