@@ -349,7 +349,8 @@ const PerizinanPage: React.FC = () => {
           <Badge
             variant={statusVariant as any}
             className="cursor-pointer select-none"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation(); // NEW: prevent row click
               setSelectedForStatus(row.original);
               setStatusOpen(true);
             }}
@@ -372,7 +373,10 @@ const PerizinanPage: React.FC = () => {
               size="icon"
               variant="ghost"
               aria-label="Print izin"
-              onClick={() => openLeavePermitPdf(leave)}
+              onClick={(e) => {
+                e.stopPropagation(); // NEW: prevent row click
+                openLeavePermitPdf(leave);
+              }}
               title="Print"
             >
               <Printer className="h-4 w-4" />
@@ -381,7 +385,10 @@ const PerizinanPage: React.FC = () => {
               size="icon"
               variant="ghost"
               aria-label="Edit izin"
-              onClick={() => console.log('Edit leave', leave.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // NEW: prevent row click
+                console.log('Edit leave', leave.id);
+              }}
               title="Edit"
             >
               <Edit className="h-4 w-4" />
