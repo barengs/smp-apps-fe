@@ -535,9 +535,7 @@ const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({ childre
 };
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = (props) => (
-  <LockScreenProvider>
-    <DashboardLayoutWithLockScreen {...props} />
-  </LockScreenProvider>
+  <DashboardLayoutWithLockScreen {...props} />
 );
 
 export default DashboardLayout;
