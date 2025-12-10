@@ -110,20 +110,17 @@ const KamarPage: React.FC = () => {
             ) : isError ? (
               <div className="text-red-500 text-center my-4">Gagal memuat data kamar.</div>
             ) : (
-              // Gunakan pagination manual hanya jika backend mengembalikan metadata paginasi valid
               (() => {
                 const meta = roomsResponse;
                 const normalizedData = meta?.data || [];
 
-                // UPDATED: server pagination hanya aktif jika last_page > 1 atau per_page < total
+                // UPDATED: Anggap server pagination aktif hanya jika backend benar-benar mengembalikan subset data
+                // yaitu total > jumlah data yang ditampilkan saat ini.
                 const isServerPaginated =
                   !!meta &&
-                  typeof meta.last_page === 'number' &&
-                  typeof meta.current_page === 'number' &&
-                  (
-                    meta.last_page > 1 ||
-                    (typeof meta.per_page === 'number' && typeof meta.total === 'number' && meta.per_page < meta.total)
-                  );
+                  typeof meta.total === 'number' &&
+                  Array.isArray(normalizedData) &&
+                  meta.total > normalizedData.length;
 
                 return (
                   <KamarTable
