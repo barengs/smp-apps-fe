@@ -19,12 +19,22 @@ interface KamarTableProps {
   onSortingChange?: (updater: SortingState) => void;
 }
 
-export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
+export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, sorting, onSortingChange }) => {
   const navigate = useNavigate();
 
-  const handleAddData = () => {
-    navigate('/dashboard/manajemen-kepesantrenan/kamar/tambah');
-  };
+  // NEW: local pagination state (terkontrol)
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  // NEW: hitung total halaman dari data lokal
+  const totalItems = Array.isArray(data) ? data.length : 0;
+  const pageCount = Math.max(Math.ceil(totalItems / pagination.pageSize), 1);
+
+  // NEW: slice data sesuai halaman
+  const start = pagination.pageIndex * pagination.pageSize;
+  const pagedData = Array.isArray(data) ? data.slice(start, start + pagination.pageSize) : [];
 
   const columns: ColumnDef<Room>[] = [
     {
@@ -56,7 +66,7 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
@@ -72,9 +82,13 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
 
   return <DataTable
     columns={columns}
-    data={data}
+    data={pagedData}
     exportFileName="data_kamar"
     exportTitle="Data Kamar"
+    // Mode manual: parent mengontrol pagination (lokal)
+    pagination={pagination}
+    onPaginationChange={setPagination}
+    pageCount={pageCount}
     sorting={sorting}
     onSortingChange={onSortingChange}
   />;
