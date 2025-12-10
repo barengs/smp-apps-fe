@@ -41,6 +41,8 @@ export interface StudentLeaveReport {
 
 export interface StudentLeave {
   id: number;
+  // NEW: nomor izin dari backend
+  leave_number?: string | number;
   student: { id: number; name: string; nis: string };
   leave_type: { id: number; name: string };
   academic_year: { id: number; name: string };

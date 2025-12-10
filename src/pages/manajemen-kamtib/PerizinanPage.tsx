@@ -325,6 +325,15 @@ const PerizinanPage: React.FC = () => {
   const columns: ColumnDef<StudentLeave>[] = [
     { header: 'NIS', id: 'nis', accessorFn: (row) => row.student?.nis ?? '-' },
     { header: 'Nama', id: 'name', accessorFn: (row) => row.student?.name ?? '-' },
+    // NEW: Kolom Nomor (leave_number)
+    {
+      header: 'Nomor',
+      accessorKey: 'leave_number',
+      cell: ({ row }) => {
+        const num = row.original.leave_number;
+        return <span>{num != null && String(num).trim() !== '' ? String(num) : '-'}</span>;
+      },
+    },
     { header: 'Jenis Izin', id: 'leave_type', accessorFn: (row) => row.leave_type?.name ?? '-' },
     { header: 'Mulai', id: 'start', accessorFn: (row) => row.start_date },
     { header: 'Kembali (perkiraan)', id: 'expected_return', accessorFn: (row) => row.expected_return_date || '-' },
@@ -350,7 +359,7 @@ const PerizinanPage: React.FC = () => {
             variant={statusVariant as any}
             className="cursor-pointer select-none"
             onClick={(e) => {
-              e.stopPropagation(); // NEW: prevent row click
+              e.stopPropagation();
               setSelectedForStatus(row.original);
               setStatusOpen(true);
             }}
@@ -374,7 +383,7 @@ const PerizinanPage: React.FC = () => {
               variant="ghost"
               aria-label="Print izin"
               onClick={(e) => {
-                e.stopPropagation(); // NEW: prevent row click
+                e.stopPropagation();
                 openLeavePermitPdf(leave);
               }}
               title="Print"
@@ -386,7 +395,7 @@ const PerizinanPage: React.FC = () => {
               variant="ghost"
               aria-label="Edit izin"
               onClick={(e) => {
-                e.stopPropagation(); // NEW: prevent row click
+                e.stopPropagation();
                 console.log('Edit leave', leave.id);
               }}
               title="Edit"
