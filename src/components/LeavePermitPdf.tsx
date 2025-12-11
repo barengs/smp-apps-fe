@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     borderRadius: 4,
     padding: 8,
-    minHeight: 100, // increased for signature space
+    minHeight: 72, // was 100; reduced to fit one page
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
