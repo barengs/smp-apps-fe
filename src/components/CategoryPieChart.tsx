@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
 
 type CategoryItem = { category?: string; name?: string; total?: string | number };
 
@@ -54,12 +54,15 @@ const CategoryPieChart: React.FC<Props> = ({ data, title }) => {
             innerRadius={48}
             outerRadius={80}
             paddingAngle={2}
+            label={(props: any) => `${props.name}: ${props.value}`}
+            labelLine
           >
             {chartData.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
           <ChartTooltip content={<ChartTooltipContent labelKey="total" nameKey="name" />} />
+          <Legend verticalAlign="bottom" align="center" />
         </PieChart>
       </ChartContainer>
     </div>
