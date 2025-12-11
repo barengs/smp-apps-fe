@@ -17,6 +17,8 @@ import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import SantriGrowthChart from '@/components/SantriGrowthChart';
 import { useGetBeritaQuery } from '@/store/slices/beritaApi';
 import RunningText from '@/components/RunningText';
+import ViolationStatsCard from '@/components/ViolationStatsCard';
+import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string; color?: string }> = ({ title, value, icon, description, color }) => (
   <Card className="transition-all hover:shadow-md">
@@ -58,6 +60,7 @@ const AdministrasiDashboard: React.FC = () => {
   const { data: activitiesData, isLoading: isLoadingActivities, isError: isErrorActivities } = useGetActivitiesQuery();
   const { data: calonSantriData, isLoading: isLoadingCalonSantri, isError: isErrorCalonSantri } = useGetCalonSantriQuery();
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
+  const { data: violationStats, isLoading: isLoadingViolationStats } = useGetStudentViolationStatisticsQuery();
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null);
@@ -180,6 +183,10 @@ const AdministrasiDashboard: React.FC = () => {
             </Link>
           </>
         )}
+      </div>
+
+      <div className="mt-8">
+        <ViolationStatsCard stats={violationStats} isLoading={isLoadingViolationStats} />
       </div>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
