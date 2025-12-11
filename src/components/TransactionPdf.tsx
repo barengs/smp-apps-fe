@@ -20,9 +20,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000000',
     paddingBottom: 10,
     marginBottom: 20,
-    textAlign: 'center',
-    alignItems: 'center',
   },
+  // Header top row: kop left, QR right
   headerTop: {
     width: '100%',
     flexDirection: 'row',
@@ -30,10 +29,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 6,
   },
+  // Wrapper untuk kop agar fleksibel
+  kopWrapper: {
+    flexGrow: 1,
+    paddingRight: 8,
+  },
+  // Gambar kop memenuhi wrapper dengan tinggi tetap
   kopImage: {
-    width: '85%',
+    width: '100%',
     height: 56,
   },
+  // Kotak QR fixed size
   qrBox: {
     width: 56,
     height: 56,
@@ -45,6 +51,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontFamily: 'Helvetica-Bold',
+    textAlign: 'center',
     marginTop: 4,
   },
   section: {
@@ -58,8 +65,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#cccccc',
     paddingBottom: 3,
   },
-  
-  // New styles for table
   table: {
     display: 'flex',
     flexDirection: 'column',
@@ -108,7 +113,6 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
-
   signatureContainer: {
     marginTop: 20,
     flexDirection: 'row',
@@ -182,7 +186,9 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction, qrDataUrl 
       <Page size="A5" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <Image style={styles.kopImage} src={absoluteKopUrl} />
+            <View style={styles.kopWrapper}>
+              <Image style={styles.kopImage} src={absoluteKopUrl} />
+            </View>
             {qrDataUrl ? (
               <View style={styles.qrBox}>
                 <Image src={qrDataUrl} style={{ width: '100%', height: '100%' }} />
