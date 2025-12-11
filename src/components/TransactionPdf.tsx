@@ -28,6 +28,20 @@ const styles = StyleSheet.create({
     height: 'auto',
     marginBottom: 10,
   },
+  headerRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  qrBox: {
+    width: 56,
+    height: 56,
+    borderWidth: 1,
+    borderColor: '#000000',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   title: {
     fontSize: 16,
     fontFamily: 'Helvetica-Bold',
@@ -47,8 +61,8 @@ const styles = StyleSheet.create({
   
   // New styles for table
   table: {
-    display: 'flex', // Fixed: Changed from 'table' to 'flex'
-    flexDirection: 'column', // Added to stack rows vertically
+    display: 'flex',
+    flexDirection: 'column',
     width: 'auto',
     borderStyle: 'solid',
     borderColor: '#bfbfbf',
@@ -62,7 +76,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   tableRowEven: {
-    backgroundColor: '#f9f9f9', // Light gray for zebra effect
+    backgroundColor: '#f9f9f9',
   },
   tableCell: {
     padding: 5,
@@ -74,11 +88,11 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   tableCellLabel: {
-    width: '35%', // Adjust width as needed
+    width: '35%',
     fontFamily: 'Helvetica-Bold',
   },
   tableCellValue: {
-    width: '65%', // Adjust width as needed
+    width: '65%',
   },
   tableHeader: {
     flexDirection: 'row',
@@ -112,9 +126,10 @@ const styles = StyleSheet.create({
 
 interface TransactionPdfProps {
   transaction: Transaksi;
+  qrDataUrl?: string;
 }
 
-const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
+const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction, qrDataUrl }) => {
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
 
   const formatCurrency = (amount: string) => {
@@ -164,10 +179,17 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction }) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A5" style={styles.page}>
         <View style={styles.header}>
           <Image style={styles.kopImage} src={absoluteKopUrl} />
-          <Text style={styles.title}>BUKTI TRANSAKSI</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>BUKTI TRANSAKSI</Text>
+            {qrDataUrl ? (
+              <View style={styles.qrBox}>
+                <Image src={qrDataUrl} style={{ width: '100%', height: '100%' }} />
+              </View>
+            ) : null}
+          </View>
         </View>
 
         <View style={styles.section}>

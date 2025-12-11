@@ -59,10 +59,29 @@ const TransaksiDetailPage: React.FC = () => {
 
   const transaction = apiResponse?.data;
 
+  // NEW: state untuk QR data URL
+  const [qrDataUrl, setQrDataUrl] = useState<string | undefined>(undefined);
+
+  // NEW: generate QR saat ID transaksi tersedia
+  React.useEffect(() => {
+    const idValue = transaction?.id != null ? String(transaction.id).trim() : '';
+    if (!idValue) {
+      setQrDataUrl(undefined);
+      return;
+    }
+    let isMounted = true;
+    (async () => {
+      const { default: QRCode } = await import('qrcode');
+      const url = await QRCode.toDataURL(idValue, { errorCorrectionLevel: 'H', margin: 0, scale: 4 });
+      if (isMounted) setQrDataUrl(url);
+    })();
+    return () => { isMounted = false; };
+  }, [transaction?.id]);
+
   const PdfDocument = React.useMemo(() => {
     if (!transaction) return null;
-    return <TransactionPdf transaction={transaction} />;
-  }, [transaction]);
+    return <TransactionPdf transaction={transaction} qrDataUrl={qrDataUrl} />;
+  }, [transaction, qrDataUrl]);
 
   const [instance] = usePDF({ document: PdfDocument });
 
