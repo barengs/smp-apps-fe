@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BarChart3, AlertTriangle, CheckCircle2, Cog, XCircle, Users, LucideIcon } from 'lucide-react';
+import { BarChart3, AlertTriangle, CheckCircle2, Cog, XCircle, LucideIcon } from 'lucide-react';
 import CategoryPieChart from '@/components/CategoryPieChart';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
@@ -85,15 +85,6 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
     return [];
   }, [stats?.by_category]);
 
-  // Olah data top violators: dukung array langsung atau string JSON
-  const topViolators: TopViolator[] = React.useMemo(() => {
-    const src = stats?.top_violators;
-    if (Array.isArray(src)) return (src as TopViolator[]).slice(0, 10);
-    const parsed = typeof src === 'string' ? safeParse(src) : null;
-    if (Array.isArray(parsed)) return (parsed as TopViolator[]).slice(0, 10);
-    return [];
-  }, [stats?.top_violators]);
-
   // Tambah: total pelanggaran untuk perhitungan persentase
   const totalAll = React.useMemo(() => {
     const t = stats?.total_violations;
@@ -141,46 +132,6 @@ const ViolationStatsCard: React.FC<Props> = ({ stats, isLoading }) => {
               </div>
               {categories.length > 0 ? (
                 <CategoryPieChart data={categories} title="Jumlah" />
-              ) : (
-                <div className="text-sm text-muted-foreground">Tidak ada data.</div>
-              )}
-            </div>
-
-            {/* Pelanggar terbanyak (Tabel) */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-primary" />
-                <div className="text-sm text-muted-foreground">Pelanggar terbanyak</div>
-              </div>
-              {topViolators.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <Table className="min-w-[420px]">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nama</TableHead>
-                        <TableHead className="text-right">Jumlah</TableHead>
-                        <TableHead className="text-right">Persentase</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {topViolators.map((v, idx) => {
-                        const name = [v.first_name, v.last_name].filter(Boolean).join(' ') || 'Tanpa nama';
-                        const count =
-                          typeof v.total_violations === 'string'
-                            ? Number(v.total_violations)
-                            : (v.total_violations ?? 0);
-                        const percent = totalAll ? (count / totalAll) * 100 : 0;
-                        return (
-                          <TableRow key={String(v.id ?? idx)}>
-                            <TableCell className="font-medium">{name}</TableCell>
-                            <TableCell className="text-right">{formatNumber(count)}</TableCell>
-                            <TableCell className="text-right">{percent.toFixed(1)}%</TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
               ) : (
                 <div className="text-sm text-muted-foreground">Tidak ada data.</div>
               )}

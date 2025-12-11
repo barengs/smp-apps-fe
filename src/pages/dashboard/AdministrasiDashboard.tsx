@@ -185,10 +185,6 @@ const AdministrasiDashboard: React.FC = () => {
         )}
       </div>
 
-      <div className="mt-8">
-        <ViolationStatsCard stats={violationStats} isLoading={isLoadingViolationStats} />
-      </div>
-
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column: Santri Statistics Chart */}
         <div>
@@ -236,6 +232,9 @@ const AdministrasiDashboard: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* NEW: Statistik Pelanggaran di bawah Statistik Santri (setengah halaman pada layar besar) */}
+        <ViolationStatsCard stats={violationStats} isLoading={isLoadingViolationStats} />
       </div>
 
       <ActivityDetailModal
