@@ -31,6 +31,22 @@ const styles = StyleSheet.create({
     height: 'auto',
     marginBottom: 10,
   },
+  // NEW: baris judul + QR
+  headerRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  // NEW: kotak QR
+  qrBox: {
+    width: 56,
+    height: 56,
+    borderWidth: 1,
+    borderColor: '#000000',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   title: {
     fontSize: 16,
     fontFamily: 'Helvetica-Bold',
@@ -140,9 +156,11 @@ const styles = StyleSheet.create({
 
 interface RegistrationFormPdfProps {
   calonSantri: CalonSantri;
+  // NEW: data URL QR untuk nomor pendaftaran
+  qrDataUrl?: string;
 }
 
-const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }) => {
+const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, qrDataUrl }) => {
   const fullNameSantri = `${calonSantri.first_name} ${calonSantri.last_name || ''}`.trim();
   const genderSantri = calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan';
   const formattedBornAt = calonSantri.born_at ? format(new Date(calonSantri.born_at), 'dd MMMM yyyy', { locale: id }) : '-';
@@ -162,7 +180,14 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri }
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <Image style={styles.kopImage} src={absoluteKopUrl} />
-          <Text style={styles.title}>FORMULIR PENDAFTARAN SANTRI BARU</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>FORMULIR PENDAFTARAN SANTRI BARU</Text>
+            {qrDataUrl ? (
+              <View style={styles.qrBox}>
+                <Image src={qrDataUrl} style={{ width: '100%', height: '100%' }} />
+              </View>
+            ) : null}
+          </View>
         </View>
 
         <View style={[styles.section, styles.flexRow]}>

@@ -47,6 +47,25 @@ const CalonSantriDetailPage: React.FC = () => {
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
 
+  // NEW: state untuk QR data URL
+  const [qrDataUrl, setQrDataUrl] = useState<string | undefined>(undefined);
+
+  // NEW: generate QR saat nomor pendaftaran tersedia
+  React.useEffect(() => {
+    const regNum = calonSantri?.registration_number != null ? String(calonSantri.registration_number).trim() : '';
+    if (!regNum) {
+      setQrDataUrl(undefined);
+      return;
+    }
+    let isMounted = true;
+    (async () => {
+      const { default: QRCode } = await import('qrcode');
+      const url = await QRCode.toDataURL(regNum, { errorCorrectionLevel: 'H', margin: 0, scale: 4 });
+      if (isMounted) setQrDataUrl(url);
+    })();
+    return () => { isMounted = false; };
+  }, [calonSantri?.registration_number]);
+
   const [processPayment, { isLoading: isProcessingPayment }] = useProcessRegistrationPaymentMutation(); // New mutation hook
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
@@ -155,7 +174,8 @@ const CalonSantriDetailPage: React.FC = () => {
     }
   };
 
-  const PdfDocument = <RegistrationFormPdf calonSantri={calonSantri} />;
+  // UPDATED: sertakan qrDataUrl ke dokumen PDF
+  const PdfDocument = <RegistrationFormPdf calonSantri={calonSantri} qrDataUrl={qrDataUrl} />;
   const pdfFileName = `Formulir Pendaftaran - ${calonSantri.first_name} ${calonSantri.last_name || ''}.pdf`;
 
   return (
