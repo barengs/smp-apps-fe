@@ -22,17 +22,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
   kopImage: {
     width: '100%',
     height: 'auto',
     marginBottom: 10,
-  },
-  headerRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   qrBox: {
     width: 56,
@@ -41,6 +36,11 @@ const styles = StyleSheet.create({
     borderColor: '#000000',
     borderRadius: 4,
     overflow: 'hidden',
+  },
+  qrOverlay: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
   },
   title: {
     fontSize: 16,
@@ -182,14 +182,12 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction, qrDataUrl 
       <Page size="A5" style={styles.page}>
         <View style={styles.header}>
           <Image style={styles.kopImage} src={absoluteKopUrl} />
-          <View style={styles.headerRow}>
-            <Text style={styles.title}>BUKTI TRANSAKSI</Text>
-            {qrDataUrl ? (
-              <View style={styles.qrBox}>
-                <Image src={qrDataUrl} style={{ width: '100%', height: '100%' }} />
-              </View>
-            ) : null}
-          </View>
+          {qrDataUrl ? (
+            <View style={[styles.qrBox, styles.qrOverlay]}>
+              <Image src={qrDataUrl} style={{ width: '100%', height: '100%' }} />
+            </View>
+          ) : null}
+          <Text style={styles.title}>BUKTI TRANSAKSI</Text>
         </View>
 
         <View style={styles.section}>
