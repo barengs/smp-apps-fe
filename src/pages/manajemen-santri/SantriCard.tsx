@@ -29,9 +29,26 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
 
   const santriPhotoUrl = santri.photo ? `${BASE_IMAGE_URL}${santri.photo}` : null;
 
+  // NEW: generate QR dari NIS
+  const [qrDataUrl, setQrDataUrl] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    const value = String(santri.nis || '').trim();
+    if (!value) {
+      setQrDataUrl(null);
+      return;
+    }
+    let mounted = true;
+    (async () => {
+      const { default: QRCode } = await import('qrcode');
+      const url = await QRCode.toDataURL(value, { errorCorrectionLevel: 'H', margin: 0, scale: 4 });
+      if (mounted) setQrDataUrl(url);
+    })();
+    return () => { mounted = false; };
+  }, [santri.nis]);
+
   return (
     // Ukuran kartu standar ID-1 (seperti kartu kredit)
-    <div ref={ref} className="w-[85.6mm] h-[53.98mm] bg-white border border-gray-300 rounded-lg shadow-lg p-3 flex flex-col font-sans text-black">
+    <div ref={ref} className="relative w-[85.6mm] h-[53.98mm] bg-white border border-gray-300 rounded-lg shadow-lg p-3 flex flex-col font-sans text-black">
       {/* Header Kartu */}
       <div className="flex items-center justify-between border-b border-gray-200 pb-1 mb-2">
         <div className="flex items-center">
@@ -82,6 +99,13 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
           </div>
         </div>
       </div>
+
+      {/* NEW: QR di pojok kanan bawah */}
+      {qrDataUrl && (
+        <div className="absolute right-2 bottom-2 w-10 h-10 border border-gray-200 rounded-sm overflow-hidden">
+          <img src={qrDataUrl} alt="QR NIS" className="w-full h-full object-contain" />
+        </div>
+      )}
     </div>
   );
 });
