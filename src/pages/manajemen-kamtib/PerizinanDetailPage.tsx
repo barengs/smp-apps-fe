@@ -11,6 +11,8 @@ import { useGetStudentLeaveByIdQuery, type StudentLeave } from "@/store/slices/s
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer } from "lucide-react";
 import { openLeavePermitPdf } from "@/components/LeavePermitPdf";
+import LeaveStatusUpdateDialog from "@/components/LeaveStatusUpdateDialog";
+import { CheckCircle } from "lucide-react";
 
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
@@ -31,7 +33,9 @@ const statusVariant = (status?: string): "success" | "warning" | "destructive" |
 const PerizinanDetailPage: React.FC = () => {
   const { id } = useParams();
   const leaveId = Number(id);
-  const { data: leave } = useGetStudentLeaveByIdQuery(leaveId, { skip: isNaN(leaveId) });
+  const { data: leave, refetch } = useGetStudentLeaveByIdQuery(leaveId, { skip: isNaN(leaveId) });
+
+  const [statusOpen, setStatusOpen] = React.useState(false);
 
   const rows: Array<{ label: string; value: React.ReactNode }> = [
     { label: "Nomor Izin", value: leave?.leave_number != null && String(leave.leave_number).trim() !== "" ? String(leave.leave_number) : "-" },
@@ -96,6 +100,16 @@ const PerizinanDetailPage: React.FC = () => {
                 title="Print kartu izin"
               >
                 <Printer className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                aria-label="Persetujuan"
+                onClick={() => setStatusOpen(true)}
+                disabled={isNaN(leaveId)}
+                title="Persetujuan"
+              >
+                <CheckCircle className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
@@ -227,6 +241,16 @@ const PerizinanDetailPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {!isNaN(leaveId) && (
+        <LeaveStatusUpdateDialog
+          open={statusOpen}
+          onOpenChange={setStatusOpen}
+          leaveId={leaveId}
+          currentStatus={leave?.status}
+          onUpdated={() => refetch()}
+        />
+      )}
     </DashboardLayout>
   );
 };
