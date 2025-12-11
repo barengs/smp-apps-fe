@@ -83,6 +83,25 @@ export interface CreateStudentLeaveRequest {
   notes?: string;
 }
 
+export interface StudentLeaveActivity {
+  id: number;
+  activity_type: string;
+  description: string;
+  actor?: { id: number; name: string };
+  actor_role?: string | null;
+  role_display?: string | null;
+  metadata?: any;
+  timestamp: string; // "YYYY-MM-DD HH:MM:SS"
+  ip_address?: string | null;
+}
+
+export interface StudentLeaveActivityHistory {
+  leave_number?: string;
+  status?: string;
+  activities: StudentLeaveActivity[];
+  total_activities?: number;
+}
+
 interface GetStudentLeavesResponse {
   data: StudentLeave[] | { data: StudentLeave[] };
   links?: any;
@@ -192,6 +211,21 @@ export const studentLeaveApi = smpApi.injectEndpoints({
         body: data,
       }),
     }),
+
+    // NEW: Ambil riwayat aktivitas perizinan
+    getStudentLeaveActivityHistory: builder.query<StudentLeaveActivityHistory, number>({
+      query: (id) => `main/student-leave/${id}/activity-history`,
+      transformResponse: (response: any): StudentLeaveActivityHistory => {
+        const data = response?.data ?? {};
+        const activities = Array.isArray(data?.activities) ? data.activities : [];
+        return {
+          leave_number: data?.leave_number,
+          status: data?.status,
+          activities,
+          total_activities: data?.total_activities ?? activities.length,
+        };
+      },
+    }),
   }),
 });
 
@@ -203,4 +237,6 @@ export const {
   useCancelStudentLeaveMutation,
   useGetStudentLeaveByIdQuery,
   useSubmitStudentLeaveReportMutation,
+  // NEW: Export hook riwayat aktivitas
+  useGetStudentLeaveActivityHistoryQuery,
 } = studentLeaveApi;

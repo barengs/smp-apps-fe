@@ -13,6 +13,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { openLeavePermitPdf } from "@/components/LeavePermitPdf";
 import LeaveStatusUpdateDialog from "@/components/LeaveStatusUpdateDialog";
 import { CheckCircle } from "lucide-react";
+import LeaveActivityTimeline from "@/components/LeaveActivityTimeline";
 
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
@@ -80,166 +81,170 @@ const PerizinanDetailPage: React.FC = () => {
           ]}
         />
 
-        <Card>
-          <CardHeader className="p-6 flex-row items-center justify-between gap-2 space-y-0">
-            <div>
-              <CardTitle>Detail Perizinan</CardTitle>
-              <CardDescription>Informasi lengkap data perizinan santri.</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="icon" variant="outline" asChild aria-label="Kembali">
-                <Link to="/dashboard/manajemen-kamtib/perizinan">
-                  <ArrowLeft className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                size="icon"
-                aria-label="Print kartu izin"
-                onClick={() => leave && openLeavePermitPdf(leave)}
-                disabled={!leave}
-                title="Print kartu izin"
-              >
-                <Printer className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                aria-label="Persetujuan"
-                onClick={() => setStatusOpen(true)}
-                disabled={isNaN(leaveId)}
-                title="Persetujuan"
-              >
-                <CheckCircle className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <table className="w-full text-sm">
-                <tbody>
-                  {rows.map((row, idx) => (
-                    <tr key={idx} className="border-b last:border-0">
-                      <td className="w-1/3 px-3 py-1.5 text-muted-foreground align-top">{row.label}</td>
-                      <td className="px-3 py-1.5 font-medium align-top">{row.value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="rounded-md border p-2 mt-2">
-              <div className="text-sm text-muted-foreground mb-1">Laporan Pengembalian</div>
-              {leave?.report ? (
-                <div className="grid grid-cols-1 gap-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tanggal Laporan</span>
-                    <span className="font-medium">{formatDate(leave.report.report_date)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Waktu Laporan</span>
-                    <span className="font-medium">{leave.report.report_time ?? "-"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Catatan Laporan</span>
-                    <span className="font-medium">{leave.report.report_notes ?? "-"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Kondisi</span>
-                    <span className="font-medium">{leave.report.condition ?? "-"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Terlambat</span>
-                    <span className="font-medium">{toYesNo(leave.report.is_late)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Hari Terlambat</span>
-                    <span className="font-medium">{leave.report.late_days ?? "-"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Dilaporkan ke</span>
-                    <span className="font-medium">{leave.report.reported_to?.name ?? "-"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Verifikasi</span>
-                    <span className="font-medium">{formatDate(leave.report.verified_at)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Diverifikasi oleh</span>
-                    <span className="font-medium">{leave.report.verified_by?.name ?? "-"}</span>
-                  </div>
-
-                  <div className="mt-2">
-                    <div className="text-sm text-muted-foreground mb-1">Penalti dari Laporan</div>
-                    {Array.isArray(leave.report.penalties) && leave.report.penalties.length ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Jenis Penalti</TableHead>
-                            <TableHead>Deskripsi</TableHead>
-                            <TableHead>Poin</TableHead>
-                            <TableHead>Sanksi</TableHead>
-                            <TableHead>Ditugaskan Oleh</TableHead>
-                            <TableHead>Tanggal</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {leave.report.penalties.map((p, idx) => (
-                            <TableRow key={idx}>
-                              <TableCell>{p.penalty_type ?? "-"}</TableCell>
-                              <TableCell>{p.description ?? "-"}</TableCell>
-                              <TableCell>{p.point_value ?? "-"}</TableCell>
-                              <TableCell>
-                                {p.sanction ? `${p.sanction.name} (${p.sanction.type})` : "-"}
-                              </TableCell>
-                              <TableCell>{p.assigned_by?.name ?? "-"}</TableCell>
-                              <TableCell>{formatDate(p.assigned_at)}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <div className="text-sm">Tidak ada penalti dari laporan.</div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-sm">Belum ada laporan pengembalian.</div>
-              )}
-            </div>
-
-            <div className="rounded-md border p-2 mt-2">
-              <div className="text-sm text-muted-foreground mb-1">Penalti Perizinan</div>
-              {Array.isArray(leave?.penalties) && leave!.penalties.length ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Jenis Penalti</TableHead>
-                      <TableHead>Deskripsi</TableHead>
-                      <TableHead>Poin</TableHead>
-                      <TableHead>Sanksi</TableHead>
-                      <TableHead>Ditugaskan Oleh</TableHead>
-                      <TableHead>Tanggal</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leave!.penalties.map((p, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{p.penalty_type ?? "-"}</TableCell>
-                        <TableCell>{p.description ?? "-"}</TableCell>
-                        <TableCell>{p.point_value ?? "-"}</TableCell>
-                        <TableCell>{p.sanction ? `${p.sanction.name} (${p.sanction.type})` : "-"}</TableCell>
-                        <TableCell>{p.assigned_by?.name ?? "-"}</TableCell>
-                        <TableCell>{formatDate(p.assigned_at)}</TableCell>
-                      </TableRow>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="p-6 flex-row items-center justify-between gap-2 space-y-0">
+              <div>
+                <CardTitle>Detail Perizinan</CardTitle>
+                <CardDescription>Informasi lengkap data perizinan santri.</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="icon" variant="outline" asChild aria-label="Kembali">
+                  <Link to="/dashboard/manajemen-kamtib/perizinan">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  size="icon"
+                  aria-label="Print kartu izin"
+                  onClick={() => leave && openLeavePermitPdf(leave)}
+                  disabled={!leave}
+                  title="Print kartu izin"
+                >
+                  <Printer className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  aria-label="Persetujuan"
+                  onClick={() => setStatusOpen(true)}
+                  disabled={isNaN(leaveId)}
+                  title="Persetujuan"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {rows.map((row, idx) => (
+                      <tr key={idx} className="border-b last:border-0">
+                        <td className="w-1/3 px-3 py-1.5 text-muted-foreground align-top">{row.label}</td>
+                        <td className="px-3 py-1.5 font-medium align-top">{row.value}</td>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-sm">Tidak ada penalti pada perizinan ini.</div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="rounded-md border p-2 mt-2">
+                <div className="text-sm text-muted-foreground mb-1">Laporan Pengembalian</div>
+                {leave?.report ? (
+                  <div className="grid grid-cols-1 gap-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tanggal Laporan</span>
+                      <span className="font-medium">{formatDate(leave.report.report_date)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Waktu Laporan</span>
+                      <span className="font-medium">{leave.report.report_time ?? "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Catatan Laporan</span>
+                      <span className="font-medium">{leave.report.report_notes ?? "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Kondisi</span>
+                      <span className="font-medium">{leave.report.condition ?? "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Terlambat</span>
+                      <span className="font-medium">{toYesNo(leave.report.is_late)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Hari Terlambat</span>
+                      <span className="font-medium">{leave.report.late_days ?? "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Dilaporkan ke</span>
+                      <span className="font-medium">{leave.report.reported_to?.name ?? "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Verifikasi</span>
+                      <span className="font-medium">{formatDate(leave.report.verified_at)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Diverifikasi oleh</span>
+                      <span className="font-medium">{leave.report.verified_by?.name ?? "-"}</span>
+                    </div>
+
+                    <div className="mt-2">
+                      <div className="text-sm text-muted-foreground mb-1">Penalti dari Laporan</div>
+                      {Array.isArray(leave.report.penalties) && leave.report.penalties.length ? (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Jenis Penalti</TableHead>
+                              <TableHead>Deskripsi</TableHead>
+                              <TableHead>Poin</TableHead>
+                              <TableHead>Sanksi</TableHead>
+                              <TableHead>Ditugaskan Oleh</TableHead>
+                              <TableHead>Tanggal</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {leave.report.penalties.map((p, idx) => (
+                              <TableRow key={idx}>
+                                <TableCell>{p.penalty_type ?? "-"}</TableCell>
+                                <TableCell>{p.description ?? "-"}</TableCell>
+                                <TableCell>{p.point_value ?? "-"}</TableCell>
+                                <TableCell>
+                                  {p.sanction ? `${p.sanction.name} (${p.sanction.type})` : "-"}
+                                </TableCell>
+                                <TableCell>{p.assigned_by?.name ?? "-"}</TableCell>
+                                <TableCell>{formatDate(p.assigned_at)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      ) : (
+                        <div className="text-sm">Tidak ada penalti dari laporan.</div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm">Belum ada laporan pengembalian.</div>
+                )}
+              </div>
+
+              <div className="rounded-md border p-2 mt-2">
+                <div className="text-sm text-muted-foreground mb-1">Penalti Perizinan</div>
+                {Array.isArray(leave?.penalties) && leave!.penalties.length ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Jenis Penalti</TableHead>
+                        <TableHead>Deskripsi</TableHead>
+                        <TableHead>Poin</TableHead>
+                        <TableHead>Sanksi</TableHead>
+                        <TableHead>Ditugaskan Oleh</TableHead>
+                        <TableHead>Tanggal</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {leave!.penalties.map((p, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>{p.penalty_type ?? "-"}</TableCell>
+                          <TableCell>{p.description ?? "-"}</TableCell>
+                          <TableCell>{p.point_value ?? "-"}</TableCell>
+                          <TableCell>{p.sanction ? `${p.sanction.name} (${p.sanction.type})` : "-"}</TableCell>
+                          <TableCell>{p.assigned_by?.name ?? "-"}</TableCell>
+                          <TableCell>{formatDate(p.assigned_at)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-sm">Tidak ada penalti pada perizinan ini.</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {!isNaN(leaveId) && <LeaveActivityTimeline leaveId={leaveId} />}
+        </div>
       </div>
 
       {!isNaN(leaveId) && (
