@@ -4,6 +4,8 @@ import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { StudentLeave } from '@/store/slices/studentLeaveApi';
 import { Image } from '@react-pdf/renderer';
+// ADD: static import for pdf to avoid mixed dynamic+static warning
+import { pdf } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
@@ -231,7 +233,6 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: st
 
 // Utilitas untuk membuka PDF di tab baru
 export async function openLeavePermitPdf(leave: StudentLeave) {
-  const { pdf } = await import('@react-pdf/renderer');
   let qrDataUrl: string | undefined;
   const rawNumber = leave.leave_number != null ? String(leave.leave_number) : '';
   const content = rawNumber.trim();
