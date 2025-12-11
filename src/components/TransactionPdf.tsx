@@ -84,13 +84,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   tableCell: {
-    padding: 5,
+    padding: 3,
     borderStyle: 'solid',
     borderColor: '#bfbfbf',
     borderWidth: 1,
     borderLeftWidth: 0,
     borderTopWidth: 0,
-    fontSize: 9,
+    fontSize: 8,
   },
   tableCellLabel: {
     width: '35%',
@@ -104,9 +104,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
   },
   tableHeaderCell: {
-    padding: 5,
+    padding: 3,
     fontFamily: 'Helvetica-Bold',
-    fontSize: 10,
+    fontSize: 9,
     borderStyle: 'solid',
     borderColor: '#bfbfbf',
     borderWidth: 1,
@@ -217,7 +217,6 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction, qrDataUrl 
         <View style={styles.signatureContainer}>
           <View style={styles.signatureBox}>
             <Text>Penerima,</Text>
-            <Text style={styles.signatureName}>( _________________________ )</Text>
           </View>
           <View style={styles.signatureBox}>
             <Text>Hormat Kami,</Text>
