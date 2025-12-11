@@ -23,6 +23,8 @@ import * as toast from '@/utils/toast';
 import { openLeavePermitPdf } from '@/components/LeavePermitPdf';
 import { useNavigate } from 'react-router-dom';
 import LeaveStatusUpdateDialog from '@/components/LeaveStatusUpdateDialog';
+import { useGetStudentLeaveStatisticsQuery } from '@/store/slices/studentLeaveApi';
+import LeaveStatsCard from '@/components/LeaveStatsCard';
 
 const IssuePermissionDialog: React.FC<{
   open: boolean;
@@ -381,6 +383,7 @@ const PerizinanPage: React.FC = () => {
   const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 200 });
   const { data: leaves = [], isFetching: isFetchingLeaves, refetch: refetchLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
   const navigate = useNavigate();
+  const { data: leaveStats, isLoading: isLoadingLeaveStats } = useGetStudentLeaveStatisticsQuery();
 
   const [issueOpen, setIssueOpen] = React.useState(false);
   const [returnOpen, setReturnOpen] = React.useState(false);
@@ -494,23 +497,32 @@ const PerizinanPage: React.FC = () => {
             { label: t('sidebar.permission') },
           ]}
         />
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('permissionPage.title')}</CardTitle>
-            <CardDescription>{t('permissionPage.description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={columns}
-              data={leaves}
-              isLoading={isFetchingLeaves}
-              exportFileName="data-perizinan"
-              exportTitle="Data Perizinan Santri"
-              leftActions={leftActions}
-              onRowClick={(row) => navigate(`/dashboard/manajemen-kamtib/perizinan/${(row as StudentLeave).id}`)}
-            />
-          </CardContent>
-        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('permissionPage.title')}</CardTitle>
+                <CardDescription>{t('permissionPage.description')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  columns={columns}
+                  data={leaves}
+                  isLoading={isFetchingLeaves}
+                  exportFileName="data-perizinan"
+                  exportTitle="Data Perizinan Santri"
+                  leftActions={leftActions}
+                  onRowClick={(row) => navigate(`/dashboard/manajemen-kamtib/perizinan/${(row as StudentLeave).id}`)}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <LeaveStatsCard stats={leaveStats} isLoading={isLoadingLeaveStats} />
+          </div>
+        </div>
 
         <IssuePermissionDialog
           open={issueOpen}
