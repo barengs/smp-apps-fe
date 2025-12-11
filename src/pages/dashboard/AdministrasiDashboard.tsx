@@ -185,11 +185,14 @@ const AdministrasiDashboard: React.FC = () => {
         )}
       </div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Santri Statistics Chart */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
-          <SantriGrowthChart />
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left Column: Santri Statistics + Violation Stats stacked */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
+            <SantriGrowthChart />
+          </div>
+          <ViolationStatsCard stats={violationStats} isLoading={isLoadingViolationStats} />
         </div>
 
         {/* Right Column: Quick Actions and Activity Schedule */}
@@ -232,9 +235,6 @@ const AdministrasiDashboard: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* NEW: Statistik Pelanggaran di bawah Statistik Santri (setengah halaman pada layar besar) */}
-        <ViolationStatsCard stats={violationStats} isLoading={isLoadingViolationStats} />
       </div>
 
       <ActivityDetailModal
