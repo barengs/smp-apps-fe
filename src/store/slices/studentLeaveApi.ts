@@ -102,6 +102,22 @@ export interface StudentLeaveActivityHistory {
   total_activities?: number;
 }
 
+// NEW: Statistik Perizinan
+export interface StudentLeaveStatistics {
+  total_leaves: string | number;
+  status_breakdown?: {
+    pending?: string | number;
+    approved?: string | number;
+    rejected?: string | number;
+    completed?: string | number;
+  };
+  leave_type_breakdown?: string | Array<{ name?: string; total?: string | number }>;
+  overdue_count?: string | number;
+  with_penalty_count?: string | number;
+  monthly_trend?: string | Array<{ year?: string | number; month?: string | number; total?: string | number }>;
+  top_students?: unknown;
+}
+
 interface GetStudentLeavesResponse {
   data: StudentLeave[] | { data: StudentLeave[] };
   links?: any;
@@ -226,6 +242,13 @@ export const studentLeaveApi = smpApi.injectEndpoints({
         };
       },
     }),
+
+    // NEW: Ambil statistik perizinan
+    getStudentLeaveStatistics: builder.query<StudentLeaveStatistics, void>({
+      query: () => 'main/student-leave/statistics',
+      transformResponse: (response: { success: boolean; data: StudentLeaveStatistics }) => response.data,
+      providesTags: [{ type: 'StudentLeave', id: 'STATISTICS' }],
+    }),
   }),
 });
 
@@ -239,4 +262,6 @@ export const {
   useSubmitStudentLeaveReportMutation,
   // NEW: Export hook riwayat aktivitas
   useGetStudentLeaveActivityHistoryQuery,
+  // NEW: Export hook statistik perizinan
+  useGetStudentLeaveStatisticsQuery,
 } = studentLeaveApi;

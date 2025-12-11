@@ -19,6 +19,8 @@ import { useGetBeritaQuery } from '@/store/slices/beritaApi';
 import RunningText from '@/components/RunningText';
 import ViolationStatsCard from '@/components/ViolationStatsCard';
 import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
+import LeaveStatsCard from '@/components/LeaveStatsCard';
+import { useGetStudentLeaveStatisticsQuery } from '@/store/slices/studentLeaveApi';
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string; color?: string }> = ({ title, value, icon, description, color }) => (
   <Card className="transition-all hover:shadow-md">
@@ -61,6 +63,7 @@ const AdministrasiDashboard: React.FC = () => {
   const { data: calonSantriData, isLoading: isLoadingCalonSantri, isError: isErrorCalonSantri } = useGetCalonSantriQuery();
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
   const { data: violationStats, isLoading: isLoadingViolationStats } = useGetStudentViolationStatisticsQuery();
+  const { data: leaveStats, isLoading: isLoadingLeaveStats } = useGetStudentLeaveStatisticsQuery();
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null);
@@ -186,13 +189,14 @@ const AdministrasiDashboard: React.FC = () => {
       </div>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left Column: Santri Statistics + Violation Stats stacked */}
+        {/* Left Column: Santri Statistics + Violation & Leave Stats stacked */}
         <div className="space-y-4">
           <div>
             <h2 className="text-2xl font-bold mb-4">Statistik Santri</h2>
             <SantriGrowthChart />
           </div>
           <ViolationStatsCard stats={violationStats} isLoading={isLoadingViolationStats} />
+          <LeaveStatsCard stats={leaveStats} isLoading={isLoadingLeaveStats} />
         </div>
 
         {/* Right Column: Quick Actions and Activity Schedule */}
