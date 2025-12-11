@@ -108,7 +108,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
         { titleKey: "sidebar.classPromotion", href: "/dashboard/manajemen-kurikulum/kenaikan-kelas", icon: <TrendingUp className="h-4 w-4" /> },
         { titleKey: "sidebar.lessonSchedule", href: "/dashboard/manajemen-kurikulum/jadwal-pelajaran", icon: <CalendarClock className="h-4 w-4" /> },
         { titleKey: "sidebar.teacher", href: "/dashboard/manajemen-kurikulum/guru", icon: <User className="h-4 w-4" /> },
-        { titleKey: "sidebar.teacherAssignment", href: "/dashboard/manajemen-kurikulum/penugasan-guru", icon: <UserCheck className="h-4 w-4" /> },
         { titleKey: "sidebar.teachingHours", href: "/dashboard/manajemen-kurikulum/jam-mengajar", icon: <CalendarClock className="h-4 w-4" /> },
         { titleKey: "sidebar.presence", href: "/dashboard/manajemen-kurikulum/presensi", icon: <UserCheck className="h-4 w-4" /> },
         { titleKey: "sidebar.students", href: "/dashboard/manajemen-kurikulum/siswa", icon: <Users className="h-4 w-4" /> },
