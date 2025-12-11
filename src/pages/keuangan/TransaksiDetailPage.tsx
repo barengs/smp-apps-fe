@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import * as toast from '@/utils/toast';
-import { usePDF, PDFDownloadLink } from '@react-pdf/renderer';
-import TransactionPdf from '@/components/TransactionPdf';
+import { openTransactionPdf } from '@/components/TransactionPdf';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +58,10 @@ const TransaksiDetailPage: React.FC = () => {
 
   const transaction = apiResponse?.data;
 
+  // Add: compute changeAmount from paymentAmount and transaction.amount
+  const paidAmountNumber = parseFloat(paymentAmount || '0');
+  const changeAmount = transaction ? paidAmountNumber - parseFloat(String(transaction.amount)) : 0;
+
   // NEW: state untuk QR data URL
   const [qrDataUrl, setQrDataUrl] = useState<string | undefined>(undefined);
 
@@ -77,13 +80,6 @@ const TransaksiDetailPage: React.FC = () => {
     })();
     return () => { isMounted = false; };
   }, [transaction?.id]);
-
-  const PdfDocument = React.useMemo(() => {
-    if (!transaction) return null;
-    return <TransactionPdf transaction={transaction} qrDataUrl={qrDataUrl} />;
-  }, [transaction, qrDataUrl]);
-
-  const [instance] = usePDF({ document: PdfDocument });
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
@@ -169,9 +165,6 @@ const TransaksiDetailPage: React.FC = () => {
     );
   }
 
-  const pdfFileName = `Transaksi-${transaction.reference_number || transaction.id}.pdf`;
-  const changeAmount = parseFloat(paymentAmount) - parseFloat(transaction.amount);
-
   return (
     <DashboardLayout title={`Detail Transaksi ${transaction.reference_number || transaction.id}`} role="administrasi">
       <div className="container mx-auto py-4 px-4">
@@ -191,7 +184,11 @@ const TransaksiDetailPage: React.FC = () => {
                   <CheckCircle className="mr-2 h-4 w-4" /> Validasi
                 </Button>
               )}
-              <Button variant="info" onClick={() => setIsPrintPreviewOpen(true)} disabled={!PdfDocument}>
+              <Button
+                variant="info"
+                onClick={() => transaction && openTransactionPdf(transaction)}
+                disabled={!transaction}
+              >
                 <Printer className="mr-2 h-4 w-4" /> Cetak
               </Button>
             </div>
@@ -256,48 +253,6 @@ const TransaksiDetailPage: React.FC = () => {
           </Card>
         )}
       </div>
-
-      {/* Print Preview Dialog */}
-      <Dialog open={isPrintPreviewOpen} onOpenChange={setIsPrintPreviewOpen}>
-        <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
-          <DialogHeader className="p-6 pb-2">
-            <DialogTitle>Pratinjau Cetak Transaksi</DialogTitle>
-            <DialogDescription>
-              Ini adalah pratinjau detail transaksi. Klik 'Unduh' untuk menyimpan sebagai PDF.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-grow bg-gray-200 flex items-center justify-center">
-            {instance.loading ? (
-              <p className="text-muted-foreground">Membuat pratinjau PDF...</p>
-            ) : instance.url ? (
-              <iframe
-                src={instance.url}
-                width="100%"
-                height="100%"
-                style={{ border: 'none' }}
-                title={pdfFileName}
-              />
-            ) : (
-              <p className="text-red-500">Gagal membuat pratinjau PDF.</p>
-            )}
-          </div>
-          <DialogFooter className="p-6 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => setIsPrintPreviewOpen(false)}>
-              Tutup
-            </Button>
-            {PdfDocument && (
-              <PDFDownloadLink document={PdfDocument} fileName={pdfFileName}>
-                {({ loading }) => (
-                  <Button disabled={loading || instance.loading}>
-                    <Download className="mr-2 h-4 w-4" />
-                    {loading ? 'Membuat PDF...' : 'Unduh'}
-                  </Button>
-                )}
-              </PDFDownloadLink>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Validation Dialog */}
       <Dialog open={isValidationModalOpen} onOpenChange={setIsValidationModalOpen}>

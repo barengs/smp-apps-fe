@@ -3,6 +3,7 @@ import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/render
 import { Transaksi } from '@/types/keuangan';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { pdf } from '@react-pdf/renderer';
 
 const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png";
 
@@ -229,3 +230,26 @@ const TransactionPdf: React.FC<TransactionPdfProps> = ({ transaction, qrDataUrl 
 };
 
 export default TransactionPdf;
+
+export async function openTransactionPdf(transaction: Transaksi) {
+  let qrDataUrl: string | undefined;
+  const content = transaction?.id != null ? String(transaction.id).trim() : '';
+  if (content) {
+    const { default: QRCode } = await import('qrcode');
+    qrDataUrl = await QRCode.toDataURL(content, {
+      errorCorrectionLevel: 'H',
+      margin: 0,
+      scale: 4,
+    });
+  }
+
+  const blob = await pdf(<TransactionPdf transaction={transaction} qrDataUrl={qrDataUrl} />).toBlob();
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (!win) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transaksi-${transaction.reference_number || transaction.id}.pdf`;
+    a.click();
+  }
+}
