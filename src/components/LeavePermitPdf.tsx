@@ -71,13 +71,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   },
+  // UPDATED: jadikan kolom dan beri ruang di tengah
   signBox: {
     width: '32%',
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 4,
     padding: 8,
-    minHeight: 80,
+    minHeight: 100, // increased for signature space
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   signTitle: {
     fontSize: 9,
@@ -85,7 +89,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
-  // Tambah: gaya untuk nama petugas yang rata tengah
   signName: {
     fontSize: 9,
     textAlign: 'center',
