@@ -71,8 +71,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   },
+  // Update: lebar kotak tanda tangan untuk 3 kolom
   signBox: {
-    width: '48%',
+    width: '32%',
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 4,
@@ -200,12 +201,17 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: st
 
         <View style={styles.signRow}>
           <View style={styles.signBox}>
-            <Text style={styles.signTitle}>Petugas</Text>
+            <Text style={styles.signTitle}>Wali Kelas</Text>
             <Text>Nama: ____________________________</Text>
             <Text>Tanda tangan:</Text>
           </View>
           <View style={styles.signBox}>
-            <Text style={styles.signTitle}>Wali/Orang Tua</Text>
+            <Text style={styles.signTitle}>Kepala Asrama</Text>
+            <Text>Nama: ____________________________</Text>
+            <Text>Tanda tangan:</Text>
+          </View>
+          <View style={styles.signBox}>
+            <Text style={styles.signTitle}>Keamanan</Text>
             <Text>Nama: ____________________________</Text>
             <Text>Tanda tangan:</Text>
           </View>
