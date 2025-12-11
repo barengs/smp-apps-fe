@@ -124,6 +124,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
       name: values.name,
       permission: values.explicitPermissions || [],
       menu_id: selectedMenuIds,
+      guard_name: 'api',
     };
 
     try {

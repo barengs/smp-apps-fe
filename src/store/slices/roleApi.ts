@@ -35,6 +35,8 @@ interface CreateUpdateRoleRequest {
   name: string;
   permission?: string[];
   menu_id?: number[];
+  // NEW: guard name (default 'api')
+  guard_name?: string;
 }
 
 export const roleApi = smpApi.injectEndpoints({
