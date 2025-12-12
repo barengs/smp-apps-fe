@@ -28,7 +28,8 @@ const WaliSantriTable: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [importOpen, setImportOpen] = useState(false);
 
-  const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery();
+  // UPDATED: ambil refetch dari hook agar bisa me-refresh data tanpa reload
+  const { data: parentsResponse, error, isLoading, isFetching, refetch } = useGetParentsQuery();
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsResponse) {
@@ -164,9 +165,12 @@ const WaliSantriTable: React.FC = () => {
       <WaliSantriImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}
-        onImported={() => {
-          toast.showSuccess('Data berhasil diimpor. Memuat ulang data...');
-          setTimeout(() => { window.location.reload(); }, 600);
+        onImported={async () => {
+          // REFRESH: refetch data setelah impor sukses
+          const loadingId = toast.showLoading('Memuat data terbaru...');
+          await refetch();
+          toast.dismissToast(loadingId);
+          toast.showSuccess('Data berhasil diimpor dan diperbarui.');
         }}
       />
     </>
