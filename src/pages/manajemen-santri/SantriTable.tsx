@@ -10,6 +10,9 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 import RoomAssignDialog from '@/components/RoomAssignDialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Download, Upload } from 'lucide-react';
+import SantriImportDialog from './SantriImportDialog';
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -33,9 +36,10 @@ interface SantriTableProps {
 const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
+  const [importOpen, setImportOpen] = useState(false);
 
   // Ambil semua data tanpa server-side pagination
-  const { data: students, error, isLoading, isFetching } = useGetStudentsQuery({});
+  const { data: students, error, isLoading, isFetching, refetch } = useGetStudentsQuery({});
 
   const santriList: Santri[] = useMemo(() => {
     if (Array.isArray(students)) {
@@ -218,26 +222,65 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   }
 
   return (
-    <DataTable
-      columns={columns}
-      data={santriList}
-      exportFileName="data_santri"
-      exportTitle="Data Santri Pesantren"
-      onRowClick={handleRowClick}
-      filterableColumns={{
-        period: { type: 'select', placeholder: 'Periode', options: periodOptions },
-        status: { type: 'select', placeholder: 'Status', options: statusOptions },
-        programName: { type: 'select', placeholder: 'Program', options: programOptions },
-        roomName: { type: 'select', placeholder: 'Kamar', options: roomOptions },
-      }}
-      onAddData={onAddData}
-      sorting={sorting}
-      onSortingChange={setSorting}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      pageCount={pageCount}
-      addButtonLabel="Tambah Santri"
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={santriList}
+        exportFileName="data_santri"
+        exportTitle="Data Santri Pesantren"
+        onRowClick={handleRowClick}
+        filterableColumns={{
+          period: { type: 'select', placeholder: 'Periode', options: periodOptions },
+          status: { type: 'select', placeholder: 'Status', options: statusOptions },
+          programName: { type: 'select', placeholder: 'Program', options: programOptions },
+          roomName: { type: 'select', placeholder: 'Kamar', options: roomOptions },
+        }}
+        onAddData={onAddData}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        pageCount={pageCount}
+        addButtonLabel="Tambah Santri"
+        exportImportElement={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Import / Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={() => setImportOpen(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  import('@/utils/export').then(({ exportToExcel }) => {
+                    exportToExcel(santriList as any[], 'data_santri', 'Data Santri Pesantren');
+                  });
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
+      />
+
+      <SantriImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={async () => {
+          const loadingId = toast.showLoading('Memuat data terbaru...');
+          await refetch();
+          toast.dismissToast(loadingId);
+          toast.showSuccess('Data santri berhasil diimpor dan diperbarui.');
+        }}
+      />
+    </>
   );
 };
 
