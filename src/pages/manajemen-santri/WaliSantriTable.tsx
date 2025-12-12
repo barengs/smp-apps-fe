@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
+import { Edit, Download, Upload } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetParentsQuery } from '@/store/slices/parentApi';
@@ -9,7 +9,8 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
-// import { Parent } from '@/types/kepesantrenan';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import WaliSantriImportDialog from './WaliSantriImportDialog';
 
 // Interface for the data displayed in the table
 interface WaliSantri {
@@ -25,6 +26,7 @@ interface WaliSantri {
 const WaliSantriTable: React.FC = () => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [importOpen, setImportOpen] = useState(false);
 
   const { data: parentsResponse, error, isLoading, isFetching } = useGetParentsQuery();
 
@@ -101,9 +103,14 @@ const WaliSantriTable: React.FC = () => {
     []
   );
 
-  const handleAddData = () => {
-    toast.showWarning('Membuka form tambah data wali santri...');
-    // Implementasi logika untuk membuka form tambah data wali santri
+  const handleExport = () => {
+    // Trigger export via a hidden DataTable export by leveraging the same columns/data if needed.
+    // Simpler: create and click a hidden anchor? We already have exportToExcel in DataTable,
+    // but here we do not directly call it; we'll use a simple download by constructing sheet would require duplication.
+    // Instead, we can render DataTable with export props and call its handler through ref, but DataTable doesn't expose it.
+    // As a pragmatic approach, we dispatch a custom event listened by DataTable? Overkill.
+    // We'll just use utils/export directly here to keep it simple.
+    // Import at top? Not available here originally. We'll import now:
   };
 
   if (isLoading || isFetching) return <TableLoadingSkeleton numCols={7} />;
@@ -114,20 +121,60 @@ const WaliSantriTable: React.FC = () => {
   }
 
   return (
-    <DataTable
-      columns={columns}
-      data={waliSantriList}
-      pageCount={pageCount}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      sorting={sorting}
-      onSortingChange={setSorting}
-      exportFileName="data_wali_santri"
-      exportTitle="Data Wali Santri Pesantren"
-      onAddData={handleAddData}
-      onRowClick={handleRowClick}
-      addButtonLabel="Tambah Wali Santri"
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={waliSantriList}
+        pageCount={pageCount}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        exportFileName="data_wali_santri"
+        exportTitle="Data Wali Santri Pesantren"
+        onAddData={() => { toast.showWarning('Membuka form tambah data wali santri...'); }}
+        onRowClick={handleRowClick}
+        addButtonLabel="Tambah Wali Santri"
+        leftActions={null}
+      />
+      <div className="relative -mt-[70px] mb-4">
+        <div className="absolute right-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Import / Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={() => setImportOpen(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  import('@/utils/export').then(({ exportToExcel }) => {
+                    exportToExcel(waliSantriList as any[], 'data_wali_santri', 'Data Wali Santri Pesantren');
+                  });
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <WaliSantriImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={() => {
+          toast.showSuccess('Data berhasil diimpor. Memuat ulang data...');
+          setTimeout(() => { window.location.reload(); }, 600);
+        }}
+      />
+    </>
   );
 };
 
