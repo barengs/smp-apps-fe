@@ -71,6 +71,9 @@ interface DataTableProps<TData, TValue> {
 
   // Aksi tambahan di sisi kiri (sebelah pencarian/filters)
   leftActions?: React.ReactNode;
+
+  // NEW: gantikan tombol export/import default dengan elemen kustom
+  exportImportElement?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -96,6 +99,7 @@ export function DataTable<TData, TValue>({
   onExpandedChange,
   getSubRows,
   leftActions,
+  exportImportElement,
 }: DataTableProps<TData, TValue>) {
   // Hapus penguncian pagination default; gunakan hanya saat manual pagination aktif
   // const defaultPagination: PaginationState = {
@@ -356,16 +360,22 @@ export function DataTable<TData, TValue>({
         </div>
 
         <div className="flex items-center gap-2">
-          {exportFileName && exportTitle && (
-            <Button onClick={handleExport} variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Export Excel
-            </Button>
-          )}
-          {onImportData && (
-            <Button onClick={onImportData} variant="outline" size="sm">
-              Import
-            </Button>
+          {exportImportElement ? (
+            exportImportElement
+          ) : (
+            <>
+              {exportFileName && exportTitle && (
+                <Button onClick={handleExport} variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Excel
+                </Button>
+              )}
+              {onImportData && (
+                <Button onClick={onImportData} variant="outline" size="sm">
+                  Import
+                </Button>
+              )}
+            </>
           )}
           {onAssignment && (
             <Button onClick={onAssignment} variant="outline" size="sm" className={assignmentButtonClassName}>

@@ -130,15 +130,7 @@ const WaliSantriTable: React.FC = () => {
         onPaginationChange={setPagination}
         sorting={sorting}
         onSortingChange={setSorting}
-        exportFileName="data_wali_santri"
-        exportTitle="Data Wali Santri Pesantren"
-        onAddData={() => { toast.showWarning('Membuka form tambah data wali santri...'); }}
-        onRowClick={handleRowClick}
-        addButtonLabel="Tambah Wali Santri"
-        leftActions={null}
-      />
-      <div className="relative -mt-[70px] mb-4">
-        <div className="absolute right-0">
+        exportImportElement={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -163,8 +155,11 @@ const WaliSantriTable: React.FC = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </div>
+        }
+        onAddData={() => { toast.showWarning('Membuka form tambah data wali santri...'); }}
+        onRowClick={handleRowClick}
+        addButtonLabel="Tambah Wali Santri"
+      />
 
       <WaliSantriImportDialog
         open={importOpen}
