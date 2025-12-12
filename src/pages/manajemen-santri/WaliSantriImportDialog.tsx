@@ -20,20 +20,40 @@ const WaliSantriImportDialog: React.FC<Props> = ({ open, onOpenChange, onImporte
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [isUploading, setIsUploading] = React.useState(false);
 
+  const base = React.useMemo(() => {
+    const b = API_BASE_URL || '';
+    return b.endsWith('/') ? b : `${b}/`;
+  }, []);
+
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('token') || '';
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const handleDownloadTemplate = async () => {
     setIsDownloading(true);
     try {
-      const resp = await fetch(`${API_BASE_URL}main/parent/import/template`, {
+      const resp = await fetch(`${base}main/parent/import/template`, {
         method: 'GET',
-        headers: { Accept: 'application/octet-stream' },
+        headers: {
+          Accept: 'application/octet-stream',
+          ...getAuthHeader(),
+        },
       });
-      if (!resp.ok) throw new Error('Gagal mengunduh template');
+      if (!resp.ok) {
+        throw new Error(`Gagal mengunduh template. Status: ${resp.status}`);
+      }
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'template-wali-santri.xlsx';
+      // Gunakan nama dari header jika tersedia
+      const cd = resp.headers.get('Content-Disposition') || '';
+      const matched = cd.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
+      a.download = matched?.[1] || 'template-wali-santri.xlsx';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast.showSuccess('Template berhasil diunduh.');
     } catch (err) {
@@ -53,13 +73,17 @@ const WaliSantriImportDialog: React.FC<Props> = ({ open, onOpenChange, onImporte
     try {
       const form = new FormData();
       form.append('file', file);
-      const resp = await fetch(`${API_BASE_URL}main/parent/import`, {
+      const resp = await fetch(`${base}main/parent/import`, {
         method: 'POST',
+        headers: {
+          ...getAuthHeader(),
+          // Biarkan browser set Content-Type untuk FormData
+        } as any,
         body: form,
       });
       if (!resp.ok) {
         const txt = await resp.text().catch(() => '');
-        throw new Error(txt || 'Gagal mengunggah file');
+        throw new Error(txt || `Gagal mengunggah file. Status: ${resp.status}`);
       }
       toast.showSuccess('Impor wali santri berhasil.');
       onOpenChange(false);
