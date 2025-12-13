@@ -12,6 +12,9 @@ interface HostelApiData {
     name: string;
   };
   capacity: number; // Menambahkan properti capacity
+  // NEW: simpan kepala asrama saat ini dan nama hasil turunan
+  current_head?: any;
+  headName?: string;
 }
 
 // Structure for the raw GET /hostel response with pagination
@@ -56,20 +59,34 @@ export const hostelApi = smpApi.injectEndpoints({
       query: () => 'master/hostel',
       transformResponse: (response: GetHostelsRawResponse) => {
         const arr = Array.isArray(response?.data) ? response.data : [];
-        // Normalisasi minimal (capacity ke number jika string)
-        const normalized: HostelApiData[] = arr.map((item: any) => ({
-          id: Number(item.id),
-          name: item.name,
-          description: item.description ?? '',
-          program: {
-            id: Number(item?.program?.id ?? item.program_id ?? 0),
-            name: item?.program?.name ?? '',
-          },
-          capacity:
-            typeof item.capacity === 'string'
-              ? parseInt(item.capacity || '0', 10)
-              : Number(item.capacity ?? 0),
-        }));
+        // Normalisasi minimal (capacity ke number jika string) + tambahkan current_head dan headName
+        const normalized: HostelApiData[] = arr.map((item: any) => {
+          const currentHead = item?.current_head ?? null;
+          const staff = currentHead?.staff;
+          const headFirst = staff?.first_name ?? '';
+          const headLast = staff?.last_name ?? '';
+          const derivedHeadName =
+            `${headFirst} ${headLast}`.trim() ||
+            staff?.user?.name ||
+            currentHead?.name ||
+            undefined;
+
+          return {
+            id: Number(item.id),
+            name: item.name,
+            description: item.description ?? '',
+            program: {
+              id: Number(item?.program?.id ?? item.program_id ?? 0),
+              name: item?.program?.name ?? '',
+            },
+            capacity:
+              typeof item.capacity === 'string'
+                ? parseInt(item.capacity || '0', 10)
+                : Number(item.capacity ?? 0),
+            current_head: currentHead,
+            headName: derivedHeadName,
+          };
+        });
         return { data: normalized };
       },
       providesTags: (result) =>
