@@ -29,6 +29,17 @@ import GuruProfileStep from './form-steps/GuruProfileStep';
 import GuruAddressStep from './form-steps/GuruAddressStep';
 import GuruEmploymentStep from './form-steps/GuruEmploymentStep';
 
+// Tambahkan helper untuk membuat URL foto absolut dari base API
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string | undefined;
+const toAbsolutePhotoUrl = (url?: string | null): string | null => {
+  if (!url) return null;
+  // Biarkan data URL dan URL absolut apa adanya
+  if (url.startsWith('data:') || /^https?:\/\//.test(url)) return url;
+  const base = API_BASE_URL || window.location.origin;
+  const clean = url.startsWith('/') ? url.slice(1) : url;
+  return `${base}/${clean}`;
+};
+
 const formSchema = z.object({
   first_name: z.string().min(1, 'Nama depan wajib diisi'),
   last_name: z.string().optional(),
@@ -308,7 +319,7 @@ const GuruFormPage: React.FC = () => {
         }
       }
 
-      // Reset form with teacher data
+      // Reset form dengan data guru
       form.reset({
         first_name: teacher.first_name,
         last_name: teacher.last_name || '',
@@ -332,8 +343,11 @@ const GuruFormPage: React.FC = () => {
         username: teacher.user?.username || '',
       });
 
+      // Perbaiki preview foto dengan base URL API dari .env
       if (teacher.photo) {
-        setPhotoPreview(teacher.photo);
+        setPhotoPreview(toAbsolutePhotoUrl(teacher.photo));
+      } else {
+        setPhotoPreview(null);
       }
 
       // Load villages for the district and then set village code
