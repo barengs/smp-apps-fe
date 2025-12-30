@@ -29,15 +29,31 @@ import GuruProfileStep from './form-steps/GuruProfileStep';
 import GuruAddressStep from './form-steps/GuruAddressStep';
 import GuruEmploymentStep from './form-steps/GuruEmploymentStep';
 
-// Tambahkan helper untuk membuat URL foto absolut dari base API
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string | undefined;
-const toAbsolutePhotoUrl = (url?: string | null): string | null => {
-  if (!url) return null;
+// NEW: helper untuk membangun URL foto berbasis storage Laravel (sesuai detail guru)
+const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string | undefined;
+const buildPhotoUrl = (photo?: string | null): string | null => {
+  if (!photo) return null;
+  const src = String(photo).trim();
+
   // Biarkan data URL dan URL absolut apa adanya
-  if (url.startsWith('data:') || /^https?:\/\//.test(url)) return url;
-  const base = API_BASE_URL || window.location.origin;
-  const clean = url.startsWith('/') ? url.slice(1) : url;
-  return `${base}/${clean}`;
+  if (src.startsWith('data:') || /^https?:\/\//.test(src)) return src;
+
+  // Jika sudah path '/storage/...', gabungkan dengan origin
+  if (src.startsWith('/storage/')) {
+    return `${window.location.origin}${src}`;
+  }
+
+  // Jika sudah 'uploads/...', gabungkan dengan base storage dari env
+  if (src.startsWith('uploads/')) {
+    const base = STORAGE_BASE_URL || `${window.location.origin}/storage/`;
+    const safeBase = base.endsWith('/') ? base : `${base}/`;
+    return `${safeBase}${src}`;
+  }
+
+  // Default: anggap berisi nama file saja -> arahkan ke '/storage/uploads/logos/large/{file}'
+  const base = STORAGE_BASE_URL || `${window.location.origin}/storage/`;
+  const safeBase = base.endsWith('/') ? base : `${base}/`;
+  return `${safeBase}uploads/logos/large/${src}`;
 };
 
 const formSchema = z.object({
@@ -343,9 +359,9 @@ const GuruFormPage: React.FC = () => {
         username: teacher.user?.username || '',
       });
 
-      // Perbaiki preview foto dengan base URL API dari .env
+      // Perbaiki preview foto dengan base URL storage Laravel dari .env
       if (teacher.photo) {
-        setPhotoPreview(toAbsolutePhotoUrl(teacher.photo));
+        setPhotoPreview(buildPhotoUrl(teacher.photo));
       } else {
         setPhotoPreview(null);
       }
