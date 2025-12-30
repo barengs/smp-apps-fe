@@ -25,11 +25,23 @@ import * as toast from '@/utils/toast'; // Baris ini diperbaiki
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
 import AssignStudyModal from './AssignStudyModal';
 import type { Staff as StaffForAssignment, Study } from '@/types/teacherAssignment';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const GuruPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: apiResponse, isLoading, isError, error } = useGetTeachersQuery();
   const [deleteTeacher] = useDeleteTeacherMutation();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [userToDelete, setUserToDelete] = React.useState<UserWithStaffAndRoles | null>(null);
   const { data: assignmentsResponse } = useGetTeacherAssignmentsQuery({});
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedStaff, setSelectedStaff] = React.useState<StaffForAssignment | null>(null);
@@ -70,15 +82,22 @@ const GuruPage: React.FC = () => {
     navigate(`/dashboard/manajemen-kurikulum/guru/${user.staff.id}/edit`); // Menggunakan user.staff.id
   };
 
-  const handleDelete = async (user: UserWithStaffAndRoles) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus guru ${user.staff.first_name} ${user.staff.last_name}?`)) {
-      try {
-        await deleteTeacher(user.staff.id).unwrap(); // Menggunakan user.staff.id
-        toast.showSuccess('Guru berhasil dihapus!');
-      } catch (err) {
-        console.error('Gagal menghapus guru:', err);
-        toast.showError('Gagal menghapus guru.');
-      }
+  const handleDelete = (user: UserWithStaffAndRoles) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    try {
+      await deleteTeacher(String(userToDelete.staff.id)).unwrap();
+      toast.showSuccess('Guru berhasil dihapus!');
+    } catch (err) {
+      console.error('Gagal menghapus guru:', err);
+      toast.showError('Gagal menghapus guru.');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -261,6 +280,26 @@ const GuruPage: React.FC = () => {
                   }}
                   staff={selectedStaff}
                 />
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tindakan ini tidak dapat dibatalkan. Ini akan menghapus guru{' '}
+                        <span className="font-semibold text-foreground">
+                          "{userToDelete ? `${userToDelete.staff.first_name} ${userToDelete.staff.last_name}`.trim() : ''}"
+                        </span>{' '}
+                        dari sistem.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleConfirmDelete}>
+                        Hapus
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </>
             )}
           </CardContent>

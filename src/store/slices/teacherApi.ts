@@ -45,7 +45,7 @@ export const teacherApi = smpApi.injectEndpoints({
     }),
     deleteTeacher: builder.mutation<{ message: string }, string>({
       query: (id) => ({
-        url: `teachers/${id}`,
+        url: `main/staff/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Teacher', 'Staff'],
