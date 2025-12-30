@@ -335,7 +335,18 @@ const GuruFormPage: React.FC = () => {
         }
       }
 
-      // Reset form dengan data guru
+      // NEW: tentukan kode desa dari objek village atau melalui village_id
+      const teacherVillageCode: string | undefined = village?.code
+        ?? (() => {
+          const vid = (teacher as any)?.village_id;
+          if (vid && Array.isArray(allVillages) && allVillages.length > 0) {
+            const found = (allVillages as any[]).find(v => String(v.id) === String(vid));
+            return found?.code as string | undefined;
+          }
+          return undefined;
+        })();
+
+      // Reset form dengan data guru (isi langsung village_code jika tersedia)
       form.reset({
         first_name: teacher.first_name,
         last_name: teacher.last_name || '',
@@ -350,7 +361,7 @@ const GuruFormPage: React.FC = () => {
         province_code: province?.code || '',
         city_code: city?.code || '',
         district_code: district?.code || '',
-        village_code: '', // Set empty first, will be set after villages load
+        village_code: teacherVillageCode || '',
         religion: teacher.religion,
         marital_status: teacher.marital_status,
         job_id: teacher.job_id,
@@ -366,27 +377,26 @@ const GuruFormPage: React.FC = () => {
         setPhotoPreview(null);
       }
 
-      // Load villages for the district and then set village code
+      // OPTIONAL: tetap refetch daftar desa untuk memastikan opsi tersedia
       if (district?.code) {
         console.log('Loading villages for district:', district.code);
-        refetchVillages().then(() => {
-          // Wait for villages to load, then set the village code
-          setTimeout(() => {
-            if (village?.code) {
-              console.log('Setting village code after delay:', village.code);
-              form.setValue('village_code', village.code, { shouldValidate: true });
-            }
-          }, 800); // Give more time for data to load
-        });
+        refetchVillages();
       }
     }
-  }, [isEditMode, teacherData, form, refetchVillages, jobs.length, provinces.length, cities.length, districts.length]);
+  }, [isEditMode, teacherData, form, refetchVillages, jobs.length, provinces.length, cities.length, districts.length, allVillages]);
 
-  // Effect to handle village selection with better timing
+  // Effect untuk set village setelah data desa tersedia (tetap ada untuk fallback)
   useEffect(() => {
     if (isEditMode && teacherData?.data && districtCode && (villagesByDistrict.length > 0 || allVillages.length > 0)) {
       const teacher = teacherData.data;
-      const villageCode = teacher.village?.code;
+      const villageCode = teacher.village?.code ?? (() => {
+        const vid = (teacher as any)?.village_id;
+        if (vid && Array.isArray(allVillages) && allVillages.length > 0) {
+          const found = (allVillages as any[]).find(v => String(v.id) === String(vid));
+          return found?.code as string | undefined;
+        }
+        return undefined;
+      })();
       
       if (villageCode && !currentVillageCode) {
         console.log('Setting village code after data loaded:', villageCode);
@@ -398,13 +408,12 @@ const GuruFormPage: React.FC = () => {
     }
   }, [isEditMode, teacherData, villagesByDistrict, allVillages, currentVillageCode, form, districtCode]);
 
-  // Add effect to monitor when district changes and reset village
+  // Effect reset village saat district berubah — jangan reset otomatis di edit mode
   useEffect(() => {
-    if (districtCode) {
-      // Reset village when district changes
+    if (!isEditMode && districtCode) {
       form.setValue('village_code', '', { shouldValidate: false });
     }
-  }, [districtCode, form]);
+  }, [districtCode, form, isEditMode]);
 
   const onSubmit = async (values: GuruFormValues) => {
     const formData = new FormData();
