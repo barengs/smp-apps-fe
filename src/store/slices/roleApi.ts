@@ -39,6 +39,12 @@ interface CreateUpdateRoleRequest {
   guard_name?: string;
 }
 
+// NEW: request body untuk pemetaan menu ke peran
+interface AssignRoleMenusRequest {
+  role_id: number;
+  menu_ids: number[];
+}
+
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRoles: builder.query<RoleApiResponse[], PaginationParams>({
@@ -90,8 +96,18 @@ export const roleApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Role', id: 'LIST' }],
     }),
+    assignRoleMenus: builder.mutation<void, AssignRoleMenusRequest>({
+      query: (payload) => ({
+        url: 'main/role-menu',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: [{ type: 'Role', id: 'LIST' }],
+    }),
   }),
 });
 
 export const { useGetRolesQuery, useCreateRoleMutation, useUpdateRoleMutation, useDeleteRoleMutation } = roleApi;
 export const { useGetRoleByIdQuery } = roleApi;
+// NEW: export hook assignRoleMenus
+export const { useAssignRoleMenusMutation } = roleApi;

@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import * as toast from '@/utils/toast';
-import { useCreateRoleMutation, useUpdateRoleMutation } from '../../store/slices/roleApi';
+import { useCreateRoleMutation, useUpdateRoleMutation, useAssignRoleMenusMutation } from '../../store/slices/roleApi';
 import { useGetMenuQuery, type MenuItem } from '@/store/slices/menuApi';
 import { useGetPermissionsQuery } from '@/store/slices/permissionApi';
 import MenuTreeView from '@/components/MenuTreeView';
@@ -47,6 +47,7 @@ interface PeranFormProps {
 const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
+  const [assignRoleMenus] = useAssignRoleMenusMutation();
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
   const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery({});
 
@@ -123,16 +124,17 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     const payload = {
       name: values.name,
       permission: values.explicitPermissions || [],
-      menu_id: selectedMenuIds,
       guard_name: 'api',
     };
 
     try {
       if (initialData) {
         await updateRole({ id: initialData.id, data: payload }).unwrap();
+        await assignRoleMenus({ role_id: initialData.id, menu_ids: selectedMenuIds }).unwrap();
         toast.showSuccess(`Peran "${values.name}" berhasil diperbarui.`);
       } else {
-        await createRole(payload).unwrap();
+        const created = await createRole(payload).unwrap();
+        await assignRoleMenus({ role_id: created.id, menu_ids: selectedMenuIds }).unwrap();
         toast.showSuccess(`Peran "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
