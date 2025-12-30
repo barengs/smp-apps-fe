@@ -13,6 +13,35 @@ import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import { Staff } from '@/types/teacher';
 
+// Tambahkan helper untuk membentuk URL foto absolut berdasarkan env dan pola storage Laravel
+const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string | undefined;
+
+const buildPhotoUrl = (photo?: string | null): string | null => {
+  if (!photo) return null;
+  const src = String(photo).trim();
+
+  // Biarkan data URL dan URL absolut apa adanya
+  if (src.startsWith('data:') || /^https?:\/\//.test(src)) return src;
+
+  // Jika sudah path '/storage/...', gabungkan dengan origin
+  if (src.startsWith('/storage/')) {
+    return `${window.location.origin}${src}`;
+  }
+
+  // Jika sudah 'uploads/...', gabungkan dengan base storage dari env
+  if (src.startsWith('uploads/')) {
+    const base = STORAGE_BASE_URL || `${window.location.origin}/storage/`;
+    // Pastikan base berakhiran '/'
+    const safeBase = base.endsWith('/') ? base : `${base}/`;
+    return `${safeBase}${src}`;
+  }
+
+  // Default: anggap berisi nama file saja -> arahkan ke '/storage/uploads/logos/large/{file}'
+  const base = STORAGE_BASE_URL || `${window.location.origin}/storage/`;
+  const safeBase = base.endsWith('/') ? base : `${base}/`;
+  return `${safeBase}uploads/logos/large/${src}`;
+};
+
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode; icon?: React.ReactNode }> = ({ label, value, icon }) => (
   <div className="flex items-start space-x-3 py-2 border-b last:border-b-0">
     {icon && <div className="flex-shrink-0 text-muted-foreground pt-1">{icon}</div>}
@@ -143,6 +172,7 @@ const GuruDetailPage: React.FC = () => {
   
   // Data wilayah masih null karena village_id null, tapi kita siapkan untuk data yang ada
   const fullAddress = teacher.address || 'Alamat tidak tersedia';
+  const photoUrl = buildPhotoUrl(teacher.photo);
 
   return (
     <DashboardLayout title="Detail Guru" role="administrasi">
@@ -168,8 +198,8 @@ const GuruDetailPage: React.FC = () => {
           <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
               <div className="aspect-square w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                {teacher.photo ? (
-                  <img src={teacher.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+                {photoUrl ? (
+                  <img src={photoUrl} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
                 ) : (
                   <User className="h-24 w-24 text-muted-foreground" />
                 )}
