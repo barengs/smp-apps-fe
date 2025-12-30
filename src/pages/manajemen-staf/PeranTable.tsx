@@ -32,6 +32,7 @@ import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 import { useNavigate } from 'react-router-dom';
+import RoleMenusCell from '@/components/RoleMenusCell';
 
 interface Peran {
   id: number;
@@ -134,38 +135,7 @@ const PeranTable: React.FC = () => {
       {
         accessorKey: 'menus',
         header: 'Menu',
-        cell: ({ row }) => {
-          const menus = row.original.menus;
-          if (!menus || menus.length === 0) {
-            return <span className="text-muted-foreground">-</span>;
-          }
-
-          const menuTitles = menus.map(m => m.title);
-
-          if (menuTitles.length === 1) {
-            return <Badge variant="outline">{menuTitles[0]}</Badge>;
-          }
-
-          return (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8">
-                  {menuTitles.length} Menu
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-2">
-                <div className="space-y-1">
-                  {menuTitles.map((title, index) => (
-                    <Badge key={index} variant="secondary" className="block w-full text-left font-normal whitespace-normal">
-                      {title}
-                    </Badge>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-          );
-        },
+        cell: ({ row }) => <RoleMenusCell roleId={row.original.id} />,
       },
       {
         accessorKey: 'accessRights',

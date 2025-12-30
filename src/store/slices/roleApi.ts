@@ -45,6 +45,36 @@ interface AssignRoleMenusRequest {
   menu_ids: number[];
 }
 
+// NEW: Response type untuk daftar menu per role
+interface RoleMenuPivot {
+  role_id: string;
+  menu_id: string;
+}
+
+interface RoleMenuItem {
+  id: number;
+  id_title: string;
+  en_title: string | null;
+  ar_title: string | null;
+  description: string | null;
+  icon: string;
+  route: string | null;
+  parent_id: number | null;
+  type: string;
+  position: string;
+  status: string;
+  order: string | number | null;
+  created_at: string;
+  updated_at: string;
+  pivot?: RoleMenuPivot;
+}
+
+interface GetRoleMenusResponse {
+  status: string;
+  message: string;
+  data: RoleMenuItem[];
+}
+
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRoles: builder.query<RoleApiResponse[], PaginationParams>({
@@ -104,10 +134,15 @@ export const roleApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Role', id: 'LIST' }],
     }),
+    getRoleMenus: builder.query<RoleMenuItem[], number>({
+      query: (roleId) => `main/role/${roleId}/menus`,
+      transformResponse: (response: GetRoleMenusResponse | RoleMenuItem[]) =>
+        Array.isArray(response) ? response : response.data,
+    }),
   }),
 });
 
-export const { useGetRolesQuery, useCreateRoleMutation, useUpdateRoleMutation, useDeleteRoleMutation } = roleApi;
+export const { useGetRolesQuery, useCreateRoleMutation, useUpdateRoleMutation, useDeleteRoleMutation, useGetRoleMenusQuery } = roleApi;
 export const { useGetRoleByIdQuery } = roleApi;
 // NEW: export hook assignRoleMenus
 export const { useAssignRoleMenusMutation } = roleApi;
