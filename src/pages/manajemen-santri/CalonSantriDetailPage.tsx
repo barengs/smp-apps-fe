@@ -36,7 +36,6 @@ import {
 } from '@/components/ui/select';
 import { useGetProdukBankQuery } from '@/store/slices/produkBankApi';
 import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
-import { useGetProgramsQuery } from '@/store/slices/programApi';
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -251,11 +250,7 @@ const CalonSantriDetailPage: React.FC = () => {
                 <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
                 <DetailRow
                   label="Program"
-                  value={
-                    calonSantri.program_id
-                      ? (programMap.get(Number(calonSantri.program_id)) ?? String(calonSantri.program_id))
-                      : '-'
-                  }
+                  value={calonSantri.program?.name || '-'}
                 />
                 <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />
                 <DetailRow label="Alamat" value={calonSantri.address} />
