@@ -8,6 +8,7 @@ const KOP_SURAT_IMAGE_URL = "/images/KOP PESANTREN.png";
 // Gunakan variabel lingkungan untuk URL dasar API
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL; // Tambahkan ini
+const CORS_PROXY = import.meta.env.VITE_CORS_PROXY; // OPSIONAL: proxy untuk melewati CORS
 
 const styles = StyleSheet.create({
   page: {
@@ -184,10 +185,12 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, 
   const previousSchoolText = toText(calonSantri.previous_school);
   
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
-  // Gunakan STORAGE_BASE_URL untuk foto santri agar dapat diakses langsung oleh react-pdf
-  const santriPhotoUrl = calonSantri.photo 
+  // URL asli foto dari storage (cross-origin)
+  const rawPhotoUrl = calonSantri.photo 
     ? `${STORAGE_BASE_URL}${calonSantri.photo.startsWith('/') ? calonSantri.photo.substring(1) : calonSantri.photo}` 
     : null;
+  // Jika tersedia proxy CORS, gunakan; jika tidak, null agar tidak memicu fetch cross-origin oleh react-pdf
+  const photoUrlForPdf = rawPhotoUrl && CORS_PROXY ? `${CORS_PROXY}${rawPhotoUrl}` : null;
 
   const currentYear = new Date().getFullYear();
 
@@ -208,7 +211,11 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, 
 
         <View style={[styles.section, styles.flexRow]}>
           <View style={styles.photoContainer}>
-            {santriPhotoUrl ? <Image style={styles.photo} src={santriPhotoUrl} /> : <Text>Foto 3x4</Text>}
+            {photoUrlForPdf ? (
+              <Image style={styles.photo} src={photoUrlForPdf} />
+            ) : (
+              <Text>Foto 3x4</Text>
+            )}
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.sectionTitle}>DATA PRIBADI CALON SANTRI</Text>
