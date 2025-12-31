@@ -37,6 +37,7 @@ import {
 import { useGetProdukBankQuery } from '@/store/slices/produkBankApi';
 import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -124,7 +125,7 @@ const CalonSantriDetailPage: React.FC = () => {
   }
 
   const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-    <div className="grid grid-cols-2 gap-x-4 py-1">
+    <div className="grid grid-cols-2 gap-x-4 py-2 border-b border-gray-200 last:border-b-0">
       <span className="font-medium text-gray-600">{label}</span>
       <span>: {value || '-'}</span>
     </div>
@@ -239,93 +240,111 @@ const CalonSantriDetailPage: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Informasi Umum</h3>
-                <DetailRow label="No. Pendaftaran" value={calonSantri.registration_number} />
-                <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
-                <DetailRow label="Status Pendaftaran" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
-                <DetailRow label="Status Pembayaran" value={<Badge className="capitalize">{calonSantri.payment_status}</Badge>} />
-                <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount)} />
-                <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()} />
-                <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
-                <DetailRow
-                  label="Program"
-                  value={
-                    calonSantri.program_id
-                      ? (programMap.get(Number(calonSantri.program_id)) ?? String(calonSantri.program_id))
-                      : '-'
-                  }
-                />
-                <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />
-                <DetailRow label="Alamat" value={calonSantri.address} />
-                <DetailRow label="Kode Pos" value={calonSantri.postal_code} />
-                <DetailRow label="Telepon" value={calonSantri.phone} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Informasi Pendidikan & Lainnya</h3>
-                <DetailRow label="Asal Sekolah" value={calonSantri.previous_school} />
-                <DetailRow label="Alamat Sekolah Asal" value={calonSantri.previous_school_address} />
-                <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
-                <Card className="mt-4 p-4 w-fit mx-auto">
-                  <CardContent className="p-0 flex justify-center items-center">
-                    <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
-                      {calonSantriPhotoUrl ? (
-                        <img
-                          src={calonSantriPhotoUrl}
-                          alt="Foto Calon Santri"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Pencil className="h-24 w-24 text-muted-foreground" />
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="px-4 py-2 text-center border-t">
-                    <h3 className="text-xl font-bold w-full mb-0">{`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()}</h3>
-                  </CardFooter>
-                </Card>
-              </div>
-            </div>
+            <Tabs defaultValue="umum" className="w-full">
+              <TabsList className="w-full justify-start overflow-x-auto">
+                <TabsTrigger value="umum">Informasi Umum</TabsTrigger>
+                <TabsTrigger value="pendidikan">Informasi Pendidikan</TabsTrigger>
+                <TabsTrigger value="orangtua">Data Orang Tua/Wali</TabsTrigger>
+              </TabsList>
 
-            {calonSantri.parent && (
-              <div className="mt-6 border-t pt-4">
-                <h3 className="text-lg font-semibold mb-2">Informasi Orang Tua/Wali</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                  <div>
-                    <DetailRow label="Nama Ayah/Ibu" value={`${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`} />
-                    <DetailRow label="Hubungan" value={calonSantri.parent.parent_as} />
-                    <DetailRow label="NIK" value={calonSantri.parent.nik} />
-                    <DetailRow label="No. KK" value={calonSantri.parent.kk} />
+              <TabsContent value="umum" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="rounded-md border p-2">
+                    <DetailRow label="No. Pendaftaran" value={calonSantri.registration_number} />
+                    <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
+                    <DetailRow label="Status Pendaftaran" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
+                    <DetailRow label="Status Pembayaran" value={<Badge className="capitalize">{calonSantri.payment_status}</Badge>} />
+                    <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount)} />
+                    <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()} />
+                    <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
+                    <DetailRow
+                      label="Program"
+                      value={
+                        calonSantri.program_id
+                          ? (programMap.get(Number(calonSantri.program_id)) ?? String(calonSantri.program_id))
+                          : '-'
+                      }
+                    />
+                    <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />
+                    <DetailRow label="Alamat" value={calonSantri.address} />
+                    <DetailRow label="Kode Pos" value={calonSantri.postal_code} />
+                    <DetailRow label="Telepon" value={calonSantri.phone} />
                   </div>
                   <div>
-                    <DetailRow label="Telepon Orang Tua" value={calonSantri.parent.phone} />
-                    <DetailRow label="Email Orang Tua" value={calonSantri.parent.email} />
-                    <DetailRow
-                      label="Pekerjaan"
-                      value={
-                        calonSantri.parent.occupation
-                          ? (typeof calonSantri.parent.occupation === 'object'
-                              ? (calonSantri.parent.occupation as any).name
-                              : String(calonSantri.parent.occupation))
-                          : '-'
-                      }
-                    />
-                    <DetailRow
-                      label="Pendidikan"
-                      value={
-                        calonSantri.parent.education
-                          ? (typeof calonSantri.parent.education === 'object'
-                              ? (calonSantri.parent.education as any).name
-                              : String(calonSantri.parent.education))
-                          : '-'
-                      }
-                    />
-                    <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address} />
+                    <Card className="mt-0 p-4 w-fit mx-auto">
+                      <CardContent className="p-0 flex justify-center items-center">
+                        <div className="w-[152px] h-[228px] border rounded-md overflow-hidden flex items-center justify-center bg-gray-100 shadow-sm">
+                          {calonSantriPhotoUrl ? (
+                            <img
+                              src={calonSantriPhotoUrl}
+                              alt="Foto Calon Santri"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Pencil className="h-24 w-24 text-muted-foreground" />
+                          )}
+                        </div>
+                      </CardContent>
+                      <CardFooter className="px-4 py-2 text-center border-t">
+                        <h3 className="text-xl font-bold w-full mb-0">{`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()}</h3>
+                      </CardFooter>
+                    </Card>
                   </div>
                 </div>
-              </div>
-            )}
+              </TabsContent>
+
+              <TabsContent value="pendidikan" className="mt-4">
+                <div className="rounded-md border p-2">
+                  <DetailRow label="Asal Sekolah" value={calonSantri.previous_school} />
+                  <DetailRow label="Alamat Sekolah Asal" value={calonSantri.previous_school_address} />
+                  <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="orangtua" className="mt-4">
+                {calonSantri.parent ? (
+                  <div className="rounded-md border p-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                      <div>
+                        <DetailRow label="Nama Ayah/Ibu" value={`${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`} />
+                        <DetailRow label="Hubungan" value={calonSantri.parent.parent_as} />
+                        <DetailRow label="NIK" value={calonSantri.parent.nik} />
+                        <DetailRow label="No. KK" value={calonSantri.parent.kk} />
+                      </div>
+                      <div>
+                        <DetailRow label="Telepon Orang Tua" value={calonSantri.parent.phone} />
+                        <DetailRow label="Email Orang Tua" value={calonSantri.parent.email} />
+                        <DetailRow
+                          label="Pekerjaan"
+                          value={
+                            calonSantri.parent.occupation
+                              ? (typeof calonSantri.parent.occupation === 'object'
+                                  ? (calonSantri.parent.occupation as any).name
+                                  : String(calonSantri.parent.occupation))
+                              : '-'
+                          }
+                        />
+                        <DetailRow
+                          label="Pendidikan"
+                          value={
+                            calonSantri.parent.education
+                              ? (typeof calonSantri.parent.education === 'object'
+                                  ? (calonSantri.parent.education as any).name
+                                  : String(calonSantri.parent.education))
+                              : '-'
+                          }
+                        />
+                        <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address} />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-md border p-4 text-gray-600">
+                    Data orang tua belum tersedia.
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
