@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/select';
 import { useGetProdukBankQuery } from '@/store/slices/produkBankApi';
 import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
+import { useGetProgramsQuery } from '@/store/slices/programApi';
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -75,6 +76,12 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const { data: produkBankData, isLoading: isLoadingProdukBank } = useGetProdukBankQuery({});
   const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery({});
+  const { data: programsResp } = useGetProgramsQuery({ per_page: 1000 });
+  const programMap = React.useMemo(() => {
+    const map = new Map<number, string>();
+    (programsResp?.data ?? []).forEach((p) => map.set(p.id, p.name));
+    return map;
+  }, [programsResp]);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -242,6 +249,14 @@ const CalonSantriDetailPage: React.FC = () => {
                 <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount)} />
                 <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()} />
                 <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
+                <DetailRow
+                  label="Program"
+                  value={
+                    calonSantri.program_id
+                      ? (programMap.get(Number(calonSantri.program_id)) ?? String(calonSantri.program_id))
+                      : '-'
+                  }
+                />
                 <DetailRow label="Tempat, Tanggal Lahir" value={`${calonSantri.born_in}, ${new Date(calonSantri.born_at).toLocaleDateString('id-ID')}`} />
                 <DetailRow label="Alamat" value={calonSantri.address} />
                 <DetailRow label="Kode Pos" value={calonSantri.postal_code} />
