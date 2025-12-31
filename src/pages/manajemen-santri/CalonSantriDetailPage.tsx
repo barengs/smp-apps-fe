@@ -286,8 +286,26 @@ const CalonSantriDetailPage: React.FC = () => {
                   <div>
                     <DetailRow label="Telepon Orang Tua" value={calonSantri.parent.phone} />
                     <DetailRow label="Email Orang Tua" value={calonSantri.parent.email} />
-                    <DetailRow label="Pekerjaan" value={calonSantri.parent.occupation} />
-                    <DetailRow label="Pendidikan" value={calonSantri.parent.education} />
+                    <DetailRow
+                      label="Pekerjaan"
+                      value={
+                        calonSantri.parent.occupation
+                          ? (typeof calonSantri.parent.occupation === 'object'
+                              ? (calonSantri.parent.occupation as any).name
+                              : String(calonSantri.parent.occupation))
+                          : '-'
+                      }
+                    />
+                    <DetailRow
+                      label="Pendidikan"
+                      value={
+                        calonSantri.parent.education
+                          ? (typeof calonSantri.parent.education === 'object'
+                              ? (calonSantri.parent.education as any).name
+                              : String(calonSantri.parent.education))
+                          : '-'
+                      }
+                    />
                     <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address} />
                   </div>
                 </div>
