@@ -20,10 +20,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import * as toast from '@/utils/toast';
+import { useGetProgramsQuery } from '@/store/slices/programApi';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriQuery();
+  const { data: programsResp } = useGetProgramsQuery({ per_page: 1000 });
+  const programMap = React.useMemo(() => {
+    const map = new Map<number, string>();
+    (programsResp?.data ?? []).forEach((p) => map.set(p.id, p.name));
+    return map;
+  }, [programsResp]);
 
   const calonSantriData = apiResponse?.data?.data || [];
 
@@ -66,8 +73,8 @@ const CalonSantriPage: React.FC = () => {
       id: 'program',
       header: 'Program',
       cell: ({ row }) => {
-        const programName = (row.original as any).program?.name;
-        return programName || '-';
+        const pid = row.original.program_id;
+        return pid ? (programMap.get(pid) ?? String(pid)) : '-';
       },
     },
     {
