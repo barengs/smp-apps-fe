@@ -43,6 +43,46 @@ const CalonSantriEditPage: React.FC = () => {
   const form = useForm<SantriFormValues>({
     resolver: zodResolver(santriFormSchema),
     mode: 'onChange',
+    defaultValues: {
+      // Wali
+      nik: '',
+      kk: '',
+      firstName: '',
+      lastName: '',
+      gender: undefined as unknown as 'L',
+      parentAs: undefined as unknown as 'ayah',
+      phone: '',
+      email: '',
+      pekerjaanValue: '',
+      educationValue: '',
+      alamatKtp: '',
+      alamatDomisili: '',
+      // Santri
+      firstNameSantri: '',
+      lastNameSantri: '',
+      nisn: '',
+      nikSantri: '',
+      tempatLahir: '',
+      tanggalLahir: undefined,
+      jenisKelamin: undefined as unknown as 'L',
+      alamatSantri: '',
+      villageCode: '',
+      // Pendidikan
+      sekolahAsal: '',
+      jenjangSebelumnya: '',
+      alamatSekolah: '',
+      certificateNumber: '',
+      // Madrasah
+      sekolahAsalMadrasah: '',
+      jenjangSebelumnyaMadrasah: '',
+      alamatSekolahMadrasah: '',
+      certificateNumberMadrasah: '',
+      // Program & Dokumen
+      programId: '',
+      fotoSantri: undefined as unknown as File,
+      ijazahFile: undefined as unknown as File,
+      optionalDocuments: [],
+    },
   });
 
   useEffect(() => {

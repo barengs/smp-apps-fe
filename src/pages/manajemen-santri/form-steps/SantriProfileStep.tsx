@@ -53,10 +53,8 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
     if (nikSantriValue && nikSantriValue.length === 16) {
       triggerCheckNik(nikSantriValue);
     } else {
+      // Hanya reset status pengecekan; JANGAN mengosongkan nilai yang sudah diisi dari server
       resetNikCheck();
-      setValue('villageCode', '');
-      setValue('tempatLahir', '');
-      setValue('tanggalLahir', undefined as unknown as Date);
     }
   }, [nikSantriValue, triggerCheckNik, resetNikCheck, setValue]);
 
@@ -217,7 +215,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                       className="flex flex-row space-x-4"
                     >
                       <FormItem className="flex items-center space-x-2 space-y-0">
@@ -247,11 +245,13 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Pilih Desa/Kelurahan">
-                          {field.value
-                            ? nikCheckData?.desa?.find((v) => v.code === field.value)?.name || 'Memuat...'
-                            : 'Pilih Desa/Kelurahan'}
-                        </SelectValue>
+                        <SelectValue 
+                          placeholder={
+                            field.value
+                              ? (nikCheckData?.desa?.find((v) => v.code === field.value)?.name || field.value)
+                              : 'Pilih Desa/Kelurahan'
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
