@@ -160,12 +160,28 @@ interface RegistrationFormPdfProps {
   qrDataUrl?: string;
 }
 
+// Tambahkan helper untuk memastikan nilai yang dirender ke <Text> adalah string
+const toText = (v: any): string => {
+  if (v == null) return '-';
+  if (typeof v === 'object') {
+    if (typeof v.name === 'string' && v.name.length) return v.name;
+    if (typeof v.code === 'string' && v.code.length) return v.code;
+    return '-';
+  }
+  const s = String(v);
+  return s.length ? s : '-';
+};
+
 const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, qrDataUrl }) => {
   const fullNameSantri = `${calonSantri.first_name} ${calonSantri.last_name || ''}`.trim();
   const genderSantri = calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan';
   const formattedBornAt = calonSantri.born_at ? format(new Date(calonSantri.born_at), 'dd MMMM yyyy', { locale: id }) : '-';
   const formattedRegistrationDate = calonSantri.created_at ? format(new Date(calonSantri.created_at), 'dd MMMM yyyy', { locale: id }) : '-';
   const parentFullName = calonSantri.parent ? `${calonSantri.parent.first_name} ${calonSantri.parent.last_name || ''}`.trim() : '-';
+  // Pastikan nilai aman untuk ditampilkan
+  const occupationText = calonSantri.parent ? toText(calonSantri.parent.occupation) : '-';
+  const educationText = calonSantri.parent ? toText(calonSantri.parent.education) : '-';
+  const previousSchoolText = toText(calonSantri.previous_school);
   
   const absoluteKopUrl = `${window.location.origin}${KOP_SURAT_IMAGE_URL}`;
   // Gunakan STORAGE_BASE_URL untuk foto santri agar dapat diakses langsung oleh react-pdf
@@ -239,7 +255,7 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, 
           <Text style={styles.sectionTitle}>INFORMASI PENDIDIKAN</Text>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Asal Sekolah</Text>
-            <Text style={styles.detailValue}>: {calonSantri.previous_school}</Text>
+            <Text style={styles.detailValue}>: {previousSchoolText}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Alamat Sekolah</Text>
@@ -280,11 +296,11 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, 
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Pekerjaan</Text>
-              <Text style={styles.detailValue}>: {calonSantri.parent.occupation || '-'}</Text>
+              <Text style={styles.detailValue}>: {occupationText}</Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Pendidikan</Text>
-              <Text style={styles.detailValue}>: {calonSantri.parent.education || '-'}</Text>
+              <Text style={styles.detailValue}>: {educationText}</Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Alamat Domisili</Text>
