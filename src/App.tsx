@@ -10,6 +10,8 @@ import StafPage from "@/pages/manajemen-staf/StafPage";
 import HakAksesPage from "@/pages/manajemen-staf/HakAksesPage";
 import PeranPage from "@/pages/manajemen-staf/PeranPage";
 import PeranDetailPage from "@/pages/manajemen-staf/PeranDetailPage";
+import PeranAddPage from "@/pages/manajemen-staf/PeranAddPage";
+import PeranEditPage from "@/pages/manajemen-staf/PeranEditPage";
 import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
@@ -137,6 +139,8 @@ function App() {
               <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
               <Route path="/dashboard/peran" element={<PeranPage />} />
               <Route path="/dashboard/peran/:id" element={<PeranDetailPage />} />
+              <Route path="/dashboard/peran/add" element={<PeranAddPage />} />
+              <Route path="/dashboard/peran/:id/edit" element={<PeranEditPage />} />
               <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
               
               {/* Rute Manajemen Santri */}

@@ -71,20 +71,13 @@ const PeranTable: React.FC = () => {
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Peran>(roles);
 
   const handleAddData = () => {
-    setEditingPeran(undefined);
-    setIsModalOpen(true);
+    // NAVIGATE to add page
+    navigate('/dashboard/peran/add');
   };
 
   const handleEditData = (peran: Peran) => {
-    const menuTitles = peran.menus.map(m => m.title);
-    const formInitialData = {
-      ...peran,
-      accessRights: [...menuTitles, ...peran.accessRights],
-    };
-    // The form doesn't need the 'menus' property, so we can omit it.
-    const { menus, ...rest } = formInitialData;
-    setEditingPeran(rest);
-    setIsModalOpen(true);
+    // NAVIGATE to edit page with id
+    navigate(`/dashboard/peran/${peran.id}/edit`);
   };
 
   const handleDeleteClick = (peran: Peran) => {
@@ -242,24 +235,6 @@ const PeranTable: React.FC = () => {
         onPaginationChange={setPagination}
         onRowClick={(peran) => navigate(`/dashboard/peran/${peran.id}`)}
       />
-
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-6xl w-[95vw] max-h-[95vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingPeran ? 'Edit Peran' : 'Tambah Peran Baru'}</DialogTitle>
-            <DialogDescription>
-              {editingPeran ? 'Ubah detail peran ini.' : 'Isi detail untuk peran baru.'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[80vh] overflow-y-auto pr-2">
-            <PeranForm
-              initialData={editingPeran}
-              onSuccess={handleFormSuccess}
-              onCancel={handleFormCancel}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
