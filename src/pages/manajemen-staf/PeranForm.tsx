@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/form';
 import * as toast from '@/utils/toast';
 import { useCreateRoleMutation, useUpdateRoleMutation, useAssignRoleMenusMutation } from '../../store/slices/roleApi';
+import { useGetRoleMenusQuery } from '@/store/slices/roleApi';
 import { useGetMenuQuery, type MenuItem } from '@/store/slices/menuApi';
 import { useGetPermissionsQuery } from '@/store/slices/permissionApi';
 import MenuTreeView from '@/components/MenuTreeView';
@@ -55,6 +56,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
   const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery({});
   const [assignMenuPermissions] = useAssignMenuPermissionsMutation();
+  const { data: roleMenusData, isLoading: isLoadingRoleMenus } = useGetRoleMenusQuery(initialData?.id!, { skip: !initialData?.id });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,51 +72,26 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
 
   // Pisahkan initialData.accessRights menjadi menuAccess dan explicitPermissions saat data sudah siap
   useEffect(() => {
-    if (initialData && menuData?.data && Array.isArray(permissionsData)) {
-      // Kumpulkan semua id_title menu untuk validasi cepat
-      const collectIdTitles = (items: MenuItem[], acc = new Set<string>()) => {
-        items.forEach((item) => {
-          if (item.id_title) acc.add(item.id_title);
-          if (item.child?.length) collectIdTitles(item.child, acc);
-        });
-        return acc;
-      };
-      const menuIdTitleSet = collectIdTitles(menuData.data);
+    // explicit permissions from initialData.accessRights by matching permission names
+    if (initialData && Array.isArray(permissionsData)) {
       const permissionNameSet = new Set(permissionsData.map((p) => p.name));
-
       const explicitPerms: string[] = [];
-      const menuAccessIds: string[] = [];
       (initialData.accessRights || []).forEach((right) => {
         if (permissionNameSet.has(right)) {
           explicitPerms.push(right);
-        } else if (menuIdTitleSet.has(right)) {
-          menuAccessIds.push(right);
         }
       });
-
-      // Map id_title -> id untuk pra-pilih menu pada tabel
-      const getMenuIdsFromIdTitles = (idTitles: string[], menuItems: MenuItem[]): number[] => {
-        const ids: number[] = [];
-        const idTitleSet = new Set(idTitles);
-        const traverse = (items: MenuItem[]) => {
-          for (const item of items) {
-            if (idTitleSet.has(item.id_title)) {
-              ids.push(item.id);
-            }
-            if (item.child && item.child.length > 0) {
-              traverse(item.child);
-            }
-          }
-        };
-        if (menuItems) traverse(menuItems);
-        return ids;
-      };
-      const selectedMenuIds = getMenuIdsFromIdTitles(menuAccessIds, menuData.data);
-      const assignmentsInit = Object.fromEntries(selectedMenuIds.map((id) => [String(id), []]));
-
       form.setValue('explicitPermissions', explicitPerms);
+    }
+
+    // preselect menu assignments using roleMenusData (IDs)
+    if (initialData && Array.isArray(roleMenusData)) {
+      const assignmentsInit = Object.fromEntries(roleMenusData.map((m) => [String(m.id), []]));
       form.setValue('menuAssignments', assignmentsInit);
-    } else if (!initialData) {
+    }
+
+    // reset defaults when creating
+    if (!initialData) {
       form.reset({
         name: '',
         description: '',
@@ -123,7 +100,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
         menuAssignments: {},
       });
     }
-  }, [initialData, menuData, permissionsData, form]);
+  }, [initialData, permissionsData, roleMenusData, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload = {
@@ -289,7 +266,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
                       permissionOptions={permissionOptions}
                       value={field.value || {}}
                       onChange={field.onChange}
-                      isLoading={isLoadingMenu || isLoadingPermissions}
+                      isLoading={isLoadingMenu || isLoadingPermissions || isLoadingRoleMenus}
                     />
                   </FormControl>
                   <FormMessage />
