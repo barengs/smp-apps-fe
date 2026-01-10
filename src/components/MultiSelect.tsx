@@ -79,12 +79,12 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 max-h-[24rem] overflow-y-auto z-[60]"
+          className="w-[var(--radix-popover-trigger-width)] p-0 z-[1000]"
           align="start"
         >
-          <Command>
+          <Command className="max-h-[24rem] overflow-hidden">
             <CommandInput placeholder="Cari permission..." />
-            <CommandList className="max-h-[22rem]">
+            <CommandList className="max-h-[22rem] overflow-y-auto">
               <CommandEmpty>Tidak ada hasil ditemukan.</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => {
@@ -92,8 +92,8 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
                   return (
                     <CommandItem
                       key={option.value}
-                      value={option.label} // gunakan label untuk pencarian akurat
-                      // @ts-expect-error cmdk mendukung prop keywords di runtime
+                      value={option.label.toLowerCase()}
+                      // @ts-expect-error: cmdk menerima keywords di runtime
                       keywords={[option.label.toLowerCase(), option.value.toLowerCase()]}
                       onSelect={() => {
                         if (isSelected) {
