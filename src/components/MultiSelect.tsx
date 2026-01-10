@@ -78,7 +78,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 max-h-80 overflow-y-auto" align="start">
           <Command>
             <CommandInput placeholder="Cari..." />
             <CommandList>
@@ -89,6 +89,10 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
                   return (
                     <CommandItem
                       key={option.value}
+                      value={option.label}
+                      // keywords opsional agar bisa cari berdasarkan value juga
+                      // @ts-expect-error cmdk mendukung prop keywords di runtime
+                      keywords={[option.value]}
                       onSelect={() => {
                         if (isSelected) {
                           handleUnselect(option.value);
