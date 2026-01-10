@@ -37,6 +37,11 @@ export interface CreateUpdateMenuRequest {
   parent_id?: number | null;
 }
 
+// NEW: request body for assigning permissions to a menu
+export interface AssignMenuPermissionsRequest {
+  permissions: number[];
+}
+
 export const menuApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getMenu: builder.query<GetMenuResponse, void>({
@@ -66,7 +71,18 @@ export const menuApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Menu'],
     }),
+    // NEW: assign permissions to a specific menu
+    assignMenuPermissions: builder.mutation<{ message: string }, { menuId: number; data: AssignMenuPermissionsRequest }>({
+      query: ({ menuId, data }) => ({
+        url: `master/menu/${menuId}/assign-permissions`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Menu'],
+    }),
   }),
 });
 
 export const { useGetMenuQuery, useCreateMenuMutation, useUpdateMenuMutation, useDeleteMenuMutation } = menuApi;
+// NEW: export hook for assigning permissions to a menu
+export const { useAssignMenuPermissionsMutation } = menuApi;

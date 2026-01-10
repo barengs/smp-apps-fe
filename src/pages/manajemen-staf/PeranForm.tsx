@@ -22,6 +22,7 @@ import MultiSelect, { type Option } from '@/components/MultiSelect';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAssignMenuPermissionsMutation } from '@/store/slices/menuApi';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -50,6 +51,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const [assignRoleMenus] = useAssignRoleMenusMutation();
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
   const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery({});
+  const [assignMenuPermissions] = useAssignMenuPermissionsMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -127,14 +129,34 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
       guard_name: 'api',
     };
 
+    const permissionIds = (permissionsData && Array.isArray(permissionsData) && Array.isArray(values.explicitPermissions))
+      ? permissionsData
+          .filter(p => values.explicitPermissions!.includes(p.name))
+          .map(p => p.id)
+      : [];
+
     try {
       if (initialData) {
         await updateRole({ id: initialData.id, data: payload }).unwrap();
         await assignRoleMenus({ role_id: initialData.id, menu_ids: selectedMenuIds }).unwrap();
+        if (permissionIds.length > 0 && selectedMenuIds.length > 0) {
+          await Promise.all(
+            selectedMenuIds.map(menuId =>
+              assignMenuPermissions({ menuId, data: { permissions: permissionIds } }).unwrap()
+            )
+          );
+        }
         toast.showSuccess(`Peran "${values.name}" berhasil diperbarui.`);
       } else {
         const created = await createRole(payload).unwrap();
         await assignRoleMenus({ role_id: created.id, menu_ids: selectedMenuIds }).unwrap();
+        if (permissionIds.length > 0 && selectedMenuIds.length > 0) {
+          await Promise.all(
+            selectedMenuIds.map(menuId =>
+              assignMenuPermissions({ menuId, data: { permissions: permissionIds } }).unwrap()
+            )
+          );
+        }
         toast.showSuccess(`Peran "${values.name}" berhasil ditambahkan.`);
       }
       onSuccess();
