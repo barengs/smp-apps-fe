@@ -244,14 +244,14 @@ const PeranTable: React.FC = () => {
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-6xl w-[95vw] max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPeran ? 'Edit Peran' : 'Tambah Peran Baru'}</DialogTitle>
             <DialogDescription>
               {editingPeran ? 'Ubah detail peran ini.' : 'Isi detail untuk peran baru.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[70vh] overflow-y-auto pr-2">
+          <div className="max-h-[80vh] overflow-y-auto pr-2">
             <PeranForm
               initialData={editingPeran}
               onSuccess={handleFormSuccess}
