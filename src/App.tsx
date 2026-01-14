@@ -63,7 +63,7 @@ import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import RekeningDetailPage from './pages/keuangan/RekeningDetailPage';
 import LaporanPage from '@/pages/keuangan/LaporanPage';
-import LaporanKamtibPage from '@/pages/manajemen-kamtib/LaporanPage';
+import LaporanPelanggaranPage from '@/pages/manajemen-kamtib/LaporanPelanggaranPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -72,7 +72,7 @@ import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
 import GuruPage from '@/pages/manajemen-kurikulum/GuruPage';
 import GuruFormPage from '@/pages/manajemen-kurikulum/GuruFormPage'; // Import the new GuruFormPage
 import GuruDetailPage from '@/pages/manajemen-kurikulum/GuruDetailPage'; // Import the new GuruDetailPage
-import LaporanDetailPage from '@/pages/manajemen-kamtib/LaporanDetailPage';
+import LaporanPelanggaranDetailPage from '@/pages/manajemen-kamtib/LaporanPelanggaranDetailPage';
 import PenugasanGuruPage from '@/pages/manajemen-kurikulum/PenugasanGuruPage'; // Import the new PenugasanGuruPage
 import TeachingHoursPage from '@/pages/manajemen-kurikulum/TeachingHoursPage'; // Import the new TeachingHoursPage
 import JamPelajaranPage from '@/pages/manajemen-kurikulum/JamPelajaranPage';
@@ -214,8 +214,8 @@ function App() {
               <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
-              <Route path="/dashboard/manajemen-kamtib/laporan" element={<LaporanKamtibPage />} />
-              <Route path="/dashboard/manajemen-kamtib/laporan/:id" element={<LaporanDetailPage />} />
+              <Route path="/dashboard/manajemen-kamtib/laporan-pelanggaran" element={<LaporanPelanggaranPage />} />
+              <Route path="/dashboard/manajemen-kamtib/laporan-pelanggaran/:id" element={<LaporanPelanggaranDetailPage />} />
               <Route path="/dashboard/manajemen-kamtib/perizinan" element={<PerizinanPage />} />
               <Route path="/dashboard/manajemen-kamtib/tipe-izin" element={<TipeIzinPage />} />
               <Route path="/dashboard/manajemen-kamtib/perizinan/:id" element={<PerizinanDetailPage />} />

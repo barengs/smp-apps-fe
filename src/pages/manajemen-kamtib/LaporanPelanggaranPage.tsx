@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import * as toast from '@/utils/toast';
 import { Pencil, PlusCircle } from 'lucide-react';
 
-const LaporanPage: React.FC = () => {
+const LaporanPelanggaranPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Tata Tertib', href: '/dashboard/manajemen-kamtib/pelanggaran' },
     { label: 'Laporan' },
@@ -133,7 +133,7 @@ const LaporanPage: React.FC = () => {
   };
 
   const handleRowClick = (row: StudentViolation) => {
-    navigate(`/dashboard/manajemen-kamtib/laporan/${row.id}`);
+    navigate(`/dashboard/manajemen-kamtib/laporan-pelanggaran/${row.id}`);
   };
 
   const columns: ColumnDef<StudentViolation>[] = [
@@ -245,4 +245,4 @@ const LaporanPage: React.FC = () => {
 
 // REMOVED: Komponen SelectStudentForSummary dan semua penggunaan ringkasan
 
-export default LaporanPage;
+export default LaporanPelanggaranPage;

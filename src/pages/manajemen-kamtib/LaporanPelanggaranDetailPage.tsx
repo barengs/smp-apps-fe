@@ -19,7 +19,7 @@ const formatDate = (iso?: string) => {
   return isNaN(d.getTime()) ? iso : d.toLocaleString("id-ID");
 };
 
-const LaporanDetailPage: React.FC = () => {
+const LaporanPelanggaranDetailPage: React.FC = () => {
   const { id } = useParams();
   const violationId = Number(id);
   const { data: report } = useGetStudentViolationByIdQuery(violationId, { skip: isNaN(violationId) });
@@ -146,7 +146,7 @@ const LaporanDetailPage: React.FC = () => {
           items={[
             {
               label: "Laporan Pelanggaran",
-              href: "/dashboard/manajemen-kamtib/laporan",
+              href: "/dashboard/manajemen-kamtib/laporan-pelanggaran",
               icon: <List className="h-4 w-4" />,
             },
             {
@@ -164,7 +164,7 @@ const LaporanDetailPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
-                <Link to="/dashboard/manajemen-kamtib/laporan"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Laporan</Link>
+                <Link to="/dashboard/manajemen-kamtib/laporan-pelanggaran"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Laporan</Link>
               </Button>
               <Button onClick={() => setAssignOpen(true)}>
                 <Gavel className="mr-2 h-4 w-4" />
@@ -275,4 +275,4 @@ const LaporanDetailPage: React.FC = () => {
   );
 };
 
-export default LaporanDetailPage;
+export default LaporanPelanggaranDetailPage;

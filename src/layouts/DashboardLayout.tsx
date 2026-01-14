@@ -117,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       titleKey: "sidebar.securityManagement",
       icon: <Shield className="h-5 w-5" />,
       children: [
-        { titleKey: "sidebar.reports", href: "/dashboard/manajemen-kamtib/laporan", icon: <FileText className="h-4 w-4" /> },
+        { titleKey: "sidebar.reports", href: "/dashboard/manajemen-kamtib/laporan-pelanggaran", icon: <FileText className="h-4 w-4" /> },
         { titleKey: "sidebar.violations", href: "/dashboard/manajemen-kamtib/pelanggaran", icon: <AlertTriangle className="h-4 w-4" /> },
         { titleKey: "sidebar.violationCategory", href: "/dashboard/manajemen-kamtib/kategori-pelanggaran", icon: <BookMarked className="h-4 w-4" /> },
         { titleKey: "sidebar.sanction", href: "/dashboard/manajemen-kamtib/sanksi", icon: <Shield className="h-4 w-4" /> },
