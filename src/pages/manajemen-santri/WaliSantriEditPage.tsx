@@ -111,14 +111,11 @@ const WaliSantriEditPage: React.FC = () => {
     const loginValue = (values.email || '').trim();
     const isLoginEmail = isEmail(loginValue);
 
-    // Payload flat sesuai ekspektasi backend
     const flatPayload = {
-      // Kirim email jika valid email; jika input atas berupa NIK, gunakan email dari field parent.email
       email: isLoginEmail ? loginValue : (values.parent.email ?? ''),
       first_name: values.parent.first_name,
       last_name: values.parent.last_name ?? null,
       kk: values.parent.kk,
-      // SELALU ambil NIK dari field parent.nik agar perubahan NIK tidak tertimpa nilai kolom atas
       nik: values.parent.nik,
       gender: values.parent.gender,
       parent_as: values.parent.parent_as,
@@ -129,10 +126,34 @@ const WaliSantriEditPage: React.FC = () => {
       education_id: values.parent.education_id ?? null,
     };
 
-    const result = await updateParent({ id: parentId, data: flatPayload }).unwrap();
-    if (result) {
-      toast.showSuccess('Data wali santri berhasil diperbarui.');
-      navigate(`/dashboard/wali-santri/${parentId}`);
+    try {
+      const result = await updateParent({ id: parentId, data: flatPayload }).unwrap();
+      if (result) {
+        toast.showSuccess('Data wali santri berhasil diperbarui.');
+        navigate(`/dashboard/wali-santri/${parentId}`);
+      }
+    } catch (err: any) {
+      let message = 'Gagal memperbarui data.';
+      if (err && typeof err === 'object') {
+        if ('status' in err) {
+          const status = (err as { status: number | string }).status;
+          const data = (err as { data?: any }).data;
+          if (typeof status === 'number') {
+            if (data && typeof data === 'object' && 'message' in data) {
+              message = data.message as string;
+            } else {
+              message = `Error ${status}`;
+            }
+          } else if ('error' in err && typeof (err as { error: string }).error === 'string') {
+            message = (err as { error: string }).error;
+          }
+        } else if ('message' in err && typeof err.message === 'string') {
+          message = err.message;
+        }
+      }
+      // Tampilkan pesan dari backend, misal: "NIK sudah digunakan oleh orang tua lain"
+      toast.showError(message);
+      // Tetap di halaman edit agar pengguna bisa memperbaiki input
     }
   };
 
