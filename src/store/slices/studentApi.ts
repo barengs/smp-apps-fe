@@ -157,6 +157,19 @@ export const studentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Student', id: 'LIST' }],
     }),
+    // NEW: upload/update student photo via multipart
+    updateStudentPhoto: builder.mutation<Student, { id: number; photo: File }>({
+      query: ({ id, photo }) => {
+        const formData = new FormData();
+        formData.append('photo', photo);
+        return {
+          url: `main/student/${id}/update-photo`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: 'Student', id }],
+    }),
   }),
 });
 
@@ -167,4 +180,6 @@ export const {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useAssignStudentRoomMutation,
+  // NEW: export hook
+  useUpdateStudentPhotoMutation,
 } = studentApi;

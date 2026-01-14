@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { Printer, Edit, Users, UserCheck, User, ArrowLeft } from 'lucide-react';
+import { Printer, Edit, Users, UserCheck, User, ArrowLeft, UploadCloud } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
@@ -16,6 +16,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ActionButton from '@/components/ActionButton';
 import SantriViolationTimeline from '@/components/SantriViolationTimeline';
+import StudentPhotoUploadDialog from '@/components/StudentPhotoUploadDialog';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -29,6 +30,7 @@ const SantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const santriId = parseInt(id || '', 10);
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
 
   if (isNaN(santriId)) {
     toast.showError('ID santri tidak valid.');
@@ -58,6 +60,7 @@ const SantriDetailPage: React.FC = () => {
 
   const santri = responseData;
   const fullName = santri ? `${santri.first_name} ${santri.last_name || ''}`.trim() : 'Detail Santri';
+  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <Users className="h-4 w-4" /> },
@@ -213,6 +216,11 @@ const SantriDetailPage: React.FC = () => {
                     <div className="w-full max-w-[240px]">
                       <SantriPhotoCard photoUrl={santri.photo || null} name={fullName} />
                     </div>
+                    <div className="w-full max-w-[240px] mt-3">
+                      <Button variant="outline" className="w-full" onClick={() => setIsPhotoDialogOpen(true)}>
+                        <UploadCloud className="mr-2 h-4 w-4" /> Ubah Foto
+                      </Button>
+                    </div>
                   </div>
                   <div className="lg:col-span-3">
                     <DetailRow label="Nama Lengkap" value={fullName} />
@@ -282,6 +290,14 @@ const SantriDetailPage: React.FC = () => {
           </div>
         </div>
       </DashboardLayout>
+
+      <StudentPhotoUploadDialog
+        open={isPhotoDialogOpen}
+        onOpenChange={setIsPhotoDialogOpen}
+        studentId={santri.id}
+        currentPhotoUrl={santri.photo ? `${STORAGE_BASE_URL}${santri.photo}` : undefined}
+        onUploaded={() => { /* refetch handled by RTK Query invalidation */ }}
+      />
 
       <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
         <DialogContent className="sm:max-w-fit p-8 bg-gray-100">
