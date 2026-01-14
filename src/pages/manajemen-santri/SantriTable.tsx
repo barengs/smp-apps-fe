@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
-import { useGetStudentsQuery } from '@/store/slices/studentApi';
+import { useGetStudentsQuery, useExportStudentsMutation, useBackupStudentsMutation } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 import RoomAssignDialog from '@/components/RoomAssignDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, DatabaseBackup } from 'lucide-react';
 import SantriImportDialog from './SantriImportDialog';
 
 // Interface for the data displayed in the table
@@ -37,6 +37,48 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
   const [importOpen, setImportOpen] = useState(false);
+  const [exportStudents, { isLoading: isExporting }] = useExportStudentsMutation();
+  const [backupStudents, { isLoading: isBackingUp }] = useBackupStudentsMutation();
+
+  const handleExport = async () => {
+    const loadingId = toast.showLoading('Mengunduh data export...');
+    try {
+      const blob = await exportStudents().unwrap();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Data_Santri_${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.showSuccess('Export berhasil diunduh');
+    } catch (error) {
+      toast.showError('Gagal melakukan export data');
+      console.error(error);
+    } finally {
+      toast.dismissToast(loadingId);
+    }
+  };
+
+  const handleBackup = async () => {
+    const loadingId = toast.showLoading('Mengunduh backup data...');
+    try {
+      const blob = await backupStudents().unwrap();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Backup_Santri_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.showSuccess('Backup berhasil diunduh');
+    } catch (error) {
+      toast.showError('Gagal melakukan backup data');
+      console.error(error);
+    } finally {
+      toast.dismissToast(loadingId);
+    }
+  };
 
   // Ambil semua data tanpa server-side pagination
   const { data: students, error, isLoading, isFetching, refetch } = useGetStudentsQuery({});
@@ -255,15 +297,13 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
                 <Upload className="h-4 w-4 mr-2" />
                 Import
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  import('@/utils/export').then(({ exportToExcel }) => {
-                    exportToExcel(santriList as any[], 'data_santri', 'Data Santri Pesantren');
-                  });
-                }}
-              >
+              <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
                 <Download className="h-4 w-4 mr-2" />
-                Export
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleBackup} disabled={isBackingUp}>
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -170,6 +170,22 @@ export const studentApi = smpApi.injectEndpoints({
       },
       invalidatesTags: (result, error, { id }) => [{ type: 'Student', id }],
     }),
+    // NEW: Export data santri (XLSX)
+    exportStudents: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/student/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    // NEW: Backup data santri (CSV)
+    backupStudents: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/student/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -182,4 +198,6 @@ export const {
   useAssignStudentRoomMutation,
   // NEW: export hook
   useUpdateStudentPhotoMutation,
+  useExportStudentsMutation,
+  useBackupStudentsMutation,
 } = studentApi;
