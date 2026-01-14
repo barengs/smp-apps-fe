@@ -23,6 +23,7 @@ import { DatePicker } from "@/components/ui/datepicker";
 import { useGetSanctionsQuery } from "@/store/slices/sanctionApi";
 import { useAssignSanctionToViolationMutation } from "@/store/slices/studentViolationApi";
 import * as toast from "@/utils/toast";
+import { Save, X } from "lucide-react";
 
 interface SanctionAssignDialogProps {
   open: boolean;
@@ -132,9 +133,11 @@ const SanctionAssignDialog: React.FC<SanctionAssignDialogProps> = ({
         </div>
 
         <DialogFooter className="sm:justify-end gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Batal</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <X className="mr-2 h-4 w-4" /> Batal
+          </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Menyimpan..." : "Simpan"}
+            {isLoading ? <span className="flex items-center"><Save className="mr-2 h-4 w-4 animate-spin" /> Menyimpan...</span> : <span className="flex items-center"><Save className="mr-2 h-4 w-4" /> Simpan</span>}
           </Button>
         </DialogFooter>
       </DialogContent>

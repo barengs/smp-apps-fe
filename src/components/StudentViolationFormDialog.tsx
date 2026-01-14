@@ -16,6 +16,7 @@ import * as toast from '@/utils/toast';
 import { format } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/slices/authSlice';
+import { Save, X } from 'lucide-react';
 
 interface StudentViolationFormDialogProps {
   open: boolean;
@@ -221,6 +222,7 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
           <ActionButton
             variant="outline"
             onClick={() => onOpenChange(false)}
+            icon={<X className="h-4 w-4" />}
           >
             Batal
           </ActionButton>
@@ -228,6 +230,7 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
             variant="primary"
             onClick={handleSubmit}
             isLoading={isCreating || isUpdating}
+            icon={<Save className="h-4 w-4" />}
           >
             {isEdit ? 'Simpan Perubahan' : 'Simpan Laporan'}
           </ActionButton>

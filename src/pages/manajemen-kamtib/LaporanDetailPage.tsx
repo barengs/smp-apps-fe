@@ -8,7 +8,7 @@ import { useParams, Link } from "react-router-dom";
 import { StudentViolation, useGetStudentViolationByIdQuery } from "@/store/slices/studentViolationApi";
 import SanctionAssignDialog from "@/components/SanctionAssignDialog";
 import CustomBreadcrumb from "@/components/CustomBreadcrumb";
-import { List, Info, Gavel, RefreshCw } from "lucide-react";
+import { List, Info, Gavel, RefreshCw, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import StatusUpdateDialog from "@/components/StatusUpdateDialog";
@@ -164,7 +164,7 @@ const LaporanDetailPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
-                <Link to="/dashboard/manajemen-kamtib/laporan">Kembali ke Laporan</Link>
+                <Link to="/dashboard/manajemen-kamtib/laporan"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Laporan</Link>
               </Button>
               <Button onClick={() => setAssignOpen(true)}>
                 <Gavel className="mr-2 h-4 w-4" />

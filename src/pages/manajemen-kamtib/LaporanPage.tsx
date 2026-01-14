@@ -19,7 +19,7 @@ import ViolationStatsCard from '@/components/ViolationStatsCard';
 import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
 import { useNavigate } from 'react-router-dom';
 import * as toast from '@/utils/toast';
-import { Pencil } from 'lucide-react';
+import { Pencil, PlusCircle } from 'lucide-react';
 
 const LaporanPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -203,7 +203,7 @@ const LaporanPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card className="lg:col-span-2">
-            <CardHeader className="flex items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Data Laporan Pelanggaran</CardTitle>
                 <CardDescription>Daftar laporan pelanggaran santri dengan fitur CRUD.</CardDescription>
@@ -215,7 +215,7 @@ const LaporanPage: React.FC = () => {
                 data={reports}
                 isLoading={isFetching}
                 onAddData={handleAdd}
-                addButtonLabel="Tambah Data"
+                addButtonLabel={<><PlusCircle className="mr-2 h-4 w-4" /> Tambah Data</>}
                 filterableColumns={filterableColumns}
                 onRowClick={handleRowClick}
                 pageCount={totalPages}

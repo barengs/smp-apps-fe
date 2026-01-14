@@ -173,19 +173,26 @@ function App() {
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
               <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
               <Route path="/dashboard/institusi-tugas" element={<InstitusiTugasPage />} />
+              {/* Roue Management Wilayah */}
               <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
               <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
               <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
               <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
+              {/* Route management pesantren */}
               <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
-              <Route path="/dashboard/pendidikan/tahun-ajaran" element={<TahunAjaranPage />} />
               <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
+              <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
+              {/* Route management pendidikan */}
+              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan" element={<InstitusiPendidikanPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/tambah" element={<InstitusiPendidikanForm onSuccess={() => {}} onCancel={() => {}} />} />
+              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/:id" element={<InstitusiPendidikanPage />} />
+              <Route path="/dashboard/pendidikan/tahun-ajaran" element={<TahunAjaranPage />} />
               <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
               <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
               <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
               <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
-              <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
               <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
+              {/* Route kurikulum */}
               <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
               <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/add" element={<MataPelajaranForm />} />
               <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/:id/edit" element={<MataPelajaranForm />} />
@@ -203,9 +210,7 @@ function App() {
               <Route path="/dashboard/manajemen-kurikulum/presensi/:detailId/pertemuan/:meetingNumber" element={<PresensiFormPage />} />
               <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
               <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan" element={<InstitusiPendidikanPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/tambah" element={<InstitusiPendidikanForm onSuccess={() => {}} onCancel={() => {}} />} />
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/:id" element={<InstitusiPendidikanPage />} />
+              {/* Route manajemen kamtib */}
               <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />

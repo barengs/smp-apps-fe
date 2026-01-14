@@ -46,7 +46,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void;
 
   onAddData?: () => void;
-  addButtonLabel?: string;
+  addButtonLabel?: React.ReactNode;
   onImportData?: () => void;
   onAssignment?: () => void;
   assignmentButtonLabel?: string;
