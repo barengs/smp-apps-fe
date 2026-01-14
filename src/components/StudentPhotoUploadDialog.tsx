@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { useUpdateStudentPhotoMutation } from '@/store/slices/studentApi';
 import * as toast from '@/utils/toast';
+import { compressImage } from '@/utils/imageCompression';
 
 interface StudentPhotoUploadDialogProps {
   open: boolean;
@@ -45,7 +46,32 @@ const StudentPhotoUploadDialog: React.FC<StudentPhotoUploadDialogProps> = ({
       e.target.value = '';
       return;
     }
-    setFile(f);
+    // If file is large, compress before setting
+    if (f) {
+      const sizeKB = Math.round(f.size / 1024);
+      if (sizeKB > 2048) {
+        toast.showInfo('Ukuran foto besar, mengompresi...');
+        compressImage(f, { maxSizeKB: 2048, maxWidth: 1600, maxHeight: 1600, quality: 0.9 })
+          .then((compressed) => {
+            const newSizeKB = Math.round(compressed.size / 1024);
+            if (newSizeKB > 2048) {
+              toast.showError(`Foto masih terlalu besar setelah kompres (${newSizeKB} KB). Coba pilih foto lain.`);
+              setFile(null);
+            } else {
+              toast.showSuccess(`Foto dikompresi dari ${Math.round(sizeKB / 1024)} MB menjadi ${Math.round(newSizeKB / 1024)} MB.`);
+              setFile(compressed);
+            }
+          })
+          .catch(() => {
+            toast.showError('Gagal mengompresi foto. Coba pilih foto lain.');
+            setFile(null);
+          });
+      } else {
+        setFile(f);
+      }
+    } else {
+      setFile(null);
+    }
     e.target.value = '';
   };
 
