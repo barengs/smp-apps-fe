@@ -20,6 +20,7 @@ import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentVio
 import { useNavigate } from 'react-router-dom';
 import * as toast from '@/utils/toast';
 import { Pencil } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 
 const LaporanPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -203,24 +204,34 @@ const LaporanPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card className="lg:col-span-2">
-            <CardHeader className="flex items-center justify-between">
-              <div>
-                <CardTitle>Data Laporan Pelanggaran</CardTitle>
-                <CardDescription>Daftar laporan pelanggaran santri dengan fitur CRUD.</CardDescription>
-              </div>
-            </CardHeader>
+            {/* Simplify header; title moved to DataTable's leftActions */}
+            <CardHeader className="py-2" />
             <CardContent>
               <DataTable
                 columns={columns}
                 data={reports}
                 isLoading={isFetching}
-                onAddData={handleAdd}
-                addButtonLabel="Tambah Data"
                 filterableColumns={filterableColumns}
                 onRowClick={handleRowClick}
                 pageCount={totalPages}
                 pagination={pagination}
                 onPaginationChange={setPagination}
+                // NEW: show page title on the left side of the table controls
+                leftActions={
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    <span className="font-semibold">Data Laporan Pelanggaran</span>
+                  </div>
+                }
+                // NEW: custom right-side actions with icon button for Add
+                exportImportElement={
+                  <div className="flex items-center gap-2">
+                    <Button onClick={handleAdd} size="sm">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Tambah Data
+                    </Button>
+                  </div>
+                }
               />
             </CardContent>
           </Card>
