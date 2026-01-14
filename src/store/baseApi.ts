@@ -40,6 +40,8 @@ const baseQuery = fetchBaseQuery({
       'approveStudentLeave',
       'rejectStudentLeave',
       'cancelStudentLeave',
+      // ADDED: upload student photo uses FormData
+      'updateStudentPhoto',
     ];
     
     if (!formDataEndpoints.includes(endpoint)) {
