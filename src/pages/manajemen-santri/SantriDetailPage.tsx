@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useReactToPrint } from 'react-to-print';
 import SantriCard from './SantriCard';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -42,17 +41,14 @@ const SantriDetailPage: React.FC = () => {
 
   const cardComponentRef = useRef<HTMLDivElement>(null);
 
-  const reactToPrintHook = useReactToPrint({
+  const handlePrint = useReactToPrint({
+    content: () => cardComponentRef.current,
     documentTitle: `Kartu-Santri-${responseData?.nis || santriId}`,
     onAfterPrint: () => {
       toast.showSuccess('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
   });
-
-  const handlePrint = () => {
-    reactToPrintHook(() => cardComponentRef.current);
-  };
 
   const handleEdit = () => {
     navigate(`/dashboard/santri/${santriId}/edit`);
