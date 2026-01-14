@@ -283,6 +283,15 @@ export const studentViolationApi = smpApi.injectEndpoints({
         { type: 'StudentViolation', id: 'LIST' },
       ],
     }),
+
+    // NEW: Download Laporan PDF
+    downloadStudentViolationReport: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/student-violation/download-report',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -296,4 +305,5 @@ export const {
   useGetStudentViolationStatisticsQuery,
   useAssignSanctionToViolationMutation,
   useUpdateStudentViolationStatusMutation,
+  useDownloadStudentViolationReportMutation,
 } = studentViolationApi;

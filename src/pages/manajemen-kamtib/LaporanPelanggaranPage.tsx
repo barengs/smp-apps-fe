@@ -12,6 +12,7 @@ import {
   StudentViolation,
   useGetStudentViolationsQuery,
   useDeleteStudentViolationMutation,
+  useDownloadStudentViolationReportMutation,
 } from '@/store/slices/studentViolationApi';
 import { PaginationState } from '@tanstack/react-table';
 import StudentViolationFormDialog from '@/components/StudentViolationFormDialog';
@@ -19,7 +20,7 @@ import ViolationStatsCard from '@/components/ViolationStatsCard';
 import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
 import { useNavigate } from 'react-router-dom';
 import * as toast from '@/utils/toast';
-import { Pencil, PlusCircle } from 'lucide-react';
+import { Pencil, PlusCircle, Printer } from 'lucide-react';
 
 const LaporanPelanggaranPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -84,7 +85,9 @@ const LaporanPelanggaranPage: React.FC = () => {
     return map;
   }, [reports]);
 
+
   const [deleteReport, { isLoading: isDeleting }] = useDeleteStudentViolationMutation();
+  const [downloadReport, { isLoading: isDownloading }] = useDownloadStudentViolationReportMutation();
 
   const studentMap = React.useMemo(() => {
     const m = new Map<number, string>();
@@ -127,6 +130,27 @@ const LaporanPelanggaranPage: React.FC = () => {
     try {
       await deleteReport(row.id).unwrap();
       toast.showSuccess('Laporan berhasil dihapus!');
+    } finally {
+      toast.dismissToast(loadingId);
+    }
+  };
+
+  const handlePrint = async () => {
+    const loadingId = toast.showLoading('Mengunduh laporan...');
+    try {
+      const blob = await downloadReport().unwrap();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      // Nama file default, bisa disesuaikan jika response header content-disposition tersedia dan bisa diakses
+      link.setAttribute('download', `Laporan_Pelanggaran_${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.showSuccess('Laporan berhasil diunduh');
+    } catch (error) {
+      toast.showError('Gagal mengunduh laporan');
+      console.error(error);
     } finally {
       toast.dismissToast(loadingId);
     }
@@ -215,6 +239,16 @@ const LaporanPelanggaranPage: React.FC = () => {
                 data={reports}
                 isLoading={isFetching}
                 onAddData={handleAdd}
+                exportImportElement={
+                  <Button variant="outline" size="sm" onClick={handlePrint} disabled={isDownloading}>
+                    {isDownloading ? (
+                      <Printer className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Printer className="mr-2 h-4 w-4" />
+                    )}
+                    Cetak Laporan
+                  </Button>
+                }
                 addButtonLabel={<><PlusCircle className="mr-2 h-4 w-4" /> Tambah Data</>}
                 filterableColumns={filterableColumns}
                 onRowClick={handleRowClick}
