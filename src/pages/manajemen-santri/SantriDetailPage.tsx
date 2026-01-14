@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ActionButton from '@/components/ActionButton';
 import SantriViolationTimeline from '@/components/SantriViolationTimeline';
 import StudentPhotoUploadDialog from '@/components/StudentPhotoUploadDialog';
+import { useReactToPrint } from 'react-to-print';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
