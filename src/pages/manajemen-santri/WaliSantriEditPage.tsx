@@ -109,16 +109,17 @@ const WaliSantriEditPage: React.FC = () => {
 
   const handleSubmit = async (values: CreateUpdateParentRequest) => {
     const loginValue = (values.email || '').trim();
-    const treatingAsNik = !!loginValue && isNik(loginValue) && !isEmail(loginValue);
+    const isLoginEmail = isEmail(loginValue);
 
-    // Payload flat sesuai ekspektasi backend (tanpa properti `parent`)
+    // Payload flat sesuai ekspektasi backend
     const flatPayload = {
-      // Boleh email atau NIK sesuai input
-      email: loginValue,
+      // Kirim email jika valid email; jika input atas berupa NIK, gunakan email dari field parent.email
+      email: isLoginEmail ? loginValue : (values.parent.email ?? ''),
       first_name: values.parent.first_name,
       last_name: values.parent.last_name ?? null,
       kk: values.parent.kk,
-      nik: treatingAsNik ? loginValue : values.parent.nik,
+      // SELALU ambil NIK dari field parent.nik agar perubahan NIK tidak tertimpa nilai kolom atas
+      nik: values.parent.nik,
       gender: values.parent.gender,
       parent_as: values.parent.parent_as,
       phone: values.parent.phone ?? null,
