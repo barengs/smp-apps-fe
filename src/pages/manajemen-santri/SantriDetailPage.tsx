@@ -49,7 +49,14 @@ const SantriDetailPage: React.FC = () => {
       toast.showSuccess('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
-  });
+    onBeforeGetContent: () => {
+      if (!cardComponentRef.current) {
+        toast.showError("Gagal memuat konten kartu. Silakan coba lagi.");
+        return Promise.reject();
+      }
+      return Promise.resolve();
+    }
+  } as any);
 
   const handleEdit = () => {
     navigate(`/dashboard/santri/${santriId}/edit`);
@@ -302,8 +309,8 @@ const SantriDetailPage: React.FC = () => {
             <DialogTitle>Pratinjau Kartu Santri</DialogTitle>
           </DialogHeader>
           <div className="my-4 flex justify-center">
+            {/* Preview Component - No Ref */}
             <SantriCard
-              ref={cardComponentRef}
               santri={{
                 id: santri.id,
                 first_name: santri.first_name,
@@ -312,6 +319,7 @@ const SantriDetailPage: React.FC = () => {
                 photo: santri.photo || null,
                 gender: santri.gender,
                 program: santri.program,
+                district: santri.district, 
               } as any}
             />
           </div>
@@ -323,6 +331,25 @@ const SantriDetailPage: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Hidden Print Component - Always Mounted */}
+      {/* Hidden Print Component - Off-screen but rendered to ensuring Ref works */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: 'auto', height: 'auto', overflow: 'hidden' }}>
+        <div ref={cardComponentRef}>
+          <SantriCard
+            santri={{
+              id: santri.id,
+              first_name: santri.first_name,
+              last_name: santri.last_name || '',
+              nis: santri.nis,
+              photo: santri.photo || null,
+              gender: santri.gender,
+              program: santri.program,
+              district: santri.district,
+            } as any}
+          />
+        </div>
+      </div>
     </>
   );
 };
