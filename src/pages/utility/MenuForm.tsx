@@ -30,6 +30,8 @@ const formSchema = z.object({
   title: z.string().min(2, {
     message: 'Judul harus minimal 2 karakter.',
   }),
+  en_title: z.string().nullable().optional(),
+  ar_title: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   icon: z.string().nullable().optional(),
   route: z.string().min(1, {
@@ -53,7 +55,9 @@ const formSchema = z.object({
 interface MenuFormProps {
   initialData?: {
     id: number;
-    title: string;
+    title: string; // This is id_title
+    en_title?: string | null;
+    ar_title?: string | null;
     description: string | null;
     icon: string;
     route: string;
@@ -74,6 +78,8 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
       title: initialData.title,
+      en_title: initialData.en_title,
+      ar_title: initialData.ar_title,
       description: initialData.description,
       icon: initialData.icon,
       route: initialData.route,
@@ -83,6 +89,8 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       order: initialData.order,
     } : {
       title: '',
+      en_title: '',
+      ar_title: '',
       description: null,
       icon: null,
       route: '',
@@ -95,7 +103,9 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateMenuRequest = {
-      title: values.title,
+      id_title: values.title,
+      en_title: values.en_title,
+      ar_title: values.ar_title,
       description: values.description,
       icon: values.icon || undefined,
       route: values.route,
@@ -152,6 +162,34 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
             </FormItem>
           )}
         />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <FormField
+              control={form.control}
+              name="en_title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Judul (Inggris)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="English Title" {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="ar_title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Judul (Arab)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Arabic Title" {...field} value={field.value || ''} className="text-right" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </div>
         <FormField
           control={form.control}
           name="route"

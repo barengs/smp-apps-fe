@@ -26,7 +26,9 @@ interface GetMenuResponse {
 }
 
 export interface CreateUpdateMenuRequest {
-  title: string;
+  id_title: string;
+  en_title?: string | null;
+  ar_title?: string | null;
   description?: string | null;
   icon?: string;
   route: string;
@@ -64,6 +66,14 @@ export const menuApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Menu'],
     }),
+    // NEW: duplicate of updateMenu without invalidating tags, for batch updates
+    updateMenuPosition: builder.mutation<MenuItem, { id: number; data: CreateUpdateMenuRequest }>({
+      query: ({ id, data }) => ({
+        url: `master/menu/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+    }),
     deleteMenu: builder.mutation<{ message: string }, number>({
       query: (id) => ({
         url: `master/menu/${id}`,
@@ -83,6 +93,6 @@ export const menuApi = smpApi.injectEndpoints({
   }),
 });
 
-export const { useGetMenuQuery, useCreateMenuMutation, useUpdateMenuMutation, useDeleteMenuMutation } = menuApi;
+export const { useGetMenuQuery, useCreateMenuMutation, useUpdateMenuMutation, useUpdateMenuPositionMutation, useDeleteMenuMutation } = menuApi;
 // NEW: export hook for assigning permissions to a menu
 export const { useAssignMenuPermissionsMutation } = menuApi;

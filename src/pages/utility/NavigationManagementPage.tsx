@@ -3,7 +3,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Settings, Compass, Edit, GripVertical, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
-import { useGetMenuQuery, useUpdateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
+import { useGetMenuQuery, useUpdateMenuMutation, useUpdateMenuPositionMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
@@ -112,23 +112,21 @@ const SortableItem: React.FC<{
   item: FlattenedItem;
   isDragging?: boolean;
   onEdit: (item: MenuItem) => void;
-  onIndent: (id: number) => void;
-  onOutdent: (id: number) => void;
-  canIndent: boolean;
-  canOutdent: boolean;
-}> = ({ item, isDragging, onEdit, onIndent, onOutdent, canIndent, canOutdent }) => {
+  style?: React.CSSProperties; // Add style prop
+}> = ({ item, isDragging, onEdit, style }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const IconComponent = item.icon ? (LucideIcons as any)[item.icon] : null;
 
-  const style = {
+  const combinedStyle = {
     transform: CSS.Translate.toString(transform),
     transition,
     marginLeft: `${item.depth * INDENTATION_WIDTH}px`,
     opacity: isDragging ? 0.5 : 1,
+    ...style, // Merge passed styles
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center bg-background border-b last:border-b-0 group">
+    <div ref={setNodeRef} style={combinedStyle} className="flex items-center bg-background border-b last:border-b-0 group">
       <div className="flex items-center flex-shrink-0">
         <Button variant="ghost" size="icon" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -142,12 +140,6 @@ const SortableItem: React.FC<{
         <div className="col-span-1">{item.position}</div>
         <div className="col-span-1"><Badge variant={item.status === 'active' ? 'default' : 'secondary'}>{item.status}</Badge></div>
         <div className="col-span-3 flex space-x-1 justify-end">
-           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onIndent(item.id)} disabled={!canIndent}>
-             <ArrowRight className="h-4 w-4" />
-           </Button>
-           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOutdent(item.id)} disabled={!canOutdent}>
-             <ArrowLeft className="h-4 w-4" />
-           </Button>
            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit({ ...item, child: [] })}>
             <Edit className="h-4 w-4" />
           </Button>
@@ -158,21 +150,20 @@ const SortableItem: React.FC<{
 };
 
 const NavigationManagementPage: React.FC = () => {
-  const { data: menuData, error, isLoading, isFetching } = useGetMenuQuery();
+  const { data: menuData, error, isLoading, isFetching, refetch } = useGetMenuQuery();
   const [updateMenu] = useUpdateMenuMutation();
+  const [updateMenuPosition] = useUpdateMenuPositionMutation();
 
   const [items, setItems] = useState<FlattenedItem[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
+  const [offsetLeft, setOffsetLeft] = useState(0); // Track drag offset
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | undefined>(undefined);
 
   useEffect(() => {
     if (menuData?.data && !isFetching) {
-      // 1. Bangun struktur pohon yang benar dari data API
       const treeData = buildTreeFromApi(menuData.data);
-
-      // 2. Urutkan pohon secara rekursif berdasarkan 'order'
       const sortTree = (nodes: MenuItem[]) => {
         nodes.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         nodes.forEach(node => {
@@ -182,8 +173,6 @@ const NavigationManagementPage: React.FC = () => {
         });
       };
       sortTree(treeData);
-
-      // 3. Ratakan (flatten) pohon yang sudah benar untuk ditampilkan di UI
       setItems(flattenTree(treeData));
     }
   }, [menuData, isFetching]);
@@ -206,8 +195,6 @@ const NavigationManagementPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-
-
   const handleFormSuccess = () => {
     setIsModalOpen(false);
     setEditingMenuItem(undefined);
@@ -216,82 +203,185 @@ const NavigationManagementPage: React.FC = () => {
   const updateStructure = async (updatedItems: FlattenedItem[]) => {
     const newTree = buildTree(updatedItems);
     const finalItems = flattenTree(newTree);
+    
+    // Optimistic UI update
     setItems(finalItems);
 
-    const itemsToUpdate = finalItems.map((item, index) => ({
-        id: item.id,
-        data: {
-            title: item.title,
+    // Prepare updates with type correction and diffing
+    const itemsToUpdate = finalItems
+      .map((item, index) => {
+        // Determine correct type based on whether it has children in the new structure
+        const hasChildren = finalItems.some((child) => child.parentId === item.id);
+        let newType = item.type;
+        if (hasChildren && item.type !== 'sub-menu') {
+          newType = 'sub-menu';
+        } else if (!hasChildren && item.type === 'sub-menu') {
+          newType = 'main';
+        }
+
+        const newOrder = index + 1;
+        
+        // Find original item state to compare
+        const originalItem = items.find(i => i.id === item.id);
+        
+        // Check if anything changed
+        // Note: originalItem.order might be string from API, cast to number
+        const isOrderChanged = originalItem ? Number(originalItem.order) !== newOrder : true;
+        const isParentChanged = originalItem ? originalItem.parentId !== item.parentId : true;
+        const isTypeChanged = originalItem ? originalItem.type !== newType : true;
+
+        if (!isOrderChanged && !isParentChanged && !isTypeChanged) {
+            return null; // No change, skip
+        }
+
+        return {
+          id: item.id,
+          data: {
+            id_title: item.title,
             route: item.route,
             icon: item.icon,
-            type: item.type,
+            type: newType,
             position: item.position,
             status: item.status,
             description: item.description,
-            order: index + 1,
+            order: newOrder,
             parent_id: item.parentId,
-        } as CreateUpdateMenuRequest
-    }));
+          } as CreateUpdateMenuRequest,
+        };
+      })
+      .filter((update): update is { id: number; data: CreateUpdateMenuRequest } => update !== null);
+
+    if (itemsToUpdate.length === 0) {
+        setItems(finalItems);
+        return;
+    }
 
     toast.showWarning('Menyimpan struktur baru...');
     try {
-        await Promise.all(itemsToUpdate.map(item => updateMenu(item)));
+        // Use sequential updates with NON-INVALIDATING mutation
+        for (const item of itemsToUpdate) {
+            await updateMenuPosition(item);
+        }
+        
+        // Manually refetch once at the end to ensure synchronization data
+        await refetch();
         toast.showSuccess('Struktur navigasi berhasil diperbarui!');
     } catch (err) {
         toast.showError('Gagal memperbarui struktur.');
-        if (menuData?.data) {
-            const treeData = buildTreeFromApi(menuData.data);
-            setItems(flattenTree(treeData));
-        }
+        // If error, revert to server state
+        // Refetch will handle this indirectly or we can force it
+        refetch();
     }
   };
 
-  const handleIndent = (itemId: number) => {
-    const itemIndex = items.findIndex(item => item.id === itemId);
-    if (itemIndex > 0) {
-        const newItems = [...items];
-        const currentItem = newItems[itemIndex];
-        const previousItem = newItems[itemIndex - 1];
-        
-        if (currentItem.depth <= previousItem.depth) {
-            currentItem.depth += 1;
-            currentItem.parentId = previousItem.id;
-            currentItem.type = 'sub-menu';
-            updateStructure(newItems);
-        }
+  // --- Projection Logic ---
+  const getDragDepth = (offset: number, indentationWidth: number) => {
+    const threshold = 10;
+    if (Math.abs(offset) < threshold) return 0;
+    return Math.round(offset / indentationWidth);
+  };
+
+  const getProjection = (items: FlattenedItem[], activeId: number, overId: number, dragOffset: number, indentationWidth: number) => {
+    const overItemIndex = items.findIndex(({ id }) => id === overId);
+    const activeItemIndex = items.findIndex(({ id }) => id === activeId);
+    const activeItem = items[activeItemIndex];
+    const newItems = arrayMove(items, activeItemIndex, overItemIndex);
+    const previousItem = newItems[overItemIndex - 1];
+    const nextItem = newItems[overItemIndex + 1];
+    const dragDepth = getDragDepth(dragOffset, indentationWidth);
+    const projectedDepth = activeItem.depth + dragDepth;
+    const maxDepth = previousItem ? previousItem.depth + 1 : 0;
+    const minDepth = 0;
+    let depth = projectedDepth;
+
+    if (depth >= maxDepth) {
+      depth = maxDepth;
+    } else if (depth < minDepth) {
+      depth = minDepth;
+    }
+
+    return { depth, maxDepth, minDepth, parentId: getParentId() };
+
+    function getParentId() {
+      if (depth === 0 || !previousItem) {
+        return null;
+      }
+
+      if (depth === previousItem.depth) {
+        return previousItem.parentId;
+      }
+
+      if (depth > previousItem.depth) {
+        return previousItem.id;
+      }
+
+      const newParent = newItems
+        .slice(0, overItemIndex)
+        .reverse()
+        .find((item) => item.depth === depth)?.parentId;
+
+      return newParent ?? null;
     }
   };
 
-  const handleOutdent = (itemId: number) => {
-    const itemIndex = items.findIndex(item => item.id === itemId);
-    const newItems = [...items];
-    const currentItem = newItems[itemIndex];
-
-    if (currentItem.depth > 0) {
-        const oldParent = items.find(item => item.id === currentItem.parentId);
-        currentItem.depth -= 1;
-        currentItem.parentId = oldParent ? oldParent.parentId : null;
-        
-        if (currentItem.parentId === null) {
-            currentItem.type = 'main';
-        }
-        updateStructure(newItems);
-    }
-  };
+  // State for visual projection (snapping)
+  const [projected, setProjected] = useState<{ depth: number; parentId: number | null } | null>(null);
 
   function handleDragStart({ active }: DragStartEvent) {
     setActiveId(active.id as number);
+    setOffsetLeft(0);
+    setProjected(null);
+  }
+
+  function handleDragMove({ delta, active, over }: any) {
+    setOffsetLeft(delta.x);
+    if (active && over && active.id !== over.id) {
+        // Calculate projection in real-time for visual feedback
+        const projection = getProjection(
+            items,
+            active.id,
+            over.id,
+            delta.x,
+            INDENTATION_WIDTH
+        );
+        setProjected(projection);
+    } else {
+        setProjected(null);
+    }
   }
 
   async function handleDragEnd({ active, over }: DragEndEvent) {
-    if (over && active.id !== over.id) {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        const movedItems = arrayMove(items, oldIndex, newIndex);
-        
-        await updateStructure(movedItems);
-    }
     setActiveId(null);
+    setOffsetLeft(0);
+    setProjected(null);
+
+    const overId = over?.id;
+
+    if (overId && active.id !== overId) {
+        const activeItemIndex = items.findIndex(({ id }) => id === active.id);
+        const overItemIndex = items.findIndex(({ id }) => id === overId);
+        const activeItem = items[activeItemIndex];
+        const newItems = arrayMove(items, activeItemIndex, overItemIndex);
+        
+        // Calculate final depth and parent
+        const { depth, parentId } = getProjection(
+            items,
+            active.id as number,
+            overId as number,
+            offsetLeft,
+            INDENTATION_WIDTH
+        );
+
+        // Update active item properties
+        newItems[overItemIndex] = {
+            ...activeItem, 
+            depth, 
+            parentId,
+            type: parentId ? 'sub-menu' : 'main' 
+        };
+
+        await updateStructure(newItems);
+    }
   }
 
   if (isLoading) return <TableLoadingSkeleton numCols={8} />;
@@ -307,7 +397,7 @@ const NavigationManagementPage: React.FC = () => {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle>Daftar Item Navigasi</CardTitle>
-                <CardDescription>Gunakan tombol panah untuk membuat sub-menu dan seret untuk mengubah urutan.</CardDescription>
+                <CardDescription>Drag dan drop urutan atau geser ke kanan untuk membuat sub-menu.</CardDescription>
               </div>
               <Button onClick={handleAddData}>Tambah Item</Button>
             </div>
@@ -326,35 +416,32 @@ const NavigationManagementPage: React.FC = () => {
                   <div className="col-span-3 text-right">Aksi</div>
                 </div>
               </div>
-              <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+              <DndContext sensors={sensors} onDragStart={handleDragStart} onDragMove={handleDragMove} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                 <SortableContext items={items.map(({ id }) => id)}>
-                  {items.map((item, index) => {
-                      const canIndent = index > 0 && item.depth <= items[index - 1].depth;
-                      const canOutdent = item.depth > 0;
-                      return (
+                  {items.map((item) => (
                         <SortableItem 
                             key={item.id} 
                             item={item} 
                             onEdit={handleEditData}
-                            onIndent={handleIndent}
-                            onOutdent={handleOutdent}
-                            canIndent={canIndent}
-                            canOutdent={canOutdent}
+                            // Pass down projected depth if this is the active item
+                            style={activeId === item.id ? { 
+                                marginLeft: `${(projected?.depth ?? item.depth) * INDENTATION_WIDTH}px`,
+                                opacity: 0.3 // Ghost appearance
+                            } : undefined}
                         />
-                      )
-                  })}
+                  ))}
                 </SortableContext>
                 {createPortal(
                   <DragOverlay dropAnimation={null}>
                     {activeId && activeItem ? (
                       <SortableItem 
-                        item={activeItem} 
+                        item={{...activeItem, depth: projected?.depth ?? activeItem.depth}} 
                         isDragging 
                         onEdit={() => {}}
-                        onIndent={() => {}}
-                        onOutdent={() => {}}
-                        canIndent={false}
-                        canOutdent={false}
+                        // Use the projected depth for the overlay too!
+                        style={{
+                           marginLeft: `${(projected?.depth ?? activeItem.depth) * INDENTATION_WIDTH}px`
+                        }}
                       />
                     ) : null}
                   </DragOverlay>,

@@ -94,6 +94,12 @@ const AsramaTable: React.FC = () => {
 
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination<Asrama>(asramas);
 
+  /* -------------------------------------------------------------------------- */
+  /*                             STATE EXPORT / BACKUP                           */
+  /* -------------------------------------------------------------------------- */
+  const [exportHostels, { isLoading: isExporting }] = useExportHostelsMutation();
+  const [backupHostels, { isLoading: isBackingUp }] = useBackupHostelsMutation();
+
   const handleAddData = () => {
     setEditingAsrama(undefined);
     setIsModalOpen(true);
@@ -227,11 +233,7 @@ const AsramaTable: React.FC = () => {
     return <div>Error: Gagal memuat data. Silakan coba lagi nanti.</div>;
   }
 
-  /* -------------------------------------------------------------------------- */
-  /*                             STATE EXPORT / BACKUP                           */
-  /* -------------------------------------------------------------------------- */
-  const [exportHostels, { isLoading: isExporting }] = useExportHostelsMutation();
-  const [backupHostels, { isLoading: isBackingUp }] = useBackupHostelsMutation();
+
 
   return (
     <>
