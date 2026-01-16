@@ -159,7 +159,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
             <FormItem>
               <FormLabel>Rute</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: /dashboard/administrasi" {...field} />
+                <Input placeholder="Contoh: /dashboard/administrasi" {...field} disabled={!!initialData} />
               </FormControl>
               <FormMessage />
             </FormItem>

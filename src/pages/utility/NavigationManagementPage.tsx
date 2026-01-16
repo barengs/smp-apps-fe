@@ -3,14 +3,14 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Settings, Compass, Edit, GripVertical, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
-import { useGetMenuQuery, useUpdateMenuMutation, useDeleteMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
+import { useGetMenuQuery, useUpdateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import MenuForm from './MenuForm';
 import * as toast from '@/utils/toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 import * as LucideIcons from 'lucide-react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable';
@@ -112,12 +112,11 @@ const SortableItem: React.FC<{
   item: FlattenedItem;
   isDragging?: boolean;
   onEdit: (item: MenuItem) => void;
-  onDelete: (item: MenuItem) => void;
   onIndent: (id: number) => void;
   onOutdent: (id: number) => void;
   canIndent: boolean;
   canOutdent: boolean;
-}> = ({ item, isDragging, onEdit, onDelete, onIndent, onOutdent, canIndent, canOutdent }) => {
+}> = ({ item, isDragging, onEdit, onIndent, onOutdent, canIndent, canOutdent }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const IconComponent = item.icon ? (LucideIcons as any)[item.icon] : null;
 
@@ -152,9 +151,6 @@ const SortableItem: React.FC<{
            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit({ ...item, child: [] })}>
             <Edit className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete({ ...item, child: [] })}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </div>
@@ -164,15 +160,12 @@ const SortableItem: React.FC<{
 const NavigationManagementPage: React.FC = () => {
   const { data: menuData, error, isLoading, isFetching } = useGetMenuQuery();
   const [updateMenu] = useUpdateMenuMutation();
-  const [deleteMenu, { isLoading: isDeleting }] = useDeleteMenuMutation();
 
   const [items, setItems] = useState<FlattenedItem[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | undefined>(undefined);
-  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     if (menuData?.data && !isFetching) {
@@ -213,23 +206,7 @@ const NavigationManagementPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (item: MenuItem) => {
-    setItemToDelete(item);
-    setIsConfirmDeleteOpen(true);
-  };
 
-  const handleConfirmDelete = async () => {
-    if (itemToDelete) {
-      try {
-        await deleteMenu(itemToDelete.id).unwrap();
-        toast.showSuccess(`Item navigasi "${itemToDelete.title}" berhasil dihapus.`);
-        setIsConfirmDeleteOpen(false);
-        setItemToDelete(null);
-      } catch (err) {
-        toast.showError('Gagal menghapus item navigasi.');
-      }
-    }
-  };
 
   const handleFormSuccess = () => {
     setIsModalOpen(false);
@@ -358,8 +335,7 @@ const NavigationManagementPage: React.FC = () => {
                         <SortableItem 
                             key={item.id} 
                             item={item} 
-                            onEdit={handleEditData} 
-                            onDelete={handleDeleteClick}
+                            onEdit={handleEditData}
                             onIndent={handleIndent}
                             onOutdent={handleOutdent}
                             canIndent={canIndent}
@@ -374,8 +350,7 @@ const NavigationManagementPage: React.FC = () => {
                       <SortableItem 
                         item={activeItem} 
                         isDragging 
-                        onEdit={() => {}} 
-                        onDelete={() => {}}
+                        onEdit={() => {}}
                         onIndent={() => {}}
                         onOutdent={() => {}}
                         canIndent={false}
@@ -401,22 +376,7 @@ const NavigationManagementPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={isConfirmDeleteOpen} onOpenChange={setIsConfirmDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Konfirmasi Penghapusan</AlertDialogTitle>
-            <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus item navigasi "{itemToDelete?.title}"? Tindakan ini tidak dapat dibatalkan.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} disabled={isDeleting}>
-              {isDeleting ? 'Menghapus...' : 'Hapus'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </DashboardLayout>
   );
 };
