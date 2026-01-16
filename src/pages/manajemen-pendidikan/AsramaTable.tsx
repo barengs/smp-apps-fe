@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Eye } from 'lucide-react';
+import { Edit, Trash2, Eye, Download, Upload, DatabaseBackup } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import {
@@ -21,11 +21,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AsramaForm from './AsramaForm';
 import AssignHostelHeadModal from './AssignHostelHeadModal';
 import AsramaDetailModal from './AsramaDetailModal';
 import AsramaImportDialog from './AsramaImportDialog'; // Import dialog impor
-import { useGetHostelsQuery, useDeleteHostelMutation } from '@/store/slices/hostelApi';
+import { useGetHostelsQuery, useDeleteHostelMutation, useExportHostelsMutation, useBackupHostelsMutation } from '@/store/slices/hostelApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
@@ -226,6 +227,12 @@ const AsramaTable: React.FC = () => {
     return <div>Error: Gagal memuat data. Silakan coba lagi nanti.</div>;
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                             STATE EXPORT / BACKUP                           */
+  /* -------------------------------------------------------------------------- */
+  const [exportHostels, { isLoading: isExporting }] = useExportHostelsMutation();
+  const [backupHostels, { isLoading: isBackingUp }] = useBackupHostelsMutation();
+
   return (
     <>
       <DataTable
@@ -245,6 +252,72 @@ const AsramaTable: React.FC = () => {
             options: programFilterOptions,
           },
         }}
+        exportImportElement={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Import / Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+              <DropdownMenuItem onClick={handleImportData}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  try {
+                    const blob = await exportHostels().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Data_Asrama_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Export berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan export data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }}
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  try {
+                    const blob = await backupHostels().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Backup_Asrama_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Backup berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan backup data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }}
+                disabled={isBackingUp}
+              >
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

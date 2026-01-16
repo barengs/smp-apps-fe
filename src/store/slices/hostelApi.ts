@@ -157,6 +157,22 @@ export const hostelApi = smpApi.injectEndpoints({
       },
       providesTags: ['Hostel'],
     }),
+
+    exportHostels: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/hostel/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+
+    backupHostels: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/hostel/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -169,4 +185,6 @@ export const {
   useAssignHostelHeadMutation,
   // NEW: export hook kandidat kepala asrama
   useGetHostelHeadsQuery,
+  useExportHostelsMutation,
+  useBackupHostelsMutation,
 } = hostelApi;

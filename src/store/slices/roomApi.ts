@@ -88,6 +88,20 @@ export const roomApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Room', id: 'LIST' }],
     }),
+    exportRooms: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/room/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupRooms: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/room/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -97,4 +111,6 @@ export const {
   useCreateRoomMutation,
   useUpdateRoomMutation,
   useDeleteRoomMutation,
+  useExportRoomsMutation,
+  useBackupRoomsMutation,
 } = roomApi;

@@ -17,9 +17,10 @@ interface KamarTableProps {
   pageCount?: number;
   sorting?: SortingState;
   onSortingChange?: (updater: SortingState) => void;
+  exportImportElement?: React.ReactNode;
 }
 
-export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, sorting, onSortingChange }) => {
+export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, sorting, onSortingChange, exportImportElement }) => {
   const navigate = useNavigate();
 
   // NEW: local pagination state (terkontrol)
@@ -91,5 +92,6 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
     pageCount={pageCount}
     sorting={sorting}
     onSortingChange={onSortingChange}
+    exportImportElement={exportImportElement}
   />;
 };

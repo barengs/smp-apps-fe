@@ -3,8 +3,8 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Bed } from 'lucide-react';
-import { useGetRoomsQuery, useCreateRoomMutation, useUpdateRoomMutation, useDeleteRoomMutation } from '@/store/slices/roomApi';
+import { PlusCircle, Bed, Upload, Download, DatabaseBackup } from 'lucide-react';
+import { useGetRoomsQuery, useCreateRoomMutation, useUpdateRoomMutation, useDeleteRoomMutation, useExportRoomsMutation, useBackupRoomsMutation } from '@/store/slices/roomApi';
 import { KamarTable } from './KamarTable'; // Re-import to ensure it's picked up
 import { KamarForm } from './KamarForm'; // Re-import to ensure it's picked up
 import { Room, CreateUpdateRoomRequest } from '@/types/kepesantrenan';
@@ -12,6 +12,7 @@ import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { PaginationState, SortingState } from '@tanstack/react-table'; // Import PaginationState, SortingState
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const KamarPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -33,6 +34,9 @@ const KamarPage: React.FC = () => {
   const [createRoom, { isLoading: isCreateLoading }] = useCreateRoomMutation();
   const [updateRoom, { isLoading: isUpdateLoading }] = useUpdateRoomMutation();
   const [deleteRoom] = useDeleteRoomMutation();
+  const [exportRooms, { isLoading: isExporting }] = useExportRoomsMutation();
+  const [backupRooms, { isLoading: isBackingUp }] = useBackupRoomsMutation();
+
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -114,8 +118,7 @@ const KamarPage: React.FC = () => {
                 const meta = roomsResponse;
                 const normalizedData = meta?.data || [];
 
-                // UPDATED: Anggap server pagination aktif hanya jika backend benar-benar mengembalikan subset data
-                // yaitu total > jumlah data yang ditampilkan saat ini.
+                // yani total > jumlah data yang ditampilkan saat ini.
                 const isServerPaginated =
                   !!meta &&
                   typeof meta.total === 'number' &&
@@ -132,6 +135,72 @@ const KamarPage: React.FC = () => {
                     pageCount={isServerPaginated ? meta!.last_page : undefined}
                     sorting={sorting}
                     onSortingChange={setSorting}
+                    exportImportElement={
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                            <Upload className="h-4 w-4 lg:mr-2" />
+                            <span className="hidden lg:inline">Import / Export</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+                          <DropdownMenuItem onClick={() => {/* Placeholder for import functionality if needed */}}>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Import
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={async () => {
+                              const loadingId = toast.showLoading('Mengunduh data export...');
+                              try {
+                                const blob = await exportRooms().unwrap();
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.setAttribute('download', `Data_Kamar_${new Date().toISOString().split('T')[0]}.xlsx`);
+                                document.body.appendChild(link);
+                                link.click();
+                                link.remove();
+                                toast.showSuccess('Export berhasil diunduh');
+                              } catch (error) {
+                                toast.showError('Gagal melakukan export data');
+                                console.error(error);
+                              } finally {
+                                toast.dismissToast(loadingId);
+                              }
+                            }} 
+                            disabled={isExporting}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={async () => {
+                              const loadingId = toast.showLoading('Mengunduh backup data...');
+                              try {
+                                const blob = await backupRooms().unwrap();
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.setAttribute('download', `Backup_Kamar_${new Date().toISOString().split('T')[0]}.csv`);
+                                document.body.appendChild(link);
+                                link.click();
+                                link.remove();
+                                toast.showSuccess('Backup berhasil diunduh');
+                              } catch (error) {
+                                toast.showError('Gagal melakukan backup data');
+                                console.error(error);
+                              } finally {
+                                toast.dismissToast(loadingId);
+                              }
+                            }} 
+                            disabled={isBackingUp}
+                          >
+                            <DatabaseBackup className="h-4 w-4 mr-2" />
+                            {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                   }
                   />
                 );
               })()
