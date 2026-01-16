@@ -50,6 +50,20 @@ export const tahunAjaranApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { id }) => [{ type: 'TahunAjaran', id }, 'TahunAjaran'],
     }),
+    exportTahunAjaran: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/academic-year/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupTahunAjaran: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/academic-year/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -58,4 +72,6 @@ export const {
   useGetActiveTahunAjaranQuery,
   useCreateTahunAjaranMutation,
   useUpdateTahunAjaranMutation,
+  useExportTahunAjaranMutation,
+  useBackupTahunAjaranMutation,
 } = tahunAjaranApi;

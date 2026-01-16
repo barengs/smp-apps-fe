@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import { Edit, Download, Upload, DatabaseBackup } from 'lucide-react';
+import * as toast from '@/utils/toast';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -22,7 +23,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import RombelForm from './RombelForm';
-import { useGetClassGroupsQuery, useDeleteClassGroupMutation } from '@/store/slices/classGroupApi';
+import { useGetClassGroupsQuery, useDeleteClassGroupMutation, useExportClassGroupsMutation, useBackupClassGroupsMutation } from '@/store/slices/classGroupApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
@@ -47,6 +48,8 @@ interface Rombel {
 const RombelTable: React.FC = () => {
   const { data: classGroupsData, error, isLoading } = useGetClassGroupsQuery();
   const [deleteClassGroup] = useDeleteClassGroupMutation();
+  const [exportClassGroups, { isLoading: isExporting }] = useExportClassGroupsMutation();
+  const [backupClassGroups, { isLoading: isBackingUp }] = useBackupClassGroupsMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRombel, setEditingRombel] = useState<Rombel | undefined>(undefined);
@@ -102,11 +105,11 @@ const RombelTable: React.FC = () => {
     if (rombelToDelete) {
       try {
         await deleteClassGroup(rombelToDelete.id).unwrap();
-        showSuccess(`Rombel "${rombelToDelete.name}" berhasil dihapus.`);
+        toast.showSuccess(`Rombel "${rombelToDelete.name}" berhasil dihapus.`);
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus rombel.';
-        showError(errorMessage);
+        toast.showError(errorMessage);
       } finally {
         setRombelToDelete(undefined);
         setIsDeleteDialogOpen(false);
@@ -212,6 +215,69 @@ const RombelTable: React.FC = () => {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        exportImportElement={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Import / Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+               {/* No import option in RombelTable originally */}
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  try {
+                    const blob = await exportClassGroups().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Data_Rombel_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Export berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan export data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  try {
+                    const blob = await backupClassGroups().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Backup_Rombel_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Backup berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan backup data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isBackingUp}
+              >
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
         filterableColumns={{
           institution: {
             type: 'select',

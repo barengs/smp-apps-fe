@@ -104,6 +104,20 @@ export const classGroupApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['ClassGroup'],
     }),
+    exportClassGroups: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/class-group/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupClassGroups: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/class-group/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -114,4 +128,6 @@ export const {
   useCreateClassGroupMutation,
   useUpdateClassGroupMutation,
   useDeleteClassGroupMutation,
+  useExportClassGroupsMutation,
+  useBackupClassGroupsMutation,
 } = classGroupApi;

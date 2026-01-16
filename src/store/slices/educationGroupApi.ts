@@ -62,6 +62,20 @@ export const educationGroupApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['EducationGroup'],
     }),
+    exportEducationGroups: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/education-class/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupEducationGroups: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/education-class/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -70,4 +84,6 @@ export const {
   useCreateEducationGroupMutation,
   useUpdateEducationGroupMutation,
   useDeleteEducationGroupMutation,
+  useExportEducationGroupsMutation,
+  useBackupEducationGroupsMutation,
 } = educationGroupApi;

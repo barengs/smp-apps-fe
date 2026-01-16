@@ -244,6 +244,20 @@ export const classScheduleApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Presence', 'ClassSchedule', 'Attendance'],
     }),
+    exportClassSchedules: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/class-schedule/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupClassSchedules: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/class-schedule/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -253,4 +267,6 @@ export const {
   useCreateClassScheduleMutation,
   useSaveAttendanceMutation,
   useUpdatePresenceMutation,
+  useExportClassSchedulesMutation,
+  useBackupClassSchedulesMutation,
 } = classScheduleApi;

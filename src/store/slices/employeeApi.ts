@@ -159,6 +159,22 @@ export const employeeApi = smpApi.injectEndpoints({
         body,
       }),
     }),
+    // NEW: Export data staff (XLSX)
+    exportEmployees: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/staff/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    // NEW: Backup data staff (CSV)
+    backupEmployees: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/staff/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -170,4 +186,6 @@ export const {
   useDeleteEmployeeMutation,
   useImportEmployeeMutation,
   useLazyCheckNikQuery,
+  useExportEmployeesMutation,
+  useBackupEmployeesMutation,
 } = employeeApi;

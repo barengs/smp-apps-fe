@@ -62,6 +62,20 @@ export const classroomApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['Classroom'],
     }),
+    exportClassrooms: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/classroom/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupClassrooms: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/classroom/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -70,4 +84,6 @@ export const {
   useCreateClassroomMutation,
   useUpdateClassroomMutation,
   useDeleteClassroomMutation,
+  useExportClassroomsMutation,
+  useBackupClassroomsMutation,
 } = classroomApi;

@@ -3,7 +3,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash } from 'lucide-react';
+import { Edit, Trash, Download, Upload, DatabaseBackup } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import {
   Dialog,
@@ -22,12 +22,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import StaffForm from './StaffForm';
 import StaffImportDialog from './StaffImportDialog';
 import { Badge } from '@/components/ui/badge';
 import {
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
+  useExportEmployeesMutation,
+  useBackupEmployeesMutation,
 } from '@/store/slices/employeeApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -57,6 +60,8 @@ interface Staff {
 const StaffTable: React.FC = () => {
   const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
   const [deleteEmployee] = useDeleteEmployeeMutation();
+  const [exportEmployees, { isLoading: isExporting }] = useExportEmployeesMutation();
+  const [backupEmployees, { isLoading: isBackingUp }] = useBackupEmployeesMutation();
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -254,16 +259,79 @@ const StaffTable: React.FC = () => {
       <DataTable
         columns={columns}
         data={paginatedData}
-        exportFileName="data_staf"
-        exportTitle="Data Staf"
         onAddData={handleAddData}
-        onImportData={handleImportData}
         addButtonLabel="Tambah Staf"
         onRowClick={handleRowClick}
         // aktifkan manual pagination (lokal)
         pagination={pagination}
         onPaginationChange={setPagination}
         pageCount={pageCount}
+        exportImportElement={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Import / Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+              <DropdownMenuItem onClick={handleImportData}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  try {
+                    const blob = await exportEmployees().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Data_Staf_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Export berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan export data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  try {
+                    const blob = await backupEmployees().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Backup_Staf_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Backup berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan backup data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isBackingUp}
+              >
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

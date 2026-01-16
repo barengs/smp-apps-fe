@@ -93,6 +93,20 @@ export const educationApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'EducationLevel', id: 'LIST' }],
     }),
+    exportEducationLevels: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/education/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupEducationLevels: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/education/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -103,4 +117,6 @@ export const {
   useUpdateEducationLevelMutation,
   useDeleteEducationLevelMutation,
   useImportEducationLevelsMutation,
+  useExportEducationLevelsMutation,
+  useBackupEducationLevelsMutation,
 } = educationApi;

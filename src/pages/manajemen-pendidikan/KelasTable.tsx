@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, ChevronDown } from 'lucide-react';
+import { Edit, Trash2, ChevronDown, Download, Upload, DatabaseBackup } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import {
   Dialog,
@@ -20,11 +20,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import KelasForm from './KelasForm';
-import { useGetClassroomsQuery, useDeleteClassroomMutation } from '@/store/slices/classroomApi';
+import { useGetClassroomsQuery, useDeleteClassroomMutation, useExportClassroomsMutation, useBackupClassroomsMutation } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import { showSuccess, showError } from '@/utils/toast'; // Updated import
+import * as toast from '@/utils/toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
@@ -55,6 +56,9 @@ interface KelasFormProps {
 const KelasTable: React.FC = () => {
   const { data: classroomsData, error, isLoading } = useGetClassroomsQuery();
   const [deleteClassroom] = useDeleteClassroomMutation();
+  const [exportClassrooms, { isLoading: isExporting }] = useExportClassroomsMutation();
+  const [backupClassrooms, { isLoading: isBackingUp }] = useBackupClassroomsMutation();
+  
   const { data: institutionsData } = useGetInstitusiPendidikanQuery({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -114,11 +118,11 @@ const KelasTable: React.FC = () => {
     if (kelasToDelete) {
       try {
         await deleteClassroom(kelasToDelete.id).unwrap();
-        showSuccess(`Kelas "${kelasToDelete.name}" berhasil dihapus.`); // Updated call
+        toast.showSuccess(`Kelas "${kelasToDelete.name}" berhasil dihapus.`); // Updated call
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus kelas.';
-        showError(errorMessage); // Updated call
+        toast.showError(errorMessage); // Updated call
       } finally {
         setKelasToDelete(undefined);
         setIsDeleteDialogOpen(false);
@@ -253,8 +257,6 @@ const KelasTable: React.FC = () => {
       <DataTable
         columns={columns}
         data={paginatedClassrooms}
-        exportFileName="data_kelas"
-        exportTitle="Data Kelas"
         onAddData={handleAddData}
         addButtonLabel="Tambah Kelas"
         // Tambahkan filter Pendidikan
@@ -263,6 +265,69 @@ const KelasTable: React.FC = () => {
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        exportImportElement={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Import / Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+               {/* No import option in KelasTable originally */}
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  try {
+                    const blob = await exportClassrooms().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Data_Kelas_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    (toast as any).toast.showSuccess('Export berhasil diunduh');
+                  } catch (error) {
+                    (toast as any).toast.showError('Gagal melakukan export data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  try {
+                    const blob = await backupClassrooms().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Backup_Kelas_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    (toast as any).toast.showSuccess('Backup berhasil diunduh');
+                  } catch (error) {
+                    (toast as any).toast.showError('Gagal melakukan backup data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isBackingUp}
+              >
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

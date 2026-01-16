@@ -68,6 +68,20 @@ export const studyApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Study', id: 'LIST' }], // Invalidate LIST
     }),
+    exportStudies: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/study/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupStudies: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/study/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -78,4 +92,6 @@ export const {
   useUpdateStudyMutation,
   useDeleteStudyMutation,
   useImportStudiesMutation,
+  useExportStudiesMutation,
+  useBackupStudiesMutation,
 } = studyApi;

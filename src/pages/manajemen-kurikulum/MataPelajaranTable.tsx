@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useGetStudiesQuery, useDeleteStudyMutation } from '@/store/slices/studyApi';
+import { useGetStudiesQuery, useDeleteStudyMutation, useExportStudiesMutation, useBackupStudiesMutation } from '@/store/slices/studyApi';
 import { MataPelajaran } from '@/types/pendidikan';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Download, Upload, DatabaseBackup } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,6 +46,9 @@ const MataPelajaranTable: React.FC = () => {
   const studiesData = studies || [];
   const { paginatedData, pagination, setPagination, pageCount } =
     useLocalPagination<MataPelajaran>(studiesData, 10);
+
+  const [exportStudies, { isLoading: isExporting }] = useExportStudiesMutation();
+  const [backupStudies, { isLoading: isBackingUp }] = useBackupStudiesMutation();
 
   const handleDelete = async (id: string) => {
     try {
@@ -157,15 +160,78 @@ const MataPelajaranTable: React.FC = () => {
       <DataTable
         columns={columns}
         data={paginatedData}
-        exportFileName="DaftarMataPelajaran"
-        exportTitle="Daftar Mata Pelajaran"
         onAddData={handleAddDataClick}
-        onImportData={handleImportData}
         addButtonLabel="Tambah Mata Pelajaran"
         // Aktifkan pagination manual agar page size & navigasi konsisten
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        exportImportElement={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Import / Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+              <DropdownMenuItem onClick={handleImportData}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  try {
+                    const blob = await exportStudies().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Data_MataPelajaran_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Export berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan export data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  try {
+                    const blob = await backupStudies().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Backup_MataPelajaran_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Backup berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan backup data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isBackingUp}
+              >
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
       />
 
       <MataPelajaranImportDialog

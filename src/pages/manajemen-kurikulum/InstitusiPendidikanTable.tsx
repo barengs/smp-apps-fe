@@ -1,19 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
-import { useGetInstitusiPendidikanQuery, useDeleteInstitusiPendidikanMutation } from '@/store/slices/institusiPendidikanApi';
+import { useGetInstitusiPendidikanQuery, useDeleteInstitusiPendidikanMutation, useExportInstitusiPendidikanMutation, useBackupInstitusiPendidikanMutation } from '@/store/slices/institusiPendidikanApi';
 import { InstitusiPendidikan } from '@/types/pendidikan';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import InstitusiPendidikanForm from './InstitusiPendidikanForm';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Download, Upload, DatabaseBackup } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const InstitusiPendidikanTable: React.FC = () => {
   const { data, error, isLoading } = useGetInstitusiPendidikanQuery({});
   const [deleteInstitusi] = useDeleteInstitusiPendidikanMutation();
+  const [exportInstitusi, { isLoading: isExporting }] = useExportInstitusiPendidikanMutation();
+  const [backupInstitusi, { isLoading: isBackingUp }] = useBackupInstitusiPendidikanMutation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<InstitusiPendidikan | undefined>(undefined);
 
@@ -127,9 +130,82 @@ const InstitusiPendidikanTable: React.FC = () => {
       <DataTable
         columns={columns}
         data={tableData}
-        exportFileName="data_institusi_pendidikan"
-        exportTitle="Data Institusi Pendidikan"
         onAddData={handleAdd}
+        addButtonLabel="Tambah Institusi"
+        exportImportElement={
+          <DropdownMenu>
+             <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                <Upload className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Import / Export</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+               {/* Note: User did not specify Import endpoint for Institusi, reusing Export/Backup only for now or placeholder Import? 
+                   Wait, Staff had generic Import handleImportData but no endpoint in request. 
+                   InstitusiPendidikanTable doesn't have an Import button existingly?
+                   Reviewing file: It DOES NOT have onImportData prop passed to DataTable currently.
+                   The request only said "Export and Backup". 
+                   But I should keep UI consistent. If there is no Import function, maybe just Export/Backup? 
+                   Or maybe generic import dialog exist? 
+                   Checking file again: No `handleImport` function in InstitusiPendidikanTable. 
+                   So I will hide Import option or check if I should add it.
+                   User said: "menambah fasilitas export dan backup dalam bentuk dropdown". 
+                   So I will just include Export and Backup.
+               */}
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  try {
+                    const blob = await exportInstitusi().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Data_Institusi_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Export berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan export data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={async () => {
+                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  try {
+                    const blob = await backupInstitusi().unwrap();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `Backup_Institusi_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    toast.showSuccess('Backup berhasil diunduh');
+                  } catch (error) {
+                    toast.showError('Gagal melakukan backup data');
+                    console.error(error);
+                  } finally {
+                    toast.dismissToast(loadingId);
+                  }
+                }} 
+                disabled={isBackingUp}
+              >
+                <DatabaseBackup className="h-4 w-4 mr-2" />
+                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
       />
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[600px]">

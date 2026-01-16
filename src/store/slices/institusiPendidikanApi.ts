@@ -71,6 +71,20 @@ export const institusiPendidikanApi = smpApi.injectEndpoints({
         }),
         invalidatesTags: [{ type: 'InstitusiPendidikan', id: 'LIST' }],
     }),
+    exportInstitusiPendidikan: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/educational-institution/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    backupInstitusiPendidikan: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/educational-institution/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -79,4 +93,6 @@ export const {
   useCreateInstitusiPendidikanMutation,
   useUpdateInstitusiPendidikanMutation,
   useDeleteInstitusiPendidikanMutation,
+  useExportInstitusiPendidikanMutation,
+  useBackupInstitusiPendidikanMutation,
 } = institusiPendidikanApi;

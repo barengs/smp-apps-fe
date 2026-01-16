@@ -2,12 +2,15 @@ import React, { useState, useMemo } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { BookCopy, CalendarClock } from 'lucide-react';
+import { BookCopy, CalendarClock, Download, Upload, DatabaseBackup } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import * as toast from '@/utils/toast';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import LessonScheduleForm from './LessonScheduleForm';
-import { useGetClassSchedulesQuery, type ClassScheduleData } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useExportClassSchedulesMutation, useBackupClassSchedulesMutation, type ClassScheduleData } from '@/store/slices/classScheduleApi';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +19,8 @@ const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery({});
+  const [exportClassSchedules, { isLoading: isExporting }] = useExportClassSchedulesMutation();
+  const [backupClassSchedules, { isLoading: isBackingUp }] = useBackupClassSchedulesMutation();
   const navigate = useNavigate();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -190,6 +195,69 @@ const JadwalPelajaranPage: React.FC = () => {
                 onAddData={handleAddSchedule}
                 addButtonLabel="Tambah Jadwal Pelajaran"
                 onRowClick={handleRowClick}
+                exportImportElement={
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary" size="sm" disabled={isExporting || isBackingUp}>
+                        <Upload className="h-4 w-4 lg:mr-2" />
+                        <span className="hidden lg:inline">Import / Export</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[200px] z-[60]">
+                       {/* No import option yet */}
+                      <DropdownMenuItem 
+                        onClick={async () => {
+                          const loadingId = toast.showLoading('Mengunduh data export...');
+                          try {
+                            const blob = await exportClassSchedules().unwrap();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', `Jadwal_Pelajaran_${new Date().toISOString().split('T')[0]}.xlsx`);
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            toast.showSuccess('Export berhasil diunduh');
+                          } catch (error) {
+                            toast.showError('Gagal melakukan export data');
+                            console.error(error);
+                          } finally {
+                            toast.dismissToast(loadingId);
+                          }
+                        }} 
+                        disabled={isExporting}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={async () => {
+                          const loadingId = toast.showLoading('Mengunduh backup data...');
+                          try {
+                            const blob = await backupClassSchedules().unwrap();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', `Backup_Jadwal_Pelajaran_${new Date().toISOString().split('T')[0]}.csv`);
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            toast.showSuccess('Backup berhasil diunduh');
+                          } catch (error) {
+                            toast.showError('Gagal melakukan backup data');
+                            console.error(error);
+                          } finally {
+                            toast.dismissToast(loadingId);
+                          }
+                        }} 
+                        disabled={isBackingUp}
+                      >
+                        <DatabaseBackup className="h-4 w-4 mr-2" />
+                        {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                }
                 filterableColumns={{
                   education: {
                     type: 'select',
