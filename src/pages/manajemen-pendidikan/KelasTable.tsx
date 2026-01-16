@@ -25,7 +25,7 @@ import KelasForm from './KelasForm';
 import { useGetClassroomsQuery, useDeleteClassroomMutation, useExportClassroomsMutation, useBackupClassroomsMutation } from '@/store/slices/classroomApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import * as toast from '@/utils/toast';
+import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
@@ -118,11 +118,12 @@ const KelasTable: React.FC = () => {
     if (kelasToDelete) {
       try {
         await deleteClassroom(kelasToDelete.id).unwrap();
-        toast.showSuccess(`Kelas "${kelasToDelete.name}" berhasil dihapus.`); // Updated call
+        await deleteClassroom(kelasToDelete.id).unwrap();
+        showSuccess(`Kelas "${kelasToDelete.name}" berhasil dihapus.`); // Updated call
       } catch (err) {
         const fetchError = err as FetchBaseQueryError;
         const errorMessage = (fetchError.data as { message?: string })?.message || 'Gagal menghapus kelas.';
-        toast.showError(errorMessage); // Updated call
+        showError(errorMessage); // Updated call
       } finally {
         setKelasToDelete(undefined);
         setIsDeleteDialogOpen(false);
@@ -277,7 +278,7 @@ const KelasTable: React.FC = () => {
                {/* No import option in KelasTable originally */}
               <DropdownMenuItem 
                 onClick={async () => {
-                  const loadingId = toast.showLoading('Mengunduh data export...');
+                  const loadingId = showLoading('Mengunduh data export...');
                   try {
                     const blob = await exportClassrooms().unwrap();
                     const url = window.URL.createObjectURL(blob);
@@ -287,12 +288,14 @@ const KelasTable: React.FC = () => {
                     document.body.appendChild(link);
                     link.click();
                     link.remove();
-                    (toast as any).toast.showSuccess('Export berhasil diunduh');
+                    link.click();
+                    link.remove();
+                    showSuccess('Export berhasil diunduh');
                   } catch (error) {
-                    (toast as any).toast.showError('Gagal melakukan export data');
+                    showError('Gagal melakukan export data');
                     console.error(error);
                   } finally {
-                    toast.dismissToast(loadingId);
+                    dismissToast(loadingId);
                   }
                 }} 
                 disabled={isExporting}
@@ -302,7 +305,7 @@ const KelasTable: React.FC = () => {
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={async () => {
-                  const loadingId = toast.showLoading('Mengunduh backup data...');
+                  const loadingId = showLoading('Mengunduh backup data...');
                   try {
                     const blob = await backupClassrooms().unwrap();
                     const url = window.URL.createObjectURL(blob);
@@ -312,12 +315,14 @@ const KelasTable: React.FC = () => {
                     document.body.appendChild(link);
                     link.click();
                     link.remove();
-                    (toast as any).toast.showSuccess('Backup berhasil diunduh');
+                    link.click();
+                    link.remove();
+                    showSuccess('Backup berhasil diunduh');
                   } catch (error) {
-                    (toast as any).toast.showError('Gagal melakukan backup data');
+                    showError('Gagal melakukan backup data');
                     console.error(error);
                   } finally {
-                    toast.dismissToast(loadingId);
+                    dismissToast(loadingId);
                   }
                 }} 
                 disabled={isBackingUp}
