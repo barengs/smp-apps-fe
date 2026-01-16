@@ -262,7 +262,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
             {/* Sumber */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
               <div>
-                <Label>Pendidikan (Sumber)</Label>
+                <Label>Pendidikan (Asal)</Label>
                 <Select value={sourceInstitutionId} onValueChange={setSourceInstitutionId}>
                   <SelectTrigger><SelectValue placeholder="Pilih Pendidikan" /></SelectTrigger>
                   <SelectContent>
@@ -271,7 +271,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
                 </Select>
               </div>
               <div>
-                <Label>Kelas (Sumber)</Label>
+                <Label>Kelas (Asal)</Label>
                 <Select value={sourceClassroomId} onValueChange={setSourceClassroomId} disabled={!sourceInstitutionId}>
                   <SelectTrigger><SelectValue placeholder="Pilih Kelas" /></SelectTrigger>
                   <SelectContent>
@@ -280,7 +280,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
                 </Select>
               </div>
               <div>
-                <Label>Rombel (Sumber)</Label>
+                <Label>Rombel (Asal)</Label>
                 <Select value={sourceClassGroupId} onValueChange={setSourceClassGroupId} disabled={!sourceClassroomId}>
                   <SelectTrigger><SelectValue placeholder="Pilih Rombel" /></SelectTrigger>
                   <SelectContent>
