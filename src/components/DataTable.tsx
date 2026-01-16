@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download } from 'lucide-react';
-import { exportToExcel } from '@/utils/export';
+// import { exportToExcel } from '@/utils/export'; // Removed static import
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -209,8 +209,9 @@ export function DataTable<TData, TValue>({
   // Ambil seluruh baris setelah sorting & filtering (bukan hanya halaman saat ini)
   const allRows = table.getRowModel().rows;
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (exportFileName && exportTitle) {
+      const { exportToExcel } = await import('@/utils/export');
       exportToExcel(data as Record<string, any>[], exportFileName, exportTitle);
     }
   };
