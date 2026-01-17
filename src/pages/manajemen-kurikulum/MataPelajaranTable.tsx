@@ -77,6 +77,13 @@ const MataPelajaranTable: React.FC = () => {
 
   const columns: ColumnDef<MataPelajaran>[] = [
     {
+      id: 'no',
+      header: 'No',
+      cell: ({ row }) => {
+        return (pagination.pageIndex * pagination.pageSize) + row.index + 1;
+      },
+    },
+    {
       accessorKey: 'name',
       header: 'Nama Mata Pelajaran',
     },

@@ -322,7 +322,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-[95vw] w-full h-[95vh] flex flex-col p-6">
         <DialogHeader>
           <DialogTitle>{editMode ? 'Edit Kenaikan Kelas' : 'Pengaturan Kelas'}</DialogTitle>
           <DialogDescription>
@@ -373,34 +373,37 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
               </div>
             </div>
 
-            <div className="py-2">
-              <p className="text-sm font-medium mb-2">Pilih Siswa</p>
-              <div className="text-xs text-gray-600 mb-2">
-                • Siswa yang belum memiliki kelas: dapat dipilih
-                <br/>• Siswa yang sudah ada kelas di tahun ajaran ini: dapat diubah
-                <br/>• Siswa yang sudah ada kelas di tahun ajaran lain: tidak dapat dipilih
-              </div>
-              
-              {/* Kolom pencarian siswa */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="relative w-full max-w-md">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Cari nama atau NIS siswa..."
-                    className="pl-8"
-                  />
-                </div>
-                {searchTerm && (
-                  <Button variant="outline" onClick={() => setSearchTerm('')}>
-                    Bersihkan
-                  </Button>
-                )}
-              </div>
 
-              <ScrollArea className="h-64 border rounded-md">
-                <Table>
+
+              {/* Wrapper untuk konten siswa agar mengisi sisa ruang */}
+              <div className="flex-1 flex flex-col min-h-0 py-2">
+                <p className="text-sm font-medium mb-2">Pilih Siswa</p>
+                <div className="text-xs text-gray-600 mb-2">
+                  • Siswa yang belum memiliki kelas: dapat dipilih
+                  <br/>• Siswa yang sudah ada kelas di tahun ajaran ini: dapat diubah
+                  <br/>• Siswa yang sudah ada kelas di tahun ajaran lain: tidak dapat dipilih
+                </div>
+                
+                {/* Kolom pencarian siswa */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="relative w-full max-w-md">
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Cari nama atau NIS siswa..."
+                      className="pl-8"
+                    />
+                  </div>
+                  {searchTerm && (
+                    <Button variant="outline" onClick={() => setSearchTerm('')}>
+                      Bersihkan
+                    </Button>
+                  )}
+                </div>
+
+                <ScrollArea className="flex-1 border rounded-md">
+                  <Table>
                   <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
                       <TableHead className="w-12 py-2">

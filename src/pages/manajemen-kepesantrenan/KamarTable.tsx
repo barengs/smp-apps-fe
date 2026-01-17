@@ -20,14 +20,27 @@ interface KamarTableProps {
   exportImportElement?: React.ReactNode;
 }
 
-export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, sorting, onSortingChange, exportImportElement }) => {
+export const KamarTable: React.FC<KamarTableProps> = ({ 
+  data, 
+  onEdit, 
+  onDelete, 
+  sorting, 
+  onSortingChange, 
+  exportImportElement,
+  pagination: parentPagination,
+  onPaginationChange: parentOnPaginationChange,
+  pageCount: parentPageCount
+}) => {
   const navigate = useNavigate();
 
   // NEW: local pagination state (terkontrol)
-  const [pagination, setPagination] = React.useState<PaginationState>({
+  const [localPagination, setLocalPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const pagination = parentPagination || localPagination;
+  const onPaginationChange = parentOnPaginationChange || setLocalPagination;
 
   // NEW: hitung total halaman dari data lokal
   const totalItems = Array.isArray(data) ? data.length : 0;
@@ -38,6 +51,13 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
   const pagedData = Array.isArray(data) ? data.slice(start, start + pagination.pageSize) : [];
 
   const columns: ColumnDef<Room>[] = [
+    {
+      id: 'no',
+      header: 'No',
+      cell: ({ row }) => {
+        return (pagination.pageIndex * pagination.pageSize) + row.index + 1;
+      },
+    },
     {
       accessorKey: 'name',
       header: 'Nama Kamar',
@@ -88,8 +108,8 @@ export const KamarTable: React.FC<KamarTableProps> = ({ data, onEdit, onDelete, 
     exportTitle="Data Kamar"
     // Mode manual: parent mengontrol pagination (lokal)
     pagination={pagination}
-    onPaginationChange={setPagination}
-    pageCount={pageCount}
+    onPaginationChange={onPaginationChange}
+    pageCount={parentPageCount || pageCount}
     sorting={sorting}
     onSortingChange={onSortingChange}
     exportImportElement={exportImportElement}

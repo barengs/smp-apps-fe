@@ -247,7 +247,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-[95vw] w-full h-[95vh] flex flex-col p-6">
         <DialogHeader>
           <DialogTitle>Kenaikan Kelas</DialogTitle>
           <DialogDescription>
@@ -313,7 +313,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
             </div>
 
             {/* Pencarian dan tabel siswa */}
-            <div className="py-2">
+            <div className="flex-1 flex flex-col min-h-0 py-2">
               <p className="text-sm font-medium mb-2">Siswa di Sumber</p>
               <div className="flex items-center gap-2 mb-3">
                 <div className="relative w-full max-w-md">
@@ -332,7 +332,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
                 )}
               </div>
 
-              <ScrollArea className="h-64 border rounded-md">
+              <ScrollArea className="flex-1 border rounded-md">
                 <Table>
                   <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
