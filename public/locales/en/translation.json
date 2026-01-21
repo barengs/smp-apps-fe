@@ -214,5 +214,6 @@
   "actions.save": "Save",
   "actions.back": "Back",
   "genap": "Even",
-  "ganjil": "Odd"
+  "ganjil": "Odd",
+  "sidebar.studentCardSettings": "Student Card Settings"
 }

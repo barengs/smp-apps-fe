@@ -209,5 +209,6 @@
     "permission.form.notesPlaceholder": "Catatan tambahan",
     "permission.form.issueSuccess": "Pengambilan izin berhasil dicatat! (Simulasi)",
     "permission.form.returnSuccess": "Pelaporan pengembalian izin berhasil dicatat! (Simulasi)",
-    "footer.copyright": "© {{year}} All rights reserved."
+    "footer.copyright": "© {{year}} All rights reserved.",
+    "sidebar.studentCardSettings": "Pengaturan Kartu Santri"
 }

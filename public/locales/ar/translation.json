@@ -247,5 +247,6 @@
   "actions.save": "حفظ",
   "actions.back": "رجوع",
   "genap": "زوجي",
-  "ganjil": "فردي"
+  "ganjil": "فردي",
+  "sidebar.studentCardSettings": "إعدادات كارت الطالب"
 }
