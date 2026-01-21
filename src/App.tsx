@@ -87,6 +87,7 @@ import SanksiPage from '@/pages/manajemen-kamtib/SanksiPage';
 import PerizinanPage from '@/pages/manajemen-kamtib/PerizinanPage';
 import TipeIzinPage from '@/pages/manajemen-kamtib/TipeIzinPage';
 import PerizinanDetailPage from '@/pages/manajemen-kamtib/PerizinanDetailPage';
+import StudentCardTemplateSettingsPage from '@/pages/utility/StudentCardTemplateSettingsPage';
 
 // Redux imports
 import { ThemeProvider } from './components/theme-provider';
@@ -223,6 +224,7 @@ function App() {
               <Route path="/dashboard/berita" element={<BeritaPage />} />
               <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
+              <Route path="/dashboard/settings/student-card-template" element={<StudentCardTemplateSettingsPage />} />
               <Route path="/dashboard/profile" element={<UserProfilePage />} />
               <Route path="/dashboard/profile/edit" element={<ProfileEditPage />} />
             </Route>

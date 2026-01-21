@@ -84,6 +84,7 @@
     "sidebar.settings": "Pengaturan",
     "sidebar.navigation": "Navigasi",
     "sidebar.appProfile": "Profil Aplikasi",
+    "sidebar.studentCardTemplate": "Template Kartu Santri",
     "lessonSchedulePage.description": "Kelola jadwal pelajaran untuk setiap kelas.",
     "lessonSchedulePage.educationLevel": "Tingkat Pendidikan",
     "lessonSchedulePage.class": "Kelas",
@@ -207,5 +208,6 @@
     "permission.form.notes": "Catatan",
     "permission.form.notesPlaceholder": "Catatan tambahan",
     "permission.form.issueSuccess": "Pengambilan izin berhasil dicatat! (Simulasi)",
-    "permission.form.returnSuccess": "Pelaporan pengembalian izin berhasil dicatat! (Simulasi)"
+    "permission.form.returnSuccess": "Pelaporan pengembalian izin berhasil dicatat! (Simulasi)",
+    "footer.copyright": "© {{year}} All rights reserved."
 }

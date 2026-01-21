@@ -171,6 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       children: [
         { titleKey: "sidebar.navigation", href: "/dashboard/settings/navigation", icon: <Compass className="h-4 w-4" /> },
         { titleKey: "sidebar.appProfile", href: "/dashboard/settings/app-profile", icon: <Info className="h-4 w-4" /> },
+        { titleKey: "sidebar.studentCardTemplate", href: "/dashboard/settings/student-card-template", icon: <FileText className="h-4 w-4" /> },
       ],
     },
   ];

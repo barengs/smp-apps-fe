@@ -163,6 +163,8 @@ export const smpApi = createApi({
     'StudentLeave',
     // ADDED: LeaveType
     'LeaveType',
+    // ADDED: StudentCardSettings
+    'StudentCardSettings',
   ],
   endpoints: () => ({}),
 });
