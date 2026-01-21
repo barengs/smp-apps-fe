@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Save, UploadCloud, FileImage } from 'lucide-react';
+import { Settings, Save, FileImage } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useGetStudentCardSettingsQuery, useUpdateStudentCardSettingsMutation, StudentCardSettings } from '@/store/slices/studentCardApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTranslation } from 'react-i18next';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const StudentCardTemplateSettingsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +19,7 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
 
   const [files, setFiles] = useState<{ [key in keyof StudentCardSettings]?: File | null }>({});
   const [previews, setPreviews] = useState<{ [key in keyof StudentCardSettings]?: string | null }>({});
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -41,6 +42,17 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
         showError('File harus berupa gambar.');
         return;
       }
+
+      // Validasi ukuran file manual
+      // Stamp: 1MB, Lainnya: 2MB
+      const maxSize = key === 'stamp' ? 1 * 1024 * 1024 : 2 * 1024 * 1024;
+      
+      if (file.size > maxSize) {
+        showError(`Ukuran file terlalu besar. Maksimal ${key === 'stamp' ? '1MB' : '2MB'}.`);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
       setFiles(prev => ({ ...prev, [key]: file }));
       setPreviews(prev => ({ ...prev, [key]: URL.createObjectURL(file) }));
     }
@@ -57,6 +69,8 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
         hasChanges = true;
       }
     });
+
+    formData.append('_method', 'PUT');
 
     if (!hasChanges) {
       showError('Tidak ada perubahan gambar untuk disimpan.');
@@ -112,13 +126,20 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center min-h-[200px] bg-muted/20 relative overflow-hidden">
+        <div 
+          className="border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center min-h-[200px] bg-muted/20 relative overflow-hidden group hover:bg-muted/30 transition-colors"
+        >
            {previews[key] ? (
-            <img 
-              src={previews[key] || ''} 
-              alt={`${label} Preview`} 
-              className="max-h-[180px] w-auto object-contain z-10" 
-            />
+            <div className="relative cursor-pointer" onClick={() => setSelectedImage(previews[key]!)}>
+              <img 
+                src={previews[key] || ''} 
+                alt={`${label} Preview`} 
+                className="max-h-[180px] w-auto object-contain z-10" 
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 rounded-md">
+                 <span className="bg-black/70 text-white text-xs px-2 py-1 rounded">Klik untuk perbesar</span>
+              </div>
+            </div>
           ) : (
             <div className="text-muted-foreground flex flex-col items-center">
               <FileImage className="h-10 w-10 mb-2" />
@@ -160,6 +181,20 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
           {renderUploadCard('Tanda Tangan', 'signature', 'Gambar tanda tangan kepala sekolah/pimpinan (transparan direkomendasikan).')}
         </div>
       </div>
+
+      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none flex justify-center items-center">
+            {selectedImage && (
+              <div className="relative">
+                <img 
+                  src={selectedImage} 
+                  alt="Full Preview" 
+                  className="max-h-[90vh] max-w-[90vw] object-contain rounded-md"
+                />
+              </div>
+            )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

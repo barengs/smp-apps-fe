@@ -42,6 +42,7 @@ const baseQuery = fetchBaseQuery({
       'cancelStudentLeave',
       // ADDED: upload student photo uses FormData
       'updateStudentPhoto',
+      'updateStudentCardSettings',
     ];
     
     if (!formDataEndpoints.includes(endpoint)) {
