@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Edit, Download, Upload } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
-import { useGetParentsQuery } from '@/store/slices/parentApi';
+import { useGetParentsQuery, useExportParentsMutation, useBackupParentsMutation } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
@@ -45,6 +45,33 @@ const WaliSantriTable: React.FC = () => {
     }
     return [];
   }, [parentsResponse]);
+
+  // Export & Backup Mutations
+  const [exportParents] = useExportParentsMutation();
+  const [backupParents] = useBackupParentsMutation();
+
+  const handleDownloadFile = async (action: () => any, filename: string, loadingMessage: string) => {
+    const loadingId = toast.showLoading(loadingMessage);
+    try {
+      // Call the mutation trigger and immediately unwrap the result
+      const blob = await action().unwrap(); 
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      
+      toast.dismissToast(loadingId);
+      toast.showSuccess('File berhasil diunduh.');
+    } catch (err) {
+      toast.dismissToast(loadingId);
+      toast.showError('Gagal mengunduh file.');
+      console.error('Download error:', err);
+    }
+  };
 
   // Pagination client-side
   const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(waliSantriList, 10);
@@ -146,13 +173,29 @@ const WaliSantriTable: React.FC = () => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  import('@/utils/export').then(({ exportToExcel }) => {
-                    exportToExcel(waliSantriList as any[], 'data_wali_santri', 'Data Wali Santri Pesantren');
-                  });
+                  const date = new Date().toISOString().split('T')[0];
+                  handleDownloadFile(
+                    exportParents,
+                    `wali_santri_export_${date}.xlsx`,
+                    'Mengekspor data wali santri...'
+                  );
                 }}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export
+                Export (XLSX)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  const date = new Date().toISOString().split('T')[0];
+                  handleDownloadFile(
+                    backupParents,
+                    `wali_santri_backup_${date}.csv`,
+                    'Membackup data wali santri...'
+                  );
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Backup (CSV)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

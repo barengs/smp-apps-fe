@@ -146,6 +146,22 @@ export const parentApi = smpApi.injectEndpoints({
       query: (nik) => `main/parent/nik/${nik}`,
       providesTags: (result, error, nik) => [{ type: 'Parent', id: nik }],
     }),
+    exportParents: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/parent/export',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+        cache: 'no-cache',
+      }),
+    }),
+    backupParents: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'main/parent/backup',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+        cache: 'no-cache',
+      }),
+    }),
   }),
 });
 
@@ -157,4 +173,6 @@ export const {
   useDeleteParentMutation,
   useGetParentByNikQuery,
   useLazyGetParentByNikQuery,
+  useExportParentsMutation,
+  useBackupParentsMutation,
 } = parentApi;
