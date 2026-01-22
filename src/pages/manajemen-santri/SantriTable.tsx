@@ -223,6 +223,15 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         header: 'Status',
       },
       {
+        accessorKey: 'created_at',
+        header: 'Dibuat Pada',
+        cell: ({ row }) => {
+          const date = new Date(row.original.created_at);
+          return date.toLocaleString('id-ID');
+        },
+        enableSorting: true,
+      },
+      {
         accessorKey: 'updated_at',
         header: 'Terakhir Diperbarui',
         cell: ({ row }) => {

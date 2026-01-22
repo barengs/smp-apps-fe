@@ -26,7 +26,33 @@ export const studentCardApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['StudentCardSettings'],
     }),
+    getStudentCard: builder.query<{ status: string; data: any; message?: string }, string>({ // NIS as arg
+      query: (nis) => `main/student/card/${nis}`,
+      providesTags: ['StudentCard'],
+    }),
+    createStudentCard: builder.mutation<{ status: string; data: any }, number>({ // Student ID as arg
+      query: (studentId) => ({
+        url: 'main/student/card',
+        method: 'POST',
+        body: { student_id: studentId },
+      }),
+      invalidatesTags: ['StudentCard'],
+    }),
+    deactivateStudentCard: builder.mutation<{ status: string; message: string }, number>({ // Card ID as arg
+      query: (cardId) => ({
+        url: `main/student/card/${cardId}/deactivate`,
+        method: 'PUT',
+        body: { _method: 'PUT' },
+      }),
+      invalidatesTags: ['StudentCard'],
+    }),
   }),
 });
 
-export const { useGetStudentCardSettingsQuery, useUpdateStudentCardSettingsMutation } = studentCardApi;
+export const { 
+  useGetStudentCardSettingsQuery, 
+  useUpdateStudentCardSettingsMutation,
+  useGetStudentCardQuery,
+  useCreateStudentCardMutation,
+  useDeactivateStudentCardMutation
+} = studentCardApi;
