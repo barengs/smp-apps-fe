@@ -75,9 +75,9 @@ const StaffTable: React.FC = () => {
     if (Array.isArray(employeesData)) {
       // Filter keluar staf dengan peran asatidz dan walikelas
       return employeesData
-        .filter(apiEmployee => !apiEmployee.roles?.some(role =>
-          ['asatidz', 'walikelas'].includes(String(role.name).toLowerCase())
-        ))
+        // .filter(apiEmployee => !apiEmployee.roles?.some(role =>
+        //   ['asatidz', 'walikelas'].includes(String(role.name).toLowerCase())
+        // ))
         .map(apiEmployee => {
           const staffData = apiEmployee.staff;
           return {

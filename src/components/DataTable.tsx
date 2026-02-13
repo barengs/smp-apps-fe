@@ -74,6 +74,13 @@ interface DataTableProps<TData, TValue> {
 
   // NEW: gantikan tombol export/import default dengan elemen kustom
   exportImportElement?: React.ReactNode;
+  
+  // NEW: Total items count to display in footer
+  totalItems?: number;
+
+  // NEW: Controlled search
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -100,6 +107,9 @@ export function DataTable<TData, TValue>({
   getSubRows,
   leftActions,
   exportImportElement,
+  totalItems,
+  searchQuery,
+  onSearchChange,
 }: DataTableProps<TData, TValue>) {
   // Hapus penguncian pagination default; gunakan hanya saat manual pagination aktif
   // const defaultPagination: PaginationState = {
@@ -109,11 +119,26 @@ export function DataTable<TData, TValue>({
 
   const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination && !!onPaginationChange;
 
-  // Tambah state pencarian global
-  const [globalSearch, setGlobalSearch] = React.useState<string>('');
+  // Tambah state pencarian global (internal)
+  const [internalSearch, setInternalSearch] = React.useState<string>('');
+  
+  // Use controlled search if provided, otherwise internal
+  const globalSearch = searchQuery !== undefined ? searchQuery : internalSearch;
+
+  const handleSearchChange = (value: string) => {
+    if (onSearchChange) {
+      onSearchChange(value);
+    } else {
+      setInternalSearch(value);
+    }
+  };
 
   // Filter data secara lokal berdasarkan pencarian global (kecuali kolom Aksi)
   const processedData = React.useMemo(() => {
+    // Jika controlled search digunakan (onSearchChange ada), asumsikan parent sudah memfilter data
+    // sehingga DataTable tidak perlu memfilter lagi (tampilkan data apa adanya).
+    if (onSearchChange) return data;
+
     if (!globalSearch) return data;
     const search = globalSearch.toLowerCase();
     const excludedIds = new Set(['aksi', 'action', 'actions']);
@@ -298,7 +323,7 @@ export function DataTable<TData, TValue>({
           <Input
             placeholder="Cari data..."
             value={globalSearch}
-            onChange={(event) => setGlobalSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             className="max-w-sm"
           />
 
@@ -454,6 +479,9 @@ export function DataTable<TData, TValue>({
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          {typeof totalItems === 'number' && (
+            <span className="text-sm text-gray-500 border-l pl-2 ml-2">Total Data: {totalItems}</span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

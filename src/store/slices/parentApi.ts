@@ -101,11 +101,39 @@ export interface CreateUpdateParentRequest {
 // Izinkan update payload berupa nested lama atau flat baru
 export type UpdateParentPayload = CreateUpdateParentRequest | Record<string, unknown>;
 
+export interface ImportParentResponse {
+  success: boolean;
+  message: string;
+  data: {
+    success_count: number;
+    skipped_count: number;
+    failure_count: number;
+    total: number;
+    info: string;
+    warnings: string[];
+  };
+}
+
 export const parentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getParents: builder.query<Parent[], void>({
-      query: () => 'main/parent',
-      transformResponse: (response: { data: Parent[] }) => response.data,
+    getParents: builder.query<Parent[], PaginationParams | void>({
+      query: (params) => {
+        if (!params) return 'main/parent';
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        if (params.search) queryParams.append('search', params.search);
+        return `main/parent?${queryParams.toString()}`;
+      },
+      transformResponse: (response: any) => {
+        if (Array.isArray(response?.data)) {
+          return response.data as Parent[];
+        }
+        if (Array.isArray(response?.data?.data)) {
+          return response.data.data as Parent[];
+        }
+        return [];
+      },
       providesTags: (result) =>
         result
           ? [
@@ -162,6 +190,14 @@ export const parentApi = smpApi.injectEndpoints({
         cache: 'no-cache',
       }),
     }),
+    importParents: builder.mutation<ImportParentResponse, FormData>({
+      query: (formData) => ({
+        url: 'main/parent/import',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: [{ type: 'Parent', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -175,4 +211,5 @@ export const {
   useLazyGetParentByNikQuery,
   useExportParentsMutation,
   useBackupParentsMutation,
+  useImportParentsMutation,
 } = parentApi;

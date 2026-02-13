@@ -80,8 +80,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     }
   };
 
-  // Ambil semua data tanpa server-side pagination
-  const { data: students, error, isLoading, isFetching, refetch } = useGetStudentsQuery({});
+  // Ambil semua data tanpa server-side pagination (limit tinggi untuk client-side pagination)
+  const { data: students, error, isLoading, isFetching, refetch } = useGetStudentsQuery({ per_page: 10000 });
 
   const santriList: Santri[] = useMemo(() => {
     if (Array.isArray(students)) {
@@ -276,7 +276,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     <>
       <DataTable
         columns={columns}
-        data={santriList}
+        data={paginatedData}
         exportFileName="data_santri"
         exportTitle="Data Santri Pesantren"
         onRowClick={handleRowClick}
@@ -287,11 +287,11 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
           roomName: { type: 'select', placeholder: 'Kamar', options: roomOptions },
         }}
         onAddData={onAddData}
-        sorting={sorting}
         onSortingChange={setSorting}
         pagination={pagination}
         onPaginationChange={setPagination}
         pageCount={pageCount}
+        totalItems={santriList.length}
         addButtonLabel="Tambah Santri"
         exportImportElement={
           <DropdownMenu>

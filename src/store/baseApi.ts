@@ -43,6 +43,8 @@ const baseQuery = fetchBaseQuery({
       // ADDED: upload student photo uses FormData
       'updateStudentPhoto',
       'updateStudentCardSettings',
+      // ADDED: importParents
+      'importParents',
     ];
     
     if (!formDataEndpoints.includes(endpoint)) {

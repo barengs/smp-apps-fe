@@ -27,9 +27,10 @@ const WaliSantriTable: React.FC = () => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [importOpen, setImportOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // UPDATED: ambil refetch dari hook agar bisa me-refresh data tanpa reload
-  const { data: parentsResponse, error, isLoading, isFetching, refetch } = useGetParentsQuery();
+  const { data: parentsResponse, error, isLoading, isFetching, refetch } = useGetParentsQuery({ per_page: 10000 });
 
   const waliSantriList: WaliSantri[] = useMemo(() => {
     if (parentsResponse) {
@@ -73,8 +74,19 @@ const WaliSantriTable: React.FC = () => {
     }
   };
 
+  // Filter data before pagination
+  const filteredWaliSantriList = useMemo(() => {
+    if (!searchQuery) return waliSantriList;
+    const lower = searchQuery.toLowerCase();
+    return waliSantriList.filter((item) =>
+      Object.values(item).some((val) =>
+        String(val).toLowerCase().includes(lower)
+      )
+    );
+  }, [waliSantriList, searchQuery]);
+
   // Pagination client-side
-  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(waliSantriList, 10);
+  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(filteredWaliSantriList, 10);
 
   const handleRowClick = (wali: WaliSantri) => {
     navigate(`/dashboard/wali-santri/${wali.id}`);
@@ -152,12 +164,15 @@ const WaliSantriTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={waliSantriList}
+        data={paginatedData}
         pageCount={pageCount}
         pagination={pagination}
         onPaginationChange={setPagination}
+        totalItems={filteredWaliSantriList.length}
         sorting={sorting}
         onSortingChange={setSorting}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
         exportImportElement={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

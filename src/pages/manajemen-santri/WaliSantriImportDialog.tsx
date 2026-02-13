@@ -13,12 +13,16 @@ type Props = {
   onImported?: () => void;
 };
 
+import { useImportParentsMutation, ImportParentResponse } from '@/store/slices/parentApi';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const WaliSantriImportDialog: React.FC<Props> = ({ open, onOpenChange, onImported }) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [isDownloading, setIsDownloading] = React.useState(false);
-  const [isUploading, setIsUploading] = React.useState(false);
+  // const [isUploading, setIsUploading] = React.useState(false); // Replaced by RTK Query's isLoading
+
+  const [importParents, { isLoading: isUploading }] = useImportParentsMutation();
 
   const base = React.useMemo(() => {
     const b = API_BASE_URL || '';
@@ -69,23 +73,27 @@ const WaliSantriImportDialog: React.FC<Props> = ({ open, onOpenChange, onImporte
       toast.showError('Pilih file Excel/CSV terlebih dahulu.');
       return;
     }
-    setIsUploading(true);
+    // setIsUploading(true); // Managed by RTK
     try {
       const form = new FormData();
       form.append('file', file);
-      const resp = await fetch(`${base}main/parent/import`, {
-        method: 'POST',
-        headers: {
-          ...getAuthHeader(),
-          // Biarkan browser set Content-Type untuk FormData
-        } as any,
-        body: form,
-      });
-      if (!resp.ok) {
-        const txt = await resp.text().catch(() => '');
-        throw new Error(txt || `Gagal mengunggah file. Status: ${resp.status}`);
-      }
-      toast.showSuccess('Impor wali santri berhasil.');
+      
+      const response = await importParents(form).unwrap();
+
+      const { success_count, skipped_count, failure_count, total, info } = response.data;
+      
+      const message = (
+        <div className="space-y-1">
+          <p className="font-semibold">Impor selesai.</p>
+          <p className="text-sm">Total: {total}</p>
+          <p className="text-sm text-green-600">Berhasil: {success_count}</p>
+          <p className="text-sm text-yellow-600">Dilewati: {skipped_count}</p>
+          <p className="text-sm text-red-600">Gagal: {failure_count}</p>
+          {info && <p className="text-xs text-muted-foreground mt-1">{info}</p>}
+        </div>
+      );
+
+      toast.showSuccess(message);
       onOpenChange(false);
       setFile(null);
       onImported?.();
@@ -93,7 +101,7 @@ const WaliSantriImportDialog: React.FC<Props> = ({ open, onOpenChange, onImporte
       console.error(err);
       toast.showError('Gagal mengunggah file. Pastikan format sesuai template.');
     } finally {
-      setIsUploading(false);
+      // setIsUploading(false); // Managed by RTK
     }
   };
 
