@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,28 +13,32 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as toast from '@/utils/toast';
-import { useCreateRoleMutation, useUpdateRoleMutation, useAssignRoleMenusMutation } from '../../store/slices/roleApi';
-import { useGetRoleMenusQuery } from '@/store/slices/roleApi';
-import { useGetMenuQuery, type MenuItem } from '@/store/slices/menuApi';
-import { useGetPermissionsQuery } from '@/store/slices/permissionApi';
-import MenuTreeView from '@/components/MenuTreeView';
-import MultiSelect, { type Option } from '@/components/MultiSelect';
+import { 
+  useCreateRoleMutation, 
+  useUpdateRoleMutation,
+  useSyncPermissionMatrixMutation,
+  useGetPermissionMatrixQuery,
+  type PermissionMatrixItem
+} from '../../store/slices/roleApi';
+import { useGetMenuQuery } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAssignMenuPermissionsMutation } from '@/store/slices/menuApi';
-import MenuPermissionTable from '@/components/MenuPermissionTable';
+import { PermissionMatrix } from '@/components/role/PermissionMatrix';
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Nama Peran harus minimal 2 karakter.',
   }),
+  category: z.string().optional(),
   description: z.string().optional(),
-  menuAccess: z.array(z.string()).optional(),
-  explicitPermissions: z.array(z.string()).optional(),
-  // NEW: mapping menuId -> permissionIds (as strings)
-  menuAssignments: z.record(z.array(z.string())).optional(),
+  permissionMatrix: z.array(z.object({
+    menu_id: z.number(),
+    permissions: z.array(z.string()),
+    custom_permissions: z.array(z.string()).optional(),
+  })),
 });
 
 interface PeranFormProps {
@@ -52,91 +56,73 @@ interface PeranFormProps {
 const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
-  const [assignRoleMenus] = useAssignRoleMenusMutation();
+  const [syncMatrix, { isLoading: isSyncing }] = useSyncPermissionMatrixMutation();
+  
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
-  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissionsQuery({});
-  const [assignMenuPermissions] = useAssignMenuPermissionsMutation();
-  const { data: roleMenusData, isLoading: isLoadingRoleMenus } = useGetRoleMenusQuery(initialData?.id!, { skip: !initialData?.id });
+  const { data: matrixData, isLoading: isLoadingMatrix } = useGetPermissionMatrixQuery(
+    initialData?.id!,
+    { skip: !initialData?.id }
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.roleName || '',
+      category: '',
       description: initialData?.description || '',
-      menuAccess: [],
-      explicitPermissions: [],
-      // NEW
-      menuAssignments: {},
+      permissionMatrix: [],
     },
   });
 
-  // Pisahkan initialData.accessRights menjadi menuAccess dan explicitPermissions saat data sudah siap
+  // Load permission matrix data when editing
   useEffect(() => {
-    // explicit permissions from initialData.accessRights by matching permission names
-    if (initialData && Array.isArray(permissionsData)) {
-      const permissionNameSet = new Set(permissionsData.map((p) => p.name));
-      const explicitPerms: string[] = [];
-      (initialData.accessRights || []).forEach((right) => {
-        if (permissionNameSet.has(right)) {
-          explicitPerms.push(right);
-        }
-      });
-      form.setValue('explicitPermissions', explicitPerms);
+    if (initialData && matrixData) {
+      const matrix: PermissionMatrixItem[] = matrixData.matrix.map((item) => ({
+        menu_id: item.menu_id,
+        permissions: item.permissions || [],
+        custom_permissions: item.custom_permissions || [],
+      }));
+      form.setValue('permissionMatrix', matrix);
+      
+      // Set category if available
+      if (matrixData.role.category) {
+        form.setValue('category', matrixData.role.category);
+      }
     }
-
-    // preselect menu assignments using roleMenusData (IDs)
-    if (initialData && Array.isArray(roleMenusData)) {
-      const assignmentsInit = Object.fromEntries(roleMenusData.map((m) => [String(m.id), []]));
-      form.setValue('menuAssignments', assignmentsInit);
-    }
-
-    // reset defaults when creating
-    if (!initialData) {
-      form.reset({
-        name: '',
-        description: '',
-        menuAccess: [],
-        explicitPermissions: [],
-        menuAssignments: {},
-      });
-    }
-  }, [initialData, permissionsData, roleMenusData, form]);
+  }, [initialData, matrixData, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const payload = {
-      name: values.name,
-      permission: values.explicitPermissions || [],
-      guard_name: 'api',
-    };
-
-    // Ambil daftar menu terpilih dari menuAssignments dan permission per menu (ID sebagai string -> number)
-    const assignments = values.menuAssignments || {};
-    const selectedMenuIds = Object.keys(assignments).map((id) => Number(id));
-
     try {
+      let roleId: number;
+
       if (initialData) {
-        await updateRole({ id: initialData.id, data: payload }).unwrap();
-        await assignRoleMenus({ role_id: initialData.id, menu_ids: selectedMenuIds }).unwrap();
-        // Assign permission per menu
-        await Promise.all(
-          selectedMenuIds.map((menuId) => {
-            const permsForMenu = (assignments[String(menuId)] || []).map((pid) => Number(pid));
-            return assignMenuPermissions({ menuId, data: { permissions: permsForMenu } }).unwrap();
-          })
-        );
-        toast.showSuccess(`Peran "${values.name}" berhasil diperbarui.`);
+        // Update existing role
+        await updateRole({
+          id: initialData.id,
+          data: {
+            name: values.name,
+            guard_name: 'api',
+            category: values.category || undefined,
+          },
+        }).unwrap();
+        roleId = initialData.id;
       } else {
-        const created = await createRole(payload).unwrap();
-        await assignRoleMenus({ role_id: created.id, menu_ids: selectedMenuIds }).unwrap();
-        // Assign permission per menu
-        await Promise.all(
-          selectedMenuIds.map((menuId) => {
-            const permsForMenu = (assignments[String(menuId)] || []).map((pid) => Number(pid));
-            return assignMenuPermissions({ menuId, data: { permissions: permsForMenu } }).unwrap();
-          })
-        );
-        toast.showSuccess(`Peran "${values.name}" berhasil ditambahkan.`);
+        // Create new role
+        const created = await createRole({
+          name: values.name,
+          guard_name: 'api',
+          category: values.category || undefined,
+        }).unwrap();
+        roleId = created.id;
       }
+
+      // Sync permission matrix
+      await syncMatrix({
+        roleId,
+        data: { matrix: values.permissionMatrix },
+      }).unwrap();
+
+      toast.showSuccess(`Peran "${values.name}" berhasil ${initialData ? 'diperbarui' : 'ditambahkan'}.`);
       onSuccess();
     } catch (err: unknown) {
       let errorMessage = 'Terjadi kesalahan tidak dikenal.';
@@ -168,113 +154,99 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
     }
   };
 
-  const allPermissionNames = useMemo(() => {
-    if (permissionsData && Array.isArray(permissionsData)) {
-      const allPermissionNames = new Set(permissionsData.map(p => p.name));
-      return Array.from(allPermissionNames).map(name => ({ value: name, label: name }));
-    }
-    return [];
-  }, [permissionsData]);
-  
-  const permissionOptions: Option[] = useMemo(() => {
-    if (permissionsData && Array.isArray(permissionsData)) {
-      // Untuk pemetaan per menu, gunakan ID permission sebagai value
-      return permissionsData.map(p => ({ value: String(p.id), label: p.name }));
-    }
-    return [];
-  }, [permissionsData]);
+  const isSubmitting = isCreating || isUpdating || isSyncing;
+  const isLoading = isLoadingMenu || isLoadingMatrix;
 
-  const topLevelMenus = useMemo(() => {
-    if (!menuData?.data) {
-      return [];
-    }
-    return menuData.data.filter(menu => menu.parent_id === null);
-  }, [menuData]);
-
-  const isSubmitting = isCreating || isUpdating;
+  if (isLoading && initialData) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Kolom Kiri: Detail Peran & Hak Akses */}
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Peran</FormLabel>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Role</FormLabel>
+                <FormControl>
+                  <Input placeholder="Contoh: admin, asatidz, walikelas" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kategori</FormLabel>
+                <Select value={field.value || undefined} onValueChange={field.onChange}>
                   <FormControl>
-                    <Input placeholder="Contoh: Guru" {...field} />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih kategori (opsional)" />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Deskripsi</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Deskripsi singkat peran ini..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="explicitPermissions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hak Akses (Permissions)</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={
-                        // gunakan nama permission (bukan ID) untuk permission eksplisit per role
-                        (permissionsData && Array.isArray(permissionsData))
-                          ? permissionsData.map(p => ({ value: p.name, label: p.name }))
-                          : []
-                      }
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      placeholder="Pilih hak akses..."
-                      disabled={isLoadingPermissions}
-                      className="h-auto min-h-24"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Kolom Kanan: Hak Akses Menu (tabel 2 kolom) */}
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="menuAssignments"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hak Akses Menu & Permission</FormLabel>
-                  <FormControl>
-                    <MenuPermissionTable
-                      menus={topLevelMenus}
-                      permissionOptions={permissionOptions}
-                      value={field.value || {}}
-                      onChange={field.onChange}
-                      isLoading={isLoadingMenu || isLoadingPermissions || isLoadingRoleMenus}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                  <SelectContent>
+                    <SelectItem value="pendidikan">Pendidikan</SelectItem>
+                    <SelectItem value="administrasi">Administrasi</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Deskripsi</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Deskripsi singkat peran ini..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Permission Matrix Section */}
+        <FormField
+          control={form.control}
+          name="permissionMatrix"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Permission Matrix</FormLabel>
+              <FormControl>
+                {menuData?.data ? (
+                  <PermissionMatrix
+                    menus={menuData.data}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    Tidak ada menu tersedia
+                  </div>
+                )}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>

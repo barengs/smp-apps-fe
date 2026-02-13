@@ -123,7 +123,7 @@ const PeranDetailPage: React.FC = () => {
             {Array.isArray(menus) && menus.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {menus.map((m: any) => (
-                  <Badge key={m.id} variant="outline">{m.title}</Badge>
+                  <Badge key={m.id} variant="outline">{m.id_title}</Badge>
                 ))}
               </div>
             ) : (

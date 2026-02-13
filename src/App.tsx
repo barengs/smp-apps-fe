@@ -35,6 +35,8 @@ import MataPelajaranForm from "@/pages/manajemen-kurikulum/MataPelajaranForm";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import KategoriPelanggaranPage from '@/pages/manajemen-kamtib/KategoriPelanggaranPage';
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
+import { RoleManagementPage } from "@/pages/utility/RoleManagementPage";
+import { RoleFormPage } from "@/pages/utility/RoleFormPage";
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
 import SantriEditPage from "@/pages/manajemen-santri/SantriEditPage";
@@ -224,6 +226,11 @@ function App() {
               <Route path="/dashboard/berita" element={<BeritaPage />} />
               <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
+              
+              {/* Role Management Routes */}
+              <Route path="/utility/roles" element={<RoleManagementPage />} />
+              <Route path="/utility/roles/create" element={<RoleFormPage />} />
+              <Route path="/utility/roles/:id/edit" element={<RoleFormPage />} />
               <Route path="/dashboard/settings/student-card-template" element={<StudentCardTemplateSettingsPage />} />
               <Route path="/dashboard/profile" element={<UserProfilePage />} />
               <Route path="/dashboard/profile/edit" element={<ProfileEditPage />} />

@@ -1,5 +1,5 @@
-import { smpApi } from '../baseApi';
-import { PaginationParams } from '@/types/master-data';
+import { smpApi } from "../baseApi";
+import { PaginationParams } from "@/types/master-data";
 
 // Define the nested permission structure
 interface PermissionNestedData {
@@ -9,7 +9,23 @@ interface PermissionNestedData {
 // Define menu structure within role
 interface MenuNestedData {
   id: number;
-  title: string;
+  id_title: string;
+  en_title?: string | null;
+  ar_title?: string | null;
+  description?: string | null;
+  icon?: string;
+  route?: string | null;
+  parent_id?: number | null;
+  type?: string;
+  position?: string;
+  status?: string;
+  order?: string | number | null;
+  created_at?: string;
+  updated_at?: string;
+  pivot?: {
+    role_id: string;
+    menu_id: string;
+  };
 }
 
 // Define the API response structure for a single role
@@ -17,6 +33,7 @@ interface RoleApiResponse {
   id: number;
   name: string; // Corresponds to roleName in frontend
   guard_name: string;
+  category?: string | null; // Role category (pendidikan, administrasi)
   created_at: string;
   updated_at: string;
   permissions: PermissionNestedData[];
@@ -37,6 +54,7 @@ interface CreateUpdateRoleRequest {
   menu_id?: number[];
   // NEW: guard name (default 'api')
   guard_name?: string;
+  category?: string; // Role category (pendidikan, administrasi)
 }
 
 // NEW: request body untuk pemetaan menu ke peran
@@ -75,74 +93,158 @@ interface GetRoleMenusResponse {
   data: RoleMenuItem[];
 }
 
+// Permission Matrix Types
+interface PermissionMatrixItem {
+  menu_id: number;
+  permissions: string[];
+  custom_permissions: string[];
+}
+
+interface SyncPermissionMatrixRequest {
+  matrix: PermissionMatrixItem[];
+}
+
+interface PermissionMatrixData {
+  menu_id: number;
+  menu_title: string;
+  permissions: string[];
+  custom_permissions: string[];
+}
+
+interface PermissionMatrixResponse {
+  status: string;
+  data: {
+    role: {
+      id: number;
+      name: string;
+      category: string | null;
+    };
+    matrix: PermissionMatrixData[];
+  };
+}
+
 export const roleApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRoles: builder.query<RoleApiResponse[], PaginationParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        if (params.page) queryParams.append("page", params.page.toString());
+        if (params.per_page)
+          queryParams.append("per_page", params.per_page.toString());
+        if (params.search) queryParams.append("search", params.search);
+        if (params.sort_by) queryParams.append("sort_by", params.sort_by);
+        if (params.sort_order)
+          queryParams.append("sort_order", params.sort_order);
         return `main/role?${queryParams.toString()}`;
       },
-      transformResponse: (response: GetRolesRawResponse): RoleApiResponse[] => response.data,
+      transformResponse: (response: GetRolesRawResponse): RoleApiResponse[] =>
+        response.data,
       providesTags: (result) =>
         result && Array.isArray(result)
           ? [
-              ...result.map(({ id }) => ({ type: 'Role' as const, id })),
-              { type: 'Role', id: 'LIST' },
+              ...result.map(({ id }) => ({ type: "Role" as const, id })),
+              { type: "Role", id: "LIST" },
             ]
-          : [{ type: 'Role', id: 'LIST' }],
+          : [{ type: "Role", id: "LIST" }],
     }),
     getRoleById: builder.query<RoleApiResponse, number>({
       query: (id) => `main/role/${id}`,
-      transformResponse: (response: RoleApiResponse | { data: RoleApiResponse }) =>
-        (typeof response === 'object' && response !== null && 'data' in response ? (response as { data: RoleApiResponse }).data : (response as RoleApiResponse)),
+      transformResponse: (
+        response: RoleApiResponse | { data: RoleApiResponse },
+      ) =>
+        typeof response === "object" && response !== null && "data" in response
+          ? (response as { data: RoleApiResponse }).data
+          : (response as RoleApiResponse),
       providesTags: (result) =>
-        result ? [{ type: 'Role', id: result.id }] : [{ type: 'Role', id: 'DETAIL' }],
+        result
+          ? [{ type: "Role", id: result.id }]
+          : [{ type: "Role", id: "DETAIL" }],
     }),
     createRole: builder.mutation<RoleApiResponse, CreateUpdateRoleRequest>({
       query: (newRole) => ({
-        url: 'main/role',
-        method: 'POST',
+        url: "main/role",
+        method: "POST",
         body: newRole,
       }),
-      invalidatesTags: [{ type: 'Role', id: 'LIST' }],
+      invalidatesTags: [{ type: "Role", id: "LIST" }],
     }),
-    updateRole: builder.mutation<RoleApiResponse, { id: number; data: CreateUpdateRoleRequest }>({
+    updateRole: builder.mutation<
+      RoleApiResponse,
+      { id: number; data: CreateUpdateRoleRequest }
+    >({
       query: ({ id, data }) => ({
         url: `main/role/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Role', id }, { type: 'Role', id: 'LIST' }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Role", id },
+        { type: "Role", id: "LIST" },
+      ],
     }),
     deleteRole: builder.mutation<void, number>({
       query: (id) => ({
         url: `main/role/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: [{ type: 'Role', id: 'LIST' }],
+      invalidatesTags: [{ type: "Role", id: "LIST" }],
     }),
     assignRoleMenus: builder.mutation<void, AssignRoleMenusRequest>({
       query: (payload) => ({
-        url: 'main/role-menu',
-        method: 'POST',
+        url: "main/role-menu",
+        method: "POST",
         body: payload,
       }),
-      invalidatesTags: [{ type: 'Role', id: 'LIST' }],
+      invalidatesTags: [{ type: "Role", id: "LIST" }],
     }),
     getRoleMenus: builder.query<RoleMenuItem[], number>({
       query: (roleId) => `main/role/${roleId}/menus`,
       transformResponse: (response: GetRoleMenusResponse | RoleMenuItem[]) =>
         Array.isArray(response) ? response : response.data,
     }),
+    // Permission Matrix Endpoints
+    syncPermissionMatrix: builder.mutation<
+      RoleApiResponse,
+      { roleId: number; data: SyncPermissionMatrixRequest }
+    >({
+      query: ({ roleId, data }) => ({
+        url: `main/roles/${roleId}/sync-permission-matrix`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: (result, error, { roleId }) => [
+        { type: "Role", id: roleId },
+        { type: "Role", id: "LIST" },
+      ],
+    }),
+    getPermissionMatrix: builder.query<
+      PermissionMatrixResponse["data"],
+      number
+    >({
+      query: (roleId) => `main/roles/${roleId}/permission-matrix`,
+      transformResponse: (response: PermissionMatrixResponse) => response.data,
+      providesTags: (result, error, roleId) => [{ type: "Role", id: roleId }],
+    }),
   }),
 });
 
-export const { useGetRolesQuery, useCreateRoleMutation, useUpdateRoleMutation, useDeleteRoleMutation, useGetRoleMenusQuery } = roleApi;
+export const {
+  useGetRolesQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
+  useGetRoleMenusQuery,
+} = roleApi;
 export const { useGetRoleByIdQuery } = roleApi;
 // NEW: export hook assignRoleMenus
 export const { useAssignRoleMenusMutation } = roleApi;
+// Permission Matrix hooks
+export const { useSyncPermissionMatrixMutation, useGetPermissionMatrixQuery } =
+  roleApi;
+
+// Export types for use in components
+export type {
+  PermissionMatrixItem,
+  PermissionMatrixData,
+  SyncPermissionMatrixRequest,
+};
