@@ -38,6 +38,7 @@ export interface User { // Menambahkan 'export' di sini
     created_at: string;
     updated_at: string;
   };
+  permissions: string[]; // Add permissions array
 }
 
 // Struktur AuthResponse disesuaikan dengan respons API yang diberikan

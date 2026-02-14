@@ -170,6 +170,7 @@ export const smpApi = createApi({
     'StudentCardSettings',
     // ADDED: StudentCard
     'StudentCard',
+    'UserMenus',
   ],
   endpoints: () => ({}),
 });

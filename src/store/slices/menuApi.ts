@@ -14,13 +14,21 @@ export interface MenuItem {
   position: string;
   status: string;
   order: string | number | null;
-  child: MenuItem[]; // Nested children
+  children: MenuItem[]; // Nested children (Standardized)
+  child?: MenuItem[];   // Raw API response might return this
   parent_id: number | string | null;
   created_at: string;
   updated_at: string;
 }
 
 interface GetMenuResponse {
+  message: string;
+  data: MenuItem[];
+}
+
+// Response for user menus (hierarchical)
+interface GetUserMenusResponse {
+  status: string;
   message: string;
   data: MenuItem[];
 }
@@ -44,11 +52,38 @@ export interface AssignMenuPermissionsRequest {
   permissions: number[];
 }
 
+// Helper function to normalize menu data (handle child vs children mismatch)
+const transformMenuData = (menus: MenuItem[]): MenuItem[] => {
+  return menus.map(menu => {
+    // If 'child' exists but 'children' is empty/undefined, use 'child'
+    const rawChildren = menu.child || menu.children || [];
+    
+    // Normalize children recursively
+    const children = rawChildren.length > 0 ? transformMenuData(rawChildren) : [];
+    
+    return {
+      ...menu,
+      children: children,
+      // Ensure we don't carry over the raw 'child' property to avoid confusion, 
+      // or keep it if needed but 'children' is the source of truth now.
+    };
+  });
+};
+
 export const menuApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getMenu: builder.query<GetMenuResponse, void>({
       query: () => 'master/menu',
       providesTags: ['Menu'],
+    }),
+    getUserMenus: builder.query<MenuItem[], void>({
+      query: () => 'main/user/menus',
+      transformResponse: (response: GetUserMenusResponse) => {
+        const tree = transformMenuData(response.data);
+        // Safeguard: Ensure only root items (no parent_id) are returned at the top level
+        return tree.filter(item => !item.parent_id);
+      },
+      providesTags: ['UserMenus'],
     }),
     createMenu: builder.mutation<MenuItem, CreateUpdateMenuRequest>({
       query: (newMenu) => ({
@@ -93,6 +128,6 @@ export const menuApi = smpApi.injectEndpoints({
   }),
 });
 
-export const { useGetMenuQuery, useCreateMenuMutation, useUpdateMenuMutation, useUpdateMenuPositionMutation, useDeleteMenuMutation } = menuApi;
+export const { useGetMenuQuery, useGetUserMenusQuery, useCreateMenuMutation, useUpdateMenuMutation, useUpdateMenuPositionMutation, useDeleteMenuMutation } = menuApi;
 // NEW: export hook for assigning permissions to a menu
 export const { useAssignMenuPermissionsMutation } = menuApi;

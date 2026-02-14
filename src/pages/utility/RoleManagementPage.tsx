@@ -18,8 +18,14 @@ import {
 import { toast } from 'sonner';
 import { Loader2, Plus, Pencil, Trash2, Search } from 'lucide-react';
 
+import PermissionGate from '@/components/PermissionGate';
+import { usePermission } from '@/hooks/usePermission';
+
 export const RoleManagementPage: React.FC = () => {
   const navigate = useNavigate();
+  const { getMenuByRoute } = usePermission();
+  const menu = getMenuByRoute('/utility/roles');
+  const menuId = menu?.id;
 
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
@@ -86,10 +92,14 @@ export const RoleManagementPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Role Management</h1>
           <p className="text-muted-foreground">Kelola role dan permission untuk sistem</p>
         </div>
-        <Button onClick={() => navigate('/utility/roles/create')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Tambah Role
-        </Button>
+        {menuId && (
+          <PermissionGate action="create" menuId={menuId}>
+            <Button onClick={() => navigate('/utility/roles/create')}>
+              <Plus className="mr-2 h-4 w-4" />
+              Tambah Role
+            </Button>
+          </PermissionGate>
+        )}
       </div>
 
       {/* Filters */}
@@ -159,21 +169,29 @@ export const RoleManagementPage: React.FC = () => {
                   <TableCell>{role.permissions?.length || 0}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate(`/utility/roles/${role.id}/edit`)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDeleteDialog(role.id)}
-                        disabled={role.name === 'superadmin'}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {menuId && (
+                        <>
+                          <PermissionGate action="edit" menuId={menuId}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => navigate(`/utility/roles/${role.id}/edit`)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </PermissionGate>
+                          <PermissionGate action="delete" menuId={menuId}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openDeleteDialog(role.id)}
+                              disabled={role.name === 'superadmin'}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </PermissionGate>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
