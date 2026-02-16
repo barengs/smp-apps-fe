@@ -91,6 +91,9 @@ import TipeIzinPage from '@/pages/manajemen-kamtib/TipeIzinPage';
 import PerizinanDetailPage from '@/pages/manajemen-kamtib/PerizinanDetailPage';
 import StudentCardTemplateSettingsPage from '@/pages/utility/StudentCardTemplateSettingsPage';
 import DataSantriPage from '@/pages/wali-santri/DataSantriPage';
+import DataSantriDetailPage from '@/pages/wali-santri/DataSantriDetailPage';
+import RegistrationPage from '@/pages/wali-santri/RegistrationPage';
+import RegistrationHistoryPage from '@/pages/wali-santri/RegistrationHistoryPage';
 import TagihanPage from '@/pages/wali-santri/TagihanPage';
 import TopupPage from '@/pages/wali-santri/TopupPage';
 
@@ -166,7 +169,10 @@ function App() {
               
               {/* Wali Santri Specific Routes */}
               <Route path="/dashboard/wali-santri/data-santri" element={<DataSantriPage />} />
+              <Route path="/dashboard/wali-santri/data-santri/:id" element={<DataSantriDetailPage />} />
               <Route path="/dashboard/wali-santri/tagihan" element={<TagihanPage />} />
+              <Route path="/dashboard/wali-santri/pendaftaran-santri" element={<RegistrationHistoryPage />} />
+              <Route path="/dashboard/wali-santri/pendaftaran-santri/baru" element={<RegistrationPage />} />
               <Route path="/dashboard/wali-santri/transaksi" element={<TopupPage />} />
 
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />

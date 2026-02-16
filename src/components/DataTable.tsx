@@ -81,6 +81,7 @@ interface DataTableProps<TData, TValue> {
   // NEW: Controlled search
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -110,6 +111,7 @@ export function DataTable<TData, TValue>({
   totalItems,
   searchQuery,
   onSearchChange,
+  searchPlaceholder,
 }: DataTableProps<TData, TValue>) {
   // Hapus penguncian pagination default; gunakan hanya saat manual pagination aktif
   // const defaultPagination: PaginationState = {
@@ -321,7 +323,7 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Cari data..."
+            placeholder={searchPlaceholder || "Cari data..."}
             value={globalSearch}
             onChange={(event) => handleSearchChange(event.target.value)}
             className="max-w-sm"

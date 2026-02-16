@@ -117,6 +117,7 @@ export interface Santri {
   first_name: string;
   last_name: string | null;
   gender: 'L' | 'P';
+  born_at: string | null;
   photo: string | null;
   program?: {
     id: number;
@@ -139,6 +140,48 @@ export interface ParentProfileWithSantri {
 export interface GetSantriByParentNikResponse {
   status: string;
   data: ParentProfileWithSantri;
+}
+
+export interface StudentDetail extends Santri {
+  nik: string | null;
+  kk: string | null;
+  address: string | null;
+  born_in: string | null;
+  status: string;
+  current_room?: {
+    room_name: string;
+    hostel_name: string;
+  };
+  parents?: {
+    first_name: string;
+    last_name: string;
+    phone: string;
+    email: string;
+  };
+}
+
+export interface StudentViolation {
+    id: number;
+    date: string;
+    violation: {
+        name: string;
+        points: number;
+    };
+    sanction: {
+        name: string;
+    } | null;
+    notes: string | null;
+}
+
+export interface StudentLeave {
+    id: number;
+    start_date: string;
+    end_date: string;
+    reason: string;
+    status: 'pending' | 'approved' | 'rejected';
+    leave_type: {
+        name: string;
+    };
 }
 
 export const authApi = smpApi.injectEndpoints({
@@ -206,6 +249,15 @@ export const authApi = smpApi.injectEndpoints({
     getSantriByParentNik: builder.query<GetSantriByParentNikResponse, string>({
       query: (nik) => `main/parent/nik/${nik}/cek`,
     }),
+    getStudentDetail: builder.query<{ data: StudentDetail }, string>({
+      query: (id) => `main/student/${id}`,
+    }),
+    getStudentViolations: builder.query<{ data: StudentViolation[] }, string>({
+      query: (id) => `main/student-violation/student/${id}`,
+    }),
+    getStudentLeaves: builder.query<{ data: StudentLeave[] }, string>({
+      query: (id) => `main/student-leave/student/${id}/report`,
+    }),
   }),
 });
 
@@ -221,4 +273,7 @@ export const {
   useForgotPasswordMutation,
   useChangePasswordMutation, // Export the new hook
   useGetSantriByParentNikQuery,
+  useGetStudentDetailQuery,
+  useGetStudentViolationsQuery,
+  useGetStudentLeavesQuery,
 } = authApi;

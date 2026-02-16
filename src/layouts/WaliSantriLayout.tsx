@@ -17,6 +17,7 @@ import {
   Users,
   FileText,
   Wallet,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -93,6 +94,11 @@ const WaliSantriSidebar: React.FC<{ isCollapsed: boolean }> = ({
       title: "Topup / Transfer Dana",
       href: "/dashboard/wali-santri/transaksi",
       icon: <Wallet className="h-5 w-5" />,
+    },
+    {
+      title: "Pendaftaran Santri Baru",
+      href: "/dashboard/wali-santri/pendaftaran-santri",
+      icon: <UserPlus className="h-5 w-5" />,
     },
   ];
 

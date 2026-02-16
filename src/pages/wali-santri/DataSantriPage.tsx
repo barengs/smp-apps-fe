@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import WaliSantriLayout from '@/layouts/WaliSantriLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetSantriByParentNikQuery, useGetProfileDetailsQuery } from '@/store/slices/authApi';
@@ -7,9 +8,10 @@ import { selectCurrentUser } from '@/store/slices/authSlice';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, MapPin, Bed, BookOpen } from 'lucide-react';
+import { User, MapPin, Bed, BookOpen, Calendar } from 'lucide-react';
 
 const DataSantriPage: React.FC = () => {
+  const navigate = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
   // Prioritize NIK from currentUser, but if not present, we will try to fetch it.
   const storedNik = currentUser?.profile?.nik;
@@ -104,34 +106,57 @@ const DataSantriPage: React.FC = () => {
            const fullName = [student.first_name, student.last_name].filter(Boolean).join(' ');
            const photoUrl = student.photo 
              ? (student.photo.startsWith('http') ? student.photo : `${import.meta.env.VITE_API_URL || ''}/storage/${student.photo}`) 
-             : undefined;
+             : null;
 
            return (
-            <Card key={student.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="h-24 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
-              <div className="px-6 relative">
-                <div className="absolute -top-12 left-6">
-                  <Avatar className="h-24 w-24 border-4 border-white shadow-sm">
-                    <AvatarImage src={photoUrl} alt={fullName} />
-                    <AvatarFallback className="text-lg bg-slate-200">
-                      {student.first_name[0]}{student.last_name ? student.last_name[0] : ''}
-                    </AvatarFallback>
-                  </Avatar>
+            <Card 
+              key={student.id} 
+              className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+              onClick={() => navigate(`/dashboard/wali-santri/data-santri/${student.id}`)}
+            >
+              <div className="h-24 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:from-blue-600 group-hover:to-cyan-600 transition-colors"></div>
+              <div className="px-6 relative pb-6">
+                <div className="absolute -top-24 left-6">
+                  <div className="h-24 w-24 rounded-lg border-4 border-white shadow-sm bg-white overflow-hidden">
+                    {photoUrl ? (
+                      <img 
+                        src={photoUrl} 
+                        alt={fullName} 
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-2xl">
+                        {student.first_name[0]}{student.last_name ? student.last_name[0] : ''}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="mt-14 mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">{fullName}</h3>
-                  <div className="flex items-center text-sm text-muted-foreground mt-1">
-                    <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
+                <div className="mt-4">
+                  <h3 className="text-xl font-bold text-gray-900 line-clamp-1" title={fullName}>{fullName}</h3>
+                  <div className="flex flex-wrap items-center gap-y-1 text-sm text-muted-foreground mt-1">
+                    <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 text-xs">
                       {student.nis}
                     </span>
                     <span className="mx-2">•</span>
                     <span>{student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</span>
                   </div>
+                  {student.born_at && (
+                    <div className="flex items-center text-sm text-muted-foreground mt-1">
+                      <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                      <span>
+                        {new Date(student.born_at).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-3 mb-6">
+                <div className="space-y-3 mt-6">
                   <div className="flex items-center text-sm">
-                    <BookOpen className="h-4 w-4 mr-3 text-blue-500" />
+                    <BookOpen className="h-4 w-4 mr-3 text-blue-500 flex-shrink-0" />
                     <div>
                       <p className="text-muted-foreground text-xs">Program Pendidikan</p>
                       <p className="font-medium text-gray-700">{student.program?.name || '-'}</p>
@@ -139,7 +164,7 @@ const DataSantriPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center text-sm">
-                    <Bed className="h-4 w-4 mr-3 text-indigo-500" />
+                    <Bed className="h-4 w-4 mr-3 text-indigo-500 flex-shrink-0" />
                     <div>
                       <p className="text-muted-foreground text-xs">Asrama</p>
                       <p className="font-medium text-gray-700">{student.hostel?.name || '-'}</p>
