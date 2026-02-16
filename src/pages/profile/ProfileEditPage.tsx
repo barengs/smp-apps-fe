@@ -1,18 +1,29 @@
 import React from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import WaliSantriLayout from '@/layouts/WaliSantriLayout';
 import { useGetProfileDetailsQuery } from '@/store/slices/authApi';
 import ProfileEditForm from '@/components/ProfileEditForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { User, Pencil } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/slices/authSlice';
 
 const ProfileEditPage: React.FC = () => {
   const { data: profileData, isLoading, isError } = useGetProfileDetailsQuery();
+  const currentUser = useSelector(selectCurrentUser);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Profil', href: '/dashboard/profile', icon: <User className="h-4 w-4" /> },
     { label: 'Edit', icon: <Pencil className="h-4 w-4" /> },
   ];
+
+  // Determine layout based on role
+  const isWaliSantri = currentUser?.roles?.some(role => role.name === 'orangtua');
+  const Layout = isWaliSantri ? WaliSantriLayout : DashboardLayout;
+  const layoutProps = isWaliSantri 
+    ? { title: "Edit Profil", role: "wali-santri" as const }
+    : { title: "Edit Profil", role: "administrasi" as const };
 
   const renderContent = () => {
     if (isLoading) {
@@ -38,14 +49,14 @@ const ProfileEditPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout title="Edit Profil" role="administrasi">
+    <Layout {...layoutProps}>
       <div className="w-full max-w-4xl mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="mt-6">
           {renderContent()}
         </div>
       </div>
-    </DashboardLayout>
+    </Layout>
   );
 };
 

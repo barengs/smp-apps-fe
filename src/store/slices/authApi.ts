@@ -111,6 +111,36 @@ export interface UpdateProfileResponse { // Export this interface
     data: User;
 }
 
+export interface Santri {
+  id: number;
+  nis: string;
+  first_name: string;
+  last_name: string | null;
+  gender: 'L' | 'P';
+  photo: string | null;
+  program?: {
+    id: number;
+    name: string;
+  };
+  hostel?: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface ParentProfileWithSantri {
+  id: number;
+  nik: string;
+  first_name: string;
+  last_name: string;
+  student: Santri[];
+}
+
+export interface GetSantriByParentNikResponse {
+  status: string;
+  data: ParentProfileWithSantri;
+}
+
 export const authApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -173,6 +203,9 @@ export const authApi = smpApi.injectEndpoints({
         body: data,
       }),
     }),
+    getSantriByParentNik: builder.query<GetSantriByParentNikResponse, string>({
+      query: (nik) => `main/parent/nik/${nik}/cek`,
+    }),
   }),
 });
 
@@ -187,4 +220,5 @@ export const {
   // Menghapus useUpdateProfilePhotoMutation
   useForgotPasswordMutation,
   useChangePasswordMutation, // Export the new hook
+  useGetSantriByParentNikQuery,
 } = authApi;

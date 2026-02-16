@@ -90,6 +90,9 @@ import PerizinanPage from '@/pages/manajemen-kamtib/PerizinanPage';
 import TipeIzinPage from '@/pages/manajemen-kamtib/TipeIzinPage';
 import PerizinanDetailPage from '@/pages/manajemen-kamtib/PerizinanDetailPage';
 import StudentCardTemplateSettingsPage from '@/pages/utility/StudentCardTemplateSettingsPage';
+import DataSantriPage from '@/pages/wali-santri/DataSantriPage';
+import TagihanPage from '@/pages/wali-santri/TagihanPage';
+import TopupPage from '@/pages/wali-santri/TopupPage';
 
 // Redux imports
 import { ThemeProvider } from './components/theme-provider';
@@ -160,6 +163,12 @@ function App() {
               <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
               <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
               <Route path="/dashboard/wali-santri/:id/edit" element={<WaliSantriEditPage />} />
+              
+              {/* Wali Santri Specific Routes */}
+              <Route path="/dashboard/wali-santri/data-santri" element={<DataSantriPage />} />
+              <Route path="/dashboard/wali-santri/tagihan" element={<TagihanPage />} />
+              <Route path="/dashboard/wali-santri/transaksi" element={<TopupPage />} />
+
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
               <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />

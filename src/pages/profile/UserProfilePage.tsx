@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import WaliSantriLayout from '@/layouts/WaliSantriLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +13,8 @@ import { Pencil, Key, User } from 'lucide-react';
 import ChangePasswordFormModal from '@/components/ChangePasswordFormModal';
 import { useNavigate } from 'react-router-dom';
 import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb'; // Import CustomBreadcrumb
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/slices/authSlice';
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -27,6 +30,7 @@ const UserProfilePage: React.FC = () => {
   const { data: profileData, isLoading, isError, error } = useGetProfileDetailsQuery();
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const navigate = useNavigate();
+  const currentUser = useSelector(selectCurrentUser);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Profil', icon: <User className="h-4 w-4" /> },
@@ -46,9 +50,17 @@ const UserProfilePage: React.FC = () => {
     setIsChangePasswordModalOpen(true);
   };
 
+  // Determine if user is Wali Santri
+  const isWaliSantri = currentUser?.roles?.some(role => role.name === 'orangtua');
+
+  const Layout = isWaliSantri ? WaliSantriLayout : DashboardLayout;
+  const layoutProps = isWaliSantri
+    ? { title: "Profil Pengguna", role: "wali-santri" as const }
+    : { title: "Profil Pengguna", role: "administrasi" as const };
+
   if (isLoading) {
     return (
-      <DashboardLayout title="Profil Pengguna" role="administrasi">
+      <Layout {...layoutProps}>
         <div className="w-full max-w-4xl mx-auto py-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
           <div className="mt-6">
@@ -84,7 +96,7 @@ const UserProfilePage: React.FC = () => {
             </Card>
           </div>
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
@@ -107,7 +119,7 @@ const UserProfilePage: React.FC = () => {
     }
 
     return (
-      <DashboardLayout title="Profil Pengguna" role="administrasi">
+      <Layout {...layoutProps}>
         <div className="w-full max-w-4xl mx-auto py-4 px-4">
           <CustomBreadcrumb items={breadcrumbItems} />
           <div className="mt-6">
@@ -116,7 +128,7 @@ const UserProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
@@ -124,7 +136,7 @@ const UserProfilePage: React.FC = () => {
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '-';
 
   return (
-    <DashboardLayout title="Profil Pengguna" role="administrasi">
+    <Layout {...layoutProps}>
       <div className="w-full max-w-4xl mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="mt-6">
@@ -185,7 +197,7 @@ const UserProfilePage: React.FC = () => {
         isOpen={isChangePasswordModalOpen}
         onClose={() => setIsChangePasswordModalOpen(false)}
       />
-    </DashboardLayout>
+    </Layout>
   );
 };
 
