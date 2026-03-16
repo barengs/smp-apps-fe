@@ -53,21 +53,51 @@ export interface AssignMenuPermissionsRequest {
 }
 
 // Helper function to normalize menu data (handle child vs children mismatch)
-const transformMenuData = (menus: MenuItem[]): MenuItem[] => {
-  return menus.map(menu => {
-    // If 'child' exists but 'children' is empty/undefined, use 'child'
-    const rawChildren = menu.child || menu.children || [];
-    
-    // Normalize children recursively
-    const children = rawChildren.length > 0 ? transformMenuData(rawChildren) : [];
-    
-    return {
-      ...menu,
-      children: children,
-      // Ensure we don't carry over the raw 'child' property to avoid confusion, 
-      // or keep it if needed but 'children' is the source of truth now.
-    };
+// Helper function to build tree from flat menu list if needed
+const buildMenuTree = (menus: MenuItem[]): MenuItem[] => {
+  if (!Array.isArray(menus)) return [];
+
+  const map: { [key: number]: MenuItem } = {};
+  const roots: MenuItem[] = [];
+
+  // First pass: Create map and normalize children
+  menus.forEach(menu => {
+    const rawChildren = menu.children || menu.child || [];
+    map[menu.id] = { ...menu, children: Array.isArray(rawChildren) ? [...rawChildren] : [] };
   });
+
+  // Second pass: Build hierarchy
+  menus.forEach(menu => {
+    const node = map[menu.id];
+    const parentId = menu.parent_id;
+
+    // Check if parentId is effectively a root (null, undefined, 0, or "0")
+    const isRoot = parentId === null || parentId === undefined || parentId === 0 || parentId === "0";
+
+    if (!isRoot) {
+      const pId = Number(parentId);
+      if (map[pId]) {
+        // Avoid duplicate additions
+        const alreadyAdded = map[pId].children.some(c => c.id === node.id);
+        if (!alreadyAdded) {
+          map[pId].children.push(node);
+        }
+      } else {
+        // Parent not found in map, treat as root for safety
+        roots.push(node);
+      }
+    } else {
+      roots.push(node);
+    }
+  });
+
+  // Sort roots by order if available
+  return roots.sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+};
+
+// Helper function to normalize menu data (legacy fallback)
+const transformMenuData = (menus: MenuItem[]): MenuItem[] => {
+  return buildMenuTree(menus);
 };
 
 export const menuApi = smpApi.injectEndpoints({
@@ -79,9 +109,8 @@ export const menuApi = smpApi.injectEndpoints({
     getUserMenus: builder.query<MenuItem[], void>({
       query: () => 'main/user/menus',
       transformResponse: (response: GetUserMenusResponse) => {
-        const tree = transformMenuData(response.data);
-        // Safeguard: Ensure only root items (no parent_id) are returned at the top level
-        return tree.filter(item => !item.parent_id);
+        // The tree builder already returns only the root nodes
+        return transformMenuData(response.data);
       },
       providesTags: ['UserMenus'],
     }),
@@ -91,7 +120,7 @@ export const menuApi = smpApi.injectEndpoints({
         method: 'POST',
         body: newMenu,
       }),
-      invalidatesTags: ['Menu'],
+      invalidatesTags: ['Menu', 'UserMenus'],
     }),
     updateMenu: builder.mutation<MenuItem, { id: number; data: CreateUpdateMenuRequest }>({
       query: ({ id, data }) => ({
@@ -99,7 +128,7 @@ export const menuApi = smpApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Menu'],
+      invalidatesTags: ['Menu', 'UserMenus'],
     }),
     // NEW: duplicate of updateMenu without invalidating tags, for batch updates
     updateMenuPosition: builder.mutation<MenuItem, { id: number; data: CreateUpdateMenuRequest }>({
@@ -114,7 +143,7 @@ export const menuApi = smpApi.injectEndpoints({
         url: `master/menu/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Menu'],
+      invalidatesTags: ['Menu', 'UserMenus'],
     }),
     // NEW: assign permissions to a specific menu
     assignMenuPermissions: builder.mutation<{ message: string }, { menuId: number; data: AssignMenuPermissionsRequest }>({
@@ -123,7 +152,7 @@ export const menuApi = smpApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Menu'],
+      invalidatesTags: ['Menu', 'UserMenus'],
     }),
   }),
 });

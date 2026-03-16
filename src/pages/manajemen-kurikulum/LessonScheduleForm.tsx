@@ -14,7 +14,7 @@ import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
-import { useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
+import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useCreateClassScheduleMutation, type CreateClassScheduleRequest } from '@/store/slices/classScheduleApi';
 
 interface LessonScheduleDetail {
@@ -41,6 +41,11 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const [session, setSession] = useState<string>('');
   const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
+  // Selection state for year and period
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('');
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
+
   // Fetch data for selects
   const { data: institutionsData } = useGetInstitusiPendidikanQuery({});
   const { data: classroomsData } = useGetClassroomsQuery();
@@ -48,6 +53,51 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery({});
   const { data: lessonHoursData } = useGetLessonHoursQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
+  const { data: academicYears = [] } = useGetTahunAjaranQuery();
+
+  // Unique years for selection
+  const yearOptions = React.useMemo(() => {
+    const years = new Set<string>();
+    academicYears.forEach(ay => { if (ay.year) years.add(ay.year); });
+    return Array.from(years).sort((a, b) => b.localeCompare(a));
+  }, [academicYears]);
+
+  // Set defaults when active academic year is loaded or when dialog opens
+  useEffect(() => {
+    if (isOpen && activeAcademicYear) {
+      setSelectedYear(activeAcademicYear.year);
+      setSelectedPeriod(activeAcademicYear.periode || '');
+      setSelectedAcademicYearId(String(activeAcademicYear.id));
+    }
+  }, [isOpen, activeAcademicYear]);
+
+  // Update available periods when year changes
+  const periodOptions = React.useMemo(() => {
+    if (!selectedYear) return [];
+    return academicYears
+      .filter(ay => ay.year === selectedYear)
+      .map(ay => ay.periode)
+      .filter((p): p is string => !!p);
+  }, [academicYears, selectedYear]);
+
+  // Sync selectedAcademicYearId when year or period changes
+  useEffect(() => {
+    if (selectedYear && selectedPeriod) {
+      const match = academicYears.find(ay => ay.year === selectedYear && ay.periode === selectedPeriod);
+      if (match) {
+        setSelectedAcademicYearId(String(match.id));
+      }
+    }
+  }, [selectedYear, selectedPeriod, academicYears]);
+
+  // Handle year change: auto-select first available period
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    const available = academicYears.filter(ay => ay.year === year);
+    if (available.length > 0) {
+      setSelectedPeriod(available[0].periode || '');
+    }
+  };
 
   // Kelas yang difilter berdasarkan Lembaga Pendidikan terpilih
   const filteredClassrooms = React.useMemo(() => {
@@ -90,7 +140,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const handleSubmit = async () => {
-    if (!activeAcademicYear?.id || !educationalInstitutionId || !session) {
+    if (!selectedAcademicYearId || !educationalInstitutionId || !session) {
       showError('Harap isi semua bidang yang diperlukan di header.');
       return;
     }
@@ -105,7 +155,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     }
 
     const payload: CreateClassScheduleRequest = {
-      academic_year_id: activeAcademicYear.id,
+      academic_year_id: parseInt(selectedAcademicYearId),
       educational_institution_id: parseInt(educationalInstitutionId),
       session: session.toLowerCase(),
       status: 'active',
@@ -178,19 +228,30 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         </DialogHeader>
         <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
           <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-5xl">
               <div>
                 <Label htmlFor="academicYear">{t('sidebar.academicYear')}</Label>
-                <Select value={activeAcademicYear?.id ? String(activeAcademicYear.id) : ''} disabled>
+                <Select value={selectedYear} onValueChange={handleYearChange}>
                   <SelectTrigger id="academicYear" className="w-full">
-                    <SelectValue placeholder={formatAcademicYearDisplay(activeAcademicYear)} />
+                    <SelectValue placeholder="Pilih Tahun" />
                   </SelectTrigger>
                   <SelectContent>
-                    {activeAcademicYear && (
-                      <SelectItem value={String(activeAcademicYear.id)}>
-                        {formatAcademicYearDisplay(activeAcademicYear)}
-                      </SelectItem>
-                    )}
+                    {yearOptions.map(year => (
+                      <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="periode">Periode / Cawu</Label>
+                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                  <SelectTrigger id="periode" className="w-full">
+                    <SelectValue placeholder="Pilih Periode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periodOptions.map(p => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -44,60 +44,60 @@ export interface CreateClassScheduleRequest {
 
 // --- Tipe respons untuk GET ---
 interface Teacher {
-    id: number;
-    first_name: string;
-    last_name: string;
-    gender: string;
-    nik: string | null;
-    nip: string | null;
-    email: string;
-    phone: string | null;
-    address: string | null;
-    village_id: string | null;
-    zip_code: string | null;
-    photo: string | null;
-    marital_status: string;
-    job_id: string | null;
-    status: string;
+  id: number;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  nik: string | null;
+  nip: string | null;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  village_id: string | null;
+  zip_code: string | null;
+  photo: string | null;
+  marital_status: string;
+  job_id: string | null;
+  status: string;
 }
 
 interface LessonHour {
-    id: number;
-    name: string;
-    start_time: string;
-    end_time: string;
-    order: string;
-    description: string;
+  id: number;
+  name: string;
+  start_time: string;
+  end_time: string;
+  order: string;
+  description: string;
 }
 
 interface Classroom {
-    id: number;
-    name: string;
-    parent_id: string | null;
-    description: string | null;
+  id: number;
+  name: string;
+  parent_id: string | null;
+  description: string | null;
 }
 
 interface ClassGroup {
-    id: number;
-    name: string;
-    classroom_id: string;
+  id: number;
+  name: string;
+  classroom_id: string;
 }
 
 interface Study {
-    id: number;
-    name: string;
-    description: string;
+  id: number;
+  name: string;
+  description: string;
 }
 
 interface AcademicYear {
-    id: number;
-    year: string;
-    active: boolean;
-    description: string | null;
+  id: number;
+  year: string;
+  active: boolean;
+  description: string | null;
 }
 
 // Struktur untuk satu item dalam array 'details'
-interface ClassScheduleDetail {
+export interface ClassScheduleDetail {
   id: number;
   class_schedule_id: string;
   classroom_id: string;
@@ -145,9 +145,9 @@ interface GetClassSchedulesRawResponse {
 
 // Respons POST
 interface CreateClassScheduleResponse {
-    message: string;
-    status: number;
-    data: any; // Data jadwal yang dibuat
+  message: string;
+  status: number;
+  data: any; // Data jadwal yang dibuat
 }
 
 // Respons untuk endpoint presensi baru
@@ -205,15 +205,16 @@ export const classScheduleApi = smpApi.injectEndpoints({
         if (params.search) queryParams.append('search', params.search);
         if (params.sort_by) queryParams.append('sort_by', params.sort_by);
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        if (params.academic_year_id) queryParams.append('academic_year_id', params.academic_year_id.toString());
         return `main/class-schedule?${queryParams.toString()}`;
       },
       transformResponse: (response: GetClassSchedulesRawResponse) => response.data, // Extract the PaginatedResponse
       providesTags: (result) =>
         result?.data
           ? [
-              ...result.data.map(({ id }) => ({ type: 'ClassSchedule' as const, id })),
-              { type: 'ClassSchedule', id: 'LIST' },
-            ]
+            ...result.data.map(({ id }) => ({ type: 'ClassSchedule' as const, id })),
+            { type: 'ClassSchedule', id: 'LIST' },
+          ]
           : [{ type: 'ClassSchedule', id: 'LIST' }],
     }),
     getPresenceByScheduleId: builder.query<GetPresenceResponse, number>({

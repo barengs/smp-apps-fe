@@ -57,19 +57,19 @@ interface StudentClassAssignment {
   approval_status: string;
 }
 
-const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({ 
-  isOpen, 
-  onClose, 
+const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
+  isOpen,
+  onClose,
   editMode = false,
   existingAssignments = [],
-  onAssignmentUpdate 
+  onAssignmentUpdate
 }) => {
   // Data fetching
-  const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery({});
+  const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery({ per_page: 9999 });
   const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
   const { data: institusiPendidikan, isLoading: isLoadingInstitusiPendidikan } = useGetInstitusiPendidikanQuery({});
   const { data: classroomsResponse, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery();
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({ per_page: 9999 });
   const [createStudentClass, { isLoading: isCreating }] = useCreateStudentClassMutation();
   const [updateStudentClass, { isLoading: isUpdating }] = useUpdateStudentClassMutation();
 
@@ -110,6 +110,25 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
     }
   }, [studentClassesResponse]);
 
+  // Auto-select students already in the target Classroom/Group
+  useEffect(() => {
+    if (selectedAcademicYear && selectedClassroom && selectedClassGroup && studentAssignments) {
+      const alreadyInClass = Object.values(studentAssignments)
+        .filter(a =>
+          String(a.academic_year_id) === selectedAcademicYear &&
+          String(a.classroom_id) === selectedClassroom &&
+          String(a.class_group_id) === selectedClassGroup
+        )
+        .map(a => a.student_id);
+
+      setSelectedStudents(prev => {
+        // Keep manually selected ones, but ensure current class members are present
+        const set = new Set([...prev, ...alreadyInClass]);
+        return Array.from(set);
+      });
+    }
+  }, [selectedAcademicYear, selectedClassroom, selectedClassGroup, studentAssignments]);
+
   const availableStudents = useMemo(() => {
     if (!studentsResponse || !Array.isArray(studentsResponse)) {
       return [];
@@ -118,18 +137,18 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
     // Filter students based on current selections
     return studentsResponse.filter(student => {
       const existingAssignment = studentAssignments[student.id];
-      
+
       // If student has no assignment, they can be selected
       if (!existingAssignment) {
         return true;
       }
-      
-      // If student has assignment in current academic year, they can be edited
+
+      // If student has assignment in current academic year, they can be edited/moved
       if (existingAssignment.academic_year_id.toString() === selectedAcademicYear) {
         return true;
       }
-      
-      // Otherwise, student is already assigned to different academic year
+
+      // Otherwise, student is already assigned to different academic year (cannot move across years in this form)
       return false;
     });
   }, [studentsResponse, studentAssignments, selectedAcademicYear]);
@@ -139,31 +158,39 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
     const term = searchTerm.trim().toLowerCase();
     const baseList = term
       ? availableStudents.filter((student) => {
-          const fullName = `${student.first_name} ${student.last_name || ''}`.trim().toLowerCase();
-          const nis = String(student.nis || '').toLowerCase();
-          return fullName.includes(term) || nis.includes(term);
-        })
+        const fullName = `${student.first_name} ${student.last_name || ''}`.trim().toLowerCase();
+        const nis = String(student.nis || '').toLowerCase();
+        return fullName.includes(term) || nis.includes(term);
+      })
       : availableStudents;
 
-    const hasAssignmentInCurrentYear = (studentId: number) => {
-      const assignment = studentAssignments[studentId];
-      return !!assignment && assignment.academic_year_id.toString() === selectedAcademicYear;
+    const getSortWeight = (studentId: number) => {
+      const a = studentAssignments[studentId];
+      if (!a || String(a.academic_year_id) !== selectedAcademicYear) return 0; // Top for unassigned
+
+      // If in current classroom + group => bottom
+      if (
+        String(a.classroom_id) === selectedClassroom &&
+        String(a.class_group_id) === selectedClassGroup
+      ) return 2; // Bottom
+
+      return 1; // Middle (in year but different class)
     };
 
     const normalizeName = (s: any) =>
       `${s.first_name} ${s.last_name || ''}`.trim().toLowerCase();
 
-    // Urutkan: yang sudah punya kelas (tahun ajaran terpilih) diletakkan di akhir
+    // Urutkan: unassigned (0) -> other class in year (1) -> current class members (2)
     return [...baseList].sort((a, b) => {
-      const aHas = hasAssignmentInCurrentYear(a.id);
-      const bHas = hasAssignmentInCurrentYear(b.id);
-      if (aHas !== bHas) {
-        return aHas ? 1 : -1;
+      const weightA = getSortWeight(a.id);
+      const weightB = getSortWeight(b.id);
+
+      if (weightA !== weightB) {
+        return weightA - weightB;
       }
-      // Urutan sekunder: nama untuk konsistensi
       return normalizeName(a).localeCompare(normalizeName(b));
     });
-  }, [availableStudents, searchTerm, selectedAcademicYear, studentAssignments]);
+  }, [availableStudents, searchTerm, selectedAcademicYear, studentAssignments, selectedClassroom, selectedClassGroup]);
 
   // Update: pilih semua/deselect hanya pada hasil filter yang sedang tampil
   const handleSelectAll = (checked: boolean) => {
@@ -195,7 +222,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
     }
 
     const toastId = showLoading('Menyimpan data kenaikan kelas...');
-    
+
     try {
       // Separate students into new assignments and updates
       const newAssignments: number[] = [];
@@ -248,14 +275,14 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
 
       dismissToast(toastId);
       showSuccess(`${selectedStudents.length} data kenaikan kelas berhasil disimpan.`);
-      
+
       // Reset form
       setSelectedStudents([]);
       setSelectedAcademicYear('');
       setSelectedLevel('');
       setSelectedClassroom('');
       setSelectedClassGroup('');
-      
+
       onClose();
       onAssignmentUpdate?.();
     } catch (error) {
@@ -294,15 +321,15 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
 
   const renderClassGroups = () => {
     if (!classroomsResponse?.data || !Array.isArray(classroomsResponse.data) || !selectedClassroom) return null;
-    
+
     const selectedClassroomData = classroomsResponse.data.find(
       (classroom: Classroom) => classroom.id.toString() === selectedClassroom
     );
-    
+
     if (!selectedClassroomData || !selectedClassroomData.class_groups || !Array.isArray(selectedClassroomData.class_groups)) {
       return null;
     }
-    
+
     return selectedClassroomData.class_groups.map(classGroup => (
       <SelectItem key={classGroup.id} value={classGroup.id.toString()}>{classGroup.name}</SelectItem>
     ));
@@ -312,11 +339,11 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
   const getStudentStatus = (studentId: number) => {
     const assignment = studentAssignments[studentId];
     if (!assignment) return { text: 'Belum ada kelas', className: 'text-gray-500' };
-    
+
     if (assignment.academic_year_id.toString() === selectedAcademicYear) {
       return { text: 'Sudah ada kelas (bisa diubah)', className: 'text-blue-600' };
     }
-    
+
     return { text: 'Sudah ada kelas di tahun ajaran lain', className: 'text-orange-600' };
   };
 
@@ -329,7 +356,7 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
             Pilih tahun ajaran, jenjang, dan kelas, lalu pilih siswa yang akan dimasukkan ke kelas tersebut.
           </DialogDescription>
         </DialogHeader>
-        
+
         {isLoading ? (
           <TableLoadingSkeleton />
         ) : (
@@ -375,35 +402,35 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
 
 
 
-              {/* Wrapper untuk konten siswa agar mengisi sisa ruang */}
-              <div className="flex-1 flex flex-col min-h-0 py-2">
-                <p className="text-sm font-medium mb-2">Pilih Siswa</p>
-                <div className="text-xs text-gray-600 mb-2">
-                  • Siswa yang belum memiliki kelas: dapat dipilih
-                  <br/>• Siswa yang sudah ada kelas di tahun ajaran ini: dapat diubah
-                  <br/>• Siswa yang sudah ada kelas di tahun ajaran lain: tidak dapat dipilih
-                </div>
-                
-                {/* Kolom pencarian siswa */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="relative w-full max-w-md">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Cari nama atau NIS siswa..."
-                      className="pl-8"
-                    />
-                  </div>
-                  {searchTerm && (
-                    <Button variant="outline" onClick={() => setSearchTerm('')}>
-                      Bersihkan
-                    </Button>
-                  )}
-                </div>
+            {/* Wrapper untuk konten siswa agar mengisi sisa ruang */}
+            <div className="flex-1 flex flex-col min-h-0 py-2">
+              <p className="text-sm font-medium mb-2">Pilih Siswa</p>
+              <div className="text-xs text-gray-600 mb-2">
+                • Siswa yang belum memiliki kelas: dapat dipilih
+                <br />• Siswa yang sudah ada kelas di tahun ajaran ini: dapat diubah
+                <br />• Siswa yang sudah ada kelas di tahun ajaran lain: tidak dapat dipilih
+              </div>
 
-                <ScrollArea className="flex-1 border rounded-md">
-                  <Table>
+              {/* Kolom pencarian siswa */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="relative w-full max-w-md">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Cari nama atau NIS siswa..."
+                    className="pl-8"
+                  />
+                </div>
+                {searchTerm && (
+                  <Button variant="outline" onClick={() => setSearchTerm('')}>
+                    Bersihkan
+                  </Button>
+                )}
+              </div>
+
+              <ScrollArea className="flex-1 border rounded-md">
+                <Table>
                   <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
                       <TableHead className="w-12 py-2">
@@ -446,8 +473,8 @@ const TambahKenaikanKelasForm: React.FC<TambahKenaikanKelasFormProps> = ({
                           {availableStudents.length > 0
                             ? 'Tidak ada siswa yang cocok dengan pencarian.'
                             : (studentsResponse && studentsResponse.length > 0
-                                ? 'Tidak ada siswa yang tersedia untuk tahun ajaran ini.'
-                                : 'Tidak ada data siswa yang tersedia.')}
+                              ? 'Tidak ada siswa yang tersedia untuk tahun ajaran ini.'
+                              : 'Tidak ada data siswa yang tersedia.')}
                         </TableCell>
                       </TableRow>
                     )}

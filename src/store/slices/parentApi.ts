@@ -137,9 +137,9 @@ export const parentApi = smpApi.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Parent' as const, id })),
-              { type: 'Parent', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'Parent' as const, id })),
+            { type: 'Parent', id: 'LIST' },
+          ]
           : [{ type: 'Parent', id: 'LIST' }],
     }),
     getParentById: builder.query<Parent, number>({
@@ -198,6 +198,22 @@ export const parentApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Parent', id: 'LIST' }],
     }),
+    // Upload foto wali santri secara terpisah
+    updateParentPhoto: builder.mutation<{ message: string; photo: string }, { id: number; photo: File }>({
+      query: ({ id, photo }) => {
+        const formData = new FormData();
+        formData.append('photo', photo);
+        return {
+          url: `main/parent/${id}/update-photo`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Parent', id },
+        { type: 'Parent', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -212,4 +228,5 @@ export const {
   useExportParentsMutation,
   useBackupParentsMutation,
   useImportParentsMutation,
+  useUpdateParentPhotoMutation,
 } = parentApi;

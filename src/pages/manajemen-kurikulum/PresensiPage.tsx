@@ -71,6 +71,11 @@ const PresensiPage: React.FC = () => {
 
     schedulesArray.forEach((schedule) => {
       if (schedule.details && Array.isArray(schedule.details)) {
+        // Hitung status presensi berdasarkan tahun ajaran aktif dan status jadwal
+        const isAcademicYearActive = schedule.academic_year?.active === true;
+        const isScheduleActive = schedule.status === 'aktif' || schedule.status === 'active';
+        const presensiStatus = (isAcademicYearActive && isScheduleActive) ? 'Aktif' : 'Belum Dimulai';
+
         schedule.details.forEach((detail) => {
           const teacher = detail.teacher;
           const classroom = detail.classroom;
@@ -87,7 +92,7 @@ const PresensiPage: React.FC = () => {
             kelas: classroom ? classroom.name : 'Tidak diketahui',
             rombel: classGroup ? classGroup.name : 'Tidak diketahui',
             tahunAjaran: academicYear ? (academicYear.year || (academicYear as any).name) : 'Tidak diketahui',
-            status: 'Belum dimulai',
+            status: presensiStatus,
           });
         });
       }
@@ -95,6 +100,7 @@ const PresensiPage: React.FC = () => {
 
     return processedData;
   }, [classSchedulesResponse, isLoadingSchedules]);
+
 
   // Opsi filter unik untuk Kelas dan Rombel
   const kelasOptions = React.useMemo(
@@ -152,8 +158,12 @@ const PresensiPage: React.FC = () => {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
+        const isAktif = status === 'Aktif';
         return (
-          <Badge variant="secondary">{status}</Badge>
+          <Badge variant={isAktif ? 'default' : 'secondary'}
+            className={isAktif ? 'bg-green-500 hover:bg-green-600 text-white' : ''}>
+            {status}
+          </Badge>
         );
       },
     },
@@ -208,10 +218,10 @@ const PresensiPage: React.FC = () => {
             {isLoadingSchedules ? (
               <TableLoadingSkeleton />
             ) : (
-              <DataTable 
-                columns={columns} 
-                data={presensiData} 
-                exportFileName="data-presensi" 
+              <DataTable
+                columns={columns}
+                data={presensiData}
+                exportFileName="data-presensi"
                 exportTitle="Data Presensi"
                 onRowClick={handleRowClick}
                 filterableColumns={{
@@ -225,7 +235,16 @@ const PresensiPage: React.FC = () => {
                     placeholder: 'Rombel',
                     options: rombelOptions,
                   },
+                  status: {
+                    type: 'select',
+                    placeholder: 'Status',
+                    options: [
+                      { label: 'Aktif', value: 'Aktif' },
+                      { label: 'Belum Dimulai', value: 'Belum Dimulai' },
+                    ],
+                  },
                 }}
+
               />
             )}
           </CardContent>

@@ -5,7 +5,7 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { BookCopy, TrendingUp, PlusCircle, FileText, CheckCircle2 } from 'lucide-react';
 import { useGetStudentClassesQuery, useUpdateStudentClassMutation } from '@/store/slices/studentClassApi';
 import { useGetStudentsQuery } from '@/store/slices/studentApi';
-import { useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
+import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,7 @@ import { PaginationState } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Tipe data untuk baris tabel kenaikan kelas
 interface PromotionData {
@@ -68,25 +69,42 @@ export default function KenaikanKelasPage() {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/kenaikan-kelas', icon: <BookCopy className="h-4 w-4" /> },
     { label: 'Kenaikan Kelas', icon: <TrendingUp className="h-4 w-4" /> },
   ];
 
-  // Mengambil data dari endpoint main/student-class dengan pagination
-  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses } = useGetStudentClassesQuery({
+  // Get active academic year for initial default
+  const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
+  // Fetch all academic years for selection
+  const { data: academicYears = [], isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
+
+  React.useEffect(() => {
+    if (activeAcademicYear && !selectedAcademicYearId) {
+      setSelectedAcademicYearId(activeAcademicYear.id.toString());
+    }
+  }, [activeAcademicYear, selectedAcademicYearId]);
+
+  // Reset pagination when year changes
+  React.useEffect(() => {
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+  }, [selectedAcademicYearId]);
+
+  // Mengambil data dari endpoint main/student-class dengan pagination dan filter tahun ajaran
+  const { data: studentClassesResponse, isLoading: isLoadingStudentClasses, isFetching: isFetchingStudentClasses } = useGetStudentClassesQuery({
     page: pagination.pageIndex + 1,
     per_page: pagination.pageSize,
+    academic_year_id: selectedAcademicYearId || undefined,
   });
   const { data: studentsResponse, isLoading: isLoadingStudents } = useGetStudentsQuery({});
-  const { data: academicYears, isLoading: isLoadingAcademicYears } = useGetTahunAjaranQuery();
   const { data: institusiPendidikan, isLoading: isLoadingInstitusiPendidikan } = useGetInstitusiPendidikanQuery({});
   const { data: classroomsResponse, isLoading: isLoadingClassrooms } = useGetClassroomsQuery();
   const [deleteStudentClass] = useDeleteStudentClassMutation();
   const [updateStudentClass] = useUpdateStudentClassMutation();
 
-  const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms;
+  const isLoading = isLoadingStudentClasses || isLoadingStudents || isLoadingAcademicYears || isLoadingInstitusiPendidikan || isLoadingClassrooms || isFetchingStudentClasses;
 
   // Filter exact match untuk select filters (case-insensitive)
   const equalsStringFilter: FilterFn<PromotionData> = (row, columnId, filterValue) => {
@@ -124,7 +142,7 @@ export default function KenaikanKelasPage() {
       const classroom = studentClass.classrooms; // Data classroom sudah tersedia di response
       const education = studentClass.educations; // Data education/jenjang pendidikan sudah tersedia di response
       const classGroup = studentClass.class_group; // Data rombel sudah tersedia di response
-      
+
       // Untuk jenjang pendidikan, gunakan langsung dari properti educations.name
       const jenjangPendidikan = education?.institution_name || 'Tidak diketahui';
 
@@ -141,10 +159,10 @@ export default function KenaikanKelasPage() {
         education_id: studentClass.education_id,
         class_group_id: classGroup?.id ?? null,
       };
-      
+
       return result;
     });
-  }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading]);
+  }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading, selectedAcademicYearId]);
 
   // Bersihkan seleksi jika data berubah drastis atau status jadi disetujui
   React.useEffect(() => {
@@ -180,10 +198,10 @@ export default function KenaikanKelasPage() {
     setIsUpdatingStatus(true);
     try {
       // Gunakan endpoint yang sesuai
-      const endpoint = action === 'approve' 
+      const endpoint = action === 'approve'
         ? `main/student-class/${selectedPromotion.id}/approve`
         : `main/student-class/${selectedPromotion.id}/reject`;
-      
+
       await updateStudentClass({
         id: selectedPromotion.id,
         data: {
@@ -453,18 +471,35 @@ export default function KenaikanKelasPage() {
       <div className="container mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
-          <CardHeader>
-            <CardTitle>Kenaikan Kelas</CardTitle>
-            <CardDescription>Daftar siswa untuk proses kenaikan kelas berdasarkan data kelas saat ini.</CardDescription>
+          <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <CardTitle>Kenaikan Kelas</CardTitle>
+              <CardDescription>Daftar siswa untuk proses kenaikan kelas berdasarkan data kelas saat ini.</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Tahun Ajaran:</span>
+              <Select value={selectedAcademicYearId} onValueChange={setSelectedAcademicYearId}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Pilih Tahun Ajaran" />
+                </SelectTrigger>
+                <SelectContent>
+                  {academicYears.map((ay: any) => (
+                    <SelectItem key={ay.id} value={ay.id.toString()}>
+                      {ay.year} {ay.periode ? `(${ay.periode})` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <TableLoadingSkeleton />
             ) : (
-              <DataTable 
-                columns={columns} 
-                data={promotionData} 
-                exportFileName="data-kenaikan-kelas" 
+              <DataTable
+                columns={columns}
+                data={promotionData}
+                exportFileName="data-kenaikan-kelas"
                 exportTitle="Data Kenaikan Kelas"
                 onAddData={handleAddData}
                 onAssignment={handleAssignment}

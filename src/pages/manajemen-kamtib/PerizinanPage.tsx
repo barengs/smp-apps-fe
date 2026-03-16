@@ -88,11 +88,17 @@ const IssuePermissionDialog: React.FC<{
     };
 
     // KIRIM KE BACKEND
-    await createStudentLeave(payload).unwrap();
-    toast.showSuccess(t('permission.form.issueSuccess'));
-    reset();
-    onOpenChange(false);
-    onCreated?.();
+    try {
+      await createStudentLeave(payload).unwrap();
+      toast.showSuccess(t('permission.form.issueSuccess'));
+      reset();
+      onOpenChange(false);
+      onCreated?.();
+    } catch (error: any) {
+      console.error('Failed to create student leave:', error);
+      const message = error.data?.message || t('common.error.unexpected');
+      toast.showError(message);
+    }
   };
 
   const handleSaveAndPrint = async () => {
@@ -115,12 +121,18 @@ const IssuePermissionDialog: React.FC<{
     };
 
     // KIRIM KE BACKEND, lalu print
-    await createStudentLeave(payload).unwrap();
-    toast.showSuccess(t('permission.form.issueSuccess'));
-    reset();
-    onOpenChange(false);
-    onCreated?.();
-    setTimeout(() => window.print(), 300);
+    try {
+      await createStudentLeave(payload).unwrap();
+      toast.showSuccess(t('permission.form.issueSuccess'));
+      reset();
+      onOpenChange(false);
+      onCreated?.();
+      setTimeout(() => window.print(), 300);
+    } catch (error: any) {
+      console.error('Failed to create student leave and print:', error);
+      const message = error.data?.message || t('common.error.unexpected');
+      toast.showError(message);
+    }
   };
 
   return (
@@ -294,6 +306,10 @@ const ReturnReportDialog: React.FC<{
       onOpenChange(false);
       onSubmitted?.();
       reset();
+    } catch (error: any) {
+      console.error('Failed to submit return report:', error);
+      const message = error.data?.message || 'Gagal mengirim pelaporan pengembalian.';
+      toast.showError(message);
     } finally {
       toast.dismissToast(loadingId);
     }
@@ -415,10 +431,10 @@ const PerizinanPage: React.FC = () => {
           statusRaw === 'approved' || statusRaw === 'returned' || statusRaw === 'completed'
             ? 'success'
             : statusRaw === 'pending' || statusRaw === 'requested' || statusRaw === 'in_progress'
-            ? 'warning'
-            : statusRaw === 'rejected' || statusRaw === 'cancelled' || statusRaw === 'overdue'
-            ? 'destructive'
-            : 'secondary';
+              ? 'warning'
+              : statusRaw === 'rejected' || statusRaw === 'cancelled' || statusRaw === 'overdue'
+                ? 'destructive'
+                : 'secondary';
         const label =
           statusRaw
             ? statusRaw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())

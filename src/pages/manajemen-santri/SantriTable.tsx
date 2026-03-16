@@ -96,8 +96,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
           student.gender === 'L'
             ? 'Laki-Laki'
             : student.gender === 'P'
-            ? 'Perempuan'
-            : 'Tidak Diketahui',
+              ? 'Perempuan'
+              : 'Tidak Diketahui',
         status: student.status,
         programName: student.program ? student.program.name : '',
         created_at: student.created_at,
@@ -149,9 +149,6 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     },
     [santriList]
   );
-
-  // Pagination client-side
-  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(santriList, 10);
 
   const handleRowClick = (santri: Santri) => {
     navigate(`/dashboard/santri/${santri.id}`);
@@ -276,7 +273,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     <>
       <DataTable
         columns={columns}
-        data={paginatedData}
+        data={santriList}
         exportFileName="data_santri"
         exportTitle="Data Santri Pesantren"
         onRowClick={handleRowClick}
@@ -288,9 +285,6 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         }}
         onAddData={onAddData}
         onSortingChange={setSorting}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        pageCount={pageCount}
         totalItems={santriList.length}
         addButtonLabel="Tambah Santri"
         exportImportElement={

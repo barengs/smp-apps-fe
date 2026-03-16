@@ -76,6 +76,7 @@ interface GetStudentClassesParams {
   page?: number;
   per_page?: number;
   approval_status?: string;
+  academic_year_id?: string | number;
 }
 
 export const studentClassApi = smpApi.injectEndpoints({
@@ -87,6 +88,7 @@ export const studentClassApi = smpApi.injectEndpoints({
           if (params.page) queryParams.append('page', params.page.toString());
           if (params.per_page) queryParams.append('per_page', params.per_page.toString());
           if (params.approval_status) queryParams.append('approval_status', params.approval_status);
+          if (params.academic_year_id) queryParams.append('academic_year_id', params.academic_year_id.toString());
         }
         return `main/student-class?${queryParams.toString()}`;
       },
@@ -156,9 +158,9 @@ export const studentClassApi = smpApi.injectEndpoints({
       providesTags: (result) =>
         result && Array.isArray(result)
           ? [
-              ...result.map(({ id }) => ({ type: 'Student' as const, id })),
-              { type: 'Student', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'Student' as const, id })),
+            { type: 'Student', id: 'LIST' },
+          ]
           : [{ type: 'Student', id: 'LIST' }],
     }),
   }),

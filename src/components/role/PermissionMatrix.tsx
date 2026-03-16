@@ -14,20 +14,32 @@ interface PermissionMatrixProps {
   readOnly?: boolean;
 }
 
-const STANDARD_PERMISSIONS = ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'APPROVE'];
+const STANDARD_PERMISSIONS = ['VIEW', 'CREATE', 'EDIT', 'DELETE', 'APPROVE'] as const;
+type StandardPermission = typeof STANDARD_PERMISSIONS[number];
+
+const VERB_MAP: Record<StandardPermission, string[]> = {
+  VIEW: ['lihat', 'view', 'read'],
+  CREATE: ['buat', 'create', 'add', 'tambah'],
+  EDIT: ['ubah', 'edit', 'update', 'perbarui'],
+  DELETE: ['hapus', 'delete', 'remove'],
+  APPROVE: ['setuju', 'approve', 'konfirmasi', 'aktivasi'],
+};
 
 // Flatten menu tree to list with depth information and unique keys
 const flattenMenus = (menus: MenuItem[], depth = 0, parentPath = ''): Array<MenuItem & { depth: number; uniqueKey: string }> => {
   const result: Array<MenuItem & { depth: number; uniqueKey: string }> = [];
-  
+
   for (const menu of menus) {
     const uniqueKey = parentPath ? `${parentPath}-${menu.id}` : `${menu.id}`;
     result.push({ ...menu, depth, uniqueKey });
-    if (menu.child && menu.child.length > 0) {
-      result.push(...flattenMenus(menu.child, depth + 1, uniqueKey));
+
+    // Support both 'child' and 'children' properties for recursion
+    const children = menu.children || menu.child;
+    if (children && children.length > 0) {
+      result.push(...flattenMenus(children, depth + 1, uniqueKey));
     }
   }
-  
+
   return result;
 };
 
@@ -50,12 +62,24 @@ export const PermissionMatrix: React.FC<PermissionMatrixProps> = ({
   }, [flatMenus, searchTerm]);
 
   const getMenuPermissions = (menuId: number): PermissionMatrixItem | undefined => {
-    return value.find(item => item.menu_id === menuId);
+    // Backend might return menu_id as string in pivot, standardize to number for comparison
+    return value.find(item => Number(item.menu_id) === Number(menuId));
   };
 
-  const hasPermission = (menuId: number, permission: string): boolean => {
+  const hasPermission = (menuId: number, permission: StandardPermission): boolean => {
     const menuPerms = getMenuPermissions(menuId);
-    return menuPerms?.permissions.includes(permission) || false;
+    if (!menuPerms) return false;
+
+    const verbs = VERB_MAP[permission] || [];
+
+    // Check for direct match (e.g. 'VIEW') or verb match (e.g. 'lihat', 'view')
+    return menuPerms.permissions.some(p => {
+      const lowerP = p.toLowerCase();
+      // Direct match with the standard permission name
+      if (lowerP === permission.toLowerCase()) return true;
+      // Verb-based match for Indonesian/English verbs
+      return verbs.some(verb => lowerP.startsWith(verb) || lowerP === verb);
+    });
   };
 
   const getCustomPermissions = (menuId: number): string[] => {
@@ -66,36 +90,44 @@ export const PermissionMatrix: React.FC<PermissionMatrixProps> = ({
   const togglePermission = (menuId: number, permission: string, checked: boolean) => {
     if (readOnly) return;
 
+    const standardPermission = permission.toUpperCase(); // Always store as 'VIEW', 'CREATE', etc.
     const newMatrix = [...value];
     const existingIndex = newMatrix.findIndex(item => item.menu_id === menuId);
 
     if (existingIndex >= 0) {
-      const existing = newMatrix[existingIndex];
+      const existing = { ...newMatrix[existingIndex] };
       if (checked) {
-        // Add permission
-        if (!existing.permissions.includes(permission)) {
-          existing.permissions = [...existing.permissions, permission];
+        // Add the standard permission if not already present
+        const hasPerm = existing.permissions.some(p =>
+          p.toUpperCase() === standardPermission
+        );
+        if (!hasPerm) {
+          existing.permissions = [...existing.permissions, standardPermission];
         }
       } else {
-        // Remove permission
-        existing.permissions = existing.permissions.filter(p => p !== permission);
+        // Remove the standard permission
+        existing.permissions = existing.permissions.filter(p =>
+          p.toUpperCase() !== standardPermission
+        );
       }
+      newMatrix[existingIndex] = existing;
 
       // Remove menu from matrix if no permissions left
       if (existing.permissions.length === 0 && (!existing.custom_permissions || existing.custom_permissions.length === 0)) {
         newMatrix.splice(existingIndex, 1);
       }
     } else if (checked) {
-      // Add new menu with permission
+      // Add new menu entry with the standard permission
       newMatrix.push({
         menu_id: menuId,
-        permissions: [permission],
+        permissions: [standardPermission],
         custom_permissions: [],
       });
     }
 
     onChange(newMatrix);
   };
+
 
   const addCustomPermission = (menuId: number, permissionName: string) => {
     if (readOnly || !permissionName.trim()) return;

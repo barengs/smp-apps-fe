@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast';
-import { useCreateMenuMutation, useUpdateMenuMutation, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
+import { useCreateMenuMutation, useUpdateMenuMutation, useGetMenuQuery, type CreateUpdateMenuRequest } from '@/store/slices/menuApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { IconPicker } from '@/components/IconPicker';
@@ -37,7 +37,7 @@ const formSchema = z.object({
   route: z.string().min(1, {
     message: 'Rute tidak boleh kosong.',
   }),
-  type: z.enum(['main', 'sub-menu', 'external'], { // Diubah dari 'sub' menjadi 'sub-menu'
+  type: z.enum(['main', 'submenu', 'link', 'external'], {
     required_error: 'Tipe harus dipilih.',
   }),
   position: z.enum(['sidebar', 'header', 'footer'], {
@@ -49,6 +49,10 @@ const formSchema = z.object({
   order: z.preprocess(
     (val) => (val === "" ? null : Number(val)),
     z.number().int().min(0).nullable().optional()
+  ),
+  parent_id: z.preprocess(
+    (val) => (val === "" || val === "null" || val === null ? null : Number(val)),
+    z.number().int().nullable().optional()
   ),
 });
 
@@ -65,6 +69,7 @@ interface MenuFormProps {
     position: string;
     status: string;
     order: number | null;
+    parent_id: number | null;
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -72,7 +77,8 @@ interface MenuFormProps {
 
 const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [createMenu, { isLoading: isCreating }] = useCreateMenuMutation();
-  const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation(); 
+  const [updateMenu, { isLoading: isUpdating }] = useUpdateMenuMutation();
+  const { data: menuData, isLoading: isLoadingMenus } = useGetMenuQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,10 +89,11 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       description: initialData.description,
       icon: initialData.icon,
       route: initialData.route,
-      type: initialData.type as "main" | "sub-menu" | "external", // Diubah dari 'sub' menjadi 'sub-menu'
-      position: initialData.position as "sidebar" | "header" | "footer",
-      status: initialData.status as "active" | "inactive",
+      type: (initialData.type === 'sub-menu' ? 'submenu' : initialData.type) as any,
+      position: initialData.position as any,
+      status: initialData.status as any,
       order: initialData.order,
+      parent_id: initialData.parent_id,
     } : {
       title: '',
       en_title: '',
@@ -98,6 +105,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       position: 'sidebar',
       status: 'active',
       order: null,
+      parent_id: null,
     },
   });
 
@@ -113,13 +121,14 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
       position: values.position,
       status: values.status,
       order: values.order,
+      parent_id: values.parent_id,
     };
 
     console.log('Payload being sent for update:', payload);
 
     try {
       if (initialData) {
-        await updateMenu({ id: initialData.id, data: payload }).unwrap(); 
+        await updateMenu({ id: initialData.id, data: payload }).unwrap();
         showSuccess(`Item navigasi "${values.title}" berhasil diperbarui.`);
       } else {
         await createMenu(payload).unwrap();
@@ -144,7 +153,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
     }
   };
 
-  const isSubmitting = isCreating || isUpdating; 
+  const isSubmitting = isCreating || isUpdating;
 
   return (
     <Form {...form}>
@@ -163,32 +172,32 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
           )}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <FormField
-              control={form.control}
-              name="en_title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Judul (Inggris)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="English Title" {...field} value={field.value || ''} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="ar_title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Judul (Arab)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Arabic Title" {...field} value={field.value || ''} className="text-right" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="en_title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Judul (Inggris)</FormLabel>
+                <FormControl>
+                  <Input placeholder="English Title" {...field} value={field.value || ''} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="ar_title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Judul (Arab)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Arabic Title" {...field} value={field.value || ''} className="text-right" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
         <FormField
           control={form.control}
@@ -197,7 +206,7 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
             <FormItem>
               <FormLabel>Rute</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: /dashboard/administrasi" {...field} disabled={!!initialData} />
+                <Input placeholder="Contoh: /dashboard/administrasi" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -229,14 +238,14 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="type"
             render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipe</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormItem>
+                <FormLabel>Tipe</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih tipe" />
@@ -244,21 +253,54 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="main">Utama</SelectItem>
-                    <SelectItem value="sub-menu">Sub-Menu</SelectItem> {/* Diubah dari 'sub' menjadi 'sub-menu' */}
+                    <SelectItem value="submenu">Sub-Menu</SelectItem>
+                    <SelectItem value="link">Tautan</SelectItem>
                     <SelectItem value="external">Eksternal</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
-            </FormItem>
-          )}
-        />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="parent_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Induk Menu (Parent)</FormLabel>
+                <Select
+                  onValueChange={(val) => field.onChange(val === "null" ? null : Number(val))}
+                  value={field.value !== null && field.value !== undefined ? String(field.value) : "null"}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih induk (opsional)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="null">Tanpa Induk (Root)</SelectItem>
+                    {menuData?.data
+                      ?.filter(m => m.id !== initialData?.id)
+                      ?.map(m => (
+                        <SelectItem key={m.id} value={String(m.id)}>
+                          {m.id_title}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="position"
             render={({ field }) => (
-            <FormItem>
-              <FormLabel>Posisi</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormItem>
+                <FormLabel>Posisi</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih posisi" />
@@ -271,16 +313,16 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </SelectContent>
                 </Select>
                 <FormMessage />
-            </FormItem>
-          )}
-        />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status" />
@@ -292,9 +334,9 @@ const MenuForm: React.FC<MenuFormProps> = ({ initialData, onSuccess, onCancel })
                   </SelectContent>
                 </Select>
                 <FormMessage />
-            </FormItem>
-          )}
-        />
+              </FormItem>
+            )}
+          />
         </div>
         <FormField
           control={form.control}

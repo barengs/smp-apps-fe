@@ -15,10 +15,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ActionButton from '@/components/ActionButton';
 import SantriViolationTimeline from '@/components/SantriViolationTimeline';
 import StudentPhotoUploadDialog from '@/components/StudentPhotoUploadDialog';
+import AssignRoomDialog from '@/components/AssignRoomDialog';
 import { useReactToPrint } from 'react-to-print';
-import { 
-  useGetStudentCardQuery, 
-  useCreateStudentCardMutation, 
+import { useGetStudentRoomHistoryQuery } from '@/store/slices/studentApi';
+import {
+  useGetStudentCardQuery,
+  useCreateStudentCardMutation,
   useGetStudentCardSettingsQuery,
   useDeactivateStudentCardMutation
 } from '@/store/slices/studentCardApi';
@@ -37,19 +39,21 @@ const SantriDetailPage: React.FC = () => {
   const santriId = parseInt(id || '', 10);
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
+  const [isAssignRoomDialogOpen, setIsAssignRoomDialogOpen] = useState(false);
 
   // Queries
   const { data: responseData, error, isLoading } = useGetStudentByIdQuery(santriId, { skip: isNaN(santriId) });
-  
+  const { data: roomHistoryResponse, isLoading: isLoadingRoomHistory } = useGetStudentRoomHistoryQuery(santriId, { skip: isNaN(santriId) });
+
   // Student Card Logic
   const santri = responseData;
   const skipCardQuery = !santri?.nis;
-  const { 
-    data: cardResponse, 
-    isLoading: isCardLoading, 
-    refetch: refetchCard 
+  const {
+    data: cardResponse,
+    isLoading: isCardLoading,
+    refetch: refetchCard
   } = useGetStudentCardQuery(santri?.nis || '', { skip: skipCardQuery });
-  
+
   const { data: settingsResponse } = useGetStudentCardSettingsQuery();
   const [createCard, { isLoading: isCreatingCard }] = useCreateStudentCardMutation();
   const [deactivateCard, { isLoading: isDeactivatingCard }] = useDeactivateStudentCardMutation();
@@ -57,14 +61,14 @@ const SantriDetailPage: React.FC = () => {
   const cardComponentRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    content: () => cardComponentRef.current,
+    contentRef: cardComponentRef,
     documentTitle: `Kartu-Santri-${responseData?.nis || santriId}`,
     pageStyle: `@page { size: auto; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`,
     onAfterPrint: () => {
       toast.showSuccess('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
-  } as any);
+  });
 
   const handleCreateCard = async () => {
     try {
@@ -79,7 +83,7 @@ const SantriDetailPage: React.FC = () => {
   const handleDeactivateCard = async () => {
     if (!cardResponse?.data?.card?.id) return;
     if (!confirm('Apakah anda yakin ingin menonaktifkan kartu ini?')) return;
-    
+
     try {
       await deactivateCard(cardResponse.data.card.id).unwrap();
       toast.showSuccess('Kartu santri berhasil dinonaktifkan.');
@@ -108,30 +112,30 @@ const SantriDetailPage: React.FC = () => {
   ];
 
   const getParentLinks = (parentsData: any): React.ReactNode => {
-     if (!parentsData) return 'Tidak ada data orang tua';
-     const parentsArray = Array.isArray(parentsData) ? parentsData : [parentsData];
-     
-     const links = parentsArray
-       .filter((p: any) => p && p.user_id)
-       .map((p: any, index: number) => (
-         <React.Fragment key={p.user_id}>
-           <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
-             {`${p.first_name} ${p.last_name || ''}`.trim()}
-           </Link>
-           {index < parentsArray.length - 1 && ', '}
-         </React.Fragment>
-       ));
+    if (!parentsData) return 'Tidak ada data orang tua';
+    const parentsArray = Array.isArray(parentsData) ? parentsData : [parentsData];
 
-      return links.length > 0 ? links : 'Format data orang tua tidak dikenali';
+    const links = parentsArray
+      .filter((p: any) => p && p.user_id)
+      .map((p: any, index: number) => (
+        <React.Fragment key={p.user_id}>
+          <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
+            {`${p.first_name} ${p.last_name || ''}`.trim()}
+          </Link>
+          {index < parentsArray.length - 1 && ', '}
+        </React.Fragment>
+      ));
+
+    return links.length > 0 ? links : 'Format data orang tua tidak dikenali';
   };
 
   return (
     <>
       <DashboardLayout title="Detail Santri" role="administrasi">
         {isLoading ? (
-             <div className="container mx-auto py-4 px-4"><Skeleton className="h-96 w-full" /></div>
+          <div className="container mx-auto py-4 px-4"><Skeleton className="h-96 w-full" /></div>
         ) : (!santri ? (
-             <div className="p-4 text-center">Santri tidak ditemukan</div>
+          <div className="p-4 text-center">Santri tidak ditemukan</div>
         ) : (
           <div className="container mx-auto pb-4 px-4">
             <CustomBreadcrumb items={breadcrumbItems} />
@@ -188,7 +192,7 @@ const SantriDetailPage: React.FC = () => {
                 </Card>
               </div>
               <div className="lg:w-1/3">
-                 <Card>
+                <Card>
                   <CardHeader><CardTitle>Informasi Tambahan</CardTitle></CardHeader>
                   <CardContent>
                     <Tabs defaultValue="pendidikan">
@@ -197,14 +201,57 @@ const SantriDetailPage: React.FC = () => {
                         <TabsTrigger value="prestasi">Prestasi</TabsTrigger>
                         <TabsTrigger value="pelanggaran">Pelanggaran</TabsTrigger>
                       </TabsList>
-                       <TabsContent value="pelanggaran" className="mt-4"><SantriViolationTimeline studentId={santri.id} /></TabsContent>
-                       <TabsContent value="pendidikan" className="mt-4"><p className="text-sm text-gray-500">Data pendidikan.</p></TabsContent>
-                       <TabsContent value="prestasi" className="mt-4"><p className="text-sm text-gray-500">Data prestasi.</p></TabsContent>
+                      <TabsContent value="pelanggaran" className="mt-4"><SantriViolationTimeline studentId={santri.id} /></TabsContent>
+                      <TabsContent value="pendidikan" className="mt-4"><p className="text-sm text-gray-500">Data pendidikan.</p></TabsContent>
+                      <TabsContent value="prestasi" className="mt-4"><p className="text-sm text-gray-500">Data prestasi.</p></TabsContent>
                     </Tabs>
                   </CardContent>
-                 </Card>
+                </Card>
               </div>
             </div>
+
+            <Card className="mt-6">
+              <CardHeader className="flex flex-row items-start justify-between pb-4">
+                <div className="space-y-1">
+                  <CardTitle>Asrama & Riwayat Mutasi</CardTitle>
+                  <CardDescription>Informasi penempatan asrama dan riwayat perpindahan santri.</CardDescription>
+                </div>
+                <Button onClick={() => setIsAssignRoomDialogOpen(true)} className="shrink-0 ml-4">
+                  Mutasi Asrama
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {roomHistoryResponse?.data && roomHistoryResponse.data.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {roomHistoryResponse.data.map((history) => (
+                      <div key={history.id} className={`p-4 rounded-lg border flex flex-col gap-2 ${history.is_active ? 'border-primary/50 bg-primary/5' : 'bg-white shadow-sm'}`}>
+                        <div className="flex justify-between items-start gap-2">
+                          <span className="font-semibold text-gray-900 leading-tight">
+                            {history.hostel_name} - {history.room_name}
+                          </span>
+                          {history.is_active && <Badge variant="default" className="shrink-0">Aktif</Badge>}
+                        </div>
+                        <div className="text-gray-500 text-sm">
+                          {new Date(history.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {' s/d '}
+                          {history.end_date ? new Date(history.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Sekarang'}
+                        </div>
+                        {history.notes && (
+                          <div className="italic text-gray-600 mt-1 text-sm bg-white/50 p-2 rounded border border-gray-100">
+                            Catatan: {history.notes}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 border-2 border-dashed rounded-lg">
+                    Belum ada data riwayat asrama untuk santri ini.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
           </div>
         ))}
       </DashboardLayout>
@@ -214,6 +261,12 @@ const SantriDetailPage: React.FC = () => {
         onOpenChange={setIsPhotoDialogOpen}
         studentId={santriId}
         currentPhotoUrl={santri?.photo ? `${STORAGE_BASE_URL}${santri.photo}` : undefined}
+      />
+
+      <AssignRoomDialog
+        open={isAssignRoomDialogOpen}
+        onOpenChange={setIsAssignRoomDialogOpen}
+        studentId={santriId}
       />
 
       <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
@@ -226,17 +279,17 @@ const SantriDetailPage: React.FC = () => {
           </DialogHeader>
           <div className="my-6 flex flex-col items-center min-h-[300px] justify-center">
             {isCardLoading ? (
-               <Skeleton className="w-[85.6mm] h-[53.98mm]" />
+              <Skeleton className="w-[85.6mm] h-[53.98mm]" />
             ) : (!cardResponse?.data ? (
-               <div className="text-center space-y-4">
-                 <div className="text-red-500 font-medium">Santri ini belum memiliki kartu (Data kartu tidak ditemukan).</div>
-                 <Button onClick={handleCreateCard} disabled={isCreatingCard} variant="primary">
-                   {isCreatingCard ? 'Membuat...' : 'Buat Kartu Santri Sekarang'}
-                 </Button>
-               </div>
+              <div className="text-center space-y-4">
+                <div className="text-red-500 font-medium">Santri ini belum memiliki kartu (Data kartu tidak ditemukan).</div>
+                <Button onClick={handleCreateCard} disabled={isCreatingCard} variant="primary">
+                  {isCreatingCard ? 'Membuat...' : 'Buat Kartu Santri Sekarang'}
+                </Button>
+              </div>
             ) : (
-               <>
-               <DebitStudentCard 
+              <>
+                <DebitStudentCard
                   student={{
                     name: cardResponse.data.student_details.name,
                     nis: santri?.nis || '-',
@@ -255,70 +308,70 @@ const SantriDetailPage: React.FC = () => {
                     stamp: settingsResponse?.data?.stamp || null,
                     signature: settingsResponse?.data?.signature || null,
                   }}
-               />
-               {cardResponse.data.card.is_active === false && (
+                />
+                {cardResponse.data.card.is_active === false && (
                   <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-center w-full max-w-md">
-                     <p className="text-red-600 font-semibold mb-1">Status Kartu: Tidak Aktif</p>
+                    <p className="text-red-600 font-semibold mb-1">Status Kartu: Tidak Aktif</p>
                     <p className="text-xs text-red-500">Kartu ini telah dinonaktifkan. Silakan buat kartu baru jika diperlukan.</p>
                   </div>
-               )}
-               </>
+                )}
+              </>
             ))}
           </div>
           <DialogFooter>
-             <div className="flex w-full justify-between items-center">
-                <div>
-                   {cardResponse?.data && (
-                      cardResponse.data.card.is_active ? (
-                        <Button variant="danger" onClick={handleDeactivateCard} disabled={isDeactivatingCard}>
-                          {isDeactivatingCard ? 'Memproses...' : 'Nonaktifkan Kartu'}
-                        </Button>
-                      ) : (
-                        <Button onClick={handleCreateCard} disabled={isCreatingCard} variant="primary">
-                          {isCreatingCard ? 'Membuat...' : 'Buat Kartu Baru'}
-                        </Button>
-                      )
-                   )}
-                </div>
-                <div className="flex gap-2">
-                   <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Tutup</Button>
-                   {cardResponse?.data && (
-                      <Button onClick={handlePrint} variant="success" disabled={!cardResponse.data.card.is_active}>
-                        <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
-                      </Button>
-                   )}
-                </div>
-             </div>
+            <div className="flex w-full justify-between items-center">
+              <div>
+                {cardResponse?.data && (
+                  cardResponse.data.card.is_active ? (
+                    <Button variant="danger" onClick={handleDeactivateCard} disabled={isDeactivatingCard}>
+                      {isDeactivatingCard ? 'Memproses...' : 'Nonaktifkan Kartu'}
+                    </Button>
+                  ) : (
+                    <Button onClick={handleCreateCard} disabled={isCreatingCard} variant="primary">
+                      {isCreatingCard ? 'Membuat...' : 'Buat Kartu Baru'}
+                    </Button>
+                  )
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Tutup</Button>
+                {cardResponse?.data && (
+                  <Button onClick={handlePrint} variant="success" disabled={!cardResponse.data.card.is_active}>
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
+                  </Button>
+                )}
+              </div>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Hidden for Print */}
       <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-         {cardResponse?.data && (
-            <div ref={cardComponentRef}>
-               <DebitStudentCard 
-                  student={{
-                    name: cardResponse.data.student_details.name,
-                    nis: santri?.nis || '-',
-                    birth_place: cardResponse.data.student_details.birth_place,
-                    birth_date: cardResponse.data.student_details.birth_date,
-                    address: cardResponse.data.student_details.address,
-                    village: cardResponse.data.student_details.village,
-                    photo: santri?.photo || null,
-                  }}
-                  cardData={{
-                    card_number: cardResponse.data.card.card_number,
-                  }}
-                  templates={{
-                    front: settingsResponse?.data?.front_template || null,
-                    back: settingsResponse?.data?.back_template || null,
-                    stamp: settingsResponse?.data?.stamp || null,
-                    signature: settingsResponse?.data?.signature || null,
-                  }}
-               />
-            </div>
-         )}
+        {cardResponse?.data && (
+          <div ref={cardComponentRef}>
+            <DebitStudentCard
+              student={{
+                name: cardResponse.data.student_details.name,
+                nis: santri?.nis || '-',
+                birth_place: cardResponse.data.student_details.birth_place,
+                birth_date: cardResponse.data.student_details.birth_date,
+                address: cardResponse.data.student_details.address,
+                village: cardResponse.data.student_details.village,
+                photo: santri?.photo || null,
+              }}
+              cardData={{
+                card_number: cardResponse.data.card.card_number,
+              }}
+              templates={{
+                front: settingsResponse?.data?.front_template || null,
+                back: settingsResponse?.data?.back_template || null,
+                stamp: settingsResponse?.data?.stamp || null,
+                signature: settingsResponse?.data?.signature || null,
+              }}
+            />
+          </div>
+        )}
       </div>
     </>
   );

@@ -50,7 +50,9 @@ const LaporanPelanggaranPage: React.FC = () => {
     const map = new Map<number, number>();
     const groups = new Map<string, StudentViolation[]>();
 
-    for (const r of reports) {
+    const safeReports = Array.isArray(reports) ? reports : [];
+
+    for (const r of safeReports) {
       const iso = r.created_at ?? r.violation_date;
       if (!iso) continue;
       const d = new Date(iso);
@@ -157,7 +159,7 @@ const LaporanPelanggaranPage: React.FC = () => {
   };
 
   const handleRowClick = (row: StudentViolation) => {
-    navigate(`/dashboard/manajemen-kamtib/laporan-pelanggaran/${row.id}`);
+    navigate(`/dashboard/manajemen-kamtib/laporan/${row.id}`);
   };
 
   const columns: ColumnDef<StudentViolation>[] = [

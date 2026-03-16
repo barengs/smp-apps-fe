@@ -7,10 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery, useGetPresenceByScheduleIdQuery } from '@/store/slices/classScheduleApi';
-import { BookCopy, UserCheck, ArrowLeft, Printer } from 'lucide-react';
+import { BookCopy, UserCheck, ArrowLeft, Printer, AlertTriangle, Award } from 'lucide-react';
 import { generatePresensiPdf } from '@/utils/presensiPdf';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
@@ -51,11 +53,11 @@ const PresensiDetailPage: React.FC = () => {
 
   const parentSchedule = useMemo(() => {
     if (!schedulesResponse || !detailId) return null;
-    
-    const schedulesArray = Array.isArray(schedulesResponse) 
-      ? schedulesResponse 
+
+    const schedulesArray = Array.isArray(schedulesResponse)
+      ? schedulesResponse
       : schedulesResponse.data || [];
-      
+
     for (const s of schedulesArray) {
       if (s.details.some((d) => d.id === parseInt(detailId, 10))) {
         return s;
@@ -114,7 +116,13 @@ const PresensiDetailPage: React.FC = () => {
   const isLoading = isLoadingSchedules || isLoadingPresence;
   const meetingCount = detail?.meeting_count || 16;
 
+  // Hitung status presensi berdasarkan tahun ajaran aktif dan status jadwal
+  const isAcademicYearActive = schedule?.academic_year?.active === true;
+  const isScheduleActive = schedule?.status === 'aktif' || schedule?.status === 'active';
+  const isPresensiAktif = isAcademicYearActive && isScheduleActive;
+
   const handleHeaderClick = (meetingNumber: number) => {
+    if (!isPresensiAktif) return;
     navigate(`/dashboard/manajemen-kurikulum/presensi/${detailId}/pertemuan/${meetingNumber}`);
   };
 
@@ -183,6 +191,9 @@ const PresensiDetailPage: React.FC = () => {
                 <Button onClick={() => navigate(-1)} variant="outline">
                   <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                 </Button>
+                <Button onClick={() => navigate(`/dashboard/manajemen-kurikulum/penilaian/${detailId}`)} variant="outline" className="hidden sm:flex">
+                  <Award className="mr-2 h-4 w-4" /> Penilaian
+                </Button>
                 <Button
                   onClick={() => {
                     const { blobUrl, fileName } = generatePresensiPdf({ schedule, detail, students, presenceData, meetingCount });
@@ -233,10 +244,32 @@ const PresensiDetailPage: React.FC = () => {
                 <div className="font-semibold text-muted-foreground">Jam Pelajaran</div>
                 <div className="font-medium truncate">{`${detail.lesson_hour?.start_time ? detail.lesson_hour.start_time.substring(0, 5) : ''} - ${detail.lesson_hour?.end_time ? detail.lesson_hour.end_time.substring(0, 5) : ''}`}</div>
               </div>
+              <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2 md:col-span-2">
+                <div className="font-semibold text-muted-foreground">Status Presensi</div>
+                <div>
+                  <Badge
+                    variant={isPresensiAktif ? 'default' : 'secondary'}
+                    className={isPresensiAktif ? 'bg-green-500 hover:bg-green-600 text-white' : ''}
+                  >
+                    {isPresensiAktif ? 'Aktif' : 'Belum Dimulai'}
+                  </Badge>
+                </div>
+              </div>
             </div>
-            
+
             <Separator className="mt-6 mb-0" />
-            
+
+            {/* Banner peringatan jika presensi belum aktif */}
+            {!isPresensiAktif && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Presensi <strong>belum dapat dimulai</strong>. Tahun ajaran belum aktif atau status jadwal bukan aktif.
+                  Hubungi administrator untuk mengaktifkan tahun ajaran dan jadwal.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div>
               <h3 className="text-lg font-semibold">Lembar Presensi</h3>
               <p className="text-sm text-muted-foreground mb-4">Klik tombol pertemuan (P) untuk mengisi atau mengubah presensi.</p>
@@ -250,10 +283,10 @@ const PresensiDetailPage: React.FC = () => {
                         const isFilled = filledMeetings.has(meetingNumber);
                         const meetingData = detail?.meeting_schedules?.find(m => parseInt(m.meeting_sequence, 10) === meetingNumber);
                         const meetingDate = meetingData?.meeting_date;
-                        const tooltipText = isFilled 
+                        const tooltipText = isFilled
                           ? `Tanggal pertemuan: ${meetingDate ? new Date(meetingDate).toLocaleDateString('id-ID') : 'Tanggal tidak tersedia'}`
                           : 'Pertemuan belum terealisasi';
-                        
+
                         return (
                           <TableHead key={i} className="text-center py-1 px-1">
                             <TooltipProvider>
@@ -262,17 +295,22 @@ const PresensiDetailPage: React.FC = () => {
                                   <div
                                     onClick={() => handleHeaderClick(meetingNumber)}
                                     className={cn(
-                                      "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded cursor-pointer transition-colors",
-                                      isFilled 
-                                        ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50" 
-                                        : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                                      "inline-flex items-center justify-center w-12 h-7 text-xs font-medium rounded transition-colors",
+                                      !isPresensiAktif
+                                        ? "bg-gray-100 text-gray-400 dark:bg-gray-800/50 dark:text-gray-600 cursor-not-allowed"
+                                        : isFilled
+                                          ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50 cursor-pointer"
+                                          : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 cursor-pointer"
                                     )}
                                   >
                                     P {meetingNumber}
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>{tooltipText}</p>
+                                  <p>{!isPresensiAktif
+                                    ? 'Presensi belum dimulai'
+                                    : tooltipText
+                                  }</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>

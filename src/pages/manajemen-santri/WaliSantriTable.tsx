@@ -1,16 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Download, Upload } from 'lucide-react';
+import { Edit, Download, Upload, Printer, X } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
-import { useGetParentsQuery, useExportParentsMutation, useBackupParentsMutation } from '@/store/slices/parentApi';
+import { useGetParentsQuery, useGetParentByIdQuery, useExportParentsMutation, useBackupParentsMutation } from '@/store/slices/parentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import WaliSantriImportDialog from './WaliSantriImportDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import WaliSantriCard from './WaliSantriCard';
+import { useReactToPrint } from 'react-to-print';
 
 // Interface for the data displayed in the table
 interface WaliSantri {
@@ -28,6 +31,15 @@ const WaliSantriTable: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [importOpen, setImportOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [printWaliId, setPrintWaliId] = useState<number | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({ contentRef: cardRef });
+
+  // Fetch detail wali yang dipilih untuk dicetak
+  const { data: selectedParentData, isLoading: isLoadingSelected } = useGetParentByIdQuery(
+    printWaliId ?? 0,
+    { skip: printWaliId === null }
+  );
 
   // UPDATED: ambil refetch dari hook agar bisa me-refresh data tanpa reload
   const { data: parentsResponse, error, isLoading, isFetching, refetch } = useGetParentsQuery({ per_page: 10000 });
@@ -55,8 +67,8 @@ const WaliSantriTable: React.FC = () => {
     const loadingId = toast.showLoading(loadingMessage);
     try {
       // Call the mutation trigger and immediately unwrap the result
-      const blob = await action().unwrap(); 
-      
+      const blob = await action().unwrap();
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -64,7 +76,7 @@ const WaliSantriTable: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
-      
+
       toast.dismissToast(loadingId);
       toast.showSuccess('File berhasil diunduh.');
     } catch (err) {
@@ -135,6 +147,16 @@ const WaliSantriTable: React.FC = () => {
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
               </Button>
+              <Button
+                variant="outline"
+                className="h-8 px-2 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPrintWaliId(waliSantri.id);
+                }}
+              >
+                <Printer className="h-4 w-4 mr-1" /> Cetak Kartu
+              </Button>
             </div>
           );
         },
@@ -162,6 +184,53 @@ const WaliSantriTable: React.FC = () => {
 
   return (
     <>
+      {/* Dialog Cetak Kartu Wali */}
+      <Dialog open={printWaliId !== null} onOpenChange={(open) => { if (!open) setPrintWaliId(null); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Cetak Kartu Wali Santri</DialogTitle>
+            <DialogDescription>
+              Pratinjau kartu identitas wali santri sebelum dicetak.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            {isLoadingSelected ? (
+              <div className="text-sm text-muted-foreground">Memuat data...</div>
+            ) : selectedParentData ? (
+              <>
+                <div className="shadow-lg rounded-md overflow-hidden" style={{ transform: 'scale(1.4)', transformOrigin: 'top center', marginBottom: '2rem' }}>
+                  <WaliSantriCard
+                    ref={cardRef}
+                    data={{
+                      photo: selectedParentData.parent?.photo ?? selectedParentData.parent?.photo_path ?? null,
+                      first_name: selectedParentData.parent?.first_name ?? '',
+                      last_name: selectedParentData.parent?.last_name ?? null,
+                      nik: selectedParentData.parent?.nik ?? '',
+                      parent_as: selectedParentData.parent?.parent_as ?? 'Wali',
+                      phone: selectedParentData.parent?.phone ?? null,
+                      students: selectedParentData.students?.map((s) => ({
+                        nis: s.nis,
+                        first_name: s.first_name,
+                        last_name: s.last_name ?? null,
+                      })) ?? [],
+                    }}
+                  />
+                </div>
+                <div className="flex gap-2 mt-16">
+                  <Button variant="outline" onClick={() => setPrintWaliId(null)}>
+                    <X className="mr-2 h-4 w-4" /> Tutup
+                  </Button>
+                  <Button onClick={() => handlePrint()}>
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Sekarang
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-sm text-red-500">Gagal memuat data wali santri.</div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
       <DataTable
         columns={columns}
         data={paginatedData}

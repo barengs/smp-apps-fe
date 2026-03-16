@@ -34,7 +34,7 @@ import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import MataPelajaranForm from "@/pages/manajemen-kurikulum/MataPelajaranForm";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import KategoriPelanggaranPage from '@/pages/manajemen-kamtib/KategoriPelanggaranPage';
-import NavigationManagementPage from "@/pages/utility/NavigationManagementPage"; 
+import NavigationManagementPage from "@/pages/utility/NavigationManagementPage";
 import { RoleManagementPage } from "@/pages/utility/RoleManagementPage";
 import { RoleFormPage } from "@/pages/utility/RoleFormPage";
 import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
@@ -83,12 +83,18 @@ import SiswaDetailPage from '@/pages/manajemen-kurikulum/SiswaDetailPage';
 import PresensiPage from './pages/manajemen-kurikulum/PresensiPage';
 import PresensiDetailPage from './pages/manajemen-kurikulum/PresensiDetailPage';
 import PresensiFormPage from './pages/manajemen-kurikulum/PresensiFormPage'; // Import baru
+import PenilaianPage from './pages/manajemen-kurikulum/PenilaianPage';
+import PenilaianDetailPage from './pages/manajemen-kurikulum/PenilaianDetailPage';
 import InstitusiPendidikanPage from './pages/manajemen-kurikulum/InstitusiPendidikanPage';
 import InstitusiPendidikanForm from './pages/manajemen-kurikulum/InstitusiPendidikanForm';
+import RaportPage from '@/pages/manajemen-kurikulum/RaportPage';
+import RaportPrintView from '@/pages/manajemen-kurikulum/RaportPrintView';
 import SanksiPage from '@/pages/manajemen-kamtib/SanksiPage';
 import PerizinanPage from '@/pages/manajemen-kamtib/PerizinanPage';
 import TipeIzinPage from '@/pages/manajemen-kamtib/TipeIzinPage';
 import PerizinanDetailPage from '@/pages/manajemen-kamtib/PerizinanDetailPage';
+import ManajemenLiburPage from '@/pages/manajemen-kamtib/ManajemenLiburPage';
+import LiburSantriPage from '@/pages/manajemen-kamtib/LiburSantriPage';
 import StudentCardTemplateSettingsPage from '@/pages/utility/StudentCardTemplateSettingsPage';
 import DataSantriPage from '@/pages/wali-santri/DataSantriPage';
 import DataSantriDetailPage from '@/pages/wali-santri/DataSantriDetailPage';
@@ -151,12 +157,12 @@ function App() {
               <Route path="/dashboard/peran/add" element={<PeranAddPage />} />
               <Route path="/dashboard/peran/:id/edit" element={<PeranEditPage />} />
               <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
-              
+
               {/* Rute Manajemen Santri */}
               <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
               <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
               <Route path="/dashboard/santri/:id/edit" element={<SantriEditPage />} />
-              
+
               {/* Rute Pendaftaran Santri */}
               <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
               <Route path="/dashboard/pendaftaran-santri/add" element={<SantriFormPage />} />
@@ -166,7 +172,7 @@ function App() {
               <Route path="/dashboard/wali-santri-list" element={<WaliSantriListPage />} />
               <Route path="/dashboard/wali-santri/:id" element={<WaliSantriDetailPage />} />
               <Route path="/dashboard/wali-santri/:id/edit" element={<WaliSantriEditPage />} />
-              
+
               {/* Wali Santri Specific Routes */}
               <Route path="/dashboard/wali-santri/data-santri" element={<DataSantriPage />} />
               <Route path="/dashboard/wali-santri/data-santri/:id" element={<DataSantriDetailPage />} />
@@ -186,7 +192,6 @@ function App() {
               <Route path="/dashboard/bank-santri/rekening" element={<RekeningPage />} />
               <Route path="/dashboard/bank-santri/rekening/:accountNumber" element={<RekeningDetailPage />} />
               <Route path="/dashboard/bank-santri/laporan" element={<LaporanPage />} />
-              <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
               <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
@@ -202,7 +207,7 @@ function App() {
               <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
               {/* Route management pendidikan */}
               <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan" element={<InstitusiPendidikanPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/tambah" element={<InstitusiPendidikanForm onSuccess={() => {}} onCancel={() => {}} />} />
+              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/tambah" element={<InstitusiPendidikanForm onSuccess={() => { }} onCancel={() => { }} />} />
               <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/:id" element={<InstitusiPendidikanPage />} />
               <Route path="/dashboard/pendidikan/tahun-ajaran" element={<TahunAjaranPage />} />
               <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
@@ -226,22 +231,30 @@ function App() {
               <Route path="/dashboard/manajemen-kurikulum/presensi" element={<PresensiPage />} />
               <Route path="/dashboard/manajemen-kurikulum/presensi/:detailId" element={<PresensiDetailPage />} />
               <Route path="/dashboard/manajemen-kurikulum/presensi/:detailId/pertemuan/:meetingNumber" element={<PresensiFormPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/penilaian" element={<PenilaianPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/penilaian/:detailId" element={<PenilaianDetailPage />} />
               <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
               <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/raport" element={<RaportPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/raport/:classGroupId/cetak/:studentId" element={<RaportPrintView />} />
               {/* Route manajemen kamtib */}
               <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
-              <Route path="/dashboard/manajemen-kamtib/laporan-pelanggaran" element={<LaporanPelanggaranPage />} />
-              <Route path="/dashboard/manajemen-kamtib/laporan-pelanggaran/:id" element={<LaporanPelanggaranDetailPage />} />
+              <Route path="/dashboard/manajemen-kamtib/laporan" element={<LaporanPelanggaranPage />} />
+              <Route path="/dashboard/manajemen-kamtib/laporan/:id" element={<LaporanPelanggaranDetailPage />} />
               <Route path="/dashboard/manajemen-kamtib/perizinan" element={<PerizinanPage />} />
               <Route path="/dashboard/manajemen-kamtib/tipe-izin" element={<TipeIzinPage />} />
               <Route path="/dashboard/manajemen-kamtib/perizinan/:id" element={<PerizinanDetailPage />} />
+              <Route path="/dashboard/manajemen-kamtib/manajemen-libur" element={<ManajemenLiburPage />} />
+              <Route path="/dashboard/manajemen-kamtib/libur-santri" element={<LiburSantriPage />} />
+              <Route path="/dashboard/manajemen-kamtib/libur-santri/:id" element={<LiburSantriPage />} />
               <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
-              <Route path="/dashboard/berita" element={<BeritaPage />} />
               <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
-              
+              {/* Manajemen Informasi */}
+              <Route path="/dashboard/berita" element={<BeritaPage />} />
+
               {/* Role Management Routes */}
               <Route path="/utility/roles" element={<RoleManagementPage />} />
               <Route path="/utility/roles/create" element={<RoleFormPage />} />

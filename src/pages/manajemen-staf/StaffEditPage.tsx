@@ -80,10 +80,8 @@ const StaffEditPage: React.FC = () => {
 
   // Prepare initialData for StaffForm - use data directly from staff object
   const initialFormData = {
-    // gunakan staff.id sesuai kebutuhan backend
     id: (staffData as any)?.staff?.id ?? staffData?.id,
     staff: {
-      // Sertakan ID staf untuk dipakai saat update
       id: (staffData as any)?.staff?.id ?? staffData?.id,
       first_name: staffData.first_name,
       last_name: staffData.last_name,
@@ -92,13 +90,13 @@ const StaffEditPage: React.FC = () => {
       phone: staffData.phone,
       address: staffData.address,
       zip_code: staffData.zip_code,
+      gender: staffData.gender ?? (staffData as any)?.staff?.gender ?? null,
     },
     email: staffData.user?.email ?? staffData.email ?? '',
-    // roles berasal dari properti "roles" (array), fallback ke user.roles jika ada
     roles: (staffData as any)?.roles || staffData.user?.roles || [],
-    // username fallback ke field name pada root bila tersedia
-    username: staffData.user?.name ?? (staffData as any)?.name ?? '',
+    name: staffData.user?.name ?? (staffData as any)?.name ?? '',
   };
+
 
   return (
     <DashboardLayout title="Edit Staf" role="administrasi">

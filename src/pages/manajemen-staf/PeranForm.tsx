@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as toast from '@/utils/toast';
-import { 
-  useCreateRoleMutation, 
+import {
+  useCreateRoleMutation,
   useUpdateRoleMutation,
   useSyncPermissionMatrixMutation,
   useGetPermissionMatrixQuery,
@@ -37,7 +37,8 @@ const formSchema = z.object({
   permissionMatrix: z.array(z.object({
     menu_id: z.number(),
     permissions: z.array(z.string()),
-    custom_permissions: z.array(z.string()).optional(),
+    custom_permissions: z.array(z.string()).default([]),
+
   })),
 });
 
@@ -57,7 +58,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
   const [syncMatrix, { isLoading: isSyncing }] = useSyncPermissionMatrixMutation();
-  
+
   const { data: menuData, isLoading: isLoadingMenu } = useGetMenuQuery();
   const { data: matrixData, isLoading: isLoadingMatrix } = useGetPermissionMatrixQuery(
     initialData?.id!,
@@ -77,16 +78,40 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
   // Load permission matrix data when editing
   useEffect(() => {
     if (initialData && matrixData) {
-      const matrix: PermissionMatrixItem[] = matrixData.matrix.map((item) => ({
-        menu_id: item.menu_id,
-        permissions: item.permissions || [],
-        custom_permissions: item.custom_permissions || [],
+      // Extract matrix array from various response shapes
+      let matrixArray: any[] = [];
+      if (Array.isArray(matrixData)) {
+        matrixArray = matrixData;
+      } else if (matrixData && typeof matrixData === 'object') {
+        if ('matrix' in matrixData && Array.isArray(matrixData.matrix)) {
+          matrixArray = matrixData.matrix;
+        } else if ('data' in matrixData && Array.isArray((matrixData as any).data)) {
+          matrixArray = (matrixData as any).data;
+        }
+      }
+
+      const extractStrings = (arr: any[]): string[] => {
+        if (!Array.isArray(arr)) return [];
+        return arr.map((p: any) => {
+          if (typeof p === 'string') return p;
+          if (p && typeof p === 'object') return p.name || p.slug || p.permission || '';
+          return String(p);
+        }).filter((p: string) => !!p);
+      };
+
+      const matrix: PermissionMatrixItem[] = matrixArray.map((item) => ({
+        menu_id: Number(item.menu_id || item.id),
+        permissions: extractStrings(item.permissions || []),
+        custom_permissions: extractStrings(item.custom_permissions || []),
       }));
+
       form.setValue('permissionMatrix', matrix);
-      
+
       // Set category if available
-      if (matrixData.role.category) {
-        form.setValue('category', matrixData.role.category);
+
+      const category = matrixData.role?.category || (matrixData as any).category;
+      if (category) {
+        form.setValue('category', category);
       }
     }
   }, [initialData, matrixData, form]);
@@ -119,8 +144,10 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
       // Sync permission matrix
       await syncMatrix({
         roleId,
-        data: { matrix: values.permissionMatrix },
+        data: { matrix: values.permissionMatrix as unknown as PermissionMatrixItem[] },
       }).unwrap();
+
+
 
       toast.showSuccess(`Peran "${values.name}" berhasil ${initialData ? 'diperbarui' : 'ditambahkan'}.`);
       onSuccess();
@@ -185,7 +212,7 @@ const PeranForm: React.FC<PeranFormProps> = ({ initialData, onSuccess, onCancel 
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="category"

@@ -11,7 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery, useUpdatePresenceMutation, useSaveAttendanceMutation } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
-import { BookCopy, UserCheck, ArrowLeft, Save } from 'lucide-react';
+import { BookCopy, UserCheck, ArrowLeft, Save, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
 
 type AttendanceStatus = 'hadir' | 'sakit' | 'izin' | 'alpha';
 type FormData = {
@@ -79,12 +81,10 @@ const PresensiFormPage: React.FC = () => {
   const watchedAttendances = watch('attendances');
   const watchedDescriptions = watch('description');
 
-  // Add useEffect to monitor form state changes
-  useEffect(() => {
-    console.log('=== Form state changed ===');
-    console.log('Watched attendances:', watchedAttendances);
-    console.log('Watched descriptions:', watchedDescriptions);
-  }, [watchedAttendances, watchedDescriptions]);
+  // Hitung status presensi berdasarkan tahun ajaran aktif dan status jadwal
+  const isAcademicYearActive = parentSchedule?.academic_year?.active === true;
+  const isScheduleActive = parentSchedule?.status === 'aktif' || parentSchedule?.status === 'active';
+  const isPresensiAktif = isAcademicYearActive && isScheduleActive;
 
   const onSubmit = async (data: any) => {
     const toastId = showLoading('Menyimpan presensi...');
@@ -147,6 +147,27 @@ const PresensiFormPage: React.FC = () => {
     );
   }
 
+  // Guard: presensi belum aktif
+  if (!isPresensiAktif) {
+    return (
+      <DashboardLayout title="Presensi Belum Dimulai" role="administrasi">
+        <div className="container mx-auto py-4 px-4 space-y-4">
+          <CustomBreadcrumb items={breadcrumbItems} />
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Presensi belum dapat dimulai.</strong> Tahun ajaran belum aktif atau status jadwal bukan aktif.
+              Silakan kembali dan aktifkan tahun ajaran / jadwal terlebih dahulu.
+            </AlertDescription>
+          </Alert>
+          <Button onClick={() => navigate(-1)} variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout title={`Presensi Pertemuan ke-${meetingNumber}`} role="administrasi">
       <div className="container mx-auto py-4 px-4 space-y-4">
@@ -181,14 +202,7 @@ const PresensiFormPage: React.FC = () => {
                         const currentStatus = watchedAttendances?.[student.id] || 'hadir';
                         const currentDescription = watchedDescriptions?.[student.id] || '';
                         const isDescriptionEnabled = currentStatus !== 'hadir';
-                        
-                        console.log(`Rendering student ${student.id}:`, {
-                          currentStatus,
-                          currentDescription,
-                          isDescriptionEnabled,
-                          watchedDescriptions: watchedDescriptions
-                        });
-                        
+
                         return (
                           <TableRow key={student.id} className="h-8">
                             <TableCell className="py-1 px-2 text-sm">{index + 1}</TableCell>

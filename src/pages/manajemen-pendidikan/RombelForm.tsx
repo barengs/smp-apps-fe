@@ -60,12 +60,25 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      educational_institution_id: undefined,
-      name: '',
-      classroom_id: undefined,
-      advisor_id: undefined,
-    },
+    defaultValues: React.useMemo(() => {
+      const base = {
+        name: initialData?.name || '',
+        classroom_id: initialData?.classroom_id ? Number(initialData.classroom_id) : undefined,
+        advisor_id: initialData?.advisor_id ? Number(initialData.advisor_id) : undefined,
+        educational_institution_id: undefined as number | undefined,
+      };
+
+      // Try to find institution ID from nested data if not provided directly
+      const instId = (initialData as any)?.educational_institution_id ??
+        (initialData as any)?.educational_institution?.id ??
+        undefined;
+
+      if (instId) {
+        base.educational_institution_id = Number(instId);
+      }
+
+      return base;
+    }, [initialData]),
   });
 
   // Ambil nilai institusi terpilih untuk memfilter kelas
@@ -81,25 +94,39 @@ const RombelForm: React.FC<RombelFormProps> = ({ initialData, onSuccess, onCance
     });
   }, [classroomsData, selectedInstitutionId]);
 
-  // Reset kelas ketika institusi berubah
+  // Reset kelas ketika institusi berubah, namun hanya jika kelas saat ini tidak lagi valid
   React.useEffect(() => {
-    form.setValue('classroom_id', undefined, { shouldValidate: true, shouldDirty: true });
-  }, [selectedInstitutionId]);
+    if (!selectedInstitutionId || isLoadingClassrooms) return;
+
+    const currentClassroomId = form.getValues('classroom_id');
+    if (!currentClassroomId) return;
+
+    // Periksa apakah kelas saat ini masih valid untuk institusi yang baru dipilih
+    const isValid = filteredClassrooms.some(c => Number(c.id) === Number(currentClassroomId));
+
+    if (!isValid) {
+      // Hilangkan shouldValidate: true agar tidak muncul pesan error merah saat modal dibuka
+      form.setValue('classroom_id', undefined as any, { shouldDirty: true });
+    }
+  }, [selectedInstitutionId, filteredClassrooms, form, isLoadingClassrooms]);
 
   // Saat edit: set institusi berdasar kelas yang terpilih jika tersedia
   React.useEffect(() => {
-    if (!initialData || !classroomsData?.data?.length) return;
+    if (!initialData || !classroomsData?.data?.length || isLoadingClassrooms) return;
+
     const existingInst = form.getValues('educational_institution_id');
-    if (existingInst) return;
-    const currentClassroom = classroomsData.data.find((c) => c.id === initialData.classroom_id);
+    if (existingInst) return; // Jika sudah ada (misal dari defaultValues), jangan timpa
+
+    const currentClassroom = classroomsData.data.find((c) => Number(c.id) === Number(initialData.classroom_id));
     const derivedInst =
       (currentClassroom as any)?.educational_institution_id ??
       (currentClassroom as any)?.school?.id ??
       undefined;
+
     if (derivedInst) {
-      form.setValue('educational_institution_id', Number(derivedInst), { shouldValidate: true });
+      form.setValue('educational_institution_id', Number(derivedInst));
     }
-  }, [initialData, classroomsData, form]);
+  }, [initialData, classroomsData, form, isLoadingClassrooms]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Hanya kirim field yang didukung API untuk saat ini

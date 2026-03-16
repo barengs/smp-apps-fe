@@ -50,11 +50,12 @@ interface Staff {
     phone: string;
     address: string;
     zip_code: string;
+    gender?: string | null;
   };
   email: string;
   roles: { id: number; name: string; guard_name: string }[];
   fullName: string;
-  username: string;
+  name: string; // username / name in users table
 }
 
 const StaffTable: React.FC = () => {
@@ -81,7 +82,7 @@ const StaffTable: React.FC = () => {
         .map(apiEmployee => {
           const staffData = apiEmployee.staff;
           return {
-            id: apiEmployee.id,
+            id: (staffData as any)?.id ?? 0,
             staff: {
               id: (staffData as any)?.id ?? 0,
               first_name: staffData.first_name || '',
@@ -91,11 +92,12 @@ const StaffTable: React.FC = () => {
               phone: staffData.phone || '',
               address: staffData.address || '',
               zip_code: staffData.zip_code || '',
+              gender: (staffData as any).gender ?? null,
             },
             email: staffData.email || '',
             roles: apiEmployee.roles || [],
             fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim(),
-            username: apiEmployee.name || '',
+            name: apiEmployee.name || '',
           };
         });
     }
@@ -279,7 +281,7 @@ const StaffTable: React.FC = () => {
                 <Upload className="h-4 w-4 mr-2" />
                 Import
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={async () => {
                   const loadingId = toast.showLoading('Mengunduh data export...');
                   try {
@@ -298,13 +300,13 @@ const StaffTable: React.FC = () => {
                   } finally {
                     toast.dismissToast(loadingId);
                   }
-                }} 
+                }}
                 disabled={isExporting}
               >
                 <Download className="h-4 w-4 mr-2" />
                 {isExporting ? 'Exporting...' : 'Export (XLSX)'}
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={async () => {
                   const loadingId = toast.showLoading('Mengunduh backup data...');
                   try {
@@ -323,7 +325,7 @@ const StaffTable: React.FC = () => {
                   } finally {
                     toast.dismissToast(loadingId);
                   }
-                }} 
+                }}
                 disabled={isBackingUp}
               >
                 <DatabaseBackup className="h-4 w-4 mr-2" />

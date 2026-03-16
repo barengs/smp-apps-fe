@@ -1,16 +1,19 @@
-import React, { useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useGetParentByIdQuery } from '@/store/slices/parentApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, Users, UserPlus, Edit, Eye } from 'lucide-react';
+import { User, Users, UserPlus, Edit, Eye, Printer, UploadCloud } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useReactToPrint } from 'react-to-print';
+import WaliSantriCard from './WaliSantriCard';
+import ParentPhotoUploadDialog from '@/components/ParentPhotoUploadDialog';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -24,6 +27,10 @@ const WaliSantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const parentId = parseInt(id || '', 10);
   const invalidId = isNaN(parentId);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({ contentRef: cardRef });
+  const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
+  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
 
   const { data: parentData, error, isLoading } = useGetParentByIdQuery(parentId, { refetchOnMountOrArgChange: true });
 
@@ -112,6 +119,9 @@ const WaliSantriDetailPage: React.FC = () => {
                   <Button variant="outline" onClick={() => navigate(`/dashboard/wali-santri/${actualParentId}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" /> Edit
                   </Button>
+                  <Button variant="outline" onClick={() => handlePrint()}>
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -119,13 +129,25 @@ const WaliSantriDetailPage: React.FC = () => {
               <div className="lg:col-span-1 flex flex-col items-center text-center">
                 <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
                   {parentDetails?.photo ? (
-                    <img src={parentDetails.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+                    <img
+                      src={parentDetails.photo.startsWith('http') ? parentDetails.photo : `${STORAGE_BASE_URL}${parentDetails.photo}`}
+                      alt={`Foto ${fullName}`}
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <User className="h-24 w-24 text-muted-foreground" />
                   )}
                 </div>
                 <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
                 <p className="text-sm text-muted-foreground">{parentData?.email || '-'}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full max-w-[240px]"
+                  onClick={() => setIsPhotoDialogOpen(true)}
+                >
+                  <UploadCloud className="mr-2 h-4 w-4" /> Ubah Foto
+                </Button>
               </div>
               <div className="lg:col-span-3">
                 <DetailRow label="Nama Depan" value={parentDetails?.first_name} />
@@ -195,6 +217,40 @@ const WaliSantriDetailPage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Hidden card for printing */}
+      <div className="hidden">
+        <WaliSantriCard
+          ref={cardRef}
+          data={{
+            photo: parentDetails?.photo ?? parentDetails?.photo_path ?? null,
+            first_name: parentDetails?.first_name ?? '',
+            last_name: parentDetails?.last_name ?? null,
+            nik: parentDetails?.nik ?? '',
+            parent_as: parentDetails?.parent_as ?? 'Wali',
+            phone: parentDetails?.phone ?? null,
+            students: parentData?.students?.map((s) => ({
+              nis: s.nis,
+              first_name: s.first_name,
+              last_name: s.last_name ?? null,
+            })) ?? [],
+          }}
+        />
+      </div>
+
+      {/* Dialog Upload Foto */}
+      <ParentPhotoUploadDialog
+        open={isPhotoDialogOpen}
+        onOpenChange={setIsPhotoDialogOpen}
+        parentId={actualParentId ?? parentId}
+        currentPhotoUrl={
+          parentDetails?.photo
+            ? parentDetails.photo.startsWith('http')
+              ? parentDetails.photo
+              : `${STORAGE_BASE_URL}${parentDetails.photo}`
+            : undefined
+        }
+      />
     </DashboardLayout>
   );
 };

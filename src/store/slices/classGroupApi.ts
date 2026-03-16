@@ -77,8 +77,14 @@ export const classGroupApi = smpApi.injectEndpoints({
     getClassGroupAdvisors: builder.query<GetAdvisorsResponse, void>({
       query: () => 'master/class-group/advisors',
     }),
-    getClassGroupDetails: builder.query<GetClassGroupDetailsResponse, void>({
-      query: () => 'master/class-group/details',
+    getClassGroupDetails: builder.query<GetClassGroupDetailsResponse, { academic_year_id?: number } | void>({
+      query: (params: any) => {
+        let url = 'master/class-group/details';
+        if (params && params.academic_year_id) {
+          url += `?academic_year_id=${params.academic_year_id}`;
+        }
+        return { url, method: 'GET' };
+      },
       providesTags: ['ClassGroup'],
     }),
     createClassGroup: builder.mutation<ClassGroupApiData, CreateUpdateClassGroupRequest>({

@@ -125,6 +125,7 @@ interface GetStudentLeavesResponse {
 }
 
 export const studentLeaveApi = smpApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getStudentLeaves: builder.query<StudentLeave[], PaginationParams>({
       query: (params) => {

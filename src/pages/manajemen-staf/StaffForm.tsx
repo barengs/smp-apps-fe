@@ -38,6 +38,8 @@ const formSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
   role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
+  gender: z.enum(['Laki-laki', 'Perempuan'], { required_error: 'Jenis kelamin harus dipilih.' }),
+
   username: z.string().min(3, { message: 'Username harus minimal 3 karakter.' }),
   password: z.string()
     .min(6, { message: 'Password harus minimal 6 karakter.' })
@@ -59,7 +61,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const steps = [
-  { id: 'Data Diri', fields: ['first_name', 'last_name', 'nik', 'phone', 'code'] },
+  { id: 'Data Diri', fields: ['first_name', 'last_name', 'nik', 'phone', 'code', 'gender'] },
+
   { id: 'Alamat', fields: ['address', 'zip_code'] },
   { id: 'Akun & Kredensial', fields: ['email', 'role_ids', 'username', 'password'] },
 ];
@@ -67,7 +70,7 @@ const steps = [
 interface StaffFormProps {
   initialData?: {
     id: number;
-    staff: { // Changed dari 'employee' ke 'staff'
+    staff: {
       id: number;
       first_name: string;
       last_name: string;
@@ -76,10 +79,11 @@ interface StaffFormProps {
       phone: string;
       address: string;
       zip_code: string;
+      gender?: string | null;
     };
     email: string;
     roles: { id?: number; name: string }[];
-    username: string;
+    name: string;  // username / name in users table
   };
   onSuccess: () => void;
   onCancel: () => void;
@@ -98,17 +102,20 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     resolver: zodResolver(formSchema),
     mode: 'onTouched',
     defaultValues: initialData ? {
-      first_name: initialData.staff.first_name, // Changed dari 'employee' ke 'staff'
-      last_name: initialData.staff.last_name, // Changed dari 'employee' ke 'staff'
+      first_name: initialData.staff.first_name,
+      last_name: initialData.staff.last_name,
       email: initialData.email,
-      code: initialData.staff.code, // Changed dari 'employee' ke 'staff'
-      nik: initialData.staff.nik || '', // Changed dari 'employee' ke 'staff'
-      phone: initialData.staff.phone || '', // Changed dari 'employee' ke 'staff'
-      address: initialData.staff.address || '', // Changed dari 'employee' ke 'staff'
-      zip_code: initialData.staff.zip_code || '', // Changed dari 'employee' ke 'staff'
-      // role_ids akan di-set setelah roles tersedia (lihat useEffect di bawah)
+      code: initialData.staff.code,
+      nik: initialData.staff.nik || '',
+      phone: initialData.staff.phone || '',
+      address: initialData.staff.address || '',
+      zip_code: initialData.staff.zip_code || '',
+      // Map DB enum 'L'/'P' to display labels
+      gender: (initialData.staff.gender === 'P' || initialData.staff.gender === 'Perempuan')
+        ? 'Perempuan'
+        : 'Laki-laki',
       role_ids: [],
-      username: initialData.username || '',
+      username: initialData.name || '',
       password: '',
       password_confirmation: '',
     } : {
@@ -121,9 +128,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: '',
       zip_code: '',
       role_ids: [],
+      gender: 'Laki-laki' as const,
       username: '',
       password: '',
       password_confirmation: '',
+
     },
   });
 
@@ -162,8 +171,10 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       phone: values.phone || undefined,
       address: values.address || undefined,
       zip_code: values.zip_code || undefined,
+      gender: values.gender,
       password: values.password || undefined,
       password_confirmation: values.password_confirmation || undefined,
+
     };
 
     try {
@@ -231,8 +242,8 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                   className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center mx-auto font-semibold text-sm",
                     currentStep > index ? "bg-green-500 text-white" :
-                    currentStep === index ? "bg-blue-500 text-white" :
-                    "bg-gray-200 text-gray-600"
+                      currentStep === index ? "bg-blue-500 text-white" :
+                        "bg-gray-200 text-gray-600"
                   )}
                 >
                   {currentStep > index ? <Check size={18} /> : index + 1}
@@ -262,6 +273,30 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                 <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Telepon (Opsional)</FormLabel><FormControl><Input placeholder="Contoh: 081234567890" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <FormField control={form.control} name="code" render={({ field }) => (<FormItem><FormLabel>Kode Staf</FormLabel><FormControl><Input placeholder="Contoh: STF001" {...field} disabled={true} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jenis Kelamin</FormLabel>
+                    <div className="flex gap-4 mt-2">
+                      {['Laki-laki', 'Perempuan'].map((opt) => (
+                        <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            value={opt}
+                            checked={field.value === opt}
+                            onChange={() => field.onChange(opt)}
+                            className="accent-blue-500"
+                          />
+                          <span className="text-sm">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           )}
 

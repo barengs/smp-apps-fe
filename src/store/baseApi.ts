@@ -25,13 +25,13 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
-    
+
     // Daftar endpoint yang menggunakan FormData
     const formDataEndpoints = [
-      'registerSantri', 
-      'importEmployee', 
-      'createBerita', 
-      'updateBerita', 
+      'registerSantri',
+      'importEmployee',
+      'createBerita',
+      'updateBerita',
       'updateControlPanelSettings',
       'addTeacher',
       'updateTeacher',
@@ -46,7 +46,7 @@ const baseQuery = fetchBaseQuery({
       // ADDED: importParents
       'importParents',
     ];
-    
+
     if (!formDataEndpoints.includes(endpoint)) {
       // Untuk JSON endpoints
       headers.set('Accept', 'application/json');
@@ -56,7 +56,7 @@ const baseQuery = fetchBaseQuery({
       headers.set('Accept', 'application/json');
       // JANGAN SET Content-Type - browser akan atur multipart/form-data dengan boundary
     }
-    
+
     return headers;
   },
 });
@@ -171,6 +171,12 @@ export const smpApi = createApi({
     // ADDED: StudentCard
     'StudentCard',
     'UserMenus',
+    'HolidayPeriod',
+    'HolidayStudent',
+    'Assessment',
+    'AssessmentFormula',
+    'AssessmentReport',
+    'ReportCard',
   ],
   endpoints: () => ({}),
 });

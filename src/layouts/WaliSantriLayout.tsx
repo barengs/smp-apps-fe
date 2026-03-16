@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { smpApi } from "../store/baseApi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -140,9 +141,9 @@ const WaliSantriSidebar: React.FC<{ isCollapsed: boolean }> = ({
           const isActive =
             location.pathname === item.href ||
             location.pathname.startsWith(`${item.href}/`);
-          
+
           if (isCollapsed) {
-             return (
+            return (
               <Tooltip key={item.href}>
                 <TooltipTrigger asChild>
                   <Link
@@ -160,7 +161,7 @@ const WaliSantriSidebar: React.FC<{ isCollapsed: boolean }> = ({
                 </TooltipTrigger>
                 <TooltipContent side="right">{item.title}</TooltipContent>
               </Tooltip>
-             );
+            );
           }
 
           return (
@@ -258,6 +259,7 @@ const DashboardHeader: React.FC<{
     try {
       await logoutApi().unwrap();
       dispatch(logOut());
+      dispatch(smpApi.util.resetApiState()); // ADDED: Reset the entire RTK Query cache
       toast.showSuccess("Anda telah berhasil logout.");
       navigate("/login");
     } catch (error) {

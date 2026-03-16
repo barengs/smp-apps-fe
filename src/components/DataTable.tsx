@@ -63,7 +63,7 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange?: (updater: PaginationState) => void;
 
   isLoading?: boolean;
-  
+
   // Add support for expandable rows
   expanded?: ExpandedState;
   onExpandedChange?: (updater: ExpandedState) => void;
@@ -74,7 +74,7 @@ interface DataTableProps<TData, TValue> {
 
   // NEW: gantikan tombol export/import default dengan elemen kustom
   exportImportElement?: React.ReactNode;
-  
+
   // NEW: Total items count to display in footer
   totalItems?: number;
 
@@ -121,9 +121,17 @@ export function DataTable<TData, TValue>({
 
   const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination && !!onPaginationChange;
 
+  // State paginasi internal (dikontrol oleh komponen DataTable ketika tidak dalam mode manual)
+  const [internalPagination, setInternalPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const currentPagination = manualPaginationEnabled ? pagination : internalPagination;
+
   // Tambah state pencarian global (internal)
   const [internalSearch, setInternalSearch] = React.useState<string>('');
-  
+
   // Use controlled search if provided, otherwise internal
   const globalSearch = searchQuery !== undefined ? searchQuery : internalSearch;
 
@@ -180,10 +188,10 @@ export function DataTable<TData, TValue>({
           typeof value === 'string'
             ? value
             : typeof value === 'number' || typeof value === 'boolean'
-            ? String(value)
-            : typeof value === 'object'
-            ? JSON.stringify(value)
-            : '';
+              ? String(value)
+              : typeof value === 'object'
+                ? JSON.stringify(value)
+                : '';
 
         if (str.toLowerCase().includes(search)) return true;
       }
@@ -208,10 +216,10 @@ export function DataTable<TData, TValue>({
     state: {
       sorting: sorting,
       expanded: expanded,
-      ...(manualPaginationEnabled ? { pagination: pagination! } : {}),
+      pagination: currentPagination,
     },
     onSortingChange,
-    onPaginationChange: manualPaginationEnabled ? onPaginationChange : undefined,
+    onPaginationChange: manualPaginationEnabled ? onPaginationChange : setInternalPagination,
     onExpandedChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -223,9 +231,6 @@ export function DataTable<TData, TValue>({
     getSubRows: getSubRows || ((row: any) => row.subRows),
     // Daftarkan filter kustom agar bisa direferensikan dengan id 'exact'
     filterFns: { exact: exactMatchFilter },
-    initialState: {
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
   });
 
   // Early return jika table belum siap
@@ -252,8 +257,7 @@ export function DataTable<TData, TValue>({
         pageSize: newPageSize,
       });
     } else {
-      table.setPageSize(newPageSize);
-      table.setPageIndex(0);
+      setInternalPagination({ pageIndex: 0, pageSize: newPageSize });
     }
   };
 
@@ -289,7 +293,7 @@ export function DataTable<TData, TValue>({
     if (manualPaginationEnabled) {
       onPaginationChange!({ pageIndex: 0, pageSize: currentPageSize });
     } else {
-      table.setPageIndex(0);
+      setInternalPagination(prev => ({ ...prev, pageIndex: 0 }));
     }
   };
 
@@ -297,7 +301,7 @@ export function DataTable<TData, TValue>({
     if (manualPaginationEnabled) {
       onPaginationChange!({ pageIndex: Math.max(currentPageIndex - 1, 0), pageSize: currentPageSize });
     } else {
-      table.previousPage();
+      setInternalPagination(prev => ({ ...prev, pageIndex: Math.max(prev.pageIndex - 1, 0) }));
     }
   };
 
@@ -305,7 +309,7 @@ export function DataTable<TData, TValue>({
     if (manualPaginationEnabled) {
       onPaginationChange!({ pageIndex: Math.min(currentPageIndex + 1, shownTotalPageCount - 1), pageSize: currentPageSize });
     } else {
-      table.nextPage();
+      setInternalPagination(prev => ({ ...prev, pageIndex: Math.min(prev.pageIndex + 1, shownTotalPageCount - 1) }));
     }
   };
 
@@ -314,7 +318,7 @@ export function DataTable<TData, TValue>({
     if (manualPaginationEnabled) {
       onPaginationChange!({ pageIndex: lastPage, pageSize: currentPageSize });
     } else {
-      table.setPageIndex(lastPage);
+      setInternalPagination(prev => ({ ...prev, pageIndex: lastPage }));
     }
   };
 

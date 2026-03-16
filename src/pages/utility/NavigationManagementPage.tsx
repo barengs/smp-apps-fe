@@ -46,31 +46,31 @@ type FlattenedItem = Omit<MenuItem, 'child'> & {
  * Ini memastikan item dengan parent_id ditempatkan di dalam array 'child' dari induknya.
  */
 function buildTreeFromApi(items: import('@/store/slices/menuApi').MenuItem[]): MenuItem[] {
-    const itemsById: { [key: number]: MenuItem } = {};
-    const rootItems: MenuItem[] = [];
+  const itemsById: { [key: number]: MenuItem } = {};
+  const rootItems: MenuItem[] = [];
 
-    // Pass 1: Buat map dari semua item berdasarkan ID dan inisialisasi array child.
-    items.forEach(item => {
-        itemsById[item.id] = { 
-            ...item, 
-            child: [], 
-            title: item.id_title,
-            order: typeof item.order === 'string' ? parseInt(item.order) : item.order,
-            parent_id: item.parent_id ? (typeof item.parent_id === 'string' ? parseInt(item.parent_id) : item.parent_id) : null
-        };
-    });
+  // Pass 1: Buat map dari semua item berdasarkan ID dan inisialisasi array child.
+  items.forEach(item => {
+    itemsById[item.id] = {
+      ...item,
+      child: [],
+      title: item.id_title,
+      order: typeof item.order === 'string' ? parseInt(item.order) : item.order,
+      parent_id: item.parent_id ? (typeof item.parent_id === 'string' ? parseInt(item.parent_id) : item.parent_id) : null
+    };
+  });
 
-    // Pass 2: Hubungkan anak ke induknya.
-    items.forEach(item => {
-        const node = itemsById[item.id];
-        if (item.parent_id && itemsById[item.parent_id]) {
-            itemsById[item.parent_id].child.push(node);
-        } else {
-            rootItems.push(node);
-        }
-    });
+  // Pass 2: Hubungkan anak ke induknya.
+  items.forEach(item => {
+    const node = itemsById[item.id];
+    if (item.parent_id && itemsById[item.parent_id]) {
+      itemsById[item.parent_id].child.push(node);
+    } else {
+      rootItems.push(node);
+    }
+  });
 
-    return rootItems;
+  return rootItems;
 }
 
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
@@ -86,23 +86,23 @@ function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 
 }
 
 function buildTree(flattenedItems: FlattenedItem[]): MenuItem[] {
-    const rootItems: MenuItem[] = [];
-    const itemsById: Record<number, MenuItem> = {};
+  const rootItems: MenuItem[] = [];
+  const itemsById: Record<number, MenuItem> = {};
 
-    flattenedItems.forEach(item => {
-        itemsById[item.id] = { ...item, parent_id: item.parentId, child: [] };
-    });
+  flattenedItems.forEach(item => {
+    itemsById[item.id] = { ...item, parent_id: item.parentId, child: [] };
+  });
 
-    flattenedItems.forEach(item => {
-        const node = itemsById[item.id];
-        if (item.parentId && itemsById[item.parentId]) {
-            itemsById[item.parentId].child.push(node);
-        } else {
-            rootItems.push(node);
-        }
-    });
-    
-    return rootItems;
+  flattenedItems.forEach(item => {
+    const node = itemsById[item.id];
+    if (item.parentId && itemsById[item.parentId]) {
+      itemsById[item.parentId].child.push(node);
+    } else {
+      rootItems.push(node);
+    }
+  });
+
+  return rootItems;
 }
 
 // --- Components ---
@@ -136,11 +136,11 @@ const SortableItem: React.FC<{
         <div className="col-span-3 font-medium">{item.title}</div>
         <div className="col-span-2">{item.route}</div>
         <div className="col-span-1">{IconComponent ? <IconComponent className="h-4 w-4" /> : <span>-</span>}</div>
-        <div className="col-span-1">{item.type}</div>
+        <div className="col-span-1">{item.type === 'main' ? 'Utama' : item.type === 'submenu' ? 'Sub-Menu' : item.type === 'link' ? 'Tautan' : item.type === 'external' ? 'Eksternal' : item.type}</div>
         <div className="col-span-1">{item.position}</div>
         <div className="col-span-1"><Badge variant={item.status === 'active' ? 'default' : 'secondary'}>{item.status}</Badge></div>
         <div className="col-span-3 flex space-x-1 justify-end">
-           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit({ ...item, child: [] })}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit({ ...item, child: [] })}>
             <Edit className="h-4 w-4" />
           </Button>
         </div>
@@ -203,7 +203,7 @@ const NavigationManagementPage: React.FC = () => {
   const updateStructure = async (updatedItems: FlattenedItem[]) => {
     const newTree = buildTree(updatedItems);
     const finalItems = flattenTree(newTree);
-    
+
     // Optimistic UI update
     setItems(finalItems);
 
@@ -213,17 +213,17 @@ const NavigationManagementPage: React.FC = () => {
         // Determine correct type based on whether it has children in the new structure
         const hasChildren = finalItems.some((child) => child.parentId === item.id);
         let newType = item.type;
-        if (hasChildren && item.type !== 'sub-menu') {
-          newType = 'sub-menu';
-        } else if (!hasChildren && item.type === 'sub-menu') {
+        if (hasChildren && item.type !== 'submenu') {
+          newType = 'submenu';
+        } else if (!hasChildren && item.type === 'submenu') {
           newType = 'main';
         }
 
         const newOrder = index + 1;
-        
+
         // Find original item state to compare
         const originalItem = items.find(i => i.id === item.id);
-        
+
         // Check if anything changed
         // Note: originalItem.order might be string from API, cast to number
         const isOrderChanged = originalItem ? Number(originalItem.order) !== newOrder : true;
@@ -231,7 +231,7 @@ const NavigationManagementPage: React.FC = () => {
         const isTypeChanged = originalItem ? originalItem.type !== newType : true;
 
         if (!isOrderChanged && !isParentChanged && !isTypeChanged) {
-            return null; // No change, skip
+          return null; // No change, skip
         }
 
         return {
@@ -252,25 +252,25 @@ const NavigationManagementPage: React.FC = () => {
       .filter((update): update is { id: number; data: CreateUpdateMenuRequest } => update !== null);
 
     if (itemsToUpdate.length === 0) {
-        setItems(finalItems);
-        return;
+      setItems(finalItems);
+      return;
     }
 
     toast.showWarning('Menyimpan struktur baru...');
     try {
-        // Use sequential updates with NON-INVALIDATING mutation
-        for (const item of itemsToUpdate) {
-            await updateMenuPosition(item);
-        }
-        
-        // Manually refetch once at the end to ensure synchronization data
-        await refetch();
-        toast.showSuccess('Struktur navigasi berhasil diperbarui!');
+      // Use sequential updates with NON-INVALIDATING mutation
+      for (const item of itemsToUpdate) {
+        await updateMenuPosition(item);
+      }
+
+      // Manually refetch once at the end to ensure synchronization data
+      await refetch();
+      toast.showSuccess('Struktur navigasi berhasil diperbarui!');
     } catch (err) {
-        toast.showError('Gagal memperbarui struktur.');
-        // If error, revert to server state
-        // Refetch will handle this indirectly or we can force it
-        refetch();
+      toast.showError('Gagal memperbarui struktur.');
+      // If error, revert to server state
+      // Refetch will handle this indirectly or we can force it
+      refetch();
     }
   };
 
@@ -336,17 +336,17 @@ const NavigationManagementPage: React.FC = () => {
   function handleDragMove({ delta, active, over }: any) {
     setOffsetLeft(delta.x);
     if (active && over && active.id !== over.id) {
-        // Calculate projection in real-time for visual feedback
-        const projection = getProjection(
-            items,
-            active.id,
-            over.id,
-            delta.x,
-            INDENTATION_WIDTH
-        );
-        setProjected(projection);
+      // Calculate projection in real-time for visual feedback
+      const projection = getProjection(
+        items,
+        active.id,
+        over.id,
+        delta.x,
+        INDENTATION_WIDTH
+      );
+      setProjected(projection);
     } else {
-        setProjected(null);
+      setProjected(null);
     }
   }
 
@@ -358,29 +358,29 @@ const NavigationManagementPage: React.FC = () => {
     const overId = over?.id;
 
     if (overId && active.id !== overId) {
-        const activeItemIndex = items.findIndex(({ id }) => id === active.id);
-        const overItemIndex = items.findIndex(({ id }) => id === overId);
-        const activeItem = items[activeItemIndex];
-        const newItems = arrayMove(items, activeItemIndex, overItemIndex);
-        
-        // Calculate final depth and parent
-        const { depth, parentId } = getProjection(
-            items,
-            active.id as number,
-            overId as number,
-            offsetLeft,
-            INDENTATION_WIDTH
-        );
+      const activeItemIndex = items.findIndex(({ id }) => id === active.id);
+      const overItemIndex = items.findIndex(({ id }) => id === overId);
+      const activeItem = items[activeItemIndex];
+      const newItems = arrayMove(items, activeItemIndex, overItemIndex);
 
-        // Update active item properties
-        newItems[overItemIndex] = {
-            ...activeItem, 
-            depth, 
-            parentId,
-            type: parentId ? 'sub-menu' : 'main' 
-        };
+      // Calculate final depth and parent
+      const { depth, parentId } = getProjection(
+        items,
+        active.id as number,
+        overId as number,
+        offsetLeft,
+        INDENTATION_WIDTH
+      );
 
-        await updateStructure(newItems);
+      // Update active item properties
+      newItems[overItemIndex] = {
+        ...activeItem,
+        depth,
+        parentId,
+        type: parentId ? 'submenu' : 'main'
+      };
+
+      await updateStructure(newItems);
     }
   }
 
@@ -419,28 +419,28 @@ const NavigationManagementPage: React.FC = () => {
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragMove={handleDragMove} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                 <SortableContext items={items.map(({ id }) => id)}>
                   {items.map((item) => (
-                        <SortableItem 
-                            key={item.id} 
-                            item={item} 
-                            onEdit={handleEditData}
-                            // Pass down projected depth if this is the active item
-                            style={activeId === item.id ? { 
-                                marginLeft: `${(projected?.depth ?? item.depth) * INDENTATION_WIDTH}px`,
-                                opacity: 0.3 // Ghost appearance
-                            } : undefined}
-                        />
+                    <SortableItem
+                      key={item.id}
+                      item={item}
+                      onEdit={handleEditData}
+                      // Pass down projected depth if this is the active item
+                      style={activeId === item.id ? {
+                        marginLeft: `${(projected?.depth ?? item.depth) * INDENTATION_WIDTH}px`,
+                        opacity: 0.3 // Ghost appearance
+                      } : undefined}
+                    />
                   ))}
                 </SortableContext>
                 {createPortal(
                   <DragOverlay dropAnimation={null}>
                     {activeId && activeItem ? (
-                      <SortableItem 
-                        item={{...activeItem, depth: projected?.depth ?? activeItem.depth}} 
-                        isDragging 
-                        onEdit={() => {}}
+                      <SortableItem
+                        item={{ ...activeItem, depth: projected?.depth ?? activeItem.depth }}
+                        isDragging
+                        onEdit={() => { }}
                         // Use the projected depth for the overlay too!
                         style={{
-                           marginLeft: `${(projected?.depth ?? activeItem.depth) * INDENTATION_WIDTH}px`
+                          marginLeft: `${(projected?.depth ?? activeItem.depth) * INDENTATION_WIDTH}px`
                         }}
                       />
                     ) : null}
@@ -454,12 +454,14 @@ const NavigationManagementPage: React.FC = () => {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[620px] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>{editingMenuItem ? 'Edit Item Navigasi' : 'Tambah Item Navigasi Baru'}</DialogTitle>
             <DialogDescription>{editingMenuItem ? 'Ubah detail item navigasi ini.' : 'Isi detail untuk item navigasi baru.'}</DialogDescription>
           </DialogHeader>
-          <MenuForm initialData={editingMenuItem} onSuccess={handleFormSuccess} onCancel={() => setIsModalOpen(false)} />
+          <div className="overflow-y-auto flex-1 px-1 pr-3">
+            <MenuForm initialData={editingMenuItem} onSuccess={handleFormSuccess} onCancel={() => setIsModalOpen(false)} />
+          </div>
         </DialogContent>
       </Dialog>
 

@@ -11,14 +11,30 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import LessonScheduleForm from './LessonScheduleForm';
 import { useGetClassSchedulesQuery, useExportClassSchedulesMutation, useBackupClassSchedulesMutation, type ClassScheduleData } from '@/store/slices/classScheduleApi';
-import { useLocalPagination } from '@/hooks/useLocalPagination';
+import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery({});
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
+
+  // Get active academic year for initial default
+  const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
+  // Fetch all academic years for selection
+  const { data: academicYears = [] } = useGetTahunAjaranQuery();
+
+  React.useEffect(() => {
+    if (activeAcademicYear && !selectedAcademicYearId) {
+      setSelectedAcademicYearId(activeAcademicYear.id.toString());
+    }
+  }, [activeAcademicYear, selectedAcademicYearId]);
+
+  const { data: schedulesResponse, isLoading, isError } = useGetClassSchedulesQuery({
+    academic_year_id: selectedAcademicYearId ? Number(selectedAcademicYearId) : undefined
+  });
   const [exportClassSchedules, { isLoading: isExporting }] = useExportClassSchedulesMutation();
   const [backupClassSchedules, { isLoading: isBackingUp }] = useBackupClassSchedulesMutation();
   const navigate = useNavigate();
@@ -122,10 +138,6 @@ const JadwalPelajaranPage: React.FC = () => {
     return flattenScheduleData(raw);
   }, [schedulesResponse]);
 
-  // Kendalikan pagination lokal (page index & page size) untuk tabel Jadwal Pelajaran
-  const { paginatedData, pagination, setPagination, pageCount } =
-    useLocalPagination<any>(data, 10);
-
   // Siapkan opsi filter unik dari data yang sudah diratakan
   const educationOptions = useMemo(
     () =>
@@ -177,9 +189,26 @@ const JadwalPelajaranPage: React.FC = () => {
       <div className="container mx-auto py-4 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
-          <CardHeader>
-            <CardTitle>{t('sidebar.lessonSchedule')}</CardTitle>
-            <CardDescription>{t('lessonSchedulePage.description')}</CardDescription>
+          <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <CardTitle>{t('sidebar.lessonSchedule')}</CardTitle>
+              <CardDescription>{t('lessonSchedulePage.description')}</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Tahun Ajaran:</span>
+              <Select value={selectedAcademicYearId} onValueChange={setSelectedAcademicYearId}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Pilih Tahun Ajaran" />
+                </SelectTrigger>
+                <SelectContent>
+                  {academicYears.map((ay: any) => (
+                    <SelectItem key={ay.id} value={ay.id.toString()}>
+                      {ay.year} {ay.periode ? `(${ay.periode})` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -204,8 +233,8 @@ const JadwalPelajaranPage: React.FC = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-[200px] z-[60]">
-                       {/* No import option yet */}
-                      <DropdownMenuItem 
+                      {/* No import option yet */}
+                      <DropdownMenuItem
                         onClick={async () => {
                           const loadingId = toast.showLoading('Mengunduh data export...');
                           try {
@@ -224,13 +253,13 @@ const JadwalPelajaranPage: React.FC = () => {
                           } finally {
                             toast.dismissToast(loadingId);
                           }
-                        }} 
+                        }}
                         disabled={isExporting}
                       >
                         <Download className="h-4 w-4 mr-2" />
                         {isExporting ? 'Exporting...' : 'Export (XLSX)'}
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={async () => {
                           const loadingId = toast.showLoading('Mengunduh backup data...');
                           try {
@@ -249,7 +278,7 @@ const JadwalPelajaranPage: React.FC = () => {
                           } finally {
                             toast.dismissToast(loadingId);
                           }
-                        }} 
+                        }}
                         disabled={isBackingUp}
                       >
                         <DatabaseBackup className="h-4 w-4 mr-2" />
@@ -280,10 +309,8 @@ const JadwalPelajaranPage: React.FC = () => {
                     options: dayOptions,
                   },
                 }}
-                // Aktifkan pagination manual agar navigasi dan pilihan jumlah baris per halaman konsisten
-                pageCount={pageCount}
-                pagination={pagination}
-                onPaginationChange={setPagination}
+                // Let DataTable handle search, filters, and pagination internally
+                totalItems={data.length}
               />
             )}
           </CardContent>

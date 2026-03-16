@@ -142,9 +142,9 @@ export const roleApi = smpApi.injectEndpoints({
       providesTags: (result) =>
         result && Array.isArray(result)
           ? [
-              ...result.map(({ id }) => ({ type: "Role" as const, id })),
-              { type: "Role", id: "LIST" },
-            ]
+            ...result.map(({ id }) => ({ type: "Role" as const, id })),
+            { type: "Role", id: "LIST" },
+          ]
           : [{ type: "Role", id: "LIST" }],
     }),
     getRoleById: builder.query<RoleApiResponse, number>({
@@ -195,7 +195,7 @@ export const roleApi = smpApi.injectEndpoints({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: [{ type: "Role", id: "LIST" }],
+      invalidatesTags: [{ type: "Role", id: "LIST" }, "UserMenus"],
     }),
     getRoleMenus: builder.query<RoleMenuItem[], number>({
       query: (roleId) => `main/role/${roleId}/menus`,
@@ -215,6 +215,7 @@ export const roleApi = smpApi.injectEndpoints({
       invalidatesTags: (result, error, { roleId }) => [
         { type: "Role", id: roleId },
         { type: "Role", id: "LIST" },
+        "UserMenus",
       ],
     }),
     getPermissionMatrix: builder.query<
@@ -222,7 +223,11 @@ export const roleApi = smpApi.injectEndpoints({
       number
     >({
       query: (roleId) => `main/roles/${roleId}/permission-matrix`,
-      transformResponse: (response: PermissionMatrixResponse) => response.data,
+      transformResponse: (response: PermissionMatrixResponse) => {
+        // Handle variations in response structure
+        if (response && response.data) return response.data;
+        return response as any;
+      },
       providesTags: (result, error, roleId) => [{ type: "Role", id: roleId }],
     }),
   }),

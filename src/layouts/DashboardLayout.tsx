@@ -106,6 +106,7 @@ import {
 import LockScreen from "@/components/LockScreen";
 import { useGetControlPanelSettingsQuery } from "@/store/slices/controlPanelApi";
 import { useGetUserMenusQuery } from "@/store/slices/menuApi";
+import { smpApi } from "../store/baseApi";
 import { getIconComponent } from "@/utils/iconMapper";
 
 interface DashboardLayoutProps {
@@ -124,7 +125,7 @@ interface SidebarNavItem {
 // Helper to check if a route is active (handling strict matching for root/dashboard)
 const isRouteActive = (route: string | undefined, currentPath: string) => {
   if (!route) return false;
-  
+
   // Normalize paths by removing trailing slashes
   const cleanRoute = route.replace(/\/+$/, '');
   const cleanPath = currentPath.replace(/\/+$/, '');
@@ -146,8 +147,8 @@ const SidebarRecursiveDropdownItem: React.FC<{ item: SidebarNavItem }> = ({ item
     return (
       <DropdownMenuSub>
         <DropdownMenuSubTrigger className="flex items-center">
-           {item.icon}
-           <span className="ml-2">{t(item.titleKey)}</span>
+          {item.icon}
+          <span className="ml-2">{t(item.titleKey)}</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent>
           {item.children!.map(child => (
@@ -173,13 +174,13 @@ const SidebarRecursiveItem: React.FC<{ item: SidebarNavItem; level?: number }> =
   const location = useLocation();
   const isActive = isRouteActive(item.href, location.pathname);
   const hasChildren = item.children && item.children.length > 0;
-  
+
   // Recursively check if any child is active to set open state
   const isChildActive = React.useMemo(() => {
     if (!hasChildren) return false;
     const checkActive = (nodes: SidebarNavItem[]): boolean => {
-      return nodes.some(node => 
-        isRouteActive(node.href, location.pathname) || 
+      return nodes.some(node =>
+        isRouteActive(node.href, location.pathname) ||
         (node.children && checkActive(node.children))
       );
     };
@@ -199,19 +200,19 @@ const SidebarRecursiveItem: React.FC<{ item: SidebarNavItem; level?: number }> =
         <CollapsibleTrigger asChild>
           <Button variant="ghost" className={cn(
             "w-full justify-between p-2 h-auto text-sm font-medium hover:bg-sidebar-menu-hover-background/80 hover:text-sidebar-foreground",
-            isChildActive && !isOpen ? "text-primary font-semibold" : "" 
+            isChildActive && !isOpen ? "text-primary font-semibold" : ""
           )}>
-             <div className="flex items-center">
-                 {item.icon}
-                 <span className="ml-3">{t(item.titleKey)}</span>
-             </div>
-             {isOpen ? <ChevronDown className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
+            <div className="flex items-center">
+              {item.icon}
+              <span className="ml-3">{t(item.titleKey)}</span>
+            </div>
+            {isOpen ? <ChevronDown className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className={cn("space-y-1 mt-1", level === 0 ? "pl-4" : "pl-2")}>
-           {item.children!.map(child => (
-             <SidebarRecursiveItem key={child.titleKey} item={child} level={level + 1} />
-           ))}
+          {item.children!.map(child => (
+            <SidebarRecursiveItem key={child.titleKey} item={child} level={level + 1} />
+          ))}
         </CollapsibleContent>
       </Collapsible>
     );
@@ -239,8 +240,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const location = useLocation();
   const { t } = useTranslation();
-  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); 
-  const settings = settingsResponse?.data; 
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery();
+  const settings = settingsResponse?.data;
 
   const { data: userMenus } = useGetUserMenusQuery();
 
@@ -249,9 +250,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
 
     const mapToSidebarItems = (menus: any[], level = 0): SidebarNavItem[] => {
       return menus.map((menu) => ({
-        titleKey: menu.id_title, 
+        titleKey: menu.id_title,
         href: menu.route || undefined,
-        icon: getIconComponent(menu.icon), 
+        icon: getIconComponent(menu.icon),
         children: menu.children && menu.children.length > 0 ? mapToSidebarItems(menu.children, level + 1) : undefined,
       }));
     };
@@ -270,11 +271,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
       for (const item of items) {
         // Recursive check if this item or its descendants are active
         const checkActive = (node: SidebarNavItem): boolean => {
-             if (isRouteActive(node.href, location.pathname)) return true;
-             if (node.children) return node.children.some(child => checkActive(child));
-             return false;
+          if (isRouteActive(node.href, location.pathname)) return true;
+          if (node.children) return node.children.some(child => checkActive(child));
+          return false;
         };
-        
+
         if (checkActive(item)) {
           return item.titleKey;
         }
@@ -289,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   }, [location.pathname, sidebarNavItems, isCollapsed]);
 
 
-  const defaultLogoPath = "/images/default-logo.png"; 
+  const defaultLogoPath = "/images/default-logo.png";
 
   return (
     <nav
@@ -333,11 +334,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
           onValueChange={setOpenItem}
         >
           {sidebarNavItems.map((item) => {
-             // Recursive active check for parent highlight
+            // Recursive active check for parent highlight
             const checkActive = (node: SidebarNavItem): boolean => {
-                if (isRouteActive(node.href, location.pathname)) return true;
-                if (node.children) return node.children.some(child => checkActive(child));
-                return false;
+              if (isRouteActive(node.href, location.pathname)) return true;
+              if (node.children) return node.children.some(child => checkActive(child));
+              return false;
             };
             const isActive = checkActive(item);
 
@@ -385,7 +386,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     <AccordionTrigger
                       className={cn(
                         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-sidebar-menu-hover-background/80 hover:no-underline",
-                        isActive && "bg-secondary text-secondary-foreground font-semibold", 
+                        isActive && "bg-secondary text-secondary-foreground font-semibold",
                       )}
                     >
                       <div className="flex items-center flex-grow">
@@ -433,7 +434,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                       isActive
-                        ? "bg-primary text-secondary-foreground" 
+                        ? "bg-primary text-secondary-foreground"
                         : "hover:bg-sidebar-menu-hover-background/80",
                       "px-4",
                     )}
@@ -527,6 +528,7 @@ const DashboardHeader: React.FC<{
     try {
       await logoutApi().unwrap();
       dispatch(logOut());
+      dispatch(smpApi.util.resetApiState()); // ADDED: Reset the entire RTK Query cache
       toast.showSuccess("Anda telah berhasil logout.");
       navigate("/login");
     } catch (error) {

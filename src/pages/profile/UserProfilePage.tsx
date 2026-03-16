@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import WaliSantriLayout from '@/layouts/WaliSantriLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { useGetProfileDetailsQuery } from '@/store/slices/authApi';
+import { useGetProfileDetailsQuery, useGetSantriByParentNikQuery } from '@/store/slices/authApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import { Button } from '@/components/ui/button';
-import { Pencil, Key, User } from 'lucide-react';
+import { Pencil, Key, User, Printer, CreditCard, UploadCloud } from 'lucide-react';
 import ChangePasswordFormModal from '@/components/ChangePasswordFormModal';
 import { useNavigate } from 'react-router-dom';
-import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb'; // Import CustomBreadcrumb
+import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/slices/authSlice';
+import { useReactToPrint } from 'react-to-print';
+import WaliSantriCard from '@/pages/manajemen-santri/WaliSantriCard';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import ParentPhotoUploadDialog from '@/components/ParentPhotoUploadDialog';
 
 // Custom type guards for robust error handling
 function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -52,6 +56,19 @@ const UserProfilePage: React.FC = () => {
 
   // Determine if user is Wali Santri
   const isWaliSantri = currentUser?.roles?.some(role => role.name === 'orangtua');
+
+  // State untuk dialog cetak kartu (hanya wali santri)
+  const [showCardDialog, setShowCardDialog] = useState(false);
+  const [showPhotoDialog, setShowPhotoDialog] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({ contentRef: cardRef });
+
+  // Ambil data santri by NIK profil (untuk wali santri)
+  const parentNik = profileData?.data?.profile?.nik ?? '';
+  const { data: santriData } = useGetSantriByParentNikQuery(parentNik, {
+    skip: !isWaliSantri || !parentNik,
+  });
+  const parentStudents = santriData?.data?.student ?? [];
 
   const Layout = isWaliSantri ? WaliSantriLayout : DashboardLayout;
   const layoutProps = isWaliSantri
@@ -159,6 +176,11 @@ const UserProfilePage: React.FC = () => {
                 <Button onClick={handleChangePassword} variant="secondary">
                   <Key className="mr-2 h-4 w-4" /> Ganti Password
                 </Button>
+                {isWaliSantri && (
+                  <Button variant="outline" onClick={() => setShowPhotoDialog(true)}>
+                    <UploadCloud className="mr-2 h-4 w-4" /> Ubah Foto
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
@@ -193,10 +215,114 @@ const UserProfilePage: React.FC = () => {
         </div>
       </div>
 
+      {/* === Section Kartu Identitas (khusus wali santri) === */}
+      {isWaliSantri && (
+        <div className="w-full max-w-4xl mx-auto px-4 pb-6">
+          <Card className="w-full">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-[#01342f]" />
+                  Kartu Identitas Wali Santri
+                </CardTitle>
+                <CardDescription>
+                  Cetak kartu identitas Anda sebagai wali santri resmi pesantren.
+                </CardDescription>
+              </div>
+              <Button onClick={() => setShowCardDialog(true)}>
+                <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
+              </Button>
+            </CardHeader>
+            <CardContent className="flex justify-center py-6">
+              {/* Preview kartu (scaled down) */}
+              <div
+                className="shadow-md rounded overflow-hidden"
+                style={{
+                  transform: 'scale(1.3)',
+                  transformOrigin: 'top center',
+                  marginBottom: '3.5rem',
+                }}
+              >
+                <WaliSantriCard
+                  data={{
+                    photo: profile?.photo ?? null,
+                    first_name: profile?.first_name ?? '',
+                    last_name: profile?.last_name ?? null,
+                    nik: profile?.nik ?? '',
+                    parent_as: santriData?.data?.first_name ? 'Wali' : 'Wali',
+                    phone: profile?.phone ?? null,
+                    students: parentStudents.map((s) => ({
+                      nis: s.nis,
+                      first_name: s.first_name,
+                      last_name: s.last_name ?? null,
+                    })),
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Dialog Cetak Kartu Wali */}
+      {isWaliSantri && (
+        <Dialog open={showCardDialog} onOpenChange={setShowCardDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Cetak Kartu Identitas Wali Santri</DialogTitle>
+              <DialogDescription>
+                Pratinjau kartu identitas Anda sebelum dicetak.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-4">
+              <div
+                className="shadow-lg rounded-md overflow-hidden"
+                style={{ transform: 'scale(1.4)', transformOrigin: 'top center', marginBottom: '2rem' }}
+              >
+                <WaliSantriCard
+                  ref={cardRef}
+                  data={{
+                    photo: profile?.photo ?? null,
+                    first_name: profile?.first_name ?? '',
+                    last_name: profile?.last_name ?? null,
+                    nik: profile?.nik ?? '',
+                    parent_as: 'Wali',
+                    phone: profile?.phone ?? null,
+                    students: parentStudents.map((s) => ({
+                      nis: s.nis,
+                      first_name: s.first_name,
+                      last_name: s.last_name ?? null,
+                    })),
+                  }}
+                />
+              </div>
+              <div className="flex gap-2 mt-16">
+                <Button variant="outline" onClick={() => setShowCardDialog(false)}>
+                  Tutup
+                </Button>
+                <Button onClick={() => handlePrint()}>
+                  <Printer className="mr-2 h-4 w-4" /> Cetak Sekarang
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       <ChangePasswordFormModal
         isOpen={isChangePasswordModalOpen}
         onClose={() => setIsChangePasswordModalOpen(false)}
       />
+
+      {/* Dialog Upload Foto (khusus wali santri) */}
+      {isWaliSantri && currentUser && (
+        <ParentPhotoUploadDialog
+          open={showPhotoDialog}
+          onOpenChange={setShowPhotoDialog}
+          parentId={currentUser.id}
+          currentPhotoUrl={profile?.photo ?? undefined}
+        />
+      )}
     </Layout>
   );
 };

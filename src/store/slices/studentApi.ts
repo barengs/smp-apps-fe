@@ -72,6 +72,26 @@ export interface AssignStudentRoomRequest {
   notes?: string;
 }
 
+export interface RoomHistoryItem {
+  id: number;
+  start_date: string;
+  end_date: string | null;
+  is_active: boolean;
+  notes: string | null;
+  room_id: number;
+  room_name: string;
+  hostel_id: number;
+  hostel_name: string;
+  academic_year_id: number | null;
+  academic_year: string | null;
+}
+
+export interface RoomHistoryResponse {
+  success: boolean;
+  message: string;
+  data: RoomHistoryItem[];
+}
+
 interface GetStudentsResponse {
   data: Student[];
 }
@@ -101,9 +121,9 @@ export const studentApi = smpApi.injectEndpoints({
       providesTags: (result) =>
         result && Array.isArray(result)
           ? [
-              ...result.map(({ id }) => ({ type: 'Student' as const, id })),
-              { type: 'Student', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'Student' as const, id })),
+            { type: 'Student', id: 'LIST' },
+          ]
           : [{ type: 'Student', id: 'LIST' }],
     }),
     getStudentById: builder.query<Student, number>({
@@ -155,7 +175,16 @@ export const studentApi = smpApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: [{ type: 'Student', id: 'LIST' }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Student', id: 'LIST' },
+        { type: 'Student', id },
+        { type: 'Student', id: `HISTORY_${id}` },
+      ],
+    }),
+    // Riwayat asrama santri
+    getStudentRoomHistory: builder.query<RoomHistoryResponse, number>({
+      query: (id) => `main/student/${id}/room/history`,
+      providesTags: (result, error, id) => [{ type: 'Student', id: `HISTORY_${id}` }],
     }),
     // NEW: upload/update student photo via multipart
     updateStudentPhoto: builder.mutation<Student, { id: number; photo: File }>({
@@ -196,6 +225,8 @@ export const {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useAssignStudentRoomMutation,
+  useGetStudentRoomHistoryQuery,
+  useLazyGetStudentRoomHistoryQuery,
   // NEW: export hook
   useUpdateStudentPhotoMutation,
   useExportStudentsMutation,

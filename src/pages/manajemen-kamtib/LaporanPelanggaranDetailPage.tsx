@@ -31,15 +31,15 @@ const LaporanPelanggaranDetailPage: React.FC = () => {
     report?.student
       ? `${report.student.nis} — ${report.student.first_name}${report.student.last_name ? " " + report.student.last_name : ""}`
       : report?.student_id != null
-      ? String(report.student_id)
-      : "-";
+        ? String(report.student_id)
+        : "-";
 
   const violationLabel =
     report?.violation
       ? `${report.violation.name} (${typeof report.violation.point === "string" ? Number(report.violation.point) : report.violation.point} poin)`
       : report?.violation_id != null
-      ? String(report.violation_id)
-      : "-";
+        ? String(report.violation_id)
+        : "-";
 
   // ADDED: Helper statusVariant dan toIndonesianStatus dipindah ke atas agar tidak digunakan sebelum deklarasi
   const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" => {
@@ -146,7 +146,7 @@ const LaporanPelanggaranDetailPage: React.FC = () => {
           items={[
             {
               label: "Laporan Pelanggaran",
-              href: "/dashboard/manajemen-kamtib/laporan-pelanggaran",
+              href: "/dashboard/manajemen-kamtib/laporan",
               icon: <List className="h-4 w-4" />,
             },
             {
@@ -164,7 +164,7 @@ const LaporanPelanggaranDetailPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
-                <Link to="/dashboard/manajemen-kamtib/laporan-pelanggaran"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Laporan</Link>
+                <Link to="/dashboard/manajemen-kamtib/laporan"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Laporan</Link>
               </Button>
               <Button onClick={() => setAssignOpen(true)}>
                 <Gavel className="mr-2 h-4 w-4" />
