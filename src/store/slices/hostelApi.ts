@@ -34,7 +34,15 @@ export interface CreateUpdateHostelRequest {
 
 // Structure for the import response
 export interface ImportHostelResponse {
+  success: boolean;
   message: string;
+  data?: {
+    success_count: number;
+    skipped_count: number;
+    failure_count: number;
+    total: number;
+    errors: string[];
+  };
 }
 
 export interface AssignHostelHeadRequest {
@@ -173,6 +181,13 @@ export const hostelApi = smpApi.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    downloadHostelTemplate: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/hostel/import/template',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -187,4 +202,5 @@ export const {
   useGetHostelHeadsQuery,
   useExportHostelsMutation,
   useBackupHostelsMutation,
+  useDownloadHostelTemplateMutation,
 } = hostelApi;

@@ -72,6 +72,14 @@ export interface AssignStudentRoomRequest {
   notes?: string;
 }
 
+export interface BulkAssignStudentRoomRequest {
+  student_ids: number[];
+  room_id: number;
+  academic_year_id: number;
+  start_date: string;
+  notes?: string;
+}
+
 export interface RoomHistoryItem {
   id: number;
   start_date: string;
@@ -181,6 +189,18 @@ export const studentApi = smpApi.injectEndpoints({
         { type: 'Student', id: `HISTORY_${id}` },
       ],
     }),
+    bulkAssignStudentRoom: builder.mutation<{ message?: string }, BulkAssignStudentRoomRequest>({
+      query: (data) => ({
+        url: 'main/student/room/bulk-assign',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { student_ids }) => [
+        { type: 'Student', id: 'LIST' },
+        ...student_ids.map(id => ({ type: 'Student' as const, id })),
+        ...student_ids.map(id => ({ type: 'Student' as const, id: `HISTORY_${id}` })),
+      ],
+    }),
     // Riwayat asrama santri
     getStudentRoomHistory: builder.query<RoomHistoryResponse, number>({
       query: (id) => `main/student/${id}/room/history`,
@@ -225,6 +245,7 @@ export const {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useAssignStudentRoomMutation,
+  useBulkAssignStudentRoomMutation,
   useGetStudentRoomHistoryQuery,
   useLazyGetStudentRoomHistoryQuery,
   // NEW: export hook

@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import { smpApi } from './baseApi';
+import { bankSmpApi } from './bankBaseApi';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
 // Import all API slices
@@ -38,16 +39,25 @@ import { accountApi } from './slices/accountApi';
 import { roomApi } from './slices/roomApi';
 import { teacherApi } from './slices/teacherApi';
 import { studentClassApi } from './slices/studentClassApi';
+import { paymentPackageApi } from './slices/paymentPackageApi';
+import { paymentApi } from './slices/paymentApi';
+import { settingApi } from './slices/settingApi';
+import { koperasiApi } from './slices/koperasiApi';
+import { topUpApi } from './slices/topUpApi';
+import { dashboardBankApi } from './slices/dashboardBankApi';
+
+
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [smpApi.reducerPath]: smpApi.reducer,
+    [bankSmpApi.reducerPath]: bankSmpApi.reducer,
     // All other API slices are already included in smpApi.reducer via injectEndpoints
     // No need to list them individually here.
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(smpApi.middleware),
+    getDefaultMiddleware().concat(smpApi.middleware, bankSmpApi.middleware),
 });
 
 setupListeners(store.dispatch);

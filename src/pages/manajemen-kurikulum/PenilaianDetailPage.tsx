@@ -18,23 +18,46 @@ import {
     useSaveAssessmentScoresMutation,
     AssessmentComponent
 } from '@/store/slices/assessmentApi';
+import { useGetAcademicQuartersQuery } from '@/store/slices/tahunAjaranApi';
 import PenilaianFormulaDialog from './PenilaianFormulaDialog';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 
 const PenilaianDetailPage: React.FC = () => {
     const { detailId } = useParams<{ detailId: string }>();
     const navigate = useNavigate();
-    const [semester, setSemester] = useState<'1' | '2'>('1');
+    const [quarterId, setQuarterId] = useState<string>('');
     const [isFormulaDialogOpen, setFormulaDialogOpen] = useState(false);
 
     const parsedDetailId = parseInt(detailId || '0', 10);
 
-    const { data: detailResponse, isLoading, refetch } = useGetAssessmentDetailQuery({ detailId: parsedDetailId, semester });
+    const { data: detailResponse, isLoading, refetch } = useGetAssessmentDetailQuery({ detailId: parsedDetailId, academic_quarter_id: quarterId }, { skip: !quarterId });
     const { data: formulaResponse, refetch: refetchFormula } = useGetAssessmentFormulaQuery(parsedDetailId);
     const [saveScores, { isLoading: isSaving }] = useSaveAssessmentScoresMutation();
 
     const formula = formulaResponse?.data;
     const detailData = detailResponse?.data;
+
+    // Get Academic Year ID from detail to fetch Quarters
+    const academicYearId = detailData?.detail?.class_schedule?.academic_year_id;
+
+    // Fetch Quarters
+    const { data: quartersRes } = useGetAcademicQuartersQuery(
+        { academic_year_id: academicYearId },
+        { skip: !academicYearId }
+    );
+    const quarters = quartersRes?.data || [];
+
+    // Set default quarter
+    useEffect(() => {
+        if (quarters.length > 0 && !quarterId) {
+            const activeQuarter = quarters.find(q => q.active);
+            if (activeQuarter) {
+                setQuarterId(activeQuarter.id.toString());
+            } else {
+                setQuarterId(quarters[0].id.toString());
+            }
+        }
+    }, [quarters, quarterId]);
     const students = detailData?.students || [];
     const assessments = detailData?.assessments || {};
 
@@ -163,7 +186,7 @@ const PenilaianDetailPage: React.FC = () => {
         try {
             await saveScores({
                 class_schedule_detail_id: parsedDetailId,
-                semester,
+                academic_quarter_id: Number(quarterId),
                 assessments: cleanedAssessments
             }).unwrap();
             dismissToast(toastId);
@@ -194,13 +217,16 @@ const PenilaianDetailPage: React.FC = () => {
                         <p className="text-muted-foreground">Kelola nilai pengetahuan, keterampilan, dan sikap untuk mata pelajaran ini.</p>
                     </div>
                     <div className="flex space-x-2">
-                        <Select value={semester} onValueChange={(v) => setSemester(v as '1' | '2')}>
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Semester" />
+                        <Select value={quarterId} onValueChange={setQuarterId}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Pilih Kuartal" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="1">Semester Ganjil</SelectItem>
-                                <SelectItem value="2">Semester Genap</SelectItem>
+                                {quarters.map((q: any) => (
+                                    <SelectItem key={q.id} value={q.id.toString()}>
+                                        {q.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                         <Button variant="outline" onClick={() => setFormulaDialogOpen(true)}>

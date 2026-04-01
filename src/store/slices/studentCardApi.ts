@@ -4,6 +4,9 @@ export interface StudentCardSettings {
   id?: number | string;
   front_template: string | null;
   back_template: string | null;
+  guardian_front_template: string | null;
+  guardian_back_template: string | null;
+  kop_surat: string | null;
   stamp: string | null;
   signature: string | null;
 }

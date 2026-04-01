@@ -1,14 +1,24 @@
 import { Staff } from './teacher';
 
+export interface AcademicQuarter {
+  id: number;
+  academic_year_id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface AcademicYear {
   id: number;
   year: string;
-  type?: string;
-  periode?: string;
   start_date?: string;
   end_date?: string;
   active: boolean;
   description: string;
+  academic_quarters?: AcademicQuarter[];
 }
 
 export interface MataPelajaran {

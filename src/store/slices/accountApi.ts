@@ -1,8 +1,8 @@
-import { smpApi } from '../baseApi';
+import { bankSmpApi } from '../bankBaseApi';
 import { Account, CreateUpdateAccountRequest } from '@/types/keuangan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
-export const accountApi = smpApi.injectEndpoints({
+export const accountApi = bankSmpApi.injectEndpoints({
   endpoints: (builder) => ({
     getAccounts: builder.query<PaginatedResponse<Account>, PaginationParams>({
       query: (params) => {
@@ -15,12 +15,7 @@ export const accountApi = smpApi.injectEndpoints({
         return `main/account?${queryParams.toString()}`;
       },
       transformResponse: (response: any): PaginatedResponse<Account> => {
-        // Backend bisa kirim:
-        // 1) { success, message, data: Account[] }
-        // 2) { data: { ...paginatedMeta, data: Account[] } }
-        // 3) { data: PaginatedResponse<Account> }
         const raw = response?.data;
-        // Kasus 1: array akun sederhana
         if (Array.isArray(raw)) {
           const data = raw as Account[];
           return {
@@ -39,15 +34,12 @@ export const accountApi = smpApi.injectEndpoints({
             total: data.length,
           };
         }
-        // Kasus 2: nested paginated di response.data
         if (raw && Array.isArray(raw?.data)) {
           return raw as PaginatedResponse<Account>;
         }
-        // Kasus 3: langsung paginated di response (fallback aman)
         if (Array.isArray(response?.data?.data)) {
           return response.data as PaginatedResponse<Account>;
         }
-        // Fallback: tidak ada data
         return {
           current_page: 1,
           data: [],
@@ -72,10 +64,14 @@ export const accountApi = smpApi.injectEndpoints({
             ]
           : [{ type: 'Account', id: 'LIST' }],
     }),
-    getAccountById: builder.query<Account, number>({
+    getAccountById: builder.query<Account, number | string>({
       query: (id) => `main/account/${id}`,
-      transformResponse: (response: { success: boolean; message: string; data: Account } | Account) =>
+      transformResponse: (response: any) =>
         (response as any)?.data ?? response,
+      providesTags: (result, error, id) => [{ type: 'Account', id }],
+    }),
+    getByAccountNumber: builder.query<{data: Account}, string>({
+      query: (accountNumber) => `main/account/${accountNumber}`,
       providesTags: (result, error, id) => [{ type: 'Account', id }],
     }),
     createAccount: builder.mutation<Account, CreateUpdateAccountRequest>({
@@ -86,7 +82,7 @@ export const accountApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Account', id: 'LIST' }],
     }),
-    updateAccount: builder.mutation<Account, { id: number; data: CreateUpdateAccountRequest }>({
+    updateAccount: builder.mutation<Account, { id: number | string; data: CreateUpdateAccountRequest }>({
       query: ({ id, data }) => ({
         url: `main/account/${id}`,
         method: 'PUT',
@@ -94,7 +90,7 @@ export const accountApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Account', id }, { type: 'Account', id: 'LIST' }],
     }),
-    deleteAccount: builder.mutation<void, number>({
+    deleteAccount: builder.mutation<void, number | string>({
       query: (id) => ({
         url: `main/account/${id}`,
         method: 'DELETE',
@@ -107,6 +103,7 @@ export const accountApi = smpApi.injectEndpoints({
 export const {
   useGetAccountsQuery,
   useGetAccountByIdQuery,
+  useGetByAccountNumberQuery,
   useCreateAccountMutation,
   useUpdateAccountMutation,
   useDeleteAccountMutation,

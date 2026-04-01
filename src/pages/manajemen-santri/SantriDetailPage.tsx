@@ -5,13 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { Printer, Edit, Users, UserCheck, User, ArrowLeft, UploadCloud, CreditCard } from 'lucide-react';
+import { Printer, Edit, Users, UserCheck, User, ArrowLeft, UploadCloud, CreditCard, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import ActionButton from '@/components/ActionButton';
 import SantriViolationTimeline from '@/components/SantriViolationTimeline';
 import StudentPhotoUploadDialog from '@/components/StudentPhotoUploadDialog';
@@ -38,6 +44,7 @@ const SantriDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const santriId = parseInt(id || '', 10);
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedCardSide, setSelectedCardSide] = useState<'front' | 'back'>('front');
   const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
   const [isAssignRoomDialogOpen, setIsAssignRoomDialogOpen] = useState(false);
 
@@ -62,13 +69,25 @@ const SantriDetailPage: React.FC = () => {
 
   const handlePrint = useReactToPrint({
     contentRef: cardComponentRef,
-    documentTitle: `Kartu-Santri-${responseData?.nis || santriId}`,
+    documentTitle: `Kartu-Santri-${responseData?.nis || santriId}-${selectedCardSide}`,
     pageStyle: `@page { size: auto; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`,
     onAfterPrint: () => {
       toast.showSuccess('Proses cetak selesai.');
       setIsPrintDialogOpen(false);
     },
   });
+
+  const triggerPrintFront = () => {
+    setSelectedCardSide('front');
+    // We need a small delay or use the callback to ensure state has updated before print triggers
+    // or rely on the fact that the ref will point to the updated component.
+    setTimeout(() => handlePrint(), 100);
+  };
+
+  const triggerPrintBack = () => {
+    setSelectedCardSide('back');
+    setTimeout(() => handlePrint(), 100);
+  };
 
   const handleCreateCard = async () => {
     try {
@@ -272,10 +291,32 @@ const SantriDetailPage: React.FC = () => {
       <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
         <DialogContent className="max-w-4xl p-8 bg-gray-50">
           <DialogHeader>
-            <DialogTitle>Cetak Kartu Santri</DialogTitle>
-            <DialogDescription>
-              Pratinjau kartu santri sebelum dicetak. Pastikan data sudah benar.
-            </DialogDescription>
+            <div className="flex justify-between items-center">
+                <div>
+                    <DialogTitle>Cetak Kartu Santri</DialogTitle>
+                    <DialogDescription>
+                        Pratinjau kartu santri sebelum dicetak.
+                    </DialogDescription>
+                </div>
+                <div className="flex bg-gray-200 p-1 rounded-lg">
+                    <Button 
+                        variant={selectedCardSide === 'front' ? 'secondary' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setSelectedCardSide('front')}
+                        className="text-xs h-8"
+                    >
+                        Sisi Depan
+                    </Button>
+                    <Button 
+                        variant={selectedCardSide === 'back' ? 'secondary' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setSelectedCardSide('back')}
+                        className="text-xs h-8"
+                    >
+                        Sisi Belakang
+                    </Button>
+                </div>
+            </div>
           </DialogHeader>
           <div className="my-6 flex flex-col items-center min-h-[300px] justify-center">
             {isCardLoading ? (
@@ -308,6 +349,7 @@ const SantriDetailPage: React.FC = () => {
                     stamp: settingsResponse?.data?.stamp || null,
                     signature: settingsResponse?.data?.signature || null,
                   }}
+                  side={selectedCardSide}
                 />
                 {cardResponse.data.card.is_active === false && (
                   <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-center w-full max-w-md">
@@ -336,9 +378,21 @@ const SantriDetailPage: React.FC = () => {
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Tutup</Button>
                 {cardResponse?.data && (
-                  <Button onClick={handlePrint} variant="success" disabled={!cardResponse.data.card.is_active}>
-                    <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
-                  </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="success" disabled={!cardResponse.data.card.is_active}>
+                                <Printer className="mr-2 h-4 w-4" /> Cetak Kartu <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={triggerPrintFront}>
+                                <Printer className="mr-2 h-4 w-4" /> Cetak Sisi Depan
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={triggerPrintBack}>
+                                <Printer className="mr-2 h-4 w-4" /> Cetak Sisi Belakang
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 )}
               </div>
             </div>
@@ -369,6 +423,7 @@ const SantriDetailPage: React.FC = () => {
                 stamp: settingsResponse?.data?.stamp || null,
                 signature: settingsResponse?.data?.signature || null,
               }}
+              side={selectedCardSide}
             />
           </div>
         )}

@@ -261,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   }, [userMenus]);
 
   // Controlled active item for Accordion
-  const [openItem, setOpenItem] = useState<string | undefined>(undefined);
+  const [openItem, setOpenItem] = useState<string>("");
 
   // Automatically open accordion item based on active route
   useEffect(() => {

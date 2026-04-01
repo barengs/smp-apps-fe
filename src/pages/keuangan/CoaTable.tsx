@@ -46,8 +46,6 @@ const CoaTable: React.FC = () => {
   const tableData = useMemo(() => {
     if (!data) return [];
     
-    console.log('Raw COA data:', data); // Debug log
-    
     const transformData = (items: Coa[]): CoaWithSubRows[] => {
       return items.map(item => ({
         ...item,
@@ -55,10 +53,7 @@ const CoaTable: React.FC = () => {
       }));
     };
     
-    const transformed = transformData(data);
-    console.log('Transformed table data:', transformed); // Debug log
-    
-    return transformed;
+    return transformData(data);
   }, [data]);
 
   const handleAdd = () => {

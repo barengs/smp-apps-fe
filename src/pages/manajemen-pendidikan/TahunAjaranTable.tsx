@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { Edit, Download, Upload, DatabaseBackup } from 'lucide-react';
+import { Edit, Download, Upload, DatabaseBackup, CalendarDays } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
+import AcademicQuarterModal from './AcademicQuarterModal';
 import {
   Dialog,
   DialogContent,
@@ -38,7 +39,9 @@ const TahunAjaranTable: React.FC = () => {
   const [backupTahunAjaran, { isLoading: isBackingUp }] = useBackupTahunAjaranMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQuarterModalOpen, setIsQuarterModalOpen] = useState(false);
   const [editingTahunAjaran, setEditingTahunAjaran] = useState<TahunAjaran | undefined>(undefined);
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState<TahunAjaran | null>(null);
 
   const academicYears: TahunAjaran[] = useMemo(() => {
     return (tahunAjaranData || []).map(p => ({
@@ -69,6 +72,11 @@ const TahunAjaranTable: React.FC = () => {
     setEditingTahunAjaran(undefined);
   };
 
+  const handleManageQuarters = (tahunAjaran: TahunAjaran) => {
+    setSelectedAcademicYear(tahunAjaran);
+    setIsQuarterModalOpen(true);
+  };
+
   const getStatusValue = (active: boolean | number | string): boolean => {
     if (typeof active === 'boolean') return active;
     if (typeof active === 'number') return active === 1;
@@ -87,14 +95,8 @@ const TahunAjaranTable: React.FC = () => {
         header: 'Tahun Ajaran',
       },
       {
-        accessorKey: 'type',
-        header: 'Tipe',
-        cell: ({ row }) => row.original.type ? capitalizeFirst(row.original.type) : '-',
-      },
-      {
-        accessorKey: 'periode',
-        header: 'Periode',
-        cell: ({ row }) => row.original.periode ? capitalizeFirst(row.original.periode) : '-',
+        accessorKey: 'year',
+        header: 'Tahun Ajaran',
       },
       {
         accessorKey: 'start_date',
@@ -141,6 +143,13 @@ const TahunAjaranTable: React.FC = () => {
                 onClick={() => handleEditData(tahunAjaran)}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="success"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleManageQuarters(tahunAjaran)}
+              >
+                <CalendarDays className="h-4 w-4 mr-1" /> Kuartal
               </Button>
             </div>
           );
@@ -249,6 +258,11 @@ const TahunAjaranTable: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
+      <AcademicQuarterModal
+        isOpen={isQuarterModalOpen}
+        onClose={() => setIsQuarterModalOpen(false)}
+        academicYear={selectedAcademicYear as any}
+      />
     </>
   );
 };

@@ -7,6 +7,7 @@ import { PlusCircle, Bed, Upload, Download, DatabaseBackup } from 'lucide-react'
 import { useGetRoomsQuery, useCreateRoomMutation, useUpdateRoomMutation, useDeleteRoomMutation, useExportRoomsMutation, useBackupRoomsMutation } from '@/store/slices/roomApi';
 import { KamarTable } from './KamarTable'; // Re-import to ensure it's picked up
 import { KamarForm } from './KamarForm'; // Re-import to ensure it's picked up
+import KamarImportDialog from './KamarImportDialog'; // Import the new dialog
 import { Room, CreateUpdateRoomRequest } from '@/types/kepesantrenan';
 import * as toast from '@/utils/toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -17,6 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 const KamarPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -144,7 +146,7 @@ const KamarPage: React.FC = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[200px] z-[60]">
-                          <DropdownMenuItem onClick={() => {/* Placeholder for import functionality if needed */}}>
+                          <DropdownMenuItem onClick={() => setIsImportOpen(true)}>
                             <Upload className="h-4 w-4 mr-2" />
                             Import
                           </DropdownMenuItem>
@@ -229,6 +231,10 @@ const KamarPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <KamarImportDialog
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+      />
     </DashboardLayout>
   );
 };

@@ -20,7 +20,7 @@ export interface StudentAssessment {
     id?: number;
     class_schedule_detail_id?: number;
     student_id: number;
-    semester?: '1' | '2';
+    academic_quarter_id?: number;
     knowledge_scores?: Record<string, number>;
     skill_scores?: Record<string, number>;
     attitude_spiritual?: 'A' | 'B' | 'C' | 'D';
@@ -40,14 +40,14 @@ export interface AssessmentResponse {
 
 export interface SaveScoreRequest {
     class_schedule_detail_id: number;
-    semester: '1' | '2';
+    academic_quarter_id: number;
     assessments: StudentAssessment[];
 }
 
 export const assessmentApi = smpApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAssessmentDetail: builder.query<AssessmentResponse, { detailId: number; semester: string }>({
-            query: ({ detailId, semester }) => `main/assessment/${detailId}?semester=${semester}`,
+        getAssessmentDetail: builder.query<AssessmentResponse, { detailId: number; academic_quarter_id: string }>({
+            query: ({ detailId, academic_quarter_id }) => `main/assessment/${detailId}?academic_quarter_id=${academic_quarter_id}`,
             providesTags: (result, error, { detailId }) => [{ type: 'Assessment', id: detailId }],
         }),
         getAssessmentFormula: builder.query<AssessmentResponse, number>({
@@ -70,8 +70,8 @@ export const assessmentApi = smpApi.injectEndpoints({
             }),
             invalidatesTags: (result, error, { class_schedule_detail_id }) => [{ type: 'Assessment', id: class_schedule_detail_id }],
         }),
-        getAssessmentReport: builder.query<AssessmentResponse, { detailId: number; semester: string }>({
-            query: ({ detailId, semester }) => `main/assessment/report/${detailId}?semester=${semester}`,
+        getAssessmentReport: builder.query<AssessmentResponse, { detailId: number; academic_quarter_id: string }>({
+            query: ({ detailId, academic_quarter_id }) => `main/assessment/report/${detailId}?academic_quarter_id=${academic_quarter_id}`,
             providesTags: (result, error, { detailId }) => [{ type: 'AssessmentReport', id: detailId }],
         }),
     }),

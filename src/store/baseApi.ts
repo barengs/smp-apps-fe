@@ -177,6 +177,7 @@ export const smpApi = createApi({
     'AssessmentFormula',
     'AssessmentReport',
     'ReportCard',
+    'AcademicQuarter',
   ],
   endpoints: () => ({}),
 });

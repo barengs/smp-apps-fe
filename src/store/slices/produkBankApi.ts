@@ -1,4 +1,4 @@
-import { smpApi } from '../baseApi';
+import { bankSmpApi } from '../bankBaseApi';
 import { PaginationParams } from '@/types/master-data';
 
 export type ProdukType = "Tabungan" | "Deposito" | "Pinjaman";
@@ -43,7 +43,7 @@ interface GetProdukBankRawResponse {
   }>;
 }
 
-export const produkBankApi = smpApi.injectEndpoints({
+export const produkBankApi = bankSmpApi.injectEndpoints({
   endpoints: (builder) => ({
     getProdukBank: builder.query<ProdukBank[], PaginationParams>({
       query: (params) => {

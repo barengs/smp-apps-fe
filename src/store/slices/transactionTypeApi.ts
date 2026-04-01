@@ -1,8 +1,8 @@
-import { smpApi } from '../baseApi';
+import { bankSmpApi } from '../bankBaseApi';
 import { TransactionType, CreateUpdateTransactionTypeRequest, PaginatedTransactionTypes, TransactionTypeApiResponse } from '@/types/keuangan';
 import { PaginationParams } from '@/types/master-data';
 
-export const transactionTypeApi = smpApi.injectEndpoints({
+export const transactionTypeApi = bankSmpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTransactionTypes: builder.query<PaginatedTransactionTypes, PaginationParams>({
       query: (params) => {

@@ -12,8 +12,6 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Eye, ArrowUpRight, ArrowRightLeft, ChevronDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import TambahKenaikanKelasForm from './TambahKenaikanKelasForm';
 import KenaikanKelasModal from './KenaikanKelasModal';
 import TransferClassModal from './TransferClassModal';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
@@ -53,7 +51,6 @@ interface PromotionData {
 }
 
 export default function KenaikanKelasPage() {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState<PromotionData | null>(null);
@@ -63,7 +60,6 @@ export default function KenaikanKelasPage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-  const navigate = useNavigate();
   // Tambahkan state pagination (pageIndex berbasis 0, pageSize default 10)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -261,11 +257,6 @@ export default function KenaikanKelasPage() {
   const handleTransferClass = (data: PromotionData) => {
     setSelectedPromotion(data);
     setIsTransferModalOpen(true);
-  };
-
-  // Fungsi untuk menambah data kenaikan kelas
-  const handleAddData = () => {
-    setIsAddModalOpen(true);
   };
 
   // Fungsi untuk proses penugasan
@@ -473,8 +464,8 @@ export default function KenaikanKelasPage() {
         <Card>
           <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <CardTitle>Kenaikan Kelas</CardTitle>
-              <CardDescription>Daftar siswa untuk proses kenaikan kelas berdasarkan data kelas saat ini.</CardDescription>
+              <CardTitle>Kenaikan Kelas Santri Lama</CardTitle>
+              <CardDescription>Daftar santri untuk proses kenaikan jenjang (promotion) dan pindah kelas.</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Tahun Ajaran:</span>
@@ -501,11 +492,9 @@ export default function KenaikanKelasPage() {
                 data={promotionData}
                 exportFileName="data-kenaikan-kelas"
                 exportTitle="Data Kenaikan Kelas"
-                onAddData={handleAddData}
                 onAssignment={handleAssignment}
-                assignmentButtonLabel="Kenaikan Kelas"
+                assignmentButtonLabel="Proses Kenaikan Kelas"
                 assignmentButtonClassName="bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500"
-                addButtonLabel="Atur Kelas"
                 leftActions={leftActions}
                 filterableColumns={{
                   jenjangPendidikan: { type: 'select', placeholder: 'Pendidikan', options: educationOptions },
@@ -543,7 +532,6 @@ export default function KenaikanKelasPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <TambahKenaikanKelasForm isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
       <KenaikanKelasModal
         isOpen={isPromotionModalOpen}
         onClose={() => setIsPromotionModalOpen(false)}

@@ -1,75 +1,119 @@
-import { smpApi } from '../baseApi';
+import { bankSmpApi } from "../bankBaseApi";
 
 export interface Coa {
   coa_code: string;
   account_name: string;
-  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
-  level: 'HEADER' | 'SUBHEADER' | 'DETAIL'; // New field
-  parent_coa_code: string | null;
-  is_postable: boolean;
-  is_active: string; // Ditambahkan berdasarkan contoh data
-  created_at: string; // Ditambahkan berdasarkan contoh data
-  updated_at: string; // Ditambahkan berdasarkan contoh data
-  children: any[]; // Ditambahkan berdasarkan contoh data
+  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE' | string;
+  level: 'HEADER' | 'SUBHEADER' | 'DETAIL' | string;
+  parent_coa_code?: string | null;
+  is_postable: boolean | string;
+  children?: Coa[];
+  is_active?: boolean;
 }
-
-// Interface GetCoaResponse dihapus karena API mengembalikan array Coa[] secara langsung
 
 export interface CreateUpdateCoaRequest {
   coa_code: string;
   account_name: string;
-  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
-  level: 'HEADER' | 'SUBHEADER' | 'DETAIL'; // New field
+  account_type: string;
+  level: string;
   parent_coa_code?: string | null;
   is_postable: boolean;
 }
 
-export const coaApi = smpApi.injectEndpoints({
+export interface TransactionType {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  category: string;
+  is_debit: boolean;
+  is_credit: boolean;
+  default_debit_coa?: string;
+  default_credit_coa?: string;
+  is_active: boolean;
+}
+
+export const coaApi = bankSmpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCoa: builder.query<Coa[], void>({ // Tipe kembalian diubah menjadi Coa[]
-      query: () => 'master/chart-of-account',
+    getCoa: builder.query<Coa[], void>({
+      query: () => "/master/chart-of-account",
+      transformResponse: (res: any) => res.data?.data || res.data || [],
       providesTags: ['Coa'],
-      transformResponse: (response: { data: Coa[] }) => response.data, // Menambahkan ini untuk mengekstrak array Coa
     }),
-    getHeaderAccounts: builder.query<Coa[], void>({ // New endpoint for header accounts
-      query: () => 'master/chart-of-account/header-accounts',
-      providesTags: ['Coa'], // Still provides 'Coa' tag for invalidation
+    getHeaderAccounts: builder.query<Coa[], void>({
+      query: () => "/master/chart-of-account",
+      transformResponse: (res: any) => {
+        const data = res.data?.data || res.data || [];
+        return Array.isArray(data) ? data.filter((item: Coa) => item.level === 'HEADER' || item.level === 'SUBHEADER') : [];
+      },
     }),
-    getDetailAccounts: builder.query<Coa[], void>({ // New endpoint for detail accounts
-      query: () => 'master/chart-of-account/detail-accounts',
-      providesTags: ['Coa'],
+    getDetailAccounts: builder.query<Coa[], void>({
+      query: () => "/master/chart-of-account",
+      transformResponse: (res: any) => {
+        const data = res.data?.data || res.data || [];
+        // Flatten or filter for DETAIL accounts
+        const details: Coa[] = [];
+        const extractDetails = (items: Coa[]) => {
+          items.forEach(item => {
+            if (item.level === 'DETAIL') {
+              details.push(item);
+            }
+            if (item.children && item.children.length > 0) {
+              extractDetails(item.children);
+            }
+          });
+        };
+        extractDetails(data);
+        return details;
+      },
     }),
     createCoa: builder.mutation<Coa, CreateUpdateCoaRequest>({
-      query: (newCoa) => ({
-        url: 'master/chart-of-account',
-        method: 'POST',
-        body: newCoa,
+      query: (data) => ({
+        url: "/master/chart-of-account",
+        method: "POST",
+        body: data,
       }),
       invalidatesTags: ['Coa'],
     }),
     updateCoa: builder.mutation<Coa, { id: string; data: CreateUpdateCoaRequest }>({
-        query: ({ id, data }) => ({
-            url: `master/chart-of-account/${id}`,
-            method: 'PUT',
-            body: data,
-        }),
-        invalidatesTags: ['Coa'],
+      query: ({ id, data }) => ({
+        url: `/master/chart-of-account/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ['Coa'],
     }),
-    deleteCoa: builder.mutation<{ message: string }, string>({
-        query: (id) => ({
-            url: `master/chart-of-account/${id}`,
-            method: 'DELETE',
-        }),
-        invalidatesTags: ['Coa'],
+    deleteCoa: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/master/chart-of-account/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ['Coa'],
+    }),
+    
+    // Transaction Types for config
+    getTransactionTypes: builder.query<{ status: string; data: TransactionType[] }, void>({
+      query: () => "/main/transaction-type",
+      providesTags: ['TransactionType'],
+    }),
+    updateTransactionType: builder.mutation<TransactionType, { id: number; data: Partial<TransactionType> }>({
+      query: ({ id, data }) => ({
+        url: `/main/transaction-type/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["TransactionType"],
     }),
   }),
 });
 
-export const { 
-    useGetCoaQuery, 
-    useGetHeaderAccountsQuery, // Export the new hook
-    useGetDetailAccountsQuery, // Export the new hook
-    useCreateCoaMutation,
-    useUpdateCoaMutation,
-    useDeleteCoaMutation,
+export const {
+  useGetCoaQuery,
+  useGetHeaderAccountsQuery,
+  useGetDetailAccountsQuery,
+  useCreateCoaMutation,
+  useUpdateCoaMutation,
+  useDeleteCoaMutation,
+  useGetTransactionTypesQuery,
+  useUpdateTransactionTypeMutation,
 } = coaApi;

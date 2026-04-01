@@ -1,5 +1,8 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import TopUpCashPage from '@/pages/keuangan/TopUpCashPage';
+import TopUpTransferPage from '@/pages/keuangan/TopUpTransferPage';
+import TopUpVerificationPage from '@/pages/keuangan/TopUpVerificationPage';
 import Index from "@/pages/landing/Index";
 import NotFound from "@/pages/utility/NotFound";
 import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard";
@@ -16,6 +19,7 @@ import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
 import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
+import MutasiAsramaPage from "@/pages/manajemen-santri/MutasiAsramaPage";
 import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage";
 import KotaPage from "@/pages/data-wilayah/KotaPage";
 import KecamatanPage from "@/pages/data-wilayah/KecamatanPage";
@@ -29,6 +33,7 @@ import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
 import JadwalKegiatanPage from "@/pages/manajemen-pendidikan/JadwalKegiatanPage";
 import RombelPage from "@/pages/manajemen-pendidikan/RombelPage";
 import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
+import PenempatanKelasPage from "@/pages/manajemen-kurikulum/PenempatanKelasPage";
 import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
 import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
 import MataPelajaranForm from "@/pages/manajemen-kurikulum/MataPelajaranForm";
@@ -102,6 +107,20 @@ import RegistrationPage from '@/pages/wali-santri/RegistrationPage';
 import RegistrationHistoryPage from '@/pages/wali-santri/RegistrationHistoryPage';
 import TagihanPage from '@/pages/wali-santri/TagihanPage';
 import TopupPage from '@/pages/wali-santri/TopupPage';
+import PaketPembayaranPage from '@/pages/keuangan/PaketPembayaranPage';
+import PembayaranPage from '@/pages/keuangan/PembayaranPage';
+import KoperasiPage from '@/pages/keuangan/KoperasiPage';
+import SettingPage from '@/pages/keuangan/SettingPage';
+import LaporanJurnalPage from '@/pages/keuangan/laporan/LaporanJurnalPage';
+import LaporanMutasiNasabahPage from '@/pages/keuangan/laporan/LaporanMutasiNasabahPage';
+import LaporanRekapSaldoPage from '@/pages/keuangan/laporan/LaporanRekapSaldoPage';
+import LaporanRekapKasirPage from '@/pages/keuangan/laporan/LaporanRekapKasirPage';
+import TransactionConfigPage from '@/pages/keuangan/laporan/TransactionConfigPage';
+import { StatistikSantriPage } from '@/pages/kesantrian/laporan/StatistikSantriPage';
+import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pages/kesantrian/laporan/LaporanPelanggaranPage';
+import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
+import { StatistikPresensiPage } from '@/pages/kesantrian/laporan/StatistikPresensiPage';
+
 
 // Redux imports
 import { ThemeProvider } from './components/theme-provider';
@@ -131,6 +150,7 @@ function App() {
     <BrowserRouter
       future={{
         v7_startTransition: true,
+        v7_relativeSplatPath: true,
       }}
     >
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -162,6 +182,7 @@ function App() {
               <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
               <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
               <Route path="/dashboard/santri/:id/edit" element={<SantriEditPage />} />
+              <Route path="/dashboard/santri/mutasi-asrama" element={<MutasiAsramaPage />} />
 
               {/* Rute Pendaftaran Santri */}
               <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
@@ -184,6 +205,9 @@ function App() {
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
               <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
+              <Route path="/dashboard/bank-santri/top-up/cash" element={<TopUpCashPage />} />
+              <Route path="/dashboard/bank-santri/top-up/transfer" element={<TopUpTransferPage />} />
+              <Route path="/dashboard/bank-santri/top-up/verifikasi" element={<TopUpVerificationPage />} />
               <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
               <Route path="/dashboard/bank-santri/transaksi/:id" element={<TransaksiDetailPage />} />
               <Route path="/dashboard/bank-santri/produk" element={<ProdukPage />} />
@@ -191,7 +215,16 @@ function App() {
               <Route path="/dashboard/bank-santri/jenis-transaksi" element={<JenisTransaksiPage />} />
               <Route path="/dashboard/bank-santri/rekening" element={<RekeningPage />} />
               <Route path="/dashboard/bank-santri/rekening/:accountNumber" element={<RekeningDetailPage />} />
+              <Route path="/dashboard/bank-santri/paket" element={<PaketPembayaranPage />} />
+              <Route path="/dashboard/bank-santri/pembayaran" element={<PembayaranPage />} />
+              <Route path="/dashboard/bank-santri/koperasi" element={<KoperasiPage />} />
               <Route path="/dashboard/bank-santri/laporan" element={<LaporanPage />} />
+              <Route path="/dashboard/bank-santri/laporan/jurnal" element={<LaporanJurnalPage />} />
+              <Route path="/dashboard/bank-santri/laporan/mutasi" element={<LaporanMutasiNasabahPage />} />
+              <Route path="/dashboard/bank-santri/laporan/saldo" element={<LaporanRekapSaldoPage />} />
+              <Route path="/dashboard/bank-santri/laporan/kasir" element={<LaporanRekapKasirPage />} />
+              <Route path="/dashboard/bank-santri/laporan/config" element={<TransactionConfigPage />} />
+              <Route path="/dashboard/bank-santri/pengaturan" element={<SettingPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
               <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
@@ -235,6 +268,7 @@ function App() {
               <Route path="/dashboard/manajemen-kurikulum/penilaian/:detailId" element={<PenilaianDetailPage />} />
               <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
               <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/penempatan-kelas" element={<PenempatanKelasPage />} />
               <Route path="/dashboard/manajemen-kurikulum/raport" element={<RaportPage />} />
               <Route path="/dashboard/manajemen-kurikulum/raport/:classGroupId/cetak/:studentId" element={<RaportPrintView />} />
               {/* Route manajemen kamtib */}
@@ -254,6 +288,12 @@ function App() {
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
               {/* Manajemen Informasi */}
               <Route path="/dashboard/berita" element={<BeritaPage />} />
+
+              {/* Laporan Pesantren */}
+              <Route path="/dashboard/kesantrian/laporan/statistik-santri" element={<StatistikSantriPage />} />
+              <Route path="/dashboard/kesantrian/laporan/pelanggaran" element={<LaporanPelanggaranPesantrenPage />} />
+              <Route path="/dashboard/kesantrian/laporan/izin" element={<LaporanIzinPage />} />
+              <Route path="/dashboard/kesantrian/laporan/presensi" element={<StatistikPresensiPage />} />
 
               {/* Role Management Routes */}
               <Route path="/utility/roles" element={<RoleManagementPage />} />

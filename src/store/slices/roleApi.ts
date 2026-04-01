@@ -166,6 +166,7 @@ export const roleApi = smpApi.injectEndpoints({
         method: "POST",
         body: newRole,
       }),
+      transformResponse: (response: { data: RoleApiResponse }) => response.data,
       invalidatesTags: [{ type: "Role", id: "LIST" }],
     }),
     updateRole: builder.mutation<
@@ -177,6 +178,7 @@ export const roleApi = smpApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
+      transformResponse: (response: { data: RoleApiResponse }) => response.data,
       invalidatesTags: (result, error, { id }) => [
         { type: "Role", id },
         { type: "Role", id: "LIST" },
@@ -212,6 +214,7 @@ export const roleApi = smpApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      transformResponse: (response: { data: RoleApiResponse }) => response.data,
       invalidatesTags: (result, error, { roleId }) => [
         { type: "Role", id: roleId },
         { type: "Role", id: "LIST" },

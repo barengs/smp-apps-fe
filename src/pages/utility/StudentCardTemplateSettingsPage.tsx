@@ -26,7 +26,7 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
   useEffect(() => {
     if (settings) {
       const newPreviews: any = {};
-      (['front_template', 'back_template', 'stamp', 'signature'] as const).forEach(key => {
+      (['front_template', 'back_template', 'guardian_front_template', 'guardian_back_template', 'kop_surat', 'stamp', 'signature'] as const).forEach(key => {
         if (settings[key]) {
           newPreviews[key] = `${STORAGE_BASE_URL}${settings[key]}`;
         }
@@ -167,7 +167,7 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
         <div className="flex justify-between items-center mt-6 mb-6">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Pengaturan Template Kartu</h1>
-              <p className="text-muted-foreground">Kelola gambar template depan, belakang, stempel, dan tanda tangan kartu santri.</p>
+              <p className="text-muted-foreground">Kelola gambar template untuk kartu santri, kartu wali santri, dan kop surat.</p>
             </div>
             <Button onClick={handleSubmit} disabled={isUpdating || Object.keys(files).length === 0} variant="success">
               <Save className="mr-2 h-4 w-4" /> {isUpdating ? 'Menyimpan...' : 'Simpan Perubahan'}
@@ -175,8 +175,22 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="col-span-full border-b pb-2">
+            <h2 className="text-xl font-semibold">1. Kartu Santri</h2>
+          </div>
           {renderUploadCard('Template Depan', 'front_template', 'Gambar latar belakang untuk sisi depan kartu santri.')}
           {renderUploadCard('Template Belakang', 'back_template', 'Gambar latar belakang untuk sisi belakang kartu santri.')}
+          
+          <div className="col-span-full mt-4 border-b pb-2">
+            <h2 className="text-xl font-semibold">2. Kartu Wali Santri</h2>
+          </div>
+          {renderUploadCard('Template Depan Wali', 'guardian_front_template', 'Gambar latar belakang untuk sisi depan kartu wali santri.')}
+          {renderUploadCard('Template Belakang Wali', 'guardian_back_template', 'Gambar latar belakang untuk sisi belakang kartu wali santri.')}
+
+          <div className="col-span-full mt-4 border-b pb-2">
+            <h2 className="text-xl font-semibold">3. Kop Surat & Lainnya</h2>
+          </div>
+          {renderUploadCard('Kop Surat', 'kop_surat', 'Gambar kop surat resmi untuk dokumen.')}
           {renderUploadCard('Stempel', 'stamp', 'Gambar stempel resmi yayasan/sekolah (transparan direkomendasikan).')}
           {renderUploadCard('Tanda Tangan', 'signature', 'Gambar tanda tangan kepala sekolah/pimpinan (transparan direkomendasikan).')}
         </div>

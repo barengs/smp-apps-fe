@@ -48,7 +48,7 @@ const WaliSantriDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">Aktif</div>
-            <p className="text-xs text-muted-foreground">Semester Genap 2025/2026</p>
+            <p className="text-xs text-muted-foreground">Kuartal / Periode 2025/2026</p>
           </CardContent>
         </Card>
       </div>

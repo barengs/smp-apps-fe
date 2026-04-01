@@ -2,6 +2,18 @@ import { smpApi } from '../baseApi';
 import { Room, CreateUpdateRoomRequest } from '@/types/kepesantrenan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
+export interface ImportRoomResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    success_count: number;
+    skipped_count: number;
+    failure_count: number;
+    total: number;
+    errors: string[];
+  };
+}
+
 export const roomApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getRooms: builder.query<PaginatedResponse<Room>, PaginationParams>({
@@ -102,6 +114,21 @@ export const roomApi = smpApi.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    importRooms: builder.mutation<ImportRoomResponse, FormData>({
+      query: (formData) => ({
+        url: 'master/room/import',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: [{ type: 'Room', id: 'LIST' }],
+    }),
+    downloadRoomTemplate: builder.mutation<Blob, void>({
+      query: () => ({
+        url: 'master/room/import/template',
+        method: 'GET',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -113,4 +140,6 @@ export const {
   useDeleteRoomMutation,
   useExportRoomsMutation,
   useBackupRoomsMutation,
+  useImportRoomsMutation,
+  useDownloadRoomTemplateMutation,
 } = roomApi;

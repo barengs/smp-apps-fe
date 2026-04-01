@@ -15,7 +15,7 @@ export interface ClassStudentsResponse {
         class_group: any;
         students: ReportCardStudent[];
         academic_year_id: number | null;
-        semester: string;
+        academic_quarter_id: string;
     };
 }
 
@@ -26,7 +26,7 @@ export interface StudentReportResponse {
         student: any;
         class_group: any;
         academic_year: any;
-        semester: string;
+        academic_quarter_id: string;
         curriculum: string;
         assessments: any[];
     };
@@ -34,19 +34,19 @@ export interface StudentReportResponse {
 
 export const reportCardApi = smpApi.injectEndpoints({
     endpoints: (builder) => ({
-        getClassStudentsForReport: builder.query<ClassStudentsResponse, { classGroupId: number; semester?: string; academic_year_id?: string }>({
-            query: ({ classGroupId, semester, academic_year_id }) => {
+        getClassStudentsForReport: builder.query<ClassStudentsResponse, { classGroupId: number; academic_quarter_id?: string; academic_year_id?: string }>({
+            query: ({ classGroupId, academic_quarter_id, academic_year_id }) => {
                 let params = new URLSearchParams();
-                if (semester) params.append('semester', semester);
+                if (academic_quarter_id) params.append('academic_quarter_id', academic_quarter_id);
                 if (academic_year_id) params.append('academic_year_id', academic_year_id);
                 return `main/report-card/class/${classGroupId}?${params.toString()}`;
             },
             providesTags: (result, error, arg) => [{ type: 'ReportCard', id: `CLASS_${arg.classGroupId}` }],
         }),
-        getStudentReportCard: builder.query<StudentReportResponse, { classGroupId: number; studentId: number; semester?: string; academic_year_id?: string }>({
-            query: ({ classGroupId, studentId, semester, academic_year_id }) => {
+        getStudentReportCard: builder.query<StudentReportResponse, { classGroupId: number; studentId: number; academic_quarter_id?: string; academic_year_id?: string }>({
+            query: ({ classGroupId, studentId, academic_quarter_id, academic_year_id }) => {
                 let params = new URLSearchParams();
-                if (semester) params.append('semester', semester);
+                if (academic_quarter_id) params.append('academic_quarter_id', academic_quarter_id);
                 if (academic_year_id) params.append('academic_year_id', academic_year_id);
                 return `main/report-card/student/${classGroupId}/${studentId}?${params.toString()}`;
             },

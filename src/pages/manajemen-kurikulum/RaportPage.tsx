@@ -7,7 +7,7 @@ import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { useGetClassGroupDetailsQuery } from '@/store/slices/classGroupApi';
 import { useGetClassStudentsForReportQuery } from '@/store/slices/reportCardApi';
-import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
+import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery, useGetAcademicQuartersQuery } from '@/store/slices/tahunAjaranApi';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const RaportPage: React.FC = () => {
     const navigate = useNavigate();
     const [selectedClassGroupId, setSelectedClassGroupId] = useState<number | null>(null);
-    const [selectedSemester, setSelectedSemester] = useState<string>('1');
+    const [selectedQuarterId, setSelectedQuarterId] = useState<string>('');
     const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
 
     const breadcrumbItems: BreadcrumbItemData[] = [
@@ -36,7 +36,25 @@ const RaportPage: React.FC = () => {
         }
     }, [activeAcademicYear, selectedAcademicYearId]);
 
-    // Get all Class Groups filtered by selected year
+    // Get Quarters for selected year
+    const { data: quartersRes, isLoading: isLoadingQuarters } = useGetAcademicQuartersQuery(
+        { academic_year_id: Number(selectedAcademicYearId) },
+        { skip: !selectedAcademicYearId }
+    );
+    const quarters = quartersRes?.data || [];
+
+    // Set default quarter if active exists
+    React.useEffect(() => {
+        if (quarters.length > 0 && !selectedQuarterId) {
+            const activeQuarter = quarters.find(q => q.active);
+            if (activeQuarter) {
+                setSelectedQuarterId(activeQuarter.id.toString());
+            } else {
+                setSelectedQuarterId(quarters[0].id.toString());
+            }
+        }
+    }, [quarters, selectedQuarterId]);
+
     const { data: classGroupRes, isLoading: isLoadingClassGroups } = useGetClassGroupDetailsQuery(
         selectedAcademicYearId ? { academic_year_id: Number(selectedAcademicYearId) } : undefined,
         { skip: !selectedAcademicYearId }
@@ -45,8 +63,8 @@ const RaportPage: React.FC = () => {
 
     // Get students if a class is selected
     const { data: studentsRes, isLoading: isLoadingStudents, isFetching: isFetchingStudents } = useGetClassStudentsForReportQuery(
-        { classGroupId: selectedClassGroupId!, semester: selectedSemester, academic_year_id: selectedAcademicYearId },
-        { skip: !selectedClassGroupId || !selectedAcademicYearId }
+        { classGroupId: selectedClassGroupId!, academic_quarter_id: selectedQuarterId, academic_year_id: selectedAcademicYearId },
+        { skip: !selectedClassGroupId || !selectedAcademicYearId || !selectedQuarterId }
     );
     const studentsData = studentsRes?.data?.students || [];
 
@@ -78,14 +96,14 @@ const RaportPage: React.FC = () => {
                 <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => navigate(`/dashboard/manajemen-kurikulum/raport/${selectedClassGroupId}/cetak/${row.original.id}?semester=${selectedSemester}&academic_year_id=${selectedAcademicYearId}`)}
+                    onClick={() => navigate(`/dashboard/manajemen-kurikulum/raport/${selectedClassGroupId}/cetak/${row.original.id}?academic_quarter_id=${selectedQuarterId}&academic_year_id=${selectedAcademicYearId}`)}
                 >
                     <Printer className="h-4 w-4 mr-2" />
                     Buka Raport
                 </Button>
             ),
         },
-    ], [navigate, selectedClassGroupId, selectedSemester, selectedAcademicYearId]);
+    ], [navigate, selectedClassGroupId, selectedQuarterId, selectedAcademicYearId]);
 
     return (
         <DashboardLayout title="Manajemen Raport" role="administrasi">
@@ -141,14 +159,17 @@ const RaportPage: React.FC = () => {
                                 </CardDescription>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium">Semester:</span>
-                                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                                    <SelectTrigger className="w-[120px]">
-                                        <SelectValue placeholder="Semester" />
+                                <span className="text-sm font-medium">Kuartal / Periode:</span>
+                                <Select value={selectedQuarterId} onValueChange={setSelectedQuarterId}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Pilih Kuartal" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="1">Ganjil (1)</SelectItem>
-                                        <SelectItem value="2">Genap (2)</SelectItem>
+                                        {quarters.map((q: any) => (
+                                            <SelectItem key={q.id} value={q.id.toString()}>
+                                                {q.name}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <Button variant="outline" onClick={() => setSelectedClassGroupId(null)}>

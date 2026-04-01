@@ -32,10 +32,6 @@ const formSchema = z.object({
   year: z.string().regex(/^\d{4}\/\d{4}$/, {
     message: 'Format tahun ajaran harus YYYY/YYYY (contoh: 2023/2024).',
   }),
-  type: z.enum(['semester', 'triwulan'], {
-    errorMap: () => ({ message: 'Tipe harus dipilih.' }),
-  }),
-  periode: z.string().min(1, { message: 'Periode harus dipilih.' }),
   start_date: z.date({
     required_error: 'Tanggal mulai harus dipilih.',
   }),
@@ -53,8 +49,6 @@ interface TahunAjaranFormProps {
   initialData?: {
     id: number;
     year: string;
-    type?: string;
-    periode?: string;
     start_date?: string;
     end_date?: string;
     active: boolean;
@@ -73,14 +67,10 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
     defaultValues: initialData ? {
       ...initialData,
       description: initialData.description || '',
-      type: (initialData.type as 'semester' | 'triwulan') || 'semester',
-      periode: initialData.periode || '',
       start_date: initialData.start_date ? new Date(initialData.start_date) : undefined,
       end_date: initialData.end_date ? new Date(initialData.end_date) : undefined,
     } : {
       year: '',
-      type: 'semester',
-      periode: '',
       start_date: undefined,
       end_date: undefined,
       active: false,
@@ -88,22 +78,10 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
     },
   });
 
-  const typeValue = form.watch('type');
-  const periodeValue = form.watch('periode');
-
-  useEffect(() => {
-    if (typeValue === 'semester' && periodeValue && !['ganjil', 'genap'].includes(periodeValue)) {
-      form.setValue('periode', '');
-    } else if (typeValue === 'triwulan' && periodeValue && !['cawu 1', 'cawu 2', 'cawu 3'].includes(periodeValue)) {
-      form.setValue('periode', '');
-    }
-  }, [typeValue, form, periodeValue]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload: CreateUpdateTahunAjaranRequest = {
       year: values.year,
-      type: values.type,
-      periode: values.periode,
       start_date: values.start_date.toISOString().split('T')[0],
       end_date: values.end_date.toISOString().split('T')[0],
       active: values.active,
@@ -155,61 +133,6 @@ const TahunAjaranForm: React.FC<TahunAjaranFormProps> = ({ initialData, onSucces
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipe</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih tipe" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="semester">Semester</SelectItem>
-                    <SelectItem value="triwulan">Triwulan</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="periode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Periode</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih periode" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {typeValue === 'semester' && (
-                      <>
-                        <SelectItem value="ganjil">Ganjil</SelectItem>
-                        <SelectItem value="genap">Genap</SelectItem>
-                      </>
-                    )}
-                    {typeValue === 'triwulan' && (
-                      <>
-                        <SelectItem value="cawu 1">Cawu 1</SelectItem>
-                        <SelectItem value="cawu 2">Cawu 2</SelectItem>
-                        <SelectItem value="cawu 3">Cawu 3</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
