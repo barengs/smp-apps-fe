@@ -10,6 +10,7 @@ import {
     useCheckoutStudentMutation,
     useCheckinStudentMutation
 } from '@/store/slices/holidayApi';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
 import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,10 @@ const LiburSantriPage: React.FC = () => {
     const navigate = useNavigate();
     const { data: periodsResponse } = useGetHolidayPeriodsQuery();
     const periods = periodsResponse?.data || [];
+    const { data: settingsResponse } = useGetStudentCardSettingsQuery();
+    const settings = settingsResponse?.data;
+    const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
+    const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
 
     const selectedPeriod = useMemo(() => {
         if (periods.length === 0) return null;
@@ -228,7 +233,7 @@ const LiburSantriPage: React.FC = () => {
                                                             size="sm"
                                                             className="h-8 w-8 p-0"
                                                             title="Cetak Surat Izin"
-                                                            onClick={() => selectedPeriod && openHolidayPermitPdf(selectedPeriod, student)}
+                                                            onClick={() => selectedPeriod && openHolidayPermitPdf(selectedPeriod, student, kopSuratUrl)}
                                                         >
                                                             <Printer className="h-4 w-4 text-blue-600" />
                                                         </Button>

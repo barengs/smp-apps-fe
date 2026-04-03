@@ -97,6 +97,22 @@ export const holidayApi = smpApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, { periodId }) => [{ type: 'HolidayStudent', id: periodId }],
         }),
+        checkoutByNis: builder.mutation<{ status: string; message: string; data: any }, { nis: string }>({
+            query: (data) => ({
+                url: 'main/holiday/checkout-nis',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['HolidayStudent'],
+        }),
+        checkinByNis: builder.mutation<{ status: string; message: string; data: any }, { nis: string }>({
+            query: (data) => ({
+                url: 'main/holiday/checkin-nis',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['HolidayStudent'],
+        }),
     }),
 });
 
@@ -110,4 +126,6 @@ export const {
     useToggleRequirementMutation,
     useCheckoutStudentMutation,
     useCheckinStudentMutation,
+    useCheckoutByNisMutation,
+    useCheckinByNisMutation,
 } = holidayApi;

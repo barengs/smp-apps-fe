@@ -72,28 +72,47 @@ const styles = StyleSheet.create({
         borderTopColor: '#000',
         marginTop: 4,
         paddingTop: 2,
-    }
+    },
+    kopImage: {
+        width: '100%',
+        height: 'auto',
+        marginBottom: 10,
+    },
 });
 
 interface HolidayPermitProps {
     period: HolidayPeriod;
     student: StudentHolidayCheck;
     qrDataUrl?: string;
+    kopSuratUrl?: string;
 }
 
-export const HolidayPermitDocument: React.FC<HolidayPermitProps> = ({ period, student, qrDataUrl }) => (
+export const HolidayPermitDocument: React.FC<HolidayPermitProps> = ({ period, student, qrDataUrl, kopSuratUrl }) => (
     <Document>
         <Page size="A5" orientation="landscape" style={styles.page}>
+            {kopSuratUrl && (
+                <Image src={kopSuratUrl} style={styles.kopImage} />
+            )}
+
             {qrDataUrl && (
-                <View style={styles.qrContainer}>
+                <View style={[styles.qrContainer, kopSuratUrl ? { top: 70 } : {}]}>
                     <Image src={qrDataUrl} />
                 </View>
             )}
 
-            <View style={styles.header}>
-                <Text style={styles.title}>Surat Izin Libur Santri</Text>
-                <Text style={styles.subtitle}>{period.name}</Text>
-            </View>
+            {!kopSuratUrl && (
+                <View style={styles.header}>
+                    <Text style={styles.title}>Surat Izin Libur Santri</Text>
+                    <Text style={styles.subtitle}>{period.name}</Text>
+                </View>
+            )}
+            
+            {kopSuratUrl && (
+                <View style={{ alignItems: 'center', marginBottom: 15 }}>
+                     <Text style={[styles.title, { fontSize: 13 }]}>Surat Izin Libur Santri</Text>
+                     <Text style={[styles.subtitle, { marginTop: 2 }]}>{period.name}</Text>
+                </View>
+            )}
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Data Santri</Text>
@@ -139,7 +158,7 @@ export const HolidayPermitDocument: React.FC<HolidayPermitProps> = ({ period, st
     </Document>
 );
 
-export async function openHolidayPermitPdf(period: HolidayPeriod, student: StudentHolidayCheck) {
+export async function openHolidayPermitPdf(period: HolidayPeriod, student: StudentHolidayCheck, kopSuratUrl?: string) {
     let qrDataUrl: string | undefined;
     const content = `HOLIDAY-${period.id}-${student.nis}`;
 
@@ -154,7 +173,7 @@ export async function openHolidayPermitPdf(period: HolidayPeriod, student: Stude
         console.error('QR Generate error', err);
     }
 
-    const blob = await pdf(<HolidayPermitDocument period={period} student={student} qrDataUrl={qrDataUrl} />).toBlob();
+    const blob = await pdf(<HolidayPermitDocument period={period} student={student} qrDataUrl={qrDataUrl} kopSuratUrl={kopSuratUrl} />).toBlob();
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
 }

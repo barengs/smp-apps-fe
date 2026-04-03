@@ -80,41 +80,9 @@ const DebitStudentCard: React.FC<DebitStudentCardProps> = ({ student, cardData, 
         {/* Decorative Overlay for readability if no background template */}
         {!templates.back && <div className="absolute inset-0 bg-blue-50/10" />}
 
-        {/* Header Back Side */}
-        <div className="absolute top-[10%] left-[5%] right-[5%] border-b-2 border-primary/20 pb-1">
-             <div className="text-[9px] font-bold text-primary uppercase tracking-wider text-center">Tata Tertib & Ketentuan</div>
-        </div>
-
-        {/* Content Back Side */}
-        <div className="absolute top-[28%] left-[8%] right-[8%] bottom-[15%] flex flex-col justify-between">
-            <div className="space-y-1.5 overflow-hidden">
-                <div className="flex gap-2 items-start">
-                    <span className="text-[7px] font-bold text-primary">1.</span>
-                    <p className="text-[6.5px] leading-[1.2] text-gray-700">Kartu ini adalah identitas resmi santri dan alat transaksi di lingkungan pesantren.</p>
-                </div>
-                <div className="flex gap-2 items-start">
-                    <span className="text-[7px] font-bold text-primary">2.</span>
-                    <p className="text-[6.5px] leading-[1.2] text-gray-700">Dilarang meminjamkan, merusak, atau menyalahgunakan kartu ini.</p>
-                </div>
-                <div className="flex gap-2 items-start">
-                    <span className="text-[7px] font-bold text-primary">3.</span>
-                    <p className="text-[6.5px] leading-[1.2] text-gray-700">Jika kartu hilang atau rusak, segera lapor ke admin untuk pemblokiran dan penggantian.</p>
-                </div>
-                <div className="flex gap-2 items-start">
-                    <span className="text-[7px] font-bold text-primary">4.</span>
-                    <p className="text-[6.5px] leading-[1.2] text-gray-700">Segala transaksi menggunakan kartu ini tanggung jawab pemilik sepenuhnya.</p>
-                </div>
-            </div>
-
-            <div className="mt-auto flex justify-between items-center border-t border-gray-100 pt-1.5">
-                <div className="text-[6px] text-gray-500 font-medium italic">
-                    Pesantren Digital - Kedisiplinan & Kejujuran Berawal dari Sini.
-                </div>
-                {/* Small QR indicator again for back */}
-                <div className="opacity-40">
-                     {qrCodeUrl && <img src={qrCodeUrl} alt="QR Small" className="w-[20px] h-[20px]" />}
-                </div>
-            </div>
+        {/* Dynamic elements for back side (e.g. QR Code) */}
+        <div className="absolute bottom-[10%] right-[8%] opacity-80">
+             {qrCodeUrl && <img src={qrCodeUrl} alt="QR Small" className="w-[35px] h-[35px]" />}
         </div>
       </div>
     );

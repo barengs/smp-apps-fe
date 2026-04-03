@@ -95,6 +95,11 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: 'center',
   },
+  kopImage: {
+    width: '100%',
+    height: 'auto',
+    marginBottom: 8,
+  },
 });
 
 const formatDate = (d?: string) => {
@@ -116,10 +121,14 @@ const normalizeText = (v?: string) => (v && v.trim().length > 0 ? v : '-');
 const prettyStatus = (s?: string) =>
   s ? s.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '-';
 
-export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: string }> = ({ leave, qrDataUrl }) => {
+export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: string; kopSuratUrl?: string }> = ({ leave, qrDataUrl, kopSuratUrl }) => {
   return (
     <Document>
       <Page size="A5" style={styles.page}>
+        {kopSuratUrl && (
+          <Image src={kopSuratUrl} style={styles.kopImage} />
+        )}
+
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Kartu Izin Santri</Text>
@@ -232,7 +241,7 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: st
 };
 
 // Utilitas untuk membuka PDF di tab baru
-export async function openLeavePermitPdf(leave: StudentLeave) {
+export async function openLeavePermitPdf(leave: StudentLeave, kopSuratUrl?: string) {
   let qrDataUrl: string | undefined;
   const rawNumber = leave.leave_number != null ? String(leave.leave_number) : '';
   const content = rawNumber.trim();
@@ -245,7 +254,7 @@ export async function openLeavePermitPdf(leave: StudentLeave) {
     });
   }
 
-  const blob = await pdf(<LeavePermitDocument leave={leave} qrDataUrl={qrDataUrl} />).toBlob();
+  const blob = await pdf(<LeavePermitDocument leave={leave} qrDataUrl={qrDataUrl} kopSuratUrl={kopSuratUrl} />).toBlob();
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
   if (!win) {

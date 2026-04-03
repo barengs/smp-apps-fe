@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { Settings, Edit, X, Save, Camera, Info, Phone, Mail, MapPin, Globe as GlobeIcon, Server, ToggleLeft, MessageSquare, Palette, Languages } from 'lucide-react';
+import { Settings, Edit, X, Save, Camera, Info, Phone, Mail, MapPin, Globe as GlobeIcon, Server, ToggleLeft, MessageSquare, Palette, Languages, Layout } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -263,6 +263,15 @@ const AppProfilePage: React.FC = () => {
                       <SelectContent><SelectItem value="indonesia">Indonesia</SelectItem><SelectItem value="english">English</SelectItem><SelectItem value="arabic">Arabic</SelectItem></SelectContent>
                     </Select>
                   )}
+                  {renderFormItem("Gaya UI", 
+                    <Select value={formState.app_ui_style} onValueChange={(value) => handleSelectChange(value, 'app_ui_style')}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="modern">Modern (Default)</SelectItem>
+                        <SelectItem value="classic">Classic Admin (LTE)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                   {renderFormItem("Mode Pemeliharaan", 
                     <div className="flex items-center gap-4">
                       <Switch id="is_maintenance_mode" checked={formState.is_maintenance_mode} onCheckedChange={(checked) => handleSwitchChange(checked, 'is_maintenance_mode')} />
@@ -301,6 +310,7 @@ const AppProfilePage: React.FC = () => {
                   {renderDetailItem(<Phone className="h-5 w-5" />, "Telepon", settings?.app_phone)}
                   {renderDetailItem(<Palette className="h-5 w-5" />, "Tema", settings?.app_theme)}
                   {renderDetailItem(<Languages className="h-5 w-5" />, "Bahasa", settings?.app_language)}
+                  {renderDetailItem(<Layout className="h-5 w-5" />, "Gaya UI", settings?.app_ui_style === 'classic' ? 'Classic Admin (LTE)' : 'Modern')}
                   {renderDetailItem(<ToggleLeft className="h-5 w-5" />, "Mode Pemeliharaan", settings?.is_maintenance_mode ? 'Aktif' : 'Tidak Aktif')}
                   {renderDetailItem(<MapPin className="h-5 w-5" />, "Alamat", settings?.app_address, "md:col-span-2")}
                   {renderDetailItem(<Info className="h-5 w-5" />, "Deskripsi", <p className="whitespace-pre-wrap">{settings?.app_description}</p>, "md:col-span-2")}

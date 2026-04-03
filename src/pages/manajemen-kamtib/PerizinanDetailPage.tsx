@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from "@/components/ui/table";
 import { useParams, Link } from "react-router-dom";
 import { useGetStudentLeaveByIdQuery, type StudentLeave } from "@/store/slices/studentLeaveApi";
+import { useGetStudentCardSettingsQuery } from "@/store/slices/studentCardApi";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer } from "lucide-react";
 import { openLeavePermitPdf } from "@/components/LeavePermitPdf";
@@ -35,6 +36,10 @@ const PerizinanDetailPage: React.FC = () => {
   const { id } = useParams();
   const leaveId = Number(id);
   const { data: leave, refetch } = useGetStudentLeaveByIdQuery(leaveId, { skip: isNaN(leaveId) });
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
+  const settings = settingsResponse?.data;
+  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
+  const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
 
   const [statusOpen, setStatusOpen] = React.useState(false);
 
@@ -97,7 +102,7 @@ const PerizinanDetailPage: React.FC = () => {
                 <Button
                   size="icon"
                   aria-label="Print kartu izin"
-                  onClick={() => leave && openLeavePermitPdf(leave)}
+                  onClick={() => leave && openLeavePermitPdf(leave, kopSuratUrl)}
                   disabled={!leave}
                   title="Print kartu izin"
                 >

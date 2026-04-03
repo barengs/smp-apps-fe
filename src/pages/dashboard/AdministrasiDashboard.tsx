@@ -21,6 +21,8 @@ import ViolationStatsCard from '@/components/ViolationStatsCard';
 import { useGetStudentViolationStatisticsQuery } from '@/store/slices/studentViolationApi';
 import LeaveStatsCard from '@/components/LeaveStatsCard';
 import { useGetStudentLeaveStatisticsQuery } from '@/store/slices/studentLeaveApi';
+import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
+import ClassicInfoBox from '@/components/ClassicInfoBox';
 
 const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode; description?: string; color?: string }> = ({ title, value, icon, description, color }) => (
   <Card className="transition-all hover:shadow-md">
@@ -64,6 +66,8 @@ const AdministrasiDashboard: React.FC = () => {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useGetBeritaQuery();
   const { data: violationStats, isLoading: isLoadingViolationStats } = useGetStudentViolationStatisticsQuery();
   const { data: leaveStats, isLoading: isLoadingLeaveStats } = useGetStudentLeaveStatisticsQuery();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery();
+  const settings = settingsResponse?.data;
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedKegiatan, setSelectedKegiatan] = useState<Kegiatan | null>(null);
@@ -142,48 +146,83 @@ const AdministrasiDashboard: React.FC = () => {
           <div className="col-span-full text-red-500">Gagal memuat data statistik.</div>
         ) : (
           <>
-            <Link to="/dashboard/santri">
-              <StatCard
-                title="Total Santri"
-                value={dashboardData?.data?.santri ?? 0}
-                icon={<Users className="h-6 w-6" />}
-                description="Jumlah santri aktif saat ini"
-                color="text-blue-600"
-              />
-            </Link>
-            <Link to="/dashboard/staf">
-              <StatCard
-                title="Total Asatidz"
-                value={dashboardData?.data?.asatidz ?? 0}
-                icon={<Briefcase className="h-6 w-6" />}
-                description="Jumlah staf pengajar"
-                color="text-green-600"
-              />
-            </Link>
-            {isLoadingCalonSantri ? (
-              <StatCardSkeleton />
-            ) : isErrorCalonSantri ? (
-              <div className="col-span-1 text-red-500">Gagal memuat data calon santri.</div>
-            ) : (
-              <Link to="/dashboard/pendaftaran-santri">
-                <StatCard
+            {settings?.app_ui_style === 'classic' ? (
+              <>
+                <ClassicInfoBox
+                  title="Total Santri"
+                  value={dashboardData?.data?.santri ?? 0}
+                  icon={<Users />}
+                  color="blue"
+                  href="/dashboard/santri"
+                />
+                <ClassicInfoBox
+                  title="Total Asatidz"
+                  value={dashboardData?.data?.asatidz ?? 0}
+                  icon={<Briefcase />}
+                  color="green"
+                  href="/dashboard/staf"
+                />
+                <ClassicInfoBox
                   title="Total Santri Baru"
                   value={calonSantriData?.data?.total ?? 0}
-                  icon={<UserPlus className="h-6 w-6" />}
-                  description="Jumlah pendaftar santri baru"
-                  color="text-orange-600"
-              />
-              </Link>
+                  icon={<UserPlus />}
+                  color="yellow"
+                  href="/dashboard/pendaftaran-santri"
+                />
+                <ClassicInfoBox
+                  title="Guru Tugas"
+                  value={dashboardData?.data?.tugasan ?? 0}
+                  icon={<UserCheck />}
+                  color="red"
+                  href="/dashboard/guru-tugas"
+                />
+              </>
+            ) : (
+              <>
+                <Link to="/dashboard/santri">
+                  <StatCard
+                    title="Total Santri"
+                    value={dashboardData?.data?.santri ?? 0}
+                    icon={<Users className="h-6 w-6" />}
+                    description="Jumlah santri aktif saat ini"
+                    color="text-blue-600"
+                  />
+                </Link>
+                <Link to="/dashboard/staf">
+                  <StatCard
+                    title="Total Asatidz"
+                    value={dashboardData?.data?.asatidz ?? 0}
+                    icon={<Briefcase className="h-6 w-6" />}
+                    description="Jumlah staf pengajar"
+                    color="text-green-600"
+                  />
+                </Link>
+                {isLoadingCalonSantri ? (
+                  <StatCardSkeleton />
+                ) : isErrorCalonSantri ? (
+                  <div className="col-span-1 text-red-500">Gagal memuat data calon santri.</div>
+                ) : (
+                  <Link to="/dashboard/pendaftaran-santri">
+                    <StatCard
+                      title="Total Santri Baru"
+                      value={calonSantriData?.data?.total ?? 0}
+                      icon={<UserPlus className="h-6 w-6" />}
+                      description="Jumlah pendaftar santri baru"
+                      color="text-orange-600"
+                  />
+                  </Link>
+                )}
+                <Link to="/dashboard/guru-tugas">
+                  <StatCard
+                    title="Guru Tugas"
+                    value={dashboardData?.data?.tugasan ?? 0}
+                    icon={<UserCheck className="h-6 w-6" />}
+                    description="Santri yang sedang magang"
+                    color="text-purple-600"
+                  />
+                </Link>
+              </>
             )}
-            <Link to="/dashboard/guru-tugas">
-              <StatCard
-                title="Guru Tugas"
-                value={dashboardData?.data?.tugasan ?? 0}
-                icon={<UserCheck className="h-6 w-6" />}
-                description="Santri yang sedang magang"
-                color="text-purple-600"
-              />
-            </Link>
           </>
         )}
       </div>

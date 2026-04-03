@@ -41,9 +41,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const [session, setSession] = useState<string>('');
   const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
-  // Selection state for year and period
+  // Selection state for year and quarter
   const [selectedYear, setSelectedYear] = useState<string>('');
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('');
+  const [selectedQuarterId, setSelectedQuarterId] = useState<string>('');
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
 
   // Fetch data for selects
@@ -66,36 +66,45 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   useEffect(() => {
     if (isOpen && activeAcademicYear) {
       setSelectedYear(activeAcademicYear.year);
-      setSelectedPeriod(activeAcademicYear.periode || '');
       setSelectedAcademicYearId(String(activeAcademicYear.id));
+      
+      // Auto-select active quarter if available
+      const activeQuarter = activeAcademicYear.academic_quarters?.find(q => q.active);
+      if (activeQuarter) {
+        setSelectedQuarterId(String(activeQuarter.id));
+      } else if (activeAcademicYear.academic_quarters && activeAcademicYear.academic_quarters.length > 0) {
+        setSelectedQuarterId(String(activeAcademicYear.academic_quarters[0].id));
+      }
     }
   }, [isOpen, activeAcademicYear]);
 
-  // Update available periods when year changes
-  const periodOptions = React.useMemo(() => {
+  // Update available quarters when year changes
+  const quarterOptions = React.useMemo(() => {
     if (!selectedYear) return [];
-    return academicYears
-      .filter(ay => ay.year === selectedYear)
-      .map(ay => ay.periode)
-      .filter((p): p is string => !!p);
+    const ay = academicYears.find(ay => ay.year === selectedYear);
+    return ay?.academic_quarters || [];
   }, [academicYears, selectedYear]);
 
-  // Sync selectedAcademicYearId when year or period changes
+  // Sync selectedAcademicYearId and reset quarter if it's no longer valid for the selected year
   useEffect(() => {
-    if (selectedYear && selectedPeriod) {
-      const match = academicYears.find(ay => ay.year === selectedYear && ay.periode === selectedPeriod);
+    if (selectedYear) {
+      const match = academicYears.find(ay => ay.year === selectedYear);
       if (match) {
         setSelectedAcademicYearId(String(match.id));
       }
     }
-  }, [selectedYear, selectedPeriod, academicYears]);
+  }, [selectedYear, academicYears]);
 
-  // Handle year change: auto-select first available period
+  // Handle year change: auto-select first available quarter
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
-    const available = academicYears.filter(ay => ay.year === year);
-    if (available.length > 0) {
-      setSelectedPeriod(available[0].periode || '');
+    const ay = academicYears.find(ay => ay.year === year);
+    if (ay?.academic_quarters && ay.academic_quarters.length > 0) {
+      // Find active quarter in that year or take the first
+      const activeQ = ay.academic_quarters.find(q => q.active) || ay.academic_quarters[0];
+      setSelectedQuarterId(String(activeQ.id));
+    } else {
+      setSelectedQuarterId('');
     }
   };
 
@@ -140,7 +149,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const handleSubmit = async () => {
-    if (!selectedAcademicYearId || !educationalInstitutionId || !session) {
+    if (!selectedAcademicYearId || !selectedQuarterId || !educationalInstitutionId || !session) {
       showError('Harap isi semua bidang yang diperlukan di header.');
       return;
     }
@@ -156,6 +165,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
     const payload: CreateClassScheduleRequest = {
       academic_year_id: parseInt(selectedAcademicYearId),
+      academic_quarter_id: parseInt(selectedQuarterId),
       educational_institution_id: parseInt(educationalInstitutionId),
       session: session.toLowerCase(),
       status: 'active',
@@ -242,15 +252,15 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="periode">Periode / Cawu</Label>
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger id="periode" className="w-full">
-                    <SelectValue placeholder="Pilih Periode" />
+               <div>
+                <Label htmlFor="quarter">Periode / Kuartal</Label>
+                <Select value={selectedQuarterId} onValueChange={setSelectedQuarterId}>
+                  <SelectTrigger id="quarter" className="w-full">
+                    <SelectValue placeholder="Pilih Kuartal" />
                   </SelectTrigger>
                   <SelectContent>
-                    {periodOptions.map(p => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    {quarterOptions.map(q => (
+                      <SelectItem key={q.id} value={String(q.id)}>{q.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

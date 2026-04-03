@@ -16,6 +16,7 @@ export interface ControlPanelSettings {
   maintenance_message: string | null;
   app_theme: 'light' | 'dark' | 'system';
   app_language: string;
+  app_ui_style: 'modern' | 'classic';
 }
 
 // Antarmuka baru untuk membungkus ControlPanelSettings dalam properti 'data'

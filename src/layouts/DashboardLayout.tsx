@@ -223,7 +223,9 @@ const SidebarRecursiveItem: React.FC<{ item: SidebarNavItem; level?: number }> =
       to={item.href || '#'}
       className={cn(
         "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
-        isActive ? "bg-secondary text-secondary-foreground" : "hover:bg-sidebar-menu-hover-background/80"
+        isActive 
+          ? "bg-secondary text-secondary-foreground" 
+          : "hover:bg-sidebar-menu-hover-background/80 hover:text-sidebar-foreground"
       )}
     >
       {item.icon}
@@ -295,12 +297,16 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   return (
     <nav
       className={cn(
-        "flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border",
+        "flex flex-col h-full border-r transition-colors duration-300 print:hidden",
+        settings?.app_ui_style === 'classic' 
+          ? "bg-[#343a40] text-[#c2c7d0] border-[#4b545c]" 
+          : "bg-sidebar text-sidebar-foreground border-sidebar-border"
       )}
     >
       <div
         className={cn(
-          "flex items-center h-16 shrink-0 border-b border-sidebar-border px-4",
+          "flex items-center h-16 shrink-0 px-4",
+          settings?.app_ui_style === 'classic' ? "border-b border-[#4b545c]" : "border-b border-sidebar-border",
           isCollapsed ? "justify-center" : "justify-start",
         )}
       >
@@ -319,7 +325,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
             />
           )}
           {!isCollapsed && (
-            <span className="text-xl font-bold text-primary whitespace-nowrap">
+            <span className={cn(
+              "text-xl font-bold whitespace-nowrap",
+              settings?.app_ui_style === 'classic' ? "text-white" : "text-primary"
+            )}>
               {settings?.app_name || "SMP"}
             </span>
           )}
@@ -434,8 +443,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                       isActive
-                        ? "bg-primary text-secondary-foreground"
-                        : "hover:bg-sidebar-menu-hover-background/80",
+                        ? (settings?.app_ui_style === 'classic' ? "bg-[#007bff] text-white shadow-sm" : "bg-primary text-secondary-foreground")
+                        : (settings?.app_ui_style === 'classic' ? "hover:bg-white/10 hover:text-white" : "hover:bg-sidebar-menu-hover-background/80"),
                       "px-4",
                     )}
                   >
@@ -538,7 +547,12 @@ const DashboardHeader: React.FC<{
   };
 
   return (
-    <header className="bg-header text-header-foreground shadow-sm h-16 px-6 flex justify-between items-center border-b border-border">
+    <header className={cn(
+      "shadow-sm h-16 px-6 flex justify-between items-center border-b transition-colors duration-300 print:hidden",
+      settings?.app_ui_style === 'classic' 
+        ? "bg-white text-[#495057] border-gray-200" 
+        : "bg-header text-header-foreground border-border"
+    )}>
       <div className="flex items-center">
         {isMobile ? (
           <Sheet>
@@ -646,7 +660,7 @@ const DashboardHeader: React.FC<{
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <footer className="bg-gray-800 text-white py-1 px-6 text-center">
+    <footer className="bg-gray-800 text-white py-1 px-6 text-center print:hidden">
       <div className="container mx-auto flex flex-col sm:flex-row justify-center items-center text-xs">
         <p className="mb-1 sm:mb-0 sm:mr-2">
           {t("footer.copyright", { year: new Date().getFullYear() })}
@@ -677,7 +691,8 @@ const DashboardLayoutWithLockScreen: React.FC<DashboardLayoutProps> = ({
       {isLocked && <LockScreen />}
       <div
         className={cn(
-          "flex h-screen bg-gray-50 dark:bg-background",
+          "flex h-screen transition-colors duration-300",
+          settings?.app_ui_style === 'classic' ? "bg-[#f4f6f9]" : "bg-gray-50 dark:bg-background",
           isLocked ? "blur-md pointer-events-none" : "",
         )}
       >

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGetViolationReportQuery } from '@/store/slices/pesantrenReportApi';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,6 +9,9 @@ import { Loader2, Printer, Search, ShieldAlert, FileText } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { generateLaporanPelanggaranPdf } from '@/components/reports/LaporanPelanggaranPdf';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
+import { imageUrlToBase64, getFullStorageUrl } from '@/utils/pdfExport';
 
 export const LaporanPelanggaranPage: React.FC = () => {
   const [dateRange, setDateRange] = useState({
@@ -17,13 +20,30 @@ export const LaporanPelanggaranPage: React.FC = () => {
   });
 
   const { data, isLoading, isFetching, error } = useGetViolationReportQuery(dateRange);
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrintPdf = async () => {
+    if (!data) return;
+    
+    const settings = settingsResponse?.data;
+    let kopSuratUrl: string | undefined = undefined;
+
+    if (settings?.kop_surat) {
+      const fullUrl = getFullStorageUrl(settings.kop_surat);
+      if (fullUrl) {
+        kopSuratUrl = await imageUrlToBase64(fullUrl) || fullUrl;
+      }
+    } else {
+      const fallbackUrl = `${window.location.origin}/images/KOP PESANTREN.png`;
+      kopSuratUrl = await imageUrlToBase64(fallbackUrl) || fallbackUrl;
+    }
+
+    await generateLaporanPelanggaranPdf(data, dateRange, kopSuratUrl);
   };
 
-  const getSeverityColor = (level?: string) => {
-    switch (level?.toLowerCase()) {
+  const getSeverityColor = (level?: any) => {
+    const levelStr = String(level || '').toLowerCase();
+    switch (levelStr) {
       case 'berat': return 'destructive';
       case 'sedang': return 'warning';
       case 'ringan': return 'secondary';
@@ -47,8 +67,8 @@ export const LaporanPelanggaranPage: React.FC = () => {
             <h1 className="text-3xl font-bold tracking-tight">Laporan Pelanggaran</h1>
             <p className="text-muted-foreground">Monitoring kedisiplinan santri</p>
           </div>
-          <Button variant="outline" onClick={handlePrint} disabled={isFetching}>
-            <Printer className="mr-2 h-4 w-4" /> Cetak Laporan
+          <Button variant="outline" onClick={handlePrintPdf} disabled={isFetching}>
+            <Printer className="mr-2 h-4 w-4" /> Cetak Laporan (PDF)
           </Button>
         </div>
 
@@ -80,13 +100,6 @@ export const LaporanPelanggaranPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Print-only Header */}
-        <div className="hidden print:block text-center border-b pb-4 mb-6">
-          <h1 className="text-2xl font-bold uppercase">LAPORAN KEDISIPLINAN SANTRI</h1>
-          <p className="text-lg">Periode: {dateRange.start_date} s/d {dateRange.end_date}</p>
-          <p className="text-sm text-muted-foreground">Dicetak pada: {new Date().toLocaleString('id-ID')}</p>
-        </div>
 
         {error ? (
           <Card className="border-destructive">
@@ -188,3 +201,4 @@ export const LaporanPelanggaranPage: React.FC = () => {
     </DashboardLayout>
   );
 };
+

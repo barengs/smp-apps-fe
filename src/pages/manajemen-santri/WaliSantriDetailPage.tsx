@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useReactToPrint } from 'react-to-print';
 import WaliSantriCard from './WaliSantriCard';
 import ParentPhotoUploadDialog from '@/components/ParentPhotoUploadDialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -29,6 +30,8 @@ const WaliSantriDetailPage: React.FC = () => {
   const invalidId = isNaN(parentId);
   const cardRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({ contentRef: cardRef });
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedCardSide, setSelectedCardSide] = useState<'front' | 'back'>('front');
   const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
   const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
 
@@ -119,7 +122,7 @@ const WaliSantriDetailPage: React.FC = () => {
                   <Button variant="outline" onClick={() => navigate(`/dashboard/wali-santri/${actualParentId}/edit`)}>
                     <Edit className="mr-2 h-4 w-4" /> Edit
                   </Button>
-                  <Button variant="outline" onClick={() => handlePrint()}>
+                  <Button variant="outline" onClick={() => setIsPrintDialogOpen(true)}>
                     <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
                   </Button>
                 </div>
@@ -218,24 +221,87 @@ const WaliSantriDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Hidden card for printing */}
+      {/* Modals & Dialogs */}
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+          <DialogContent className="max-w-4xl p-8 bg-gray-50">
+              <DialogHeader>
+                  <div className="flex justify-between items-center">
+                      <div>
+                          <DialogTitle>Cetak Kartu Wali Santri</DialogTitle>
+                          <DialogDescription>
+                              Pratinjau kartu identitas wali santri sebelum dicetak.
+                          </DialogDescription>
+                      </div>
+                      <div className="flex bg-gray-200 p-1 rounded-lg">
+                          <Button 
+                              variant={selectedCardSide === 'front' ? 'secondary' : 'ghost'} 
+                              size="sm" 
+                              onClick={() => setSelectedCardSide('front')}
+                              className="text-xs h-8"
+                          >
+                              Sisi Depan
+                          </Button>
+                          <Button 
+                              variant={selectedCardSide === 'back' ? 'secondary' : 'ghost'} 
+                              size="sm" 
+                              onClick={() => setSelectedCardSide('back')}
+                              className="text-xs h-8"
+                          >
+                              Sisi Belakang
+                          </Button>
+                      </div>
+                  </div>
+              </DialogHeader>
+              
+              <div className="my-6 flex flex-col items-center min-h-[300px] justify-center">
+                  <WaliSantriCard
+                      data={{
+                          photo: parentDetails?.photo ?? parentDetails?.photo_path ?? null,
+                          first_name: parentDetails?.first_name ?? '',
+                          last_name: parentDetails?.last_name ?? null,
+                          nik: parentDetails?.nik ?? '',
+                          parent_as: parentDetails?.parent_as ?? 'Wali',
+                          phone: parentDetails?.phone ?? null,
+                          students: parentData?.students?.map((s) => ({
+                              nis: s.nis,
+                              first_name: s.first_name,
+                              last_name: s.last_name ?? null,
+                          })) ?? [],
+                      }}
+                      side={selectedCardSide}
+                  />
+              </div>
+
+              <DialogFooter>
+                  <div className="flex w-full justify-between items-center">
+                      <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Tutup</Button>
+                      <Button variant="success" onClick={() => handlePrint()}>
+                          <Printer className="mr-2 h-4 w-4" /> Cetak Sekarang
+                      </Button>
+                  </div>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+
       <div className="hidden">
-        <WaliSantriCard
-          ref={cardRef}
-          data={{
-            photo: parentDetails?.photo ?? parentDetails?.photo_path ?? null,
-            first_name: parentDetails?.first_name ?? '',
-            last_name: parentDetails?.last_name ?? null,
-            nik: parentDetails?.nik ?? '',
-            parent_as: parentDetails?.parent_as ?? 'Wali',
-            phone: parentDetails?.phone ?? null,
-            students: parentData?.students?.map((s) => ({
-              nis: s.nis,
-              first_name: s.first_name,
-              last_name: s.last_name ?? null,
-            })) ?? [],
-          }}
-        />
+        <div ref={cardRef}>
+            <WaliSantriCard
+                data={{
+                    photo: parentDetails?.photo ?? parentDetails?.photo_path ?? null,
+                    first_name: parentDetails?.first_name ?? '',
+                    last_name: parentDetails?.last_name ?? null,
+                    nik: parentDetails?.nik ?? '',
+                    parent_as: parentDetails?.parent_as ?? 'Wali',
+                    phone: parentDetails?.phone ?? null,
+                    students: parentData?.students?.map((s) => ({
+                        nis: s.nis,
+                        first_name: s.first_name,
+                        last_name: s.last_name ?? null,
+                    })) ?? [],
+                }}
+                side={selectedCardSide}
+            />
+        </div>
       </div>
 
       {/* Dialog Upload Foto */}

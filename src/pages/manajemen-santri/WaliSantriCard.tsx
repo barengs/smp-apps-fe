@@ -18,10 +18,11 @@ export interface WaliSantriCardData {
 
 interface WaliSantriCardProps {
     data: WaliSantriCardData;
+    side?: 'front' | 'back';
 }
 
 const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
-    ({ data }, ref) => {
+    ({ data, side = 'front' }, ref) => {
         const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
         const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
@@ -63,14 +64,39 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
         ];
         const printDate = `Pamekasan, ${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
 
+        if (side === 'back') {
+            return (
+                <div
+                    ref={ref}
+                    className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-white font-sans bg-slate-900 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
+                    style={{
+                        backgroundImage: templates?.guardian_back_template
+                            ? `url(${STORAGE_BASE_URL}${templates.guardian_back_template})`
+                            : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        printColorAdjust: 'exact',
+                        WebkitPrintColorAdjust: 'exact',
+                    } as React.CSSProperties}
+                >
+                    {!templates?.guardian_back_template && <div className="absolute inset-0 bg-orange-50/10" />}
+                    
+                    {/* Dynamic QR for back side */}
+                    <div className="absolute bottom-[10%] right-[8%] opacity-80">
+                        {qrDataUrl && <img src={qrDataUrl} alt="QR Small" className="w-[35px] h-[35px]" />}
+                    </div>
+                </div>
+            );
+        }
+
         return (
             // ID-1 Card Size: 85.60 × 53.98 mm — identik dengan DebitStudentCard
             <div
                 ref={ref}
-                className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-black font-sans bg-white shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
+                className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-white font-sans bg-slate-900 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
                 style={{
-                    backgroundImage: templates?.front_template
-                        ? `url(${STORAGE_BASE_URL}${templates.front_template})`
+                    backgroundImage: templates?.guardian_front_template
+                        ? `url(${STORAGE_BASE_URL}${templates.guardian_front_template})`
                         : undefined,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -101,7 +127,7 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                     {/* Right: Data Wali Santri */}
                     <div className="w-[81%] pl-3 flex flex-col justify-start">
                         {/* Data Rows */}
-                        <div className="text-[7.5px] leading-[1.3] font-bold text-gray-800 space-y-[0.5px]">
+                        <div className="text-[7.5px] leading-[1.3] font-bold text-white space-y-[0.5px]">
                             <div className="flex items-start">
                                 <span className="w-[35px] shrink-0">NIK</span>
                                 <span className="mr-1 shrink-0">:</span>
@@ -137,7 +163,7 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                                             </span>
                                         ))}
                                         {data.students.length > 2 && (
-                                            <span className="text-gray-500"> +{data.students.length - 2} lainnya</span>
+                                            <span className="text-gray-300"> +{data.students.length - 2} lainnya</span>
                                         )}
                                     </span>
                                 </div>

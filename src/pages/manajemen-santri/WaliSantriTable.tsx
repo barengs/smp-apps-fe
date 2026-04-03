@@ -32,6 +32,7 @@ const WaliSantriTable: React.FC = () => {
   const [importOpen, setImportOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [printWaliId, setPrintWaliId] = useState<number | null>(null);
+  const [selectedCardSide, setSelectedCardSide] = useState<'front' | 'back'>('front');
   const cardRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({ contentRef: cardRef });
 
@@ -186,12 +187,34 @@ const WaliSantriTable: React.FC = () => {
     <>
       {/* Dialog Cetak Kartu Wali */}
       <Dialog open={printWaliId !== null} onOpenChange={(open) => { if (!open) setPrintWaliId(null); }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Cetak Kartu Wali Santri</DialogTitle>
-            <DialogDescription>
-              Pratinjau kartu identitas wali santri sebelum dicetak.
-            </DialogDescription>
+            <div className="flex justify-between items-center mr-8">
+                <div>
+                    <DialogTitle>Cetak Kartu Wali Santri</DialogTitle>
+                    <DialogDescription>
+                        Pratinjau kartu identitas wali santri sebelum dicetak.
+                    </DialogDescription>
+                </div>
+                <div className="flex bg-gray-200 p-1 rounded-lg">
+                    <Button 
+                        variant={selectedCardSide === 'front' ? 'secondary' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setSelectedCardSide('front')}
+                        className="text-xs h-8"
+                    >
+                        Sisi Depan
+                    </Button>
+                    <Button 
+                        variant={selectedCardSide === 'back' ? 'secondary' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setSelectedCardSide('back')}
+                        className="text-xs h-8"
+                    >
+                        Sisi Belakang
+                    </Button>
+                </div>
+            </div>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
             {isLoadingSelected ? (
@@ -214,6 +237,7 @@ const WaliSantriTable: React.FC = () => {
                         last_name: s.last_name ?? null,
                       })) ?? [],
                     }}
+                    side={selectedCardSide}
                   />
                 </div>
                 <div className="flex gap-2 mt-16">

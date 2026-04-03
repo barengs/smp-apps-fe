@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import LeaveStatusUpdateDialog from '@/components/LeaveStatusUpdateDialog';
 import { useGetStudentLeaveStatisticsQuery } from '@/store/slices/studentLeaveApi';
 import LeaveStatsCard from '@/components/LeaveStatsCard';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
 
 const IssuePermissionDialog: React.FC<{
   open: boolean;
@@ -182,7 +183,7 @@ const IssuePermissionDialog: React.FC<{
               <SelectContent>
                 {years.map((y) => (
                   <SelectItem key={y.id} value={String(y.id)}>
-                    {y.year} {y.type ? `(${t(y.type.toLowerCase()) || y.type})` : ''}
+                    {y.year}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -398,6 +399,11 @@ const PerizinanPage: React.FC = () => {
   const { t } = useTranslation();
   const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 200 });
   const { data: leaves = [], isFetching: isFetchingLeaves, refetch: refetchLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
+  const settings = settingsResponse?.data;
+  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
+  const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
+  
   const navigate = useNavigate();
   const { data: leaveStats, isLoading: isLoadingLeaveStats } = useGetStudentLeaveStatisticsQuery();
 
@@ -469,7 +475,7 @@ const PerizinanPage: React.FC = () => {
               aria-label="Print izin"
               onClick={(e) => {
                 e.stopPropagation();
-                openLeavePermitPdf(leave);
+                openLeavePermitPdf(leave, kopSuratUrl);
               }}
               title="Print"
             >

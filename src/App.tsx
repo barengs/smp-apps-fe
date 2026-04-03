@@ -100,6 +100,7 @@ import TipeIzinPage from '@/pages/manajemen-kamtib/TipeIzinPage';
 import PerizinanDetailPage from '@/pages/manajemen-kamtib/PerizinanDetailPage';
 import ManajemenLiburPage from '@/pages/manajemen-kamtib/ManajemenLiburPage';
 import LiburSantriPage from '@/pages/manajemen-kamtib/LiburSantriPage';
+import HolidayVerificationPage from '@/pages/manajemen-kamtib/HolidayVerificationPage';
 import StudentCardTemplateSettingsPage from '@/pages/utility/StudentCardTemplateSettingsPage';
 import DataSantriPage from '@/pages/wali-santri/DataSantriPage';
 import DataSantriDetailPage from '@/pages/wali-santri/DataSantriDetailPage';
@@ -283,6 +284,7 @@ function App() {
               <Route path="/dashboard/manajemen-kamtib/manajemen-libur" element={<ManajemenLiburPage />} />
               <Route path="/dashboard/manajemen-kamtib/libur-santri" element={<LiburSantriPage />} />
               <Route path="/dashboard/manajemen-kamtib/libur-santri/:id" element={<LiburSantriPage />} />
+              <Route path="/dashboard/manajemen-kamtib/libur-verifikasi" element={<HolidayVerificationPage />} />
               <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
               <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />

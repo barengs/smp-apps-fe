@@ -3,16 +3,35 @@ import { useGetStudentStatsQuery } from '@/store/slices/pesantrenReportApi';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Printer, Download, Users, UserPlus, GraduationCap } from 'lucide-react';
+import { Loader2, Printer, Users, UserPlus, GraduationCap } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { generateStatistikSantriPdf } from '@/components/reports/StatistikSantriPdf';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
+import { imageUrlToBase64, getFullStorageUrl } from '@/utils/pdfExport';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export const StatistikSantriPage: React.FC = () => {
   const { data, isLoading, error } = useGetStudentStatsQuery();
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrintPdf = async () => {
+    if (!data) return;
+    
+    const settings = settingsResponse?.data;
+    let kopSuratUrl: string | undefined = undefined;
+
+    if (settings?.kop_surat) {
+      const fullUrl = getFullStorageUrl(settings.kop_surat);
+      if (fullUrl) {
+        kopSuratUrl = await imageUrlToBase64(fullUrl) || fullUrl;
+      }
+    } else {
+      const fallbackUrl = `${window.location.origin}/images/KOP PESANTREN.png`;
+      kopSuratUrl = await imageUrlToBase64(fallbackUrl) || fallbackUrl;
+    }
+
+    await generateStatistikSantriPdf(data, kopSuratUrl);
   };
 
   if (isLoading) {
@@ -41,8 +60,8 @@ export const StatistikSantriPage: React.FC = () => {
   return (
     <DashboardLayout title="Statistik Santri" role="administrasi">
       <div className="container mx-auto py-6 px-4 space-y-6">
-        {/* Header - Hidden on Print if needed, but usually good for context */}
-        <div className="flex justify-between items-center print:hidden">
+        {/* Header - Hidden on Print behavior is now handled by PDF */}
+        <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Statistik Santri</h1>
             <p className="text-muted-foreground">
@@ -50,20 +69,13 @@ export const StatistikSantriPage: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handlePrint}>
-              <Printer className="mr-2 h-4 w-4" /> Cetak PDF
+            <Button variant="outline" onClick={handlePrintPdf}>
+              <Printer className="mr-2 h-4 w-4" /> Cetak Laporan (PDF)
             </Button>
           </div>
         </div>
 
-        {/* Print-only Header */}
-        <div className="hidden print:block text-center border-b pb-4 mb-6">
-          <h1 className="text-2xl font-bold">LAPORAN STATISTIK SANTRI</h1>
-          <p className="text-lg">Pesantren Terpadu - Tahun Ajaran {data.academic_year}</p>
-          <p className="text-sm text-muted-foreground">Dicetak pada: {new Date().toLocaleDateString('id-ID')}</p>
-        </div>
-
-        {/* Summary Cards */}
+        {/* Page Content (Visible on screen) */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="bg-primary/5 border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -150,36 +162,8 @@ export const StatistikSantriPage: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Detailed Table for Print */}
-        <Card className="hidden print:block">
-          <CardHeader>
-            <CardTitle>Detail Data Asrama</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="py-2 px-4">Nama Asrama</th>
-                  <th className="py-2 px-4 text-right">Jumlah Santri</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.by_hostel.map((h, i) => (
-                  <tr key={i} className="border-b">
-                    <td className="py-2 px-4">{h.hostel_name}</td>
-                    <td className="py-2 px-4 text-right">{h.count}</td>
-                  </tr>
-                ))}
-                <tr className="font-bold">
-                  <td className="py-2 px-4">TOTAL</td>
-                  <td className="py-2 px-4 text-right">{data.summary.active}</td>
-                </tr>
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );
 };
+

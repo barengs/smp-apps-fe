@@ -31,6 +31,7 @@ const faToLucideMap: Record<string, string> = {
   'exclamation-triangle': 'alert-triangle',
   'mosque': 'landmark',
   'calendar-day': 'calendar-days',
+  'card-text': 'file-text',
 };
 
 export const getIconComponent = (

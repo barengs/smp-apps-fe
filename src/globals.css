@@ -125,3 +125,38 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  @page {
+    margin: 20mm 15mm 20mm 15mm !important;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Repeat table headers on every page */
+  thead {
+    display: table-header-group !important;
+  }
+
+  /* Ensure rows don't break awkwardly */
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Remove any browser default headers/footers */
+  #header, #footer, .sidebar, .nav {
+    display: none !important;
+  }
+
+  /* Ensure all backgrounds are printed */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

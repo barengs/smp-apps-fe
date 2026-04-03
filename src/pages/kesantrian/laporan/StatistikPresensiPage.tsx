@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGetAttendanceStatsQuery } from '@/store/slices/pesantrenReportApi';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Printer, CalendarCheck, Percent } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { generateStatistikPresensiPdf } from '@/components/reports/StatistikPresensiPdf';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
+import { imageUrlToBase64, getFullStorageUrl } from '@/utils/pdfExport';
 
 export const StatistikPresensiPage: React.FC = () => {
   const [dateRange, setDateRange] = useState({
@@ -16,9 +19,25 @@ export const StatistikPresensiPage: React.FC = () => {
   });
 
   const { data, isLoading, isFetching, error } = useGetAttendanceStatsQuery(dateRange);
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrintPdf = async () => {
+    if (!data) return;
+    
+    const settings = settingsResponse?.data;
+    let kopSuratUrl: string | undefined = undefined;
+
+    if (settings?.kop_surat) {
+      const fullUrl = getFullStorageUrl(settings.kop_surat);
+      if (fullUrl) {
+        kopSuratUrl = await imageUrlToBase64(fullUrl) || fullUrl;
+      }
+    } else {
+      const fallbackUrl = `${window.location.origin}/images/KOP PESANTREN.png`;
+      kopSuratUrl = await imageUrlToBase64(fallbackUrl) || fallbackUrl;
+    }
+
+    await generateStatistikPresensiPdf(data, dateRange, kopSuratUrl);
   };
 
   const getPercentageColor = (percent: number) => {
@@ -43,8 +62,8 @@ export const StatistikPresensiPage: React.FC = () => {
             <h1 className="text-3xl font-bold tracking-tight">Statistik Presensi</h1>
             <p className="text-muted-foreground">Grafik dan persentase kehadiran santri per mata pelajaran/kelas</p>
           </div>
-          <Button variant="outline" onClick={handlePrint} disabled={isFetching}>
-            <Printer className="mr-2 h-4 w-4" /> Cetak Laporan
+          <Button variant="outline" onClick={handlePrintPdf} disabled={isFetching}>
+            <Printer className="mr-2 h-4 w-4" /> Cetak Laporan (PDF)
           </Button>
         </div>
 
@@ -76,13 +95,6 @@ export const StatistikPresensiPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Print-only Header */}
-        <div className="hidden print:block text-center border-b pb-4 mb-6">
-          <h1 className="text-2xl font-bold uppercase">LAPORAN PERSENTASE KEHADIRAN SANTRI</h1>
-          <p className="text-lg">Pesantren Terpadu - Periode: {dateRange.start_date} s/d {dateRange.end_date}</p>
-          <p className="text-sm text-muted-foreground">Dicetak pada: {new Date().toLocaleString('id-ID')}</p>
-        </div>
 
         {error ? (
           <Card className="border-destructive">
@@ -180,3 +192,4 @@ export const StatistikPresensiPage: React.FC = () => {
     </DashboardLayout>
   );
 };
+

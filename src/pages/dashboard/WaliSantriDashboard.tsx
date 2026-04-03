@@ -5,11 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { useGetControlPanelSettingsQuery } from '@/store/slices/controlPanelApi';
+import ClassicInfoBox from '@/components/ClassicInfoBox';
+import { Wallet, ArrowUpCircle, UserCheck } from 'lucide-react';
 
 const WaliSantriDashboard: React.FC = () => {
   const { t } = useTranslation();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const navigate = useNavigate();
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery();
+  const settings = settingsResponse?.data;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -24,33 +29,58 @@ const WaliSantriDashboard: React.FC = () => {
   return (
     <WaliSantriLayout title="Dashboard Wali Santri" role="wali-santri">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sisa Saldo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Rp 1.500.000</div>
-            <p className="text-xs text-muted-foreground">+Rp 500.000 dari bulan lalu</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Up Terakhir</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Rp 500.000</div>
-            <p className="text-xs text-muted-foreground">12 Februari 2026</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status Santri</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Aktif</div>
-            <p className="text-xs text-muted-foreground">Kuartal / Periode 2025/2026</p>
-          </CardContent>
-        </Card>
+        {settings?.app_ui_style === 'classic' ? (
+          <>
+            <ClassicInfoBox 
+              title="Sisa Saldo"
+              value="Rp 1.500.000"
+              icon={<Wallet />}
+              color="blue"
+            />
+            <ClassicInfoBox 
+              title="Top Up Terakhir"
+              value="Rp 500.000"
+              icon={<ArrowUpCircle />}
+              color="green"
+            />
+            <ClassicInfoBox 
+              title="Status Santri"
+              value="Aktif"
+              icon={<UserCheck />}
+              color="yellow"
+            />
+          </>
+        ) : (
+          <>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Sisa Saldo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Rp 1.500.000</div>
+                <p className="text-xs text-muted-foreground">+Rp 500.000 dari bulan lalu</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Top Up Terakhir</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Rp 500.000</div>
+                <p className="text-xs text-muted-foreground">12 Februari 2026</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Status Santri</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Aktif</div>
+                <p className="text-xs text-muted-foreground">Kuartal / Periode 2025/2026</p>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
