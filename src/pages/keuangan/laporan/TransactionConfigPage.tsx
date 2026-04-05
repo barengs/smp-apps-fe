@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useGetCoaQuery, useGetTransactionTypesQuery, useUpdateTransactionTypeMutation } from "@/store/slices/coaApi";
+import { useGetCoaQuery, useGetConfigTransactionTypesQuery, useUpdateConfigTransactionTypeMutation } from "@/store/slices/coaApi";
 import { Loader2, Settings2, Save, ArrowRightLeft, Landmark, Banknote } from "lucide-react";
 import * as toast from "@/utils/toast";
 
 const TransactionConfigPage: React.FC = () => {
   const { data: coaData, isLoading: isLoadingCOA } = useGetCoaQuery();
-  const { data: typesData, isLoading: isLoadingTypes } = useGetTransactionTypesQuery();
-  const [updateType, { isLoading: isUpdating }] = useUpdateTransactionTypeMutation();
+  const { data: typesData, isLoading: isLoadingTypes } = useGetConfigTransactionTypesQuery();
+  const [updateType, { isLoading: isUpdating }] = useUpdateConfigTransactionTypeMutation();
 
   const coaList = coaData || [];
   const typesList = typesData?.data || [];

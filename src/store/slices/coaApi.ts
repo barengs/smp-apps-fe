@@ -92,11 +92,11 @@ export const coaApi = bankSmpApi.injectEndpoints({
     }),
     
     // Transaction Types for config
-    getTransactionTypes: builder.query<{ status: string; data: TransactionType[] }, void>({
+    getConfigTransactionTypes: builder.query<{ status: string; data: TransactionType[] }, void>({
       query: () => "/main/transaction-type",
       providesTags: ['TransactionType'],
     }),
-    updateTransactionType: builder.mutation<TransactionType, { id: number; data: Partial<TransactionType> }>({
+    updateConfigTransactionType: builder.mutation<TransactionType, { id: number; data: Partial<TransactionType> }>({
       query: ({ id, data }) => ({
         url: `/main/transaction-type/${id}`,
         method: "PUT",
@@ -114,6 +114,6 @@ export const {
   useCreateCoaMutation,
   useUpdateCoaMutation,
   useDeleteCoaMutation,
-  useGetTransactionTypesQuery,
-  useUpdateTransactionTypeMutation,
+  useGetConfigTransactionTypesQuery,
+  useUpdateConfigTransactionTypeMutation,
 } = coaApi;

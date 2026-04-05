@@ -205,7 +205,7 @@ function App() {
 
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
-              <Route path="/dashboard/bank-santri" element={<BankSantriPage />} />
+              <Route path="/dashboard/bank-santri/dashboard" element={<BankSantriPage />} />
               <Route path="/dashboard/bank-santri/top-up/cash" element={<TopUpCashPage />} />
               <Route path="/dashboard/bank-santri/top-up/transfer" element={<TopUpTransferPage />} />
               <Route path="/dashboard/bank-santri/top-up/verifikasi" element={<TopUpVerificationPage />} />

@@ -8,8 +8,21 @@
  * bypassing most CORS/Network issues during document generation.
  */
 export const imageUrlToBase64 = async (url: string): Promise<string | undefined> => {
+  if (!url) return undefined;
+
+  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+
+  let fetchUrl = url;
+
+  // If the image is in storage, use the proxy to bypass CORS
+  if (STORAGE_BASE_URL && url.startsWith(STORAGE_BASE_URL)) {
+    const relativePath = url.replace(STORAGE_BASE_URL, '');
+    fetchUrl = `${API_BASE_URL}/master/image-proxy?path=${relativePath}`;
+  }
+
   try {
-    const response = await fetch(url);
+    const response = await fetch(fetchUrl);
     if (!response.ok) throw new Error(`Image fetch failed: ${response.statusText}`);
     const blob = await response.blob();
     return new Promise((resolve) => {
@@ -18,7 +31,7 @@ export const imageUrlToBase64 = async (url: string): Promise<string | undefined>
       reader.readAsDataURL(blob);
     });
   } catch (err) {
-    console.error('Error pre-fetching image for PDF:', err);
+    console.error('Error pre-fetching image (proxied):', err);
     return undefined;
   }
 };

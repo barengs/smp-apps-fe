@@ -30,7 +30,10 @@ const PenilaianDetailPage: React.FC = () => {
 
     const parsedDetailId = parseInt(detailId || '0', 10);
 
-    const { data: detailResponse, isLoading, refetch } = useGetAssessmentDetailQuery({ detailId: parsedDetailId, academic_quarter_id: quarterId }, { skip: !quarterId });
+    const { data: detailResponse, isLoading, refetch } = useGetAssessmentDetailQuery(
+        { detailId: parsedDetailId, academic_quarter_id: quarterId },
+        { skip: !parsedDetailId }
+    );
     const { data: formulaResponse, refetch: refetchFormula } = useGetAssessmentFormulaQuery(parsedDetailId);
     const [saveScores, { isLoading: isSaving }] = useSaveAssessmentScoresMutation();
 
