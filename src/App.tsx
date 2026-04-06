@@ -16,9 +16,11 @@ import PeranDetailPage from "@/pages/manajemen-staf/PeranDetailPage";
 import PeranAddPage from "@/pages/manajemen-staf/PeranAddPage";
 import PeranEditPage from "@/pages/manajemen-staf/PeranEditPage";
 import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
+import ManajemenPerjanjianPage from "@/pages/manajemen-santri/ManajemenPerjanjianPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
 import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
+import StudentAgreementPage from "@/pages/manajemen-santri/StudentAgreementPage";
 import MutasiAsramaPage from "@/pages/manajemen-santri/MutasiAsramaPage";
 import ProvinsiPage from "@/pages/data-wilayah/ProvinsiPage";
 import KotaPage from "@/pages/data-wilayah/KotaPage";
@@ -181,7 +183,9 @@ function App() {
 
               {/* Rute Manajemen Santri */}
               <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
+              <Route path="/dashboard/santri/perjanjian" element={<ManajemenPerjanjianPage />} />
               <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
+              <Route path="/dashboard/santri/:id/agreement" element={<StudentAgreementPage />} />
               <Route path="/dashboard/santri/:id/edit" element={<SantriEditPage />} />
               <Route path="/dashboard/santri/mutasi-asrama" element={<MutasiAsramaPage />} />
 

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetStudentByIdQuery } from '@/store/slices/studentApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { Printer, Edit, Users, UserCheck, User, ArrowLeft, UploadCloud, CreditCard, ChevronDown } from 'lucide-react';
+import { Printer, Edit, Users, UserCheck, User, ArrowLeft, UploadCloud, CreditCard, ChevronDown, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SantriPhotoCard from './SantriPhotoCard';
@@ -170,6 +170,9 @@ const SantriDetailPage: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <ActionButton variant="outline" onClick={() => navigate('/dashboard/santri')} icon={<ArrowLeft className="h-4 w-4" />}>
                           Kembali
+                        </ActionButton>
+                        <ActionButton variant="primary" onClick={() => navigate(`/dashboard/santri/${santriId}/agreement`)} icon={<FileText className="h-4 w-4" />}>
+                          Perjanjian
                         </ActionButton>
                         <ActionButton variant="warning" onClick={handleEdit} icon={<Edit className="h-4 w-4" />}>
                           Edit

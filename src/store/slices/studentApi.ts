@@ -39,6 +39,43 @@ export interface Student {
   } | null;
 }
 
+export interface StudentAgreement {
+  id: number;
+  student_id: number;
+  doc_number: string;
+  contract_level: string | null;
+  contract_agreed: boolean;
+  contract_agreed_at: string | null;
+  compliance_agreed: boolean;
+  compliance_agreed_at: string | null;
+  urine_test_agreed: boolean;
+  urine_test_agreed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GetStudentAgreementResponse {
+  success: boolean;
+  data: StudentAgreement;
+  student: Student;
+}
+
+export interface UpdateAgreementStepRequest {
+  step: 'contract' | 'compliance' | 'urine_test';
+  agreed: boolean;
+  contract_level?: string;
+}
+
+export interface StudentAgreementResponse {
+  success: boolean;
+  data: {
+    data: (Student & { agreement: StudentAgreement | null })[];
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
 export interface CreateUpdateStudentRequest {
   parent_id?: string;
   nis: string;
@@ -235,6 +272,25 @@ export const studentApi = smpApi.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    getStudentAgreement: builder.query<GetStudentAgreementResponse, number>({
+      query: (id) => `main/student/${id}/agreement`,
+      providesTags: (result, error, id) => [{ type: 'Student', id: `AGREEMENT_${id}` }],
+    }),
+    updateStudentAgreementStep: builder.mutation<{ success: boolean; data: StudentAgreement }, { id: number; data: any }>({
+      query: ({ id, data }) => ({
+        url: `main/student/${id}/agreement`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Student'],
+    }),
+    listStudentAgreements: builder.query<StudentAgreementResponse, { page?: number; search?: string; per_page?: number }>({
+      query: (params) => ({
+        url: 'main/student/agreement/list',
+        params,
+      }),
+      providesTags: ['Student'],
+    }),
   }),
 });
 
@@ -252,4 +308,7 @@ export const {
   useUpdateStudentPhotoMutation,
   useExportStudentsMutation,
   useBackupStudentsMutation,
+  useGetStudentAgreementQuery,
+  useUpdateStudentAgreementStepMutation,
+  useListStudentAgreementsQuery,
 } = studentApi;

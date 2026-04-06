@@ -143,8 +143,40 @@ const CalonSantriDetailPage: React.FC = () => {
   };
 
   const handleProcessPayment = () => {
-    setIsPaymentProcessDialogOpen(true); // Buka dialog saat tombol diklik
+    setIsPaymentProcessDialogOpen(true);
   };
+
+  // NEW: Auto-select product and transaction type when dialog opens
+  React.useEffect(() => {
+    if (isPaymentProcessDialogOpen && calonSantri) {
+      // Auto-select Product based on Program
+      if (produkBankData && Array.isArray(produkBankData)) {
+        const programName = programMap.get(Number(calonSantri.program_id))?.toLowerCase();
+        const matchingProduct = produkBankData.find(p => 
+          p.product_name.toLowerCase().includes(programName || '')
+        );
+        if (matchingProduct) {
+          setSelectedProductId(String(matchingProduct.id));
+        } else {
+          // Default to first product if no match
+          setSelectedProductId(String(produkBankData[0].id));
+        }
+      }
+
+      // Auto-select Transaction Type (REG-FEE / Biaya Pendaftaran)
+      if (transactionTypesData?.data && Array.isArray(transactionTypesData.data)) {
+        const regFeeType = transactionTypesData.data.find(t => 
+          t.code === 'REG-FEE' || t.name.toLowerCase().includes('pendaftaran')
+        );
+        if (regFeeType) {
+          setSelectedTransactionTypeId(String(regFeeType.id));
+        } else {
+          // Default to first type if no match
+          setSelectedTransactionTypeId(String(transactionTypesData.data[0].id));
+        }
+      }
+    }
+  }, [isPaymentProcessDialogOpen, calonSantri, produkBankData, transactionTypesData, programMap]);
 
   const handleContinuePaymentProcess = async () => {
     if (!calonSantri || !selectedProductId || !selectedTransactionTypeId) {

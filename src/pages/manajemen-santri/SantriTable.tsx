@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'; // Import useState
 import { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table'; // Import PaginationState
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
+import { Edit, FileText } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetStudentsQuery, useExportStudentsMutation, useBackupStudentsMutation } from '@/store/slices/studentApi';
@@ -253,6 +253,16 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
                 }}
               >
                 <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 px-2 text-xs border-primary text-primary hover:bg-primary/5"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/dashboard/santri/${santri.id}/agreement`);
+                }}
+              >
+                <FileText className="h-4 w-4 mr-1" /> Perjanjian
               </Button>
             </div>
           );
