@@ -70,6 +70,7 @@ export interface CalonSantri {
   payment_amount: number | string | null;
   files: RegistrationFile[]; // Added files property
   village?: { id: number; code: string; name: string } | null;
+  student_id?: number;
 }
 
 export interface PaginatedResponse<T> {

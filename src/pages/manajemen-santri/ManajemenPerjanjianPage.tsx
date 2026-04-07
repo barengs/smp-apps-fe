@@ -6,9 +6,9 @@ import { DataTable } from '../../components/DataTable';
 import { useListStudentAgreementsQuery, Student } from '@/store/slices/studentApi';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileEdit, CheckCircle2, Circle } from 'lucide-react';
+import { FileEdit, CheckCircle2, Circle, Users, FileText } from 'lucide-react';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
-import { Users, FileText } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const ManajemenPerjanjianPage: React.FC = () => {
   const navigate = useNavigate();
@@ -120,29 +120,28 @@ const ManajemenPerjanjianPage: React.FC = () => {
       <div className="container mx-auto py-4 px-4 space-y-6">
         <CustomBreadcrumb items={breadcrumbItems} />
         
-        <div className="flex flex-col space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">Daftar Perjanjian Santri</h2>
-              <p className="text-muted-foreground">
-                Lacak kemajuan perjanjian kontrak, ketaatan hukum, dan tes urin setiap santri.
-              </p>
-            </div>
-          </div>
-
-          <DataTable
-            columns={columns}
-            data={students}
-            isLoading={isLoading || isFetching}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            pageCount={pageCount}
-            totalItems={totalItems}
-            onSearchChange={setSearch}
-            searchQuery={search}
-            searchPlaceholder="Cari nama atau NIS santri..."
-          />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Daftar Perjanjian Santri</CardTitle>
+            <CardDescription>
+              Lacak kemajuan perjanjian kontrak, ketaatan hukum, dan tes urin setiap santri.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={columns}
+              data={students}
+              isLoading={isLoading || isFetching}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              pageCount={pageCount}
+              totalItems={totalItems}
+              onSearchChange={setSearch}
+              searchQuery={search}
+              searchPlaceholder="Cari nama atau NIS santri..."
+            />
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

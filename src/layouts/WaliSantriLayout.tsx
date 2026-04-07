@@ -122,7 +122,7 @@ const WaliSantriSidebar: React.FC<{ isCollapsed: boolean }> = ({
         <Link to="/dashboard/wali-santri" className="flex items-center gap-2 overflow-hidden">
           {settings?.app_logo ? (
             <img
-              src={`https://api-smp.umediatama.com/storage/uploads/logos/small/${settings.app_logo}`}
+              src={`${import.meta.env.VITE_STORAGE_BASE_URL}uploads/logos/small/${settings.app_logo}`}
               alt="App Logo"
               className="h-8 w-8 object-contain"
             />

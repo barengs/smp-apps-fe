@@ -110,16 +110,19 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ isEditMode = false }) =
       }
 
       if (nikData) {
-        toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
         const parentData = nikData.parent;
 
         // Use optional chaining for extra safety
         const kkValue = String(parentData?.kk || '').trim();
-        if (kkValue?.match(/^\d{16}$/)) {
-          setValue('kk', kkValue);
+        const isKkValid = kkValue?.match(/^\d{16}$/);
+
+        if (isKkValid) {
+          toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
+          setValue('kk', kkValue, { shouldValidate: true });
         } else {
-          setValue('kk', '');
-          toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
+          // Hanya tampilkan satu pesan informasi jika KK perlu diisi manual
+          toast.showInfo('Data wali ditemukan. Silakan lengkapi Nomor KK secara manual.');
+          setValue('kk', '', { shouldValidate: true });
         }
 
         setValue('firstName', parentData?.first_name || '');

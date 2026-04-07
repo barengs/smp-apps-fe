@@ -200,6 +200,20 @@ const SantriDetailPage: React.FC = () => {
                       <DetailRow label="NIK" value={santri.nik} />
                       <DetailRow label="Jenis Kelamin" value={santri.gender === 'L' ? 'Laki-Laki' : 'Perempuan'} />
                       <DetailRow label="Status" value={<Badge variant="outline">{santri.status}</Badge>} />
+                      <DetailRow 
+                        label="Status Perjanjian" 
+                        value={
+                          santri.agreement ? (
+                            <div className="flex gap-1">
+                              <Badge variant={santri.agreement.contract_agreed ? "success" : "outline"} className="text-[10px] px-1 h-5">Kontrak</Badge>
+                              <Badge variant={santri.agreement.compliance_agreed ? "success" : "outline"} className="text-[10px] px-1 h-5">Taat UU</Badge>
+                              <Badge variant={santri.agreement.urine_test_agreed ? "success" : "outline"} className="text-[10px] px-1 h-5">Tes Urin</Badge>
+                            </div>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">Belum ada data</Badge>
+                          )
+                        } 
+                      />
                       <DetailRow label="Program" value={santri.program?.name} />
                       <DetailRow label="Periode" value={santri.period} />
                       <DetailRow label="Tempat Lahir" value={santri.born_in || '-'} />

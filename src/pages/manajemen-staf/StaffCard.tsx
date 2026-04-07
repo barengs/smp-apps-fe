@@ -61,7 +61,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
             return (
                 <div
                     ref={ref}
-                    className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-white font-sans bg-slate-900 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
+                    className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-black font-sans bg-slate-100 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
                     style={{
                         backgroundImage: templates?.staff_back_template
                             ? `url(${STORAGE_BASE_URL}${templates.staff_back_template})`
@@ -72,7 +72,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                         WebkitPrintColorAdjust: 'exact',
                     } as React.CSSProperties}
                 >
-                    {!templates?.staff_back_template && <div className="absolute inset-0 bg-slate-800" />}
+                    {!templates?.staff_back_template && <div className="absolute inset-0 bg-slate-100" />}
                     
                     <div className="absolute bottom-[10%] right-[8%] opacity-80">
                         {qrDataUrl && <img src={qrDataUrl} alt="QR Small" className="w-[35px] h-[35px]" />}
@@ -84,7 +84,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
         return (
             <div
                 ref={ref}
-                className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-white font-sans bg-slate-900 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
+                className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-black font-sans bg-slate-100 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
                 style={{
                     backgroundImage: templates?.staff_front_template
                         ? `url(${STORAGE_BASE_URL}${templates.staff_front_template})`
@@ -95,7 +95,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                     WebkitPrintColorAdjust: 'exact',
                 } as React.CSSProperties}
             >
-                {!templates?.staff_front_template && <div className="absolute inset-0 bg-slate-800" />}
+                {!templates?.staff_front_template && <div className="absolute inset-0 bg-slate-100" />}
                 
                 <div className="absolute top-[33%] left-[4.5%] w-[91%] h-[63%] flex">
                     <div className="w-[19%] h-auto flex flex-col items-center pt-0.5">
@@ -115,7 +115,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                     </div>
 
                     <div className="w-[81%] pl-3 flex flex-col justify-start">
-                        <div className="text-[7.5px] leading-[1.3] font-bold text-white space-y-[0.5px]">
+                        <div className="text-[7.5px] leading-[1.3] font-bold text-black space-y-[0.5px]">
                             <div className="flex items-start">
                                 <span className="w-[35px] shrink-0">CODE</span>
                                 <span className="mr-1 shrink-0">:</span>

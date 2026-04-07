@@ -76,7 +76,7 @@ export const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOpti
       try {
         // Menggunakan baseQuery untuk memanggil endpoint refresh
         const refreshResult = await baseQuery(
-          { url: 'refresh', method: 'POST' },
+          { url: 'auth/refresh', method: 'POST' },
           api,
           extraOptions
         );

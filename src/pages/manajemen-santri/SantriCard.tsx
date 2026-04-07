@@ -23,7 +23,7 @@ interface SantriCardProps {
   santri: SantriData;
 }
 
-const BASE_IMAGE_URL = "https://api-smp.umediatama.com/storage/";
+const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
 // Helper to format date
 const formatDate = (dateString?: string) => {

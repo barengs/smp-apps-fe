@@ -6,6 +6,7 @@ import {
 } from '@/store/slices/studentApi';
 import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -28,6 +29,37 @@ const STEPS = [
   { id: 'compliance', title: 'Taat UU & Peraturan', icon: ShieldCheck },
   { id: 'urine_test', title: 'Pernyataan Tes Urin', icon: FlaskConical },
 ];
+
+// Helper function to fetch image and convert to base64 to avoid CORS issues in PDF
+// and convert WebP to PNG since @react-pdf/renderer doesn't support WebP
+const fetchImageAsBase64 = async (url: string): Promise<string | undefined> => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(undefined);
+          return;
+        }
+        ctx.drawImage(img, 0, 0);
+        // Convert to PNG as it's widely supported by @react-pdf/renderer
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = () => resolve(undefined);
+      img.src = URL.createObjectURL(blob);
+    });
+  } catch (error) {
+    console.error('Failed to fetch image as base64:', error);
+    return undefined;
+  }
+};
 
 const StudentAgreementPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,17 +135,29 @@ const StudentAgreementPage: React.FC = () => {
 
     const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
     const kopSurat = settingsData?.data?.kop_surat;
-    const kopSuratUrl = kopSurat 
-      ? `${STORAGE_BASE_URL}${kopSurat.startsWith('/') ? kopSurat.substring(1) : kopSurat}`
-      : undefined;
+    
+    // Use relative path to leverage Vite proxy and bypass CORS on local
+    let kopSuratUrl = undefined;
+    if (kopSurat) {
+      const cleanKop = kopSurat.startsWith('/') ? kopSurat.substring(1) : kopSurat;
+      // Use relative path starting with /storage to hit the Vite proxy
+      kopSuratUrl = `/storage/${cleanKop.startsWith('storage/') ? cleanKop.substring(8) : cleanKop}`;
+    }
 
     try {
       toast.loading('Menghasilkan dokumen PDF...', { id: 'pdf-gen' });
+      
+      // Fetch image as base64 to avoid CORS issues
+      let finalKopUrl = kopSuratUrl;
+      if (kopSuratUrl) {
+        finalKopUrl = await fetchImageAsBase64(kopSuratUrl);
+      }
+
       const blob = await pdf(
         <AgreementPdf 
           student={student} 
           agreement={agreement} 
-          kopSuratUrl={kopSuratUrl} 
+          kopSuratUrl={finalKopUrl} 
         />
       ).toBlob();
       
@@ -140,7 +184,14 @@ const StudentAgreementPage: React.FC = () => {
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
           <ChevronLeft className="mr-2 h-4 w-4" /> Kembali
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Manajemen Perjanjian Santri</h1>
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+          Manajemen Perjanjian Santri
+          {isCompleted && (
+            <Badge variant="success" className="h-6 gap-1">
+              <CheckCircle2 className="h-3 w-3" /> Selesai
+            </Badge>
+          )}
+        </h1>
         <p className="text-muted-foreground mt-1">
           {student?.first_name} {student?.last_name} ({student?.nis})
         </p>

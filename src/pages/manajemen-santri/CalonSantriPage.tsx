@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { UserPlus, MoreHorizontal, Check, X, Edit } from 'lucide-react';
+import { UserPlus, MoreHorizontal, Check, X, Edit, FileText } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -83,10 +83,10 @@ const CalonSantriPage: React.FC = () => {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.original.status;
-        let variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'secondary'; // Tambahkan varian baru
-        if (status === 'diterima') variant = 'success'; // Gunakan 'success' untuk diterima
-        if (status === 'ditolak') variant = 'destructive';
-        if (status === 'pending') variant = 'warning'; // Gunakan 'warning' untuk pending
+        let variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'secondary';
+        if (status === 'accepted') variant = 'success';
+        if (status === 'rejected') variant = 'destructive';
+        if (status === 'pending') variant = 'warning';
         return <Badge variant={variant} className="capitalize">{status}</Badge>;
       },
     },
@@ -146,6 +146,16 @@ const CalonSantriPage: React.FC = () => {
               >
                 <X className="mr-2 h-4 w-4" /> Tolak
               </DropdownMenuItem>
+              {santri.student_id && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/dashboard/santri/${santri.student_id}/agreement`);
+                  }}
+                >
+                  <FileText className="mr-2 h-4 w-4" /> Perjanjian
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );

@@ -33,10 +33,10 @@ export interface Student {
   user_id?: number;
   deleted_at?: string;
 
-  // Tambahan: informasi kamar saat ini
   current_room?: {
     room_name?: string;
   } | null;
+  agreement?: StudentAgreement | null;
 }
 
 export interface StudentAgreement {
@@ -292,6 +292,7 @@ export const studentApi = smpApi.injectEndpoints({
       providesTags: ['Student'],
     }),
   }),
+  overrideExisting: true,
 });
 
 export const {

@@ -6,6 +6,7 @@ import type { Student, StudentAgreement } from '@/store/slices/studentApi';
 const styles = StyleSheet.create({
   page: {
     padding: 50,
+    paddingTop: 20,
     fontSize: 11,
     lineHeight: 1.6,
     fontFamily: 'Helvetica',
@@ -13,21 +14,21 @@ const styles = StyleSheet.create({
   kopImage: {
     width: '100%',
     height: 'auto',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   title: {
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
     textDecoration: 'underline',
-    marginBottom: 20,
+    marginBottom: 10,
     textTransform: 'uppercase',
   },
   docNumber: {
     textAlign: 'center',
     fontSize: 10,
-    marginTop: -15,
-    marginBottom: 20,
+    marginTop: -5,
+    marginBottom: 15,
   },
   text: {
     marginBottom: 10,
@@ -111,7 +112,11 @@ const StudentDataSection = ({ student }: { student: Student }) => (
 );
 
 const KopSurat = ({ url }: { url?: string }) => (
-  url ? <Image src={url} style={styles.kopImage} /> : <View style={{ height: 100, borderBottomWidth: 2, marginBottom: 20 }} />
+  url ? (
+    <Image src={url} style={styles.kopImage} />
+  ) : (
+    <View style={{ height: 80, borderBottomWidth: 2, borderBottomColor: '#000', marginBottom: 10 }} />
+  )
 );
 
 export const AgreementPdf: React.FC<AgreementPdfProps> = ({ student, agreement, kopSuratUrl }) => (
