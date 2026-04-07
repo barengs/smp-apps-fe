@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -24,7 +24,16 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [authorizedOfficialId, setAuthorizedOfficialId] = useState<string>('0');
 
-  const { data: staffs } = useGetStaffsQuery();
+  const { data: usersData } = useGetStaffsQuery();
+
+  // Extract staff data from usersData which has a 'staff' property
+  const staffs = useMemo(() => {
+    if (!usersData) return [];
+    // The endpoint returns an array of User objects, each having a 'staff' relation
+    return (usersData as any[])
+      .filter((u) => u.staff)
+      .map((u) => u.staff);
+  }, [usersData]);
 
   const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
