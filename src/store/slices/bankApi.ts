@@ -1,4 +1,4 @@
-import { smpApi } from '../baseApi';
+import { bankSmpApi } from '../bankBaseApi';
 import { TransaksiApiResponse, SingleTransaksiApiResponse, Transaksi } from '@/types/keuangan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
@@ -22,7 +22,7 @@ const asPaginated = (data: any): PaginatedResponse<Transaksi> => {
   };
 };
 
-export const bankApi = smpApi.injectEndpoints({
+export const bankApi = bankSmpApi.injectEndpoints({
   endpoints: (builder) => ({
     getTransactions: builder.query<PaginatedResponse<Transaksi>, PaginationParams>({
       query: (params) => {
@@ -72,13 +72,6 @@ export const bankApi = smpApi.injectEndpoints({
       transformResponse: (response: TransaksiApiResponse) => asPaginated(response.data),
       providesTags: (result, error, accountNumber) => [{ type: 'Transaksi', id: `LIST-${accountNumber}-7DAYS` }],
     }),
-    validateTransaction: builder.mutation<{ message: string }, { id: string }>({
-      query: ({ id }) => ({
-        url: `main/transaction/${id}/activate`,
-        method: 'PUT', // Perbaikan: Mengubah metode dari POST menjadi PUT
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Transaksi', id }, 'Transaksi'],
-    }),
     addTransaction: builder.mutation<any, { destination_account: string; transaction_type: string; amount: string; description: string }>({
       query: (newTransaction) => ({
         url: 'main/transaction',
@@ -95,6 +88,5 @@ export const {
   useGetTransactionByIdQuery,
   useGetTransactionsByAccountQuery,
   useGetTransactionsByAccountLast7DaysQuery,
-  useValidateTransactionMutation,
   useAddTransactionMutation,
 } = bankApi;

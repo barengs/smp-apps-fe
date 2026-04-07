@@ -274,6 +274,24 @@ const RegistrationFormPdf: React.FC<RegistrationFormPdfProps> = ({ calonSantri, 
           </View>
         </View>
 
+        {(calonSantri.previous_madrasah || calonSantri.certificate_madrasah) && (
+          <View style={[styles.section, styles.sectionWithBorder]}>
+            <Text style={styles.sectionTitle}>INFORMASI PENDIDIKAN MADRASAH</Text>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Asal Madrasah</Text>
+              <Text style={styles.detailValue}>: {toText(calonSantri.previous_madrasah)}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Alamat Madrasah</Text>
+              <Text style={styles.detailValue}>: {calonSantri.previous_madrasah_address || '-'}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>No. Ijazah Madrasah</Text>
+              <Text style={styles.detailValue}>: {calonSantri.certificate_madrasah || '-'}</Text>
+            </View>
+          </View>
+        )}
+
         {calonSantri.parent && (
           <View style={[styles.section, styles.sectionWithBorder]}>
             <Text style={styles.sectionTitle}>DATA ORANG TUA / WALI</Text>

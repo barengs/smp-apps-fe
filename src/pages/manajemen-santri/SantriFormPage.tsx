@@ -160,6 +160,7 @@ const SantriFormPage: React.FC = () => {
 
     // Step 5
     appendIfExists('program_id', data.programId);
+    appendIfExists('status', data.status || 'pending');
     appendIfExists('dokumen_foto_santri', data.fotoSantri);
     appendIfExists('dokumen_ijazah', data.ijazahFile);
 
@@ -189,8 +190,13 @@ const SantriFormPage: React.FC = () => {
     }
   };
 
-  const onSubmit = (data: SantriFormValues) => handleFormSubmit(data, false);
-  const onSubmitAndReset = () => handleFormSubmit(form.getValues(), true);
+  const onSubmit = (data: SantriFormValues) => handleFormSubmit({ ...data, status: 'pending' }, false);
+  const onSubmitAndReset = () => handleFormSubmit({ ...form.getValues(), status: 'pending' }, true);
+  
+  const handleSaveDraft = () => {
+    // For draft, we don't trigger validation, just get whatever we have
+    handleFormSubmit({ ...form.getValues(), status: 'draft' }, false);
+  };
 
   const handleSaveClick = async () => {
     const isValid = await form.trigger(step5Fields);
@@ -281,6 +287,10 @@ const SantriFormPage: React.FC = () => {
                 </Button>
               </div>
               <div className="flex space-x-2">
+                <Button type="button" variant="ghost" className="text-muted-foreground hover:text-primary" onClick={handleSaveDraft} disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  Simpan Draft
+                </Button>
                 {currentStep < totalSteps ? (
                   <Button type="button" variant="primary" onClick={nextStep} disabled={isLoading}>
                     Lanjutkan

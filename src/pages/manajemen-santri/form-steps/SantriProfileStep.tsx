@@ -34,11 +34,14 @@ const mapJenisKelaminFromApi = (jenisKelaminApi: string): 'L' | 'P' => {
 };
 
 interface SantriProfileStepProps {
-  // form: any; // Dihapus karena menggunakan useFormContext
+  isEditMode?: boolean;
+  initialVillageName?: string;
 }
 
-const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
-  const { control, watch, setValue } = useFormContext<SantriFormValues>();
+const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ isEditMode = false, initialVillageName }) => {
+  const { control, watch, setValue, getValues } = useFormContext<SantriFormValues>();
+  const checkedNik = React.useRef<string | null>(null);
+  const isInitialEditModeFetch = React.useRef(isEditMode);
   
   const nikSantriValue = watch('nikSantri'); // Watch nikSantri field
 
@@ -51,57 +54,95 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
   // Trigger cek NIK ketika 16 digit
   useEffect(() => {
     if (nikSantriValue && nikSantriValue.length === 16) {
-      triggerCheckNik(nikSantriValue);
+      // Hanya picu jika NIK berbeda dari yang sudah dicek
+      if (nikSantriValue !== checkedNik.current) {
+        triggerCheckNik(nikSantriValue);
+        checkedNik.current = nikSantriValue; // Tandai NIK ini sudah dicek
+      }
     } else {
       // Hanya reset status pengecekan; JANGAN mengosongkan nilai yang sudah diisi dari server
+      checkedNik.current = null;
       resetNikCheck();
     }
-  }, [nikSantriValue, triggerCheckNik, resetNikCheck, setValue]);
+  }, [nikSantriValue, triggerCheckNik, resetNikCheck]);
 
   // Tangani respons cek NIK
   useEffect(() => {
     let toastId: string | number | undefined;
 
     if (isLoadingNikCheck) {
-      toastId = toast.loading('Mengecek NIK Santri...');
+      if (!(isEditMode && isInitialEditModeFetch.current)) {
+        toastId = toast.loading('Mengecek NIK Santri...');
+      }
     }
 
     if (nikCheckData) {
       if (toastId) toast.dismiss(toastId);
       if (nikCheckData.success) {
-        // Isi otomatis tanggal lahir, tempat lahir, jenis kelamin, dan desa (pakai desa pertama jika ada)
-        const jenisKelaminShort = mapJenisKelaminFromApi(nikCheckData.jenis_kelamin);
-        setValue('jenisKelamin', jenisKelaminShort);
-        if (nikCheckData.tanggal_lahir) {
-          setValue('tanggalLahir', new Date(nikCheckData.tanggal_lahir));
-        }
-        if (nikCheckData.tempat_lahir) {
-          setValue('tempatLahir', nikCheckData.tempat_lahir);
-        }
-        if (nikCheckData.desa && nikCheckData.desa.length > 0) {
-          setValue('villageCode', nikCheckData.desa[0].code);
-          toast.success('Data NIK ditemukan', {
-            description: `Tanggal & tempat lahir diisi otomatis. Desa: ${nikCheckData.desa[0].name}.`,
-          });
+        if (isEditMode && isInitialEditModeFetch.current) {
+          const currentVillageCode = getValues('villageCode');
+          
+          if (currentVillageCode) {
+            // Re-apply value after options loaded to fix Shadcn Select race condition
+            setValue('villageCode', currentVillageCode, { shouldDirty: false });
+          } else if (nikCheckData.desa && nikCheckData.desa.length > 0) {
+            // Auto-fill if it was empty from database
+            setValue('villageCode', nikCheckData.desa[0].code, { shouldValidate: true });
+          }
+
+          // Auto-fill other fields if they were initially empty in DB
+          if (!getValues('tempatLahir') && nikCheckData.tempat_lahir) {
+            setValue('tempatLahir', nikCheckData.tempat_lahir, { shouldValidate: true });
+          }
+          if (!getValues('tanggalLahir') && nikCheckData.tanggal_lahir) {
+            setValue('tanggalLahir', new Date(nikCheckData.tanggal_lahir), { shouldValidate: true });
+          }
+          if (!getValues('jenisKelamin') && nikCheckData.jenis_kelamin) {
+            setValue('jenisKelamin', mapJenisKelaminFromApi(nikCheckData.jenis_kelamin), { shouldValidate: true });
+          }
+
+          isInitialEditModeFetch.current = false;
         } else {
-          toast.info('Data NIK ditemukan tanpa desa.', {
-            description: 'Silakan pilih desa/kelurahan secara manual.',
-          });
+          // Isi otomatis tanggal lahir, tempat lahir, jenis kelamin, dan desa (pakai desa pertama jika ada)
+          const jenisKelaminShort = mapJenisKelaminFromApi(nikCheckData.jenis_kelamin);
+          setValue('jenisKelamin', jenisKelaminShort, { shouldValidate: true });
+          if (nikCheckData.tanggal_lahir) {
+            setValue('tanggalLahir', new Date(nikCheckData.tanggal_lahir), { shouldValidate: true });
+          }
+          if (nikCheckData.tempat_lahir) {
+            setValue('tempatLahir', nikCheckData.tempat_lahir, { shouldValidate: true });
+          }
+          if (nikCheckData.desa && nikCheckData.desa.length > 0) {
+            setValue('villageCode', nikCheckData.desa[0].code, { shouldValidate: true });
+            toast.success('Data NIK ditemukan', {
+              description: `Tanggal & tempat lahir diisi otomatis. Desa: ${nikCheckData.desa[0].name}.`,
+            });
+          } else {
+            toast.info('Data NIK ditemukan tanpa desa.', {
+              description: 'Silakan pilih desa/kelurahan secara manual.',
+            });
+          }
         }
       } else {
-        toast.info('Data tidak ditemukan untuk NIK ini.', {
-          description: 'Silakan isi data secara manual.',
-        });
+        if (!(isEditMode && isInitialEditModeFetch.current)) {
+          toast.info('Data tidak ditemukan untuk NIK ini.', {
+            description: 'Silakan isi data secara manual.',
+          });
+        }
+        isInitialEditModeFetch.current = false;
       }
     }
 
     if (isErrorNikCheck) {
       if (toastId) toast.dismiss(toastId);
-      // @ts-ignore
-      const msg = nikCheckError?.data?.message || 'Terjadi kesalahan pada server.';
-      toast.error('Gagal mengecek NIK', { description: msg });
+      if (!(isEditMode && isInitialEditModeFetch.current)) {
+        // @ts-ignore
+        const msg = nikCheckError?.data?.message || 'Terjadi kesalahan pada server.';
+        toast.error('Gagal mengecek NIK', { description: msg });
+      }
+      isInitialEditModeFetch.current = false;
     }
-  }, [nikCheckData, isLoadingNikCheck, isErrorNikCheck, nikCheckError, setValue]);
+  }, [nikCheckData, isLoadingNikCheck, isErrorNikCheck, nikCheckError, setValue, getValues, isEditMode]);
 
   return (
     <div className="space-y-6">
@@ -248,7 +289,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = () => {
                         <SelectValue 
                           placeholder={
                             field.value
-                              ? (nikCheckData?.desa?.find((v) => v.code === field.value)?.name || field.value)
+                              ? (nikCheckData?.desa?.find((v) => v.code === field.value)?.name || initialVillageName || field.value)
                               : 'Pilih Desa/Kelurahan'
                           }
                         />

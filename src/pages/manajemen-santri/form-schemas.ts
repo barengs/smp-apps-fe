@@ -49,9 +49,13 @@ export const santriFormSchema = z.object({
 
   // Step 5: Dokumen & Program
   programId: z.string({ required_error: "Program wajib dipilih." }).min(1, "Program wajib dipilih."),
-  fotoSantri: fileSchema,
-  ijazahFile: fileSchema,
+  fotoSantri: fileSchema.optional(),
+  ijazahFile: fileSchema.optional(),
   optionalDocuments: z.array(optionalDocumentItemSchema).optional(),
+  status: z.enum(['draft', 'pending', 'verified', 'rejected', 'accepted']).optional(),
+  existingFotoUrl: z.string().optional(),
+  existingIjazahName: z.string().optional(),
+  existingIjazahUrl: z.string().optional(),
 });
 
 export type SantriFormValues = z.infer<typeof santriFormSchema>;

@@ -18,6 +18,10 @@ interface DebitStudentCardProps {
     back: string | null;
     stamp: string | null;
     signature: string | null;
+    authorized_official?: {
+      first_name: string;
+      last_name: string;
+    } | null;
   };
   side?: 'front' | 'back';
 }
@@ -153,7 +157,11 @@ const DebitStudentCard: React.FC<DebitStudentCardProps> = ({ student, cardData, 
                     </div>
                     <div className="relative z-20">
                         <div className="font-semibold mb-[1px]">Kepala Pesantren</div>
-                        <div className="font-bold underline decoration-1">KH. ACHMAD HUSAINI</div>
+                        <div className="font-bold underline decoration-1 text-center">
+                            {templates.authorized_official 
+                               ? `${templates.authorized_official.first_name} ${templates.authorized_official.last_name || ''}`.trim()
+                               : 'KH. ACHMAD HUSAINI'}
+                        </div>
                     </div>
                 </div>
 

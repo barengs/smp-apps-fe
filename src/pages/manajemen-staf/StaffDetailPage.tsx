@@ -9,6 +9,12 @@ import { User, Briefcase, UsersRound, ArrowLeft, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
+import { useReactToPrint } from 'react-to-print';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
+import StaffCard from './StaffCard';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Printer, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -51,6 +57,32 @@ const StaffDetailPage: React.FC = () => {
 
   const handleEdit = () => {
     navigate(`/dashboard/staf/${staffId}/edit`);
+  };
+
+  // Printing logic
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = React.useState(false);
+  const [selectedCardSide, setSelectedCardSide] = React.useState<'front' | 'back'>('front');
+  const cardComponentRef = React.useRef<HTMLDivElement>(null);
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
+
+  const handlePrint = useReactToPrint({
+    contentRef: cardComponentRef,
+    documentTitle: `Kartu-Staf-${staffData?.code || staffId}-${selectedCardSide}`,
+    pageStyle: `@page { size: auto; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`,
+    onAfterPrint: () => {
+      toast.showSuccess('Proses cetak selesai.');
+      setIsPrintDialogOpen(false);
+    },
+  });
+
+  const triggerPrintFront = () => {
+    setSelectedCardSide('front');
+    setTimeout(() => handlePrint(), 100);
+  };
+
+  const triggerPrintBack = () => {
+    setSelectedCardSide('back');
+    setTimeout(() => handlePrint(), 100);
   };
 
   if (isLoading) {
@@ -106,6 +138,9 @@ const StaffDetailPage: React.FC = () => {
                 <CardDescription>Detail lengkap mengenai staf ini.</CardDescription>
               </div>
               <div className="flex items-center space-x-2">
+                <Button variant="outline" onClick={() => setIsPrintDialogOpen(true)}>
+                  <Printer className="mr-2 h-4 w-4" /> Cetak Kartu
+                </Button>
                 <Button variant="outline" onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" /> Edit
                 </Button>
@@ -155,6 +190,90 @@ const StaffDetailPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+        <DialogContent className="max-w-4xl p-8 bg-gray-50">
+          <DialogHeader>
+            <div className="flex justify-between items-center">
+                <div>
+                    <DialogTitle>Cetak Kartu Staf</DialogTitle>
+                    <DialogDescription>
+                        Pratinjau kartu staf sebelum dicetak.
+                    </DialogDescription>
+                </div>
+                <div className="flex bg-gray-200 p-1 rounded-lg">
+                    <Button 
+                        variant={selectedCardSide === 'front' ? 'secondary' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setSelectedCardSide('front')}
+                        className="text-xs h-8"
+                    >
+                        Sisi Depan
+                    </Button>
+                    <Button 
+                        variant={selectedCardSide === 'back' ? 'secondary' : 'ghost'} 
+                        size="sm" 
+                        onClick={() => setSelectedCardSide('back')}
+                        className="text-xs h-8"
+                    >
+                        Sisi Belakang
+                    </Button>
+                </div>
+            </div>
+          </DialogHeader>
+          <div className="my-6 flex flex-col items-center min-h-[300px] justify-center">
+            <StaffCard 
+              data={{
+                first_name: staffData.first_name,
+                last_name: staffData.last_name,
+                nik: staffData.nik,
+                code: staffData.code,
+                phone: staffData.phone,
+                photo: staffData.photo,
+                roles: staffData.user?.roles || [],
+              }}
+              side={selectedCardSide}
+            />
+          </div>
+          <DialogFooter>
+            <div className="flex w-full justify-end items-center gap-2">
+              <Button variant="outline" onClick={() => setIsPrintDialogOpen(false)}>Tutup</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="success">
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Kartu <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={triggerPrintFront}>
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Sisi Depan
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={triggerPrintBack}>
+                    <Printer className="mr-2 h-4 w-4" /> Cetak Sisi Belakang
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <div ref={cardComponentRef}>
+          <StaffCard 
+            data={{
+              first_name: staffData.first_name,
+              last_name: staffData.last_name,
+              nik: staffData.nik,
+              code: staffData.code,
+              phone: staffData.phone,
+              photo: staffData.photo,
+              roles: staffData.user?.roles || [],
+            }}
+            side={selectedCardSide}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );

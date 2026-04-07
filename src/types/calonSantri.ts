@@ -1,8 +1,38 @@
+export interface RegistrationFile {
+  id: number;
+  registration_id: number;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Parent {
+  id: number;
+  nik: string;
+  kk: string;
+  first_name: string;
+  last_name: string;
+  gender: 'L' | 'P';
+  phone: string;
+  email: string | null;
+  occupation_id: number | null;
+  education_id: number | null;
+  occupation?: { id: number; name: string } | null;
+  education?: { id: number; name: string } | null;
+  card_address: string;
+  domicile_address: string | null;
+  parent_as: 'ayah' | 'ibu' | 'wali';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CalonSantri {
   id: number;
-  registration_number: string; // Changed from nomor_pendaftaran
+  registration_number: string;
   registration_date: string | null;
-  status: 'pending' | 'diterima' | 'ditolak';
+  status: 'pending' | 'verified' | 'rejected' | 'accepted' | 'draft';
   parent_id: string;
   nis: string;
   period: string | null;
@@ -18,21 +48,28 @@ export interface CalonSantri {
   postal_code: string | null;
   phone: string | null;
   photo: string | null;
-  previous_school: string | null; // Changed from asal_sekolah
+  photo_url: string | null; // New field from controller
+  previous_school: string | null;
   previous_school_address: string | null;
   certificate_number: string | null;
   education_level_id: number | null;
-  nisn: string; // Added nisn property
-  program_id: number | null; // Added program_id
+  previous_madrasah: string | null; // Missing property
+  previous_madrasah_address: string | null; // Missing property
+  certificate_madrasah: string | null; // Missing property (mapped to madrasah_nomor_ijazah in controller but certificate_madrasah in migration)
+  madrasah_level_id: number | null; // Missing property
+  nisn: string;
+  program_id: number | null;
   program: {
     id: number;
     name: string;
   } | null;
-  created_at: string; // Changed from tanggal_daftar
+  created_at: string;
   updated_at: string;
-  parent: any; // Anda bisa mendefinisikan antarmuka Parent jika diperlukan
-  payment_status: string; // New: Status pembayaran
-  payment_amount: number; // New: Jumlah pembayaran
+  parent: Parent | null;
+  payment_status: string;
+  payment_amount: number | string | null;
+  files: RegistrationFile[]; // Added files property
+  village?: { id: number; code: string; name: string } | null;
 }
 
 export interface PaginatedResponse<T> {

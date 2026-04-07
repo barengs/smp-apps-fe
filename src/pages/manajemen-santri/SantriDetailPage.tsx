@@ -351,6 +351,7 @@ const SantriDetailPage: React.FC = () => {
                     back: settingsResponse?.data?.back_template || null,
                     stamp: settingsResponse?.data?.stamp || null,
                     signature: settingsResponse?.data?.signature || null,
+                    authorized_official: settingsResponse?.data?.authorized_official || null,
                   }}
                   side={selectedCardSide}
                 />
@@ -425,6 +426,7 @@ const SantriDetailPage: React.FC = () => {
                 back: settingsResponse?.data?.back_template || null,
                 stamp: settingsResponse?.data?.stamp || null,
                 signature: settingsResponse?.data?.signature || null,
+                authorized_official: settingsResponse?.data?.authorized_official || null,
               }}
               side={selectedCardSide}
             />

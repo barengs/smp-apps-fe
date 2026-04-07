@@ -45,6 +45,7 @@ import { settingApi } from './slices/settingApi';
 import { koperasiApi } from './slices/koperasiApi';
 import { topUpApi } from './slices/topUpApi';
 import { dashboardBankApi } from './slices/dashboardBankApi';
+import { transactionApi } from './slices/transactionApi';
 
 
 

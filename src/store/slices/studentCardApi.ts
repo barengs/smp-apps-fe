@@ -9,6 +9,14 @@ export interface StudentCardSettings {
   kop_surat: string | null;
   stamp: string | null;
   signature: string | null;
+  staff_front_template: string | null;
+  staff_back_template: string | null;
+  authorized_official_id: number | null;
+  authorized_official?: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 export interface StudentCardConfigurationResponse {

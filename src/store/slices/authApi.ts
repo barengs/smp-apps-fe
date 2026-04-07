@@ -15,11 +15,18 @@ export interface User { // Menambahkan 'export' di sini
     first_name: string;
     last_name: string;
     nik: string | null;
+    kk?: string | null;
     email: string;
     phone: string | null;
     address: string | null;
     zip_code: string | null;
     photo: string | null;
+    gender?: string | null;
+    parent_as?: string | null;
+    card_address?: string | null;
+    domicile_address?: string | null;
+    occupation_id?: number | null;
+    education_id?: number | null;
     created_at: string;
     updated_at: string;
   };

@@ -21,10 +21,12 @@ import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import * as toast from '@/utils/toast';
 import { Id } from 'react-toastify';
 
-interface WaliSantriStepProps {}
+interface WaliSantriStepProps {
+  isEditMode?: boolean;
+}
 
-const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
-  const { control, setValue, watch } = useFormContext<SantriFormValues>();
+const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ isEditMode = false }) => {
+  const { control, setValue, watch, getValues } = useFormContext<SantriFormValues>();
   const loadingToastId = useRef<Id | null>(null);
   const checkedNik = useRef<string | null>(null);
 
@@ -40,6 +42,12 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
 
   useEffect(() => {
     if (nikValue && nikValue.length === 16) {
+      // Don't auto-fetch if in edit mode and this is the initial NIK from the record
+      if (isEditMode && checkedNik.current === null) {
+        checkedNik.current = nikValue;
+        return;
+      }
+
       // Hanya picu jika NIK berbeda dari yang sudah dicek
       if (nikValue !== checkedNik.current) {
         triggerGetParentByNik(nikValue);
@@ -50,7 +58,43 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
       checkedNik.current = null;
       reset();
     }
-  }, [nikValue, triggerGetParentByNik, reset]);
+  }, [nikValue, triggerGetParentByNik, reset, isEditMode]);
+
+  // Fix race condition: When in edit mode, re-apply Select values once the lists finish loading.
+  // form.reset() sets pekerjaanValue/educationValue before the list is fetched, so Select can't show the label.
+  // Once the list is available, we re-trigger setValue so the Select component picks up the correct option.
+  useEffect(() => {
+    if (!isEditMode) return;
+    if (isLoadingPekerjaan || isLoadingEducationLevels) return;
+
+    const currentPekerjaan = getValues('pekerjaanValue');
+    const currentEducation = getValues('educationValue');
+    const currentAlamatKtp = getValues('alamatKtp');
+    const currentAlamatDomisili = getValues('alamatDomisili');
+
+    if (currentPekerjaan && pekerjaanList.length > 0) {
+      const found = pekerjaanList.find(p => p.id.toString() === currentPekerjaan);
+      if (found) {
+        setValue('pekerjaanValue', found.id.toString(), { shouldValidate: true, shouldDirty: false });
+      }
+    }
+
+    if (currentEducation && educationLevelsList.length > 0) {
+      const found = educationLevelsList.find(e => e.id.toString() === currentEducation);
+      if (found) {
+        setValue('educationValue', found.id.toString(), { shouldValidate: true, shouldDirty: false });
+      }
+    }
+
+    // Re-apply address fields to make them visible (belt-and-suspenders for form state sync)
+    if (currentAlamatKtp) {
+      setValue('alamatKtp', currentAlamatKtp, { shouldDirty: false });
+    }
+    if (currentAlamatDomisili) {
+      setValue('alamatDomisili', currentAlamatDomisili, { shouldDirty: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoadingPekerjaan, isLoadingEducationLevels, pekerjaanList.length, educationLevelsList.length, isEditMode]);
 
   useEffect(() => {
     if (isLoadingNik) {
@@ -69,34 +113,35 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = () => {
         toast.showSuccess('Data wali ditemukan. Formulir telah diisi secara otomatis.');
         const parentData = nikData.parent;
 
-        const kkValue = String(parentData.kk || '').trim();
-        if (kkValue.match(/^\d{16}$/)) {
+        // Use optional chaining for extra safety
+        const kkValue = String(parentData?.kk || '').trim();
+        if (kkValue?.match(/^\d{16}$/)) {
           setValue('kk', kkValue);
         } else {
           setValue('kk', '');
           toast.showWarning('Nomor KK dari data NIK tidak valid. Harap masukkan manual (16 digit).');
         }
 
-        setValue('firstName', parentData.first_name);
-        setValue('lastName', parentData.last_name || '');
-        setValue('gender', (parentData.gender as 'L' | 'P'));
-        setValue('parentAs', parentData.parent_as as 'ayah' | 'ibu' | 'wali');
-        setValue('phone', parentData.phone || '');
-        setValue('email', parentData.email || '');
-        setValue('alamatKtp', parentData.card_address || '');
-        setValue('alamatDomisili', parentData.domicile_address || '');
+        setValue('firstName', parentData?.first_name || '');
+        setValue('lastName', parentData?.last_name || '');
+        setValue('gender', (parentData?.gender as 'L' | 'P') || 'L');
+        setValue('parentAs', (parentData?.parent_as as 'ayah' | 'ibu' | 'wali') || 'ayah');
+        setValue('phone', parentData?.phone || '');
+        setValue('email', parentData?.email || '');
+        setValue('alamatKtp', parentData?.card_address || '');
+        setValue('alamatDomisili', parentData?.domicile_address || '');
 
-        if (parentData.occupation_id && pekerjaanList.length > 0) {
-          const foundPekerjaan = pekerjaanList.find(p => p.id.toString() === parentData.occupation_id?.toString());
+        if (parentData?.occupation_id && pekerjaanList.length > 0) {
+          const foundPekerjaan = pekerjaanList.find(p => p.id.toString() === parentData?.occupation_id?.toString());
           if (foundPekerjaan) {
-            setValue('pekerjaanValue', foundPekerjaan.id.toString());
+            setValue('pekerjaanValue', foundPekerjaan.id.toString(), { shouldValidate: true });
           }
         }
 
-        if (parentData.education_id && educationLevelsList.length > 0) {
-          const foundEducation = educationLevelsList.find(edu => edu.id.toString() === parentData.education_id?.toString());
+        if (parentData?.education_id && educationLevelsList.length > 0) {
+          const foundEducation = educationLevelsList.find(edu => edu.id.toString() === parentData?.education_id?.toString());
           if (foundEducation) {
-            setValue('educationValue', foundEducation.id.toString());
+            setValue('educationValue', foundEducation.id.toString(), { shouldValidate: true });
           }
         }
       } else if (isErrorNik) {

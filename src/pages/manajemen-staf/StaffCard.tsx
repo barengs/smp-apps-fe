@@ -1,32 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
 
-// Interface data wali santri untuk kartu
-export interface WaliSantriCardData {
+export interface StaffCardData {
     photo?: string | null;
     first_name: string;
     last_name: string | null;
-    nik: string;
-    parent_as: string; // 'Ayah' | 'Ibu' | 'Wali'
+    nik: string | null;
+    code: string;
     phone?: string | null;
-    students?: Array<{
-        nis: string;
-        first_name: string;
-        last_name: string | null;
-    }>;
+    roles?: Array<{ name: string }>;
 }
 
-interface WaliSantriCardProps {
-    data: WaliSantriCardData;
+interface StaffCardProps {
+    data: StaffCardData;
     side?: 'front' | 'back';
 }
 
-const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
+const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
     ({ data, side = 'front' }, ref) => {
         const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
         const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
-        // Ambil pengaturan kartu dari database (sama seperti SantriCard)
         const { data: settingsResponse } = useGetStudentCardSettingsQuery();
         const templates = settingsResponse?.data;
 
@@ -38,9 +32,8 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                 : `${STORAGE_BASE_URL}${data.photo}`
             : null;
 
-        // Generate QR dari NIK wali santri
         useEffect(() => {
-            const value = String(data.nik || '').trim();
+            const value = String(data.code || '').trim();
             if (!value) return;
             (async () => {
                 try {
@@ -55,7 +48,7 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                     console.error('QR Generation failed', err);
                 }
             })();
-        }, [data.nik]);
+        }, [data.code]);
 
         const today = new Date();
         const months = [
@@ -70,8 +63,8 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                     ref={ref}
                     className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-white font-sans bg-slate-900 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
                     style={{
-                        backgroundImage: templates?.guardian_back_template
-                            ? `url(${STORAGE_BASE_URL}${templates.guardian_back_template})`
+                        backgroundImage: templates?.staff_back_template
+                            ? `url(${STORAGE_BASE_URL}${templates.staff_back_template})`
                             : undefined,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
@@ -79,9 +72,8 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                         WebkitPrintColorAdjust: 'exact',
                     } as React.CSSProperties}
                 >
-                    {!templates?.guardian_back_template && <div className="absolute inset-0 bg-orange-50/10" />}
+                    {!templates?.staff_back_template && <div className="absolute inset-0 bg-slate-800" />}
                     
-                    {/* Dynamic QR for back side */}
                     <div className="absolute bottom-[10%] right-[8%] opacity-80">
                         {qrDataUrl && <img src={qrDataUrl} alt="QR Small" className="w-[35px] h-[35px]" />}
                     </div>
@@ -90,13 +82,12 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
         }
 
         return (
-            // ID-1 Card Size: 85.60 × 53.98 mm — identik dengan DebitStudentCard
             <div
                 ref={ref}
                 className="w-[85.6mm] h-[53.98mm] relative overflow-hidden text-white font-sans bg-slate-900 shadow-lg mx-auto print:shadow-none print:break-inside-avoid"
                 style={{
-                    backgroundImage: templates?.guardian_front_template
-                        ? `url(${STORAGE_BASE_URL}${templates.guardian_front_template})`
+                    backgroundImage: templates?.staff_front_template
+                        ? `url(${STORAGE_BASE_URL}${templates.staff_front_template})`
                         : undefined,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -104,16 +95,15 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                     WebkitPrintColorAdjust: 'exact',
                 } as React.CSSProperties}
             >
-                {/* Container Content — layout identik dengan DebitStudentCard */}
+                {!templates?.staff_front_template && <div className="absolute inset-0 bg-slate-800" />}
+                
                 <div className="absolute top-[33%] left-[4.5%] w-[91%] h-[63%] flex">
-
-                    {/* Left: Photo */}
                     <div className="w-[19%] h-auto flex flex-col items-center pt-0.5">
                         <div className="w-full aspect-[3/4] bg-gray-200 border-[1px] border-white overflow-hidden shadow-sm">
                             {photoUrl ? (
                                 <img
                                     src={photoUrl}
-                                    alt="Foto Wali"
+                                    alt="Foto Staf"
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
@@ -124,14 +114,12 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                         </div>
                     </div>
 
-                    {/* Right: Data Wali Santri */}
                     <div className="w-[81%] pl-3 flex flex-col justify-start">
-                        {/* Data Rows */}
                         <div className="text-[7.5px] leading-[1.3] font-bold text-white space-y-[0.5px]">
                             <div className="flex items-start">
-                                <span className="w-[35px] shrink-0">NIK</span>
+                                <span className="w-[35px] shrink-0">CODE</span>
                                 <span className="mr-1 shrink-0">:</span>
-                                <span className="uppercase">{data.nik}</span>
+                                <span className="uppercase">{data.code}</span>
                             </div>
                             <div className="flex items-start">
                                 <span className="w-[35px] shrink-0">NAMA</span>
@@ -141,8 +129,19 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                             <div className="flex items-start">
                                 <span className="w-[35px] shrink-0">STATUS</span>
                                 <span className="mr-1 shrink-0">:</span>
-                                <span className="uppercase">{data.parent_as || 'Wali Santri'}</span>
+                                <span className="uppercase">
+                                    {data.roles && data.roles.length > 0 
+                                        ? data.roles[0].name 
+                                        : 'Staf / Pengurus'}
+                                </span>
                             </div>
+                            {data.nik && (
+                                <div className="flex items-start">
+                                    <span className="w-[35px] shrink-0">NIK</span>
+                                    <span className="mr-1 shrink-0">:</span>
+                                    <span>{data.nik}</span>
+                                </div>
+                            )}
                             {data.phone && (
                                 <div className="flex items-start">
                                     <span className="w-[35px] shrink-0">TELP</span>
@@ -150,34 +149,12 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                                     <span>{data.phone}</span>
                                 </div>
                             )}
-                            {/* Daftar Santri */}
-                            {data.students && data.students.length > 0 && (
-                                <div className="flex items-start">
-                                    <span className="w-[35px] shrink-0">SANTRI</span>
-                                    <span className="mr-1 shrink-0">:</span>
-                                    <span className="uppercase leading-[1.2] text-[6.5px]">
-                                        {data.students.slice(0, 2).map((s, i) => (
-                                            <span key={i}>
-                                                {`${s.first_name} ${s.last_name || ''}`.trim()} ({s.nis})
-                                                {i < Math.min(data.students!.length, 2) - 1 ? ', ' : ''}
-                                            </span>
-                                        ))}
-                                        {data.students.length > 2 && (
-                                            <span className="text-gray-300"> +{data.students.length - 2} lainnya</span>
-                                        )}
-                                    </span>
-                                </div>
-                            )}
                         </div>
 
-                        {/* Bottom Section: Tanggal, Tanda Tangan, Stempel, QR */}
                         <div className="mt-auto flex justify-between items-end pb-1 w-full relative">
-
-                            {/* Signature Block */}
                             <div className="text-[8px] text-center relative ml-4">
                                 <div className="mb-8 font-medium">{printDate}</div>
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-12 flex items-center justify-center pointer-events-none">
-                                    {/* Stempel dari database settings */}
                                     {templates?.stamp && (
                                         <img
                                             src={`${STORAGE_BASE_URL}${templates.stamp}`}
@@ -185,7 +162,6 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                                             alt="Stempel"
                                         />
                                     )}
-                                    {/* Tanda tangan dari database settings */}
                                     {templates?.signature && (
                                         <img
                                             src={`${STORAGE_BASE_URL}${templates.signature}`}
@@ -204,10 +180,9 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                                 </div>
                             </div>
 
-                            {/* QR Code dari NIK */}
                             <div className="bg-white p-[2px] rounded-sm ml-auto mr-1 shadow-sm">
                                 {qrDataUrl ? (
-                                    <img src={qrDataUrl} alt="QR NIK" className="w-[50px] h-[50px] block" />
+                                    <img src={qrDataUrl} alt="QR Code" className="w-[50px] h-[50px] block" />
                                 ) : (
                                     <div className="w-[50px] h-[50px] bg-gray-200 text-[6px] flex items-center justify-center text-center">
                                         Loading...
@@ -222,6 +197,6 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
     }
 );
 
-WaliSantriCard.displayName = 'WaliSantriCard';
+StaffCard.displayName = 'StaffCard';
 
-export default WaliSantriCard;
+export default StaffCard;

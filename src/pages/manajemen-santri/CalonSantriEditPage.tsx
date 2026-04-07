@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 
+const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
+
 const CalonSantriEditPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -88,31 +90,31 @@ const CalonSantriEditPage: React.FC = () => {
   useEffect(() => {
     if (santriDataResponse?.data) {
       const data = santriDataResponse.data;
-      const parent = data.parent || {};
+      const parent = data.parent;
       
       form.reset({
         // Wali
-        nik: parent.nik || '',
-        kk: parent.kk || '',
-        firstName: parent.first_name || '',
-        lastName: parent.last_name || '',
-        gender: parent.gender,
-        parentAs: parent.parent_as,
-        phone: parent.phone || '',
-        email: parent.email || '',
-        pekerjaanValue: parent.occupation_id?.toString() || '',
-        educationValue: parent.education_id?.toString() || '',
-        alamatKtp: parent.card_address || '',
-        alamatDomisili: parent.domicile_address || '',
+        nik: parent?.nik || '',
+        kk: parent?.kk || '',
+        firstName: parent?.first_name || '',
+        lastName: parent?.last_name || '',
+        gender: parent?.gender as 'L' | 'P',
+        parentAs: parent?.parent_as,
+        phone: parent?.phone || '',
+        email: parent?.email || '',
+        pekerjaanValue: parent?.occupation_id?.toString() || '',
+        educationValue: parent?.education_id?.toString() || '',
+        alamatKtp: parent?.card_address || '',
+        alamatDomisili: parent?.domicile_address || '',
 
         // Santri
         firstNameSantri: data.first_name || '',
         lastNameSantri: data.last_name || '',
-        nisn: data.nisn || '',
+        nisn: data.nis || '', 
         nikSantri: data.nik || '',
         tempatLahir: data.born_in || '',
         tanggalLahir: data.born_at ? new Date(data.born_at) : undefined,
-        jenisKelamin: data.gender as "L" | "P", // Type assertion
+        jenisKelamin: data.gender as "L" | "P",
         alamatSantri: data.address || '',
         villageCode: data.village_id?.toString() || '',
 
@@ -121,11 +123,28 @@ const CalonSantriEditPage: React.FC = () => {
         jenjangSebelumnya: data.education_level_id?.toString() || '',
         alamatSekolah: data.previous_school_address || '',
         certificateNumber: data.certificate_number || '',
+
+        // Madrasah
+        sekolahAsalMadrasah: data.previous_madrasah || '',
+        jenjangSebelumnyaMadrasah: data.madrasah_level_id?.toString() || '',
+        alamatSekolahMadrasah: data.previous_madrasah_address || '',
+        certificateNumberMadrasah: data.certificate_madrasah || '',
         
         // Program
         programId: data.program_id?.toString() || '',
 
-        // Dokumen tidak dapat diisi ulang, pengguna harus mengunggah ulang jika ingin mengubah.
+        // Existing Files for Preview
+        existingFotoUrl: data.photo_url || '',
+        existingIjazahName: ((() => {
+          const file = (data.files || []).find((f: any) => f.file_type === 'ijazah') || (data.files && data.files.length > 0 ? data.files[0] : null);
+          return file?.file_name || '';
+        })()),
+        existingIjazahUrl: ((() => {
+          const file = (data.files || []).find((f: any) => f.file_type === 'ijazah') || (data.files && data.files.length > 0 ? data.files[0] : null);
+          return file?.file_path ? `${BASE_IMAGE_URL}${file.file_path}` : '';
+        })()),
+
+        // Dokumen tidak dapat diisi ulang secara langsung dengan File browser
         fotoSantri: undefined,
         ijazahFile: undefined,
         optionalDocuments: [],
@@ -200,6 +219,7 @@ const CalonSantriEditPage: React.FC = () => {
     appendIfExists('madrasah_alamat_sekolah', data.alamatSekolahMadrasah);
     appendIfExists('madrasah_nomor_ijazah', data.certificateNumberMadrasah);
     appendIfExists('program_id', data.programId);
+    appendIfExists('status', data.status || 'pending');
     if (data.fotoSantri instanceof File) appendIfExists('dokumen_foto_santri', data.fotoSantri);
     if (data.ijazahFile instanceof File) appendIfExists('dokumen_ijazah', data.ijazahFile);
 
@@ -215,6 +235,10 @@ const CalonSantriEditPage: React.FC = () => {
     }
   };
 
+  const handleSaveDraft = () => {
+    handleFormSubmit({ ...form.getValues(), status: 'draft' });
+  };
+
   const handleSaveClick = async () => {
     const isValid = await form.trigger(step5Fields);
     if (isValid) {
@@ -222,6 +246,10 @@ const CalonSantriEditPage: React.FC = () => {
     } else {
       showError('Harap perbaiki semua kesalahan sebelum menyimpan.');
     }
+  };
+
+  const handleConfirmSubmit = () => {
+    handleFormSubmit({ ...form.getValues(), status: 'pending' });
   };
 
   const steps = [
@@ -277,8 +305,8 @@ const CalonSantriEditPage: React.FC = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
             <div className="max-w-6xl mx-auto">
-              {currentStep === 1 && <WaliSantriStep />}
-              {currentStep === 2 && <SantriProfileStep />}
+              {currentStep === 1 && <WaliSantriStep isEditMode={true} />}
+              {currentStep === 2 && <SantriProfileStep isEditMode={true} initialVillageName={santriDataResponse?.data?.village?.name} />}
               {currentStep === 3 && <EducationStep />}
               {currentStep === 4 && <MadrasahStep />}
               {currentStep === 5 && <DocumentStep />}
@@ -294,6 +322,10 @@ const CalonSantriEditPage: React.FC = () => {
                 </Button>
               </div>
               <div className="flex space-x-2">
+                <Button type="button" variant="ghost" className="text-muted-foreground hover:text-primary" onClick={handleSaveDraft} disabled={isUpdating}>
+                  {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  Simpan Draft
+                </Button>
                 {currentStep < totalSteps ? (
                   <Button type="button" variant="primary" onClick={nextStep} disabled={isUpdating}>
                     Lanjutkan <ArrowRight className="ml-2 h-4 w-4" />

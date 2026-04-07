@@ -172,6 +172,15 @@ export const parentApi = smpApi.injectEndpoints({
     }),
     getParentByNik: builder.query<Parent, string>({
       query: (nik) => `main/parent/nik/${nik}`,
+      transformResponse: (response: any) => {
+        // Backend returns { status: 'success', data: { ...parentProfile } }
+        // or just the data. We normalize it to the Parent interface structure.
+        const data = response?.data || response;
+        if (data && !data.parent) {
+          return { ...data, parent: data } as Parent;
+        }
+        return data as Parent;
+      },
       providesTags: (result, error, nik) => [{ type: 'Parent', id: nik }],
     }),
     exportParents: builder.mutation<Blob, void>({

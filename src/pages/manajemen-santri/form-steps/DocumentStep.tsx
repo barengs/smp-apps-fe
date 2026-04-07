@@ -5,7 +5,7 @@ import { useFormContext, useFieldArray } from 'react-hook-form';
 import Webcam from 'react-webcam';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { UploadCloud, Camera, PlusCircle, X, FileCheck2 } from 'lucide-react';
+import { UploadCloud, Camera, PlusCircle, X, FileCheck2, Eye } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SantriFormValues } from '../form-schemas';
 import { Button } from '@/components/ui/button';
@@ -153,7 +153,13 @@ const DocumentStep: React.FC = () => {
                 </Dialog>
               </div>
               <div className="flex-shrink-0 w-[113px] h-[151px] border rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                {photoPreview ? <img src={photoPreview} alt="Foto Santri Preview" className="object-cover w-full h-full" /> : <span className="text-muted-foreground text-xs text-center p-2">Pratinjau Foto</span>}
+                {photoPreview ? (
+                  <img src={photoPreview} alt="Foto Santri Preview" className="object-cover w-full h-full" />
+                ) : watch('existingFotoUrl') ? (
+                  <img src={watch('existingFotoUrl')} alt="Foto Santri Terarsip" className="object-cover w-full h-full" />
+                ) : (
+                  <span className="text-muted-foreground text-xs text-center p-2">Pratinjau Foto</span>
+                )}
               </div>
             </div>
           </div>
@@ -176,6 +182,13 @@ const DocumentStep: React.FC = () => {
                           <p className="font-semibold">File Terpilih:</p>
                           <p className="text-sm">{ijazahFile.name}</p>
                         </div>
+                      ) : watch('existingIjazahName') ? (
+                        <div className="text-center text-primary-foreground/70">
+                          <FileCheck2 className="w-12 h-12 mx-auto mb-2 text-primary" />
+                          <p className="font-semibold text-primary">Dokumen Terupload:</p>
+                          <p className="text-sm text-muted-foreground">{watch('existingIjazahName')}</p>
+                          <p className="text-xs mt-1 text-muted-foreground italic">(Klik untuk mengganti)</p>
+                        </div>
                       ) : (
                         <div className="flex items-center gap-4 text-muted-foreground">
                           <UploadCloud className="w-10 h-10 flex-shrink-0" />
@@ -194,13 +207,22 @@ const DocumentStep: React.FC = () => {
                 )}
               />
             </div>
-            <Dialog open={isDocCameraOpen} onOpenChange={setIsDocCameraOpen}>
-              <DialogTrigger asChild>
-                <Button type="button" variant="outline" size="icon" className="flex-shrink-0 h-12 w-12 mt-6" onClick={() => setIsDocCameraOpen(true)}>
-                  <Camera className="h-6 w-6" />
-                  <span className="sr-only">Ambil Foto Dokumen</span>
+            <div className="flex gap-2 mt-6">
+              {watch('existingIjazahUrl') && !ijazahFile && (
+                <Button asChild type="button" variant="outline" size="icon" className="flex-shrink-0 h-12 w-12" title="Lihat Dokumen">
+                  <a href={watch('existingIjazahUrl')} target="_blank" rel="noopener noreferrer">
+                    <Eye className="h-6 w-6" />
+                    <span className="sr-only">Lihat Dokumen</span>
+                  </a>
                 </Button>
-              </DialogTrigger>
+              )}
+              <Dialog open={isDocCameraOpen} onOpenChange={setIsDocCameraOpen}>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="outline" size="icon" className="flex-shrink-0 h-12 w-12" title="Ambil Foto Ijazah">
+                    <Camera className="h-6 w-6" />
+                    <span className="sr-only">Ambil Foto Dokumen</span>
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="sm:max-w-[625px]">
                 <DialogHeader><DialogTitle>Ambil Foto Ijazah</DialogTitle></DialogHeader>
                 <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="w-full h-auto rounded-md" />
@@ -210,6 +232,7 @@ const DocumentStep: React.FC = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
         </div>
 

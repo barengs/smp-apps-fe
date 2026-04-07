@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGetStaffsQuery } from '@/store/slices/teacherApi';
 
 const StudentCardTemplateSettingsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -20,18 +22,24 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
   const [files, setFiles] = useState<{ [key in keyof StudentCardSettings]?: File | null }>({});
   const [previews, setPreviews] = useState<{ [key in keyof StudentCardSettings]?: string | null }>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [authorizedOfficialId, setAuthorizedOfficialId] = useState<string>('0');
+
+  const { data: staffs } = useGetStaffsQuery();
 
   const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
   useEffect(() => {
     if (settings) {
       const newPreviews: any = {};
-      (['front_template', 'back_template', 'guardian_front_template', 'guardian_back_template', 'kop_surat', 'stamp', 'signature'] as const).forEach(key => {
+      (['front_template', 'back_template', 'guardian_front_template', 'guardian_back_template', 'staff_front_template', 'staff_back_template', 'kop_surat', 'stamp', 'signature'] as const).forEach(key => {
         if (settings[key]) {
           newPreviews[key] = `${STORAGE_BASE_URL}${settings[key]}`;
         }
       });
       setPreviews(newPreviews);
+      if (settings.authorized_official_id) {
+        setAuthorizedOfficialId(settings.authorized_official_id.toString());
+      }
     }
   }, [settings, STORAGE_BASE_URL]);
 
@@ -71,6 +79,11 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
     });
 
     formData.append('_method', 'PUT');
+
+    if (authorizedOfficialId && authorizedOfficialId !== '0') {
+      formData.append('authorized_official_id', authorizedOfficialId);
+      hasChanges = true;
+    }
 
     if (!hasChanges) {
       showError('Tidak ada perubahan gambar untuk disimpan.');
@@ -188,7 +201,30 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
           {renderUploadCard('Template Belakang Wali', 'guardian_back_template', 'Gambar latar belakang untuk sisi belakang kartu wali santri.')}
 
           <div className="col-span-full mt-4 border-b pb-2">
-            <h2 className="text-xl font-semibold">3. Kop Surat & Lainnya</h2>
+            <h2 className="text-xl font-semibold">3. Kartu Staf / Pengurus</h2>
+          </div>
+          {renderUploadCard('Template Depan Staf', 'staff_front_template', 'Gambar latar belakang untuk sisi depan kartu staf.')}
+          {renderUploadCard('Template Belakang Staf', 'staff_back_template', 'Gambar latar belakang untuk sisi belakang kartu staf.')}
+
+          <div className="col-span-full mt-4 border-b pb-2">
+            <h2 className="text-xl font-semibold">4. Pejabat Berwenang & Dokumen Lainnya</h2>
+          </div>
+          <div className="col-span-full mb-4">
+            <label className="text-sm font-medium mb-2 block">Pilih Pejabat Berwenang Pada Kartu</label>
+            <Select value={authorizedOfficialId} onValueChange={(val) => setAuthorizedOfficialId(val)}>
+              <SelectTrigger className="w-full md:w-1/2">
+                <SelectValue placeholder="Pilih staf" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Tidak Ada (Manual)</SelectItem>
+                {staffs?.map((staff) => (
+                  <SelectItem key={staff.id} value={staff.id.toString()}>
+                    {staff.first_name} {staff.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-1">Nama staf yang dipilih akan muncul sebagai penanda tangan di Kartu Santri, Wali, dan Pengurus.</p>
           </div>
           {renderUploadCard('Kop Surat', 'kop_surat', 'Gambar kop surat resmi untuk dokumen.')}
           {renderUploadCard('Stempel', 'stamp', 'Gambar stempel resmi yayasan/sekolah (transparan direkomendasikan).')}

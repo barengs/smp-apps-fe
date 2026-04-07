@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpenText, User } from 'lucide-react';
 import { toDataURL } from 'qrcode';
+import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
 
 // Tipe data untuk properti santri
 export interface SantriData {
@@ -61,7 +62,11 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
   const placeOfBirth = santri.born_in || '-';
   const addressLine = santri.district ? `${santri.district}, Pamekasan` : 'Pamekasan';
   
-  const santriPhotoUrl = santri.photo ? `${BASE_IMAGE_URL}${santri.photo}` : null;
+  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
+  const { data: settingsResponse } = useGetStudentCardSettingsQuery();
+  const templates = settingsResponse?.data;
+  
+  const santriPhotoUrl = santri.photo ? `${STORAGE_BASE_URL}${santri.photo}` : null;
 
   React.useEffect(() => {
     const value = String(santri.nis || '').trim();
@@ -164,24 +169,44 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
 
                 {/* Footer Signature & Date */}
                 <div className="mt-auto flex items-end justify-between w-full pr-2">
-                    {/* Signature Area */}
+                         {/* Signature Area */}
                     <div className="flex flex-col items-center w-32 relative">
                          <div className="text-[5pt] text-gray-600 mb-[1px]">Pamekasan, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                          <div className="text-[5pt] font-bold text-gray-700 mb-2 relative z-10">Ketua Umum Pengurus;</div>
                          
-                         {/* Stamp under signature */}
-                         <div className="absolute top-[8px] left-[10px] w-8 h-8 rounded-full border-2 border-blue-600 opacity-20 z-0"></div>
-
-                         <div className="relative h-4 w-12 mb-0.5 z-10">
-                             {/* Mock Signature */}
-                             <svg viewBox="0 0 100 40" className="opacity-90 w-full h-full">
-                                <path d="M5,25 Q30,10 50,25 T95,25" fill="none" stroke="black" strokeWidth="3" />
-                                <path d="M15,30 Q40,20 65,35" fill="none" stroke="black" strokeWidth="2" />
-                             </svg>
+                         <div className="absolute top-[8px] left-[10px] w-28 h-10 flex items-center justify-center pointer-events-none">
+                             {/* Stamp from database settings */}
+                             {templates?.stamp && (
+                                 <img 
+                                     src={`${STORAGE_BASE_URL}${templates.stamp}`} 
+                                     className="absolute w-8 h-8 opacity-80 mix-blend-multiply z-0" 
+                                     alt="Stempel" 
+                                 />
+                             )}
+                             {/* Signature from database settings */}
+                             {templates?.signature && (
+                                 <img 
+                                     src={`${STORAGE_BASE_URL}${templates.signature}`} 
+                                     className="absolute w-24 h-12 z-10" 
+                                     alt="Tanda Tangan" 
+                                 />
+                             )}
                          </div>
 
-                         <div className="text-[5.5pt] font-bold text-gray-900 border-t border-gray-400 pt-[1px] w-full text-center">
-                             Drs. KH. Moh. Noer Hidayat, M.Si.
+                         {!templates?.signature && (
+                             <div className="relative h-4 w-12 mb-0.5 z-10">
+                                 {/* Mock Signature */}
+                                 <svg viewBox="0 0 100 40" className="opacity-90 w-full h-full">
+                                    <path d="M5,25 Q30,10 50,25 T95,25" fill="none" stroke="black" strokeWidth="3" />
+                                    <path d="M15,30 Q40,20 65,35" fill="none" stroke="black" strokeWidth="2" />
+                                 </svg>
+                             </div>
+                         )}
+
+                         <div className="text-[5.5pt] font-bold text-gray-900 border-t border-gray-400 pt-[1px] w-full text-center relative z-20">
+                             {templates?.authorized_official 
+                                ? `${templates.authorized_official.first_name} ${templates.authorized_official.last_name || ''}`.trim()
+                                : 'Drs. KH. Moh. Noer Hidayat, M.Si.'}
                          </div>
                     </div>
 

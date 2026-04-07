@@ -84,11 +84,21 @@ const RegistrationPage: React.FC = () => {
     if (user?.profile) {
         const p = user.profile;
         form.setValue('nik', p.nik || '');
+        form.setValue('kk', p.kk || '');
         form.setValue('firstName', p.first_name);
         form.setValue('lastName', p.last_name || '');
         form.setValue('email', p.email);
         form.setValue('phone', p.phone || '');
-        form.setValue('alamatKtp', p.address || ''); // Assuming address is KTP address
+        form.setValue('gender', (p.gender as 'L' | 'P') || 'L');
+        form.setValue('parentAs', (p.parent_as as 'ayah' | 'ibu' | 'wali') || 'ayah');
+        form.setValue('alamatKtp', p.card_address || '');
+        form.setValue('alamatDomisili', p.domicile_address || '');
+        if (p.occupation_id) {
+          form.setValue('pekerjaanValue', p.occupation_id.toString());
+        }
+        if (p.education_id) {
+          form.setValue('educationValue', p.education_id.toString());
+        }
     }
   }, [user, form]);
 

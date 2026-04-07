@@ -83,7 +83,26 @@ const SantriImportDialog: React.FC<Props> = ({ open, onOpenChange, onImported })
         const txt = await resp.text().catch(() => '');
         throw new Error(txt || `Gagal mengunggah file. Status: ${resp.status}`);
       }
-      toast.showSuccess('Impor santri berhasil.');
+
+      const response = await resp.json();
+      const { success_count, skipped_count, failure_count, total, errors } = response.data || {};
+      
+      const message = (
+        <div className="space-y-1">
+          <p className="font-semibold">Impor selesai.</p>
+          <p className="text-sm">Total: {total || 0}</p>
+          <p className="text-sm text-green-600">Berhasil: {success_count || 0}</p>
+          <p className="text-sm text-yellow-600">Dilewati: {skipped_count || 0}</p>
+          <p className="text-sm text-red-600">Gagal: {failure_count || 0}</p>
+          {errors && errors.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Beberapa data gagal diimpor. Silakan periksa formatnya.
+            </p>
+          )}
+        </div>
+      );
+
+      toast.showSuccess(message);
       onOpenChange(false);
       setFile(null);
       onImported?.();

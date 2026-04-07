@@ -27,6 +27,7 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 import { AlertCircle } from 'lucide-react'; // Import AlertCircle
 import * as toast from '@/utils/toast'; // Import toast utilities
+import { formatCurrency } from '@/utils/formatCurrency';
 import {
   Select,
   SelectContent,
@@ -37,6 +38,7 @@ import {
 import { useGetProdukBankQuery } from '@/store/slices/produkBankApi';
 import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
+import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
@@ -72,17 +74,57 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const [isPaymentProcessDialogOpen, setIsPaymentProcessDialogOpen] = useState(false); // State baru untuk dialog pembayaran
-  const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined);
-  const [selectedTransactionTypeId, setSelectedTransactionTypeId] = useState<string | undefined>(undefined);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [selectedTransactionTypeId, setSelectedTransactionTypeId] = useState<string>('');
 
   const { data: produkBankData, isLoading: isLoadingProdukBank } = useGetProdukBankQuery({});
   const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery({});
-  const { data: programsResp } = useGetProgramsQuery({ per_page: 1000 });
+  const { data: programsResp } = useGetProgramsQuery({});
+  const { data: educationLevels } = useGetEducationLevelsQuery({});
+
   const programMap = React.useMemo(() => {
     const map = new Map<number, string>();
     (programsResp?.data ?? []).forEach((p) => map.set(p.id, p.name));
     return map;
   }, [programsResp]);
+
+  const educationLevelMap = React.useMemo(() => {
+    const map = new Map<number, string>();
+    (educationLevels ?? []).forEach((level) => map.set(level.id, level.name));
+    return map;
+  }, [educationLevels]);
+
+  // NEW: Auto-select product and transaction type when dialog opens
+  React.useEffect(() => {
+    if (isPaymentProcessDialogOpen && calonSantri) {
+      // Auto-select Product based on Program
+      if (produkBankData && Array.isArray(produkBankData)) {
+        const programName = programMap.get(Number(calonSantri.program_id))?.toLowerCase();
+        const matchingProduct = produkBankData.find(p => 
+          p.product_name.toLowerCase().includes(programName || '')
+        );
+        if (matchingProduct) {
+          setSelectedProductId(String(matchingProduct.id));
+        } else {
+          // Default to first product if no match
+          setSelectedProductId(String(produkBankData[0].id));
+        }
+      }
+
+      // Auto-select Transaction Type (REG-FEE / Biaya Pendaftaran)
+      if (transactionTypesData?.data && Array.isArray(transactionTypesData.data)) {
+        const regFeeType = transactionTypesData.data.find(t => 
+          t.code === 'REG-FEE' || t.name.toLowerCase().includes('pendaftaran')
+        );
+        if (regFeeType) {
+          setSelectedTransactionTypeId(String(regFeeType.id));
+        } else {
+          // Default to first type if no match
+          setSelectedTransactionTypeId(String(transactionTypesData.data[0].id));
+        }
+      }
+    }
+  }, [isPaymentProcessDialogOpen, calonSantri, produkBankData, transactionTypesData, programMap]);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
     { label: 'Dashboard', href: '/dashboard/administrasi' },
@@ -133,53 +175,13 @@ const CalonSantriDetailPage: React.FC = () => {
 
   const calonSantriPhotoUrl = calonSantri.photo ? `${BASE_IMAGE_URL}${calonSantri.photo}` : null;
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const handleProcessPayment = () => {
     setIsPaymentProcessDialogOpen(true);
   };
 
-  // NEW: Auto-select product and transaction type when dialog opens
-  React.useEffect(() => {
-    if (isPaymentProcessDialogOpen && calonSantri) {
-      // Auto-select Product based on Program
-      if (produkBankData && Array.isArray(produkBankData)) {
-        const programName = programMap.get(Number(calonSantri.program_id))?.toLowerCase();
-        const matchingProduct = produkBankData.find(p => 
-          p.product_name.toLowerCase().includes(programName || '')
-        );
-        if (matchingProduct) {
-          setSelectedProductId(String(matchingProduct.id));
-        } else {
-          // Default to first product if no match
-          setSelectedProductId(String(produkBankData[0].id));
-        }
-      }
-
-      // Auto-select Transaction Type (REG-FEE / Biaya Pendaftaran)
-      if (transactionTypesData?.data && Array.isArray(transactionTypesData.data)) {
-        const regFeeType = transactionTypesData.data.find(t => 
-          t.code === 'REG-FEE' || t.name.toLowerCase().includes('pendaftaran')
-        );
-        if (regFeeType) {
-          setSelectedTransactionTypeId(String(regFeeType.id));
-        } else {
-          // Default to first type if no match
-          setSelectedTransactionTypeId(String(transactionTypesData.data[0].id));
-        }
-      }
-    }
-  }, [isPaymentProcessDialogOpen, calonSantri, produkBankData, transactionTypesData, programMap]);
-
   const handleContinuePaymentProcess = async () => {
-    if (!calonSantri || !selectedProductId || !selectedTransactionTypeId) {
+    if (!calonSantri || !selectedProductId || !selectedTransactionTypeId || selectedProductId === '' || selectedTransactionTypeId === '') {
       toast.showError('Harap pilih Produk Tabungan dan Jenis Transaksi.');
       return;
     }
@@ -259,7 +261,7 @@ const CalonSantriDetailPage: React.FC = () => {
                     <Button 
                       onClick={handleProcessPayment} 
                       size="icon" 
-                      disabled={isProcessingPayment || calonSantri.payment_status === 'paid' || calonSantri.payment_amount > 0} // Disable if already paid or amount > 0
+                      disabled={isProcessingPayment || calonSantri.payment_status === 'paid' || Number(calonSantri.payment_amount) > 0} // Disable if already paid or amount > 0
                     >
                       <DollarSign className="h-4 w-4" />
                     </Button>
@@ -286,7 +288,7 @@ const CalonSantriDetailPage: React.FC = () => {
                     <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
                     <DetailRow label="Status Pendaftaran" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
                     <DetailRow label="Status Pembayaran" value={<Badge className="capitalize">{calonSantri.payment_status}</Badge>} />
-                    <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount)} />
+                    <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount ?? 0)} />
                     <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()} />
                     <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />
                     <DetailRow
@@ -328,8 +330,31 @@ const CalonSantriDetailPage: React.FC = () => {
               <TabsContent value="pendidikan" className="mt-4">
                 <div className="rounded-md border p-2">
                   <DetailRow label="Asal Sekolah" value={calonSantri.previous_school} />
+                  <DetailRow
+                    label="Jenjang Pendidikan"
+                    value={
+                      calonSantri.education_level_id
+                        ? (educationLevelMap.get(Number(calonSantri.education_level_id)) ?? String(calonSantri.education_level_id))
+                        : '-'
+                    }
+                  />
                   <DetailRow label="Alamat Sekolah Asal" value={calonSantri.previous_school_address} />
                   <DetailRow label="Nomor Ijazah" value={calonSantri.certificate_number} />
+
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <h4 className="font-semibold text-gray-700 mb-4">Informasi Madrasah</h4>
+                    <DetailRow label="Asal Madrasah" value={calonSantri.previous_madrasah} />
+                    <DetailRow
+                      label="Jenjang Madrasah"
+                      value={
+                        calonSantri.madrasah_level_id
+                          ? (educationLevelMap.get(Number(calonSantri.madrasah_level_id)) ?? String(calonSantri.madrasah_level_id))
+                          : '-'
+                      }
+                    />
+                    <DetailRow label="Alamat Madrasah Asal" value={calonSantri.previous_madrasah_address} />
+                    <DetailRow label="Nomor Ijazah Madrasah" value={calonSantri.certificate_madrasah} />
+                  </div>
                 </div>
               </TabsContent>
 
@@ -346,8 +371,7 @@ const CalonSantriDetailPage: React.FC = () => {
                       <div>
                         <DetailRow label="Telepon Orang Tua" value={calonSantri.parent.phone} />
                         <DetailRow label="Email Orang Tua" value={calonSantri.parent.email} />
-                        <DetailRow
-                          label="Pekerjaan"
+                        <DetailRow label="Pekerjaan"
                           value={
                             calonSantri.parent.occupation
                               ? (typeof calonSantri.parent.occupation === 'object'
@@ -366,7 +390,8 @@ const CalonSantriDetailPage: React.FC = () => {
                               : '-'
                           }
                         />
-                        <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address} />
+                        <DetailRow label="Alamat KTP" value={calonSantri.parent.card_address || '-'} />
+                        <DetailRow label="Alamat Domisili" value={calonSantri.parent.domicile_address || '-'} />
                       </div>
                     </div>
                   </div>
@@ -440,8 +465,8 @@ const CalonSantriDetailPage: React.FC = () => {
                   <SelectValue placeholder={isLoadingProdukBank ? "Memuat produk..." : "Pilih produk tabungan"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {produkBankData?.map((produk) => (
-                    <SelectItem key={produk.id} value={String(produk.id)}>
+                  {(produkBankData || []).map((produk) => (
+                    <SelectItem key={produk.id} title={produk.product_name} value={String(produk.id)}>
                       {produk.product_name}
                     </SelectItem>
                   ))}
@@ -461,8 +486,8 @@ const CalonSantriDetailPage: React.FC = () => {
                   <SelectValue placeholder={isLoadingTransactionTypes ? "Memuat jenis transaksi..." : "Pilih jenis transaksi"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {transactionTypesData?.data.map((type) => (
-                    <SelectItem key={type.id} value={String(type.id)}>
+                  {(transactionTypesData?.data || []).map((type) => (
+                    <SelectItem key={type.id} title={type.name} value={String(type.id)}>
                       {type.name}
                     </SelectItem>
                   ))}
