@@ -67,7 +67,34 @@ const StaffImportDialog: React.FC<StaffImportDialogProps> = ({ open, onOpenChang
     try {
       const result = await importEmployee(formData).unwrap();
       toast.dismissToast(toastId);
-      toast.showSuccess(result.message || 'Data staf berhasil diimpor.');
+      
+      const { success_count, failure_count, total, errors } = result.data || {};
+      
+      const message = (
+        <div className="space-y-1">
+          <p className="font-semibold">{result.message || 'Impor selesai.'}</p>
+          <div className="text-sm space-y-0.5">
+            <p>Total: {total || 0}</p>
+            <p className="text-green-600">Berhasil: {success_count || 0}</p>
+            <p className="text-red-600">Gagal: {failure_count || 0}</p>
+          </div>
+          {errors && errors.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-100">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Detail Masalah:</p>
+              <ul className="text-xs text-red-500 list-disc list-inside space-y-0.5">
+                {errors.slice(0, 5).map((err, idx) => (
+                  <li key={idx} className="leading-tight">{err}</li>
+                ))}
+                {errors.length > 5 && (
+                  <li className="list-none text-muted-foreground italic font-medium">...dan {errors.length - 5} masalah lainnya</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
+      );
+
+      toast.showSuccess(message);
       onSuccess();
     } catch (err) {
       toast.dismissToast(toastId);

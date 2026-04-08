@@ -44,8 +44,8 @@ const SantriFormPage: React.FC = () => {
       kk: '',
       firstName: '',
       lastName: '',
-      gender: undefined,
-      parentAs: undefined,
+      gender: '' as any,
+      parentAs: '' as any,
       phone: '',
       email: '',
       pekerjaanValue: '',
@@ -58,7 +58,7 @@ const SantriFormPage: React.FC = () => {
       nikSantri: '',
       tempatLahir: '',
       tanggalLahir: undefined,
-      jenisKelamin: undefined,
+      jenisKelamin: '' as any,
       alamatSantri: '',
       villageCode: '',
       sekolahAsal: '',
@@ -183,7 +183,8 @@ const SantriFormPage: React.FC = () => {
         navigate('/dashboard/pendaftaran-santri');
       }
     } catch (error: any) {
-      const errorMessage = error?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
+      console.error('Gagal menyimpan santri:', error);
+      const errorMessage = error?.data?.error || error?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
       showError(errorMessage);
     } finally {
       setShowConfirmModal(false);

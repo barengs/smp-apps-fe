@@ -283,7 +283,7 @@ const SantriProfileStep: React.FC<SantriProfileStepProps> = ({ isEditMode = fals
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Desa/Kelurahan</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue 

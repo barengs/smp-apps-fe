@@ -24,6 +24,7 @@ const LoginForm: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [loginMutation, { isLoading }] = useLoginMutation();
 
   const form = useForm<FormValues>({
@@ -44,9 +45,21 @@ const LoginForm: React.FC = () => {
       toast.showSuccess('Login berhasil!');
 
       const loggedInUser = loginResult.user;
+      const roles = loggedInUser?.roles?.map((r: any) => r.name) || [];
 
-      if (loggedInUser && loggedInUser.roles && loggedInUser.roles.some(role => role.name === 'orangtua')) {
+      if (roles.includes('orangtua')) {
         navigate('/dashboard/wali-santri');
+      } else if (roles.some((r: string) => r.toLowerCase().includes('bank') || r.toLowerCase().includes('kasir'))) {
+        // Optimization: Redirect DIRECTLY to Bank Santri Web URL
+        // This eliminates the 30-second delay from the intermediate backend hop
+        setIsRedirecting(true);
+        const bankWebUrl = 'http://localhost:8001'; // Target Bank Santri web base
+        const ssoUrl = `${bankWebUrl}/auth/sso?token=${loginResult.access_token}`;
+        
+        // Short delay to allow the "Redirecting" UI to be seen
+        setTimeout(() => {
+          window.location.href = ssoUrl;
+        }, 800);
       } else {
         navigate('/dashboard/administrasi');
       }
@@ -136,6 +149,24 @@ const LoginForm: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Redirection Overlay */}
+      {isRedirecting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm transition-all duration-300">
+          <div className="flex flex-col items-center p-8 bg-white rounded-lg shadow-2xl border border-blue-50 max-w-xs w-full animate-in zoom-in-95 duration-200">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 rounded-full bg-blue-100 animate-ping opacity-20"></div>
+              <div className="relative p-4 rounded-full bg-blue-50 border border-blue-100">
+                <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Menyiapkan Akses</h3>
+            <p className="text-center text-slate-500 text-sm leading-relaxed">
+              Sedang mengalihkan Anda ke <span className="font-semibold text-blue-600">Dashboard Bank Santri</span>...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

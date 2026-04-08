@@ -321,7 +321,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ isEditMode = false }) =
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pekerjaan</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value === '' ? undefined : field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih pekerjaan" />
@@ -354,7 +354,7 @@ const WaliSantriStep: React.FC<WaliSantriStepProps> = ({ isEditMode = false }) =
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pendidikan Terakhir</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value === '' ? undefined : field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih pendidikan terakhir" />

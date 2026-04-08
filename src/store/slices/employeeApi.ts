@@ -144,7 +144,16 @@ export const employeeApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Employee', id: 'LIST' }],
     }),
-    importEmployee: builder.mutation<{ message: string }, FormData>({
+    importEmployee: builder.mutation<{ 
+      message: string; 
+      data?: {
+        success_count: number;
+        failure_count: number;
+        total: number;
+        errors: string[];
+        total_errors: number;
+      }
+    }, FormData>({
       query: (formData) => ({
         url: 'main/staff/import',
         method: 'POST',

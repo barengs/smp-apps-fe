@@ -210,9 +210,11 @@ const CalonSantriDetailPage: React.FC = () => {
       }).unwrap();
       toast.showSuccess('Proses pembayaran registrasi berhasil!');
       setIsPaymentProcessDialogOpen(false); // Tutup dialog setelah berhasil
-    } catch (err) {
+    } catch (err: any) {
       console.error('Gagal memproses pembayaran:', err);
-      toast.showError('Gagal memproses pembayaran registrasi.');
+      // Extract the error message from the nested structure if possible
+      const apiError = err?.data?.error || err?.data?.message || 'Gagal memproses pembayaran registrasi.';
+      toast.showError(apiError);
     }
   };
 

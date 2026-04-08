@@ -159,6 +159,25 @@ const SidebarRecursiveDropdownItem: React.FC<{ item: SidebarNavItem }> = ({ item
     );
   }
 
+  const isSSO = item.href?.includes('sso-handover');
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isSSO) {
+      e.preventDefault();
+      const token = localStorage.getItem('access_token');
+      window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/sso-handover?token=${token}`;
+    }
+  };
+
+  if (isSSO) {
+    return (
+      <DropdownMenuItem onClick={handleClick} className="cursor-pointer">
+        {item.icon}
+        <span className="ml-2">{t(item.titleKey)}</span>
+      </DropdownMenuItem>
+    );
+  }
+
   return (
     <DropdownMenuItem asChild>
       <Link to={item.href || '#'}>
@@ -215,6 +234,32 @@ const SidebarRecursiveItem: React.FC<{ item: SidebarNavItem; level?: number }> =
           ))}
         </CollapsibleContent>
       </Collapsible>
+    );
+  }
+
+  const isSSO = item.href?.includes('sso-handover');
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isSSO) {
+      e.preventDefault();
+      const token = localStorage.getItem('access_token');
+      window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/sso-handover?token=${token}`;
+    }
+  };
+
+  if (isSSO) {
+    return (
+      <a
+        href="#"
+        onClick={handleClick}
+        className={cn(
+          "flex items-center px-4 py-2 text-sm font-medium transition-colors rounded-md",
+          "hover:bg-sidebar-menu-hover-background/80 hover:text-sidebar-foreground"
+        )}
+      >
+        {item.icon}
+        <span className="ml-3">{t(item.titleKey)}</span>
+      </a>
     );
   }
 
@@ -436,10 +481,20 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
                   </Tooltip>
                 );
               } else {
+                const isSSO = item.href?.includes('sso-handover');
+                const handleClick = (e: React.MouseEvent) => {
+                  if (isSSO) {
+                    e.preventDefault();
+                    const token = localStorage.getItem('access_token');
+                    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/sso-handover?token=${token}`;
+                  }
+                };
+
                 return (
                   <Link
                     key={item.titleKey}
                     to={item.href || "#"}
+                    onClick={handleClick}
                     className={cn(
                       "flex items-center py-2 text-sm font-medium transition-colors rounded-md",
                       isActive

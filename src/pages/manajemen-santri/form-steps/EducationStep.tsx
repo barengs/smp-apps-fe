@@ -73,7 +73,7 @@ const EducationStep: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Jenjang Pendidikan</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value === '' ? undefined : field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih jenjang pendidikan" />
