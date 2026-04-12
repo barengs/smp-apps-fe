@@ -14,8 +14,11 @@ export interface ProcessRegistrationPaymentRequest {
 
 export const calonSantriApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCalonSantri: builder.query<CalonSantriApiResponse, void>({ // Change return type to CalonSantriApiResponse
-      query: () => 'main/registration',
+    getCalonSantri: builder.query<CalonSantriApiResponse, { page?: number; per_page?: number } | void>({
+      query: (params) => ({
+        url: 'main/registration',
+        params: params || {},
+      }),
       providesTags: ['CalonSantri'],
     }),
     getCalonSantriById: builder.query<SingleCalonSantriApiResponse, number>({

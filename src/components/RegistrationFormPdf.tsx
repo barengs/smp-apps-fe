@@ -12,18 +12,18 @@ const CORS_PROXY = import.meta.env.VITE_CORS_PROXY; // OPSIONAL: proxy untuk mel
 
 const styles = StyleSheet.create({
   page: {
-    paddingHorizontal: 40,
-    paddingVertical: 20,
+    paddingHorizontal: 30,
+    paddingVertical: 15,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
-    fontSize: 10,
-    lineHeight: 1.4,
+    fontSize: 8.5,
+    lineHeight: 1.2,
   },
   header: {
     borderBottomWidth: 2,
     borderBottomColor: '#000000',
-    paddingBottom: 10,
-    marginBottom: 20,
+    paddingBottom: 5,
+    marginBottom: 10,
     textAlign: 'center',
     alignItems: 'center',
   },
@@ -49,12 +49,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Helvetica-Bold',
-    marginTop: 10,
+    marginTop: 5,
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 8,
   },
   sectionWithBorder: {
     borderTopWidth: 1,
@@ -63,12 +63,12 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 8,
+    marginBottom: 4,
     borderBottomWidth: 1,
     borderBottomColor: '#cccccc',
-    paddingBottom: 3,
+    paddingBottom: 2,
   },
   flexRow: {
     flexDirection: 'row',
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   detailRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   detailLabel: {
     width: 120,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   signatureContainer: {
-    marginTop: 20,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   signatureName: {
-    marginTop: 60,
+    marginTop: 45,
     fontFamily: 'Helvetica-Bold',
   },
   // New styles for contract page

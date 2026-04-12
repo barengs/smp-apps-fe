@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { UserPlus, MoreHorizontal, Check, X, Edit, FileText } from 'lucide-react';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
@@ -23,7 +23,15 @@ import * as toast from '@/utils/toast';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriQuery();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const { data: apiResponse, isLoading, isError, error, isFetching } = useGetCalonSantriQuery({
+    page: pagination.pageIndex + 1,
+    per_page: pagination.pageSize,
+  });
 
   const calonSantriData = apiResponse?.data?.data || [];
 
@@ -196,6 +204,11 @@ const CalonSantriPage: React.FC = () => {
                 exportTitle="Data Calon Santri"
                 onAddData={handleAddData}
                 onRowClick={handleRowClick}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                pageCount={apiResponse?.data?.last_page || 0}
+                totalItems={apiResponse?.data?.total || 0}
+                isLoading={isLoading || isFetching}
               />
             )}
           </CardContent>

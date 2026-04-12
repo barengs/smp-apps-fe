@@ -156,7 +156,7 @@ const DebitStudentCard: React.FC<DebitStudentCardProps> = ({ student, cardData, 
                          )}
                     </div>
                     <div className="relative z-20">
-                        <div className="font-semibold mb-[1px]">Kepala Pesantren</div>
+                        <div className="font-semibold mb-[1px]">Ketua Umum Pengurus</div>
                         <div className="font-bold underline decoration-1 text-center">
                             {templates.authorized_official 
                                ? `${templates.authorized_official.first_name} ${templates.authorized_official.last_name || ''}`.trim()

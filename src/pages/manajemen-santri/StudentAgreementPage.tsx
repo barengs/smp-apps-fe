@@ -282,7 +282,7 @@ const StudentAgreementPage: React.FC = () => {
                 <ul className="list-decimal list-inside space-y-2 opacity-80">
                   <li>Taat pada Undang-Undang & Peraturan Pesantren.</li>
                   <li>Melaksanakan seluruh kesepakatan yang ditandatangani.</li>
-                  <li>Mematuhi kebijakan Alumni (IKBAS) setelah lulus.</li>
+                  <li>Mematuhi kebijakan Ikatan Alumni Banyuayar Panyeppen (IKBAS) setelah lulus.</li>
                   <li>Bersedia menerima sanksi sesuai ketentuan jika melanggar.</li>
                 </ul>
               </div>

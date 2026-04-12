@@ -172,7 +172,7 @@ const SantriCard = React.forwardRef<HTMLDivElement, SantriCardProps>(({ santri }
                          {/* Signature Area */}
                     <div className="flex flex-col items-center w-32 relative">
                          <div className="text-[5pt] text-gray-600 mb-[1px]">Pamekasan, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                         <div className="text-[5pt] font-bold text-gray-700 mb-2 relative z-10">Ketua Umum Pengurus;</div>
+                         <div className="text-[5pt] font-bold text-gray-700 mb-2 relative z-10">Ketua Umum Pengurus</div>
                          
                          <div className="absolute top-[8px] left-[10px] w-28 h-10 flex items-center justify-center pointer-events-none">
                              {/* Stamp from database settings */}
