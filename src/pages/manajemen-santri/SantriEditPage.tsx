@@ -376,38 +376,20 @@ const SantriEditPage: React.FC = () => {
 
                 {currentStep === 1 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Alamat</FormLabel>
-                          <FormControl>
-                            <Textarea {...field} rows={3} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="village_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ID Desa</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              value={field.value ?? ''}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value === '' ? undefined : Number(e.target.value)
-                                )
-                              }
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    <div className="md:col-span-2">
+                      <FormField
+                        control={form.control}
+                        name="address"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Alamat</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} rows={3} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
                       name="village"
@@ -561,8 +543,8 @@ const SantriEditPage: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <PhotoDropzone
-                            value={field.value ?? ''}
-                            onChange={(dataUrl) => field.onChange(dataUrl ?? '')}
+                            value={field.value}
+                            onChange={(file) => field.onChange(file)}
                           />
                           <FormMessage />
                         </FormItem>

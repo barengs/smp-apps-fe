@@ -135,7 +135,7 @@ const TopUpVerificationPage: React.FC = () => {
                   <CheckCircle2 className="h-4 w-4 mr-1" /> ACC
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="danger"
                   size="sm"
                   onClick={() => handleOpenDialog(topUp, 'failed')}
                   title="Tolak"
@@ -153,7 +153,7 @@ const TopUpVerificationPage: React.FC = () => {
   const getProofUrl = (path?: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    const baseUrl = import.meta.env.VITE_BANK_API_BASE_URL?.replace('/api/', '') || 'http://localhost:8001';
+    const baseUrl = import.meta.env.VITE_BANK_WEB_URL || 'http://localhost:8001';
     return `${baseUrl}/storage/${path}`;
   };
 
@@ -172,7 +172,7 @@ const TopUpVerificationPage: React.FC = () => {
 
         <div className="bg-card text-card-foreground rounded-lg border shadow-sm p-4">
           {isLoading ? (
-            <TableLoadingSkeleton rows={5} columns={6} />
+            <TableLoadingSkeleton numRows={5} numCols={6} />
           ) : (
             <DataTable
               columns={columns}
@@ -180,7 +180,7 @@ const TopUpVerificationPage: React.FC = () => {
               pageCount={data?.last_page || -1}
               pagination={pagination}
               onPaginationChange={setPagination}
-              isFetching={isFetching}
+              isLoading={isFetching}
             />
           )}
         </div>

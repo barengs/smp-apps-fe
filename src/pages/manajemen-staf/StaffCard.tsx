@@ -73,7 +73,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                     } as React.CSSProperties}
                 >
                     {!templates?.staff_back_template && <div className="absolute inset-0 bg-slate-100" />}
-                    
+
                     <div className="absolute bottom-[10%] right-[8%] opacity-80">
                         {qrDataUrl && <img src={qrDataUrl} alt="QR Small" className="w-[35px] h-[35px]" />}
                     </div>
@@ -96,9 +96,9 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                 } as React.CSSProperties}
             >
                 {!templates?.staff_front_template && <div className="absolute inset-0 bg-slate-100" />}
-                
-                <div className="absolute top-[33%] left-[4.5%] w-[91%] h-[63%] flex">
-                    <div className="w-[19%] h-auto flex flex-col items-center pt-0.5">
+
+                <div className="absolute top-[30%] left-[10%] w-[88%] h-[63%] flex">
+                    <div className="w-[20%] h-auto flex flex-col items-center pt-0.5">
                         <div className="w-full aspect-[3/4] bg-gray-200 border-[1px] border-white overflow-hidden shadow-sm">
                             {photoUrl ? (
                                 <img
@@ -112,9 +112,20 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                                 </div>
                             )}
                         </div>
+
+                        {/* QR Code di bawah foto */}
+                        <div className="mt-1.5 bg-white p-[2px] rounded-sm shadow-sm">
+                            {qrDataUrl ? (
+                                <img src={qrDataUrl} alt="QR Code" className="w-[42px] h-[42px] block" />
+                            ) : (
+                                <div className="w-[42px] h-[42px] bg-gray-200 text-[5px] flex items-center justify-center text-center leading-tight">
+                                    Loading QR...
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="w-[81%] pl-3 flex flex-col justify-start">
+                    <div className="w-[80%] pl-16 flex flex-col justify-start">
                         <div className="text-[7.5px] leading-[1.3] font-bold text-black space-y-[0.5px]">
                             <div className="flex items-start">
                                 <span className="w-[35px] shrink-0">CODE</span>
@@ -130,8 +141,8 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                                 <span className="w-[35px] shrink-0">STATUS</span>
                                 <span className="mr-1 shrink-0">:</span>
                                 <span className="uppercase">
-                                    {data.roles && data.roles.length > 0 
-                                        ? data.roles[0].name 
+                                    {data.roles && data.roles.length > 0
+                                        ? data.roles[0].name
                                         : 'Staf / Pengurus'}
                                 </span>
                             </div>
@@ -173,21 +184,11 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                                 <div className="relative z-20">
                                     <div className="font-semibold mb-[1px]">Ketua Umum Pengurus</div>
                                     <div className="font-bold underline decoration-1">
-                                        {templates?.authorized_official 
+                                        {templates?.authorized_official
                                             ? `${templates.authorized_official.first_name} ${templates.authorized_official.last_name || ''}`.trim()
                                             : 'Drs. KH. Moh. Noer Hidayat, M.Si.'}
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="bg-white p-[2px] rounded-sm ml-auto mr-1 shadow-sm">
-                                {qrDataUrl ? (
-                                    <img src={qrDataUrl} alt="QR Code" className="w-[50px] h-[50px] block" />
-                                ) : (
-                                    <div className="w-[50px] h-[50px] bg-gray-200 text-[6px] flex items-center justify-center text-center">
-                                        Loading...
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>

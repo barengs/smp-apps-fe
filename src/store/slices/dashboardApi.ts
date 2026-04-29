@@ -9,6 +9,7 @@ interface GetDashboardResponse {
     asatidz: number;
     alumni: number;
     tugasan: number;
+    santri_baru: number;
   };
 }
 

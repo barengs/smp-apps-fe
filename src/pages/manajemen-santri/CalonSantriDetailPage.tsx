@@ -28,6 +28,7 @@ import RegistrationFormPdf from '@/components/RegistrationFormPdf';
 import { AlertCircle } from 'lucide-react'; // Import AlertCircle
 import * as toast from '@/utils/toast'; // Import toast utilities
 import { formatCurrency } from '@/utils/formatCurrency';
+import { getRegistrationStatusLabel, getPaymentStatusLabel } from '@/utils/statusMapper';
 import {
   Select,
   SelectContent,
@@ -288,8 +289,8 @@ const CalonSantriDetailPage: React.FC = () => {
                   <div className="rounded-md border p-2">
                     <DetailRow label="No. Pendaftaran" value={calonSantri.registration_number} />
                     <DetailRow label="Tanggal Daftar" value={new Date(calonSantri.created_at).toLocaleDateString('id-ID')} />
-                    <DetailRow label="Status Pendaftaran" value={<Badge className="capitalize">{calonSantri.status}</Badge>} />
-                    <DetailRow label="Status Pembayaran" value={<Badge className="capitalize">{calonSantri.payment_status}</Badge>} />
+                    <DetailRow label="Status Pendaftaran" value={<Badge>{getRegistrationStatusLabel(calonSantri.status)}</Badge>} />
+                    <DetailRow label="Status Pembayaran" value={<Badge>{getPaymentStatusLabel(calonSantri.payment_status)}</Badge>} />
                     <DetailRow label="Jumlah Pembayaran" value={formatCurrency(calonSantri.payment_amount ?? 0)} />
                     <DetailRow label="Nama Lengkap" value={`${calonSantri.first_name} ${calonSantri.last_name || ''}`.toUpperCase()} />
                     <DetailRow label="Jenis Kelamin" value={calonSantri.gender === 'L' ? 'Laki-laki' : 'Perempuan'} />

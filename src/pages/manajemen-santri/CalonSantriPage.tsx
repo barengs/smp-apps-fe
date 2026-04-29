@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import * as toast from '@/utils/toast';
+import { getRegistrationStatusLabel, getPaymentStatusLabel } from '@/utils/statusMapper';
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
@@ -95,7 +96,7 @@ const CalonSantriPage: React.FC = () => {
         if (status === 'accepted') variant = 'success';
         if (status === 'rejected') variant = 'destructive';
         if (status === 'pending') variant = 'warning';
-        return <Badge variant={variant} className="capitalize">{status}</Badge>;
+        return <Badge variant={variant}>{getRegistrationStatusLabel(status)}</Badge>;
       },
     },
     {
@@ -107,7 +108,7 @@ const CalonSantriPage: React.FC = () => {
         if (paymentStatus === 'paid') variant = 'success'; // Gunakan 'success' untuk paid
         if (paymentStatus === 'pending') variant = 'warning'; // Gunakan 'warning' untuk pending
         if (paymentStatus === 'failed') variant = 'destructive';
-        return <Badge variant={variant} className="capitalize">{paymentStatus}</Badge>;
+        return <Badge variant={variant}>{getPaymentStatusLabel(paymentStatus)}</Badge>;
       },
     },
     {

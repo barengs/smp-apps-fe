@@ -164,7 +164,7 @@ const AdministrasiDashboard: React.FC = () => {
                 />
                 <ClassicInfoBox
                   title="Total Santri Baru"
-                  value={calonSantriData?.data?.total ?? 0}
+                  value={dashboardData?.data?.santri_baru ?? 0}
                   icon={<UserPlus />}
                   color="yellow"
                   href="/dashboard/pendaftaran-santri"
@@ -205,9 +205,9 @@ const AdministrasiDashboard: React.FC = () => {
                   <Link to="/dashboard/pendaftaran-santri">
                     <StatCard
                       title="Total Santri Baru"
-                      value={calonSantriData?.data?.total ?? 0}
+                      value={dashboardData?.data?.santri_baru ?? 0}
                       icon={<UserPlus className="h-6 w-6" />}
-                      description="Jumlah pendaftar santri baru"
+                      description="Santri baru periode aktif"
                       color="text-orange-600"
                   />
                   </Link>

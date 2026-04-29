@@ -97,7 +97,7 @@ export interface CreateUpdateStudentRequest {
   hostel_id?: number | null;
   program_id?: number | null;
   status: string;
-  photo?: string | null;
+  photo?: string | File | null;
   user_id?: number | null;
   deleted_at?: string | null;
 }
@@ -189,8 +189,9 @@ export const studentApi = smpApi.injectEndpoints({
         const formData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
           if (value === undefined || value === null) return;
-          // Kirim angka sebagai string
-          if (typeof value === 'number') {
+          if (value instanceof File || value instanceof Blob) {
+            formData.append(key, value);
+          } else if (typeof value === 'number') {
             formData.append(key, String(value));
           } else {
             formData.append(key, value as string);

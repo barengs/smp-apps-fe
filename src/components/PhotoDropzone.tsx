@@ -7,26 +7,21 @@ import { UploadCloud, Image as ImageIcon, X } from 'lucide-react';
 import * as toast from '@/utils/toast';
 
 interface PhotoDropzoneProps {
-  value?: string | null;
-  onChange: (dataUrl: string | null) => void;
+  value?: string | File | null;
+  onChange: (file: File | null) => void;
 }
 
 const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({ value, onChange }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const readFileAsDataURL = (file: File) => {
+  const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
       toast.showError('File harus berupa gambar.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      onChange(result);
-      toast.showSuccess('Foto berhasil diunggah.');
-    };
-    reader.readAsDataURL(file);
+    onChange(file);
+    toast.showSuccess('Foto berhasil dipilih.');
   };
 
   const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -34,7 +29,7 @@ const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({ value, onChange }) => {
     e.stopPropagation();
     setIsDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      readFileAsDataURL(e.dataTransfer.files[0]);
+      handleFile(e.dataTransfer.files[0]);
       e.dataTransfer.clearData();
     }
   }, []);
@@ -52,7 +47,7 @@ const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({ value, onChange }) => {
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      readFileAsDataURL(file);
+      handleFile(file);
     }
     e.target.value = '';
   };
@@ -61,6 +56,22 @@ const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({ value, onChange }) => {
     onChange(null);
     toast.showSuccess('Foto dihapus.');
   };
+
+  // Generate preview URL
+  const previewUrl = React.useMemo(() => {
+    if (!value) return null;
+    if (typeof value === 'string') return value;
+    return URL.createObjectURL(value);
+  }, [value]);
+
+  // Cleanup object URL
+  React.useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   return (
     <Card className="border-dashed">
@@ -75,14 +86,14 @@ const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({ value, onChange }) => {
           onDragLeave={onDragLeave}
           className={`group relative w-full rounded-md border ${isDragOver ? 'border-blue-500 bg-blue-50' : 'border-muted'} flex items-center justify-center overflow-hidden`}
         >
-          {value ? (
+          {previewUrl ? (
             <div className="flex items-center justify-center py-4">
               <div
                 className="rounded-md shadow-sm border border-muted"
                 style={{ width: '4cm', height: '6cm' }}
               >
                 <img
-                  src={value}
+                  src={previewUrl}
                   alt="Preview Foto"
                   className="h-full w-full object-cover rounded-md"
                 />

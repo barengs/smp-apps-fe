@@ -107,7 +107,7 @@ const SettingPage: React.FC = () => {
               <Info className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-xs text-blue-800">
                 Pastikan Anda sudah mendaftarkan akun di <a href="https://midtrans.com" target="_blank" rel="noreferrer" className="underline font-bold">Midtrans Dashboard</a>. 
-                Webhook URL yang harus didaftarkan: <code className="bg-white px-1 border rounded">{window.location.origin.replace(':3000', ':8001')}/api/midtrans/webhook</code>
+                Webhook URL yang harus didaftarkan: <code className="bg-white px-1 border rounded">{import.meta.env.VITE_BANK_API_BASE_URL}midtrans/webhook</code>
               </AlertDescription>
             </Alert>
             

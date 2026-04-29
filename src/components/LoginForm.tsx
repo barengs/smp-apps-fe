@@ -53,7 +53,7 @@ const LoginForm: React.FC = () => {
         // Optimization: Redirect DIRECTLY to Bank Santri Web URL
         // This eliminates the 30-second delay from the intermediate backend hop
         setIsRedirecting(true);
-        const bankWebUrl = 'http://localhost:8001'; // Target Bank Santri web base
+        const bankWebUrl = import.meta.env.VITE_BANK_WEB_URL || 'http://localhost:8001'; // Target Bank Santri web base
         const ssoUrl = `${bankWebUrl}/auth/sso?token=${loginResult.access_token}`;
         
         // Short delay to allow the "Redirecting" UI to be seen

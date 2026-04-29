@@ -32,7 +32,7 @@ export const studentEditSchema = z.object({
     z.coerce.number({ required_error: 'Program wajib dipilih' }).int()
   ),
   status: z.string().min(1, 'Status wajib diisi'),
-  photo: z.string().optional().nullable(),
+  photo: z.any().optional().nullable(),
   user_id: z.preprocess(
     (v) => (v === '' || v === null || v === undefined ? undefined : v),
     z.coerce.number().int().optional()

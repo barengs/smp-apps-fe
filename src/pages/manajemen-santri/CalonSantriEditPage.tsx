@@ -84,6 +84,7 @@ const CalonSantriEditPage: React.FC = () => {
       fotoSantri: undefined as unknown as File,
       ijazahFile: undefined as unknown as File,
       optionalDocuments: [],
+      status: undefined,
     },
   });
 
@@ -143,6 +144,8 @@ const CalonSantriEditPage: React.FC = () => {
           const file = (data.files || []).find((f: any) => f.file_type === 'ijazah') || (data.files && data.files.length > 0 ? data.files[0] : null);
           return file?.file_path ? `${BASE_IMAGE_URL}${file.file_path}` : '';
         })()),
+
+        status: data.status,
 
         // Dokumen tidak dapat diisi ulang secara langsung dengan File browser
         fotoSantri: undefined,
@@ -219,7 +222,7 @@ const CalonSantriEditPage: React.FC = () => {
     appendIfExists('madrasah_alamat_sekolah', data.alamatSekolahMadrasah);
     appendIfExists('madrasah_nomor_ijazah', data.certificateNumberMadrasah);
     appendIfExists('program_id', data.programId);
-    appendIfExists('status', data.status || 'pending');
+    if (data.status) appendIfExists('status', data.status);
     if (data.fotoSantri instanceof File) appendIfExists('dokumen_foto_santri', data.fotoSantri);
     if (data.ijazahFile instanceof File) appendIfExists('dokumen_ijazah', data.ijazahFile);
 
@@ -249,7 +252,7 @@ const CalonSantriEditPage: React.FC = () => {
   };
 
   const handleConfirmSubmit = () => {
-    handleFormSubmit({ ...form.getValues(), status: 'pending' });
+    handleFormSubmit(form.getValues());
   };
 
   const steps = [
@@ -351,7 +354,7 @@ const CalonSantriEditPage: React.FC = () => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={isUpdating}>Batal</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleFormSubmit(form.getValues())} disabled={isUpdating}>
+              <AlertDialogAction onClick={handleConfirmSubmit} disabled={isUpdating}>
                 {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Lanjutkan
               </AlertDialogAction>
