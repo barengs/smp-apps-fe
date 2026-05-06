@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useGetTeacherByIdQuery } from '@/store/slices/teacherApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, ArrowLeft, Edit, Mail, Phone, MapPin, Briefcase, Key, Calendar, Home, Building2, Tent, Landmark } from 'lucide-react';
+import { User, ArrowLeft, Mail, Phone, MapPin, Briefcase, Key, Calendar, Home, Building2, Tent, Landmark } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -110,9 +110,6 @@ const GuruDetailPage: React.FC = () => {
     { label: fullName, icon: <User className="h-4 w-4" /> },
   ];
 
-  const handleEdit = () => {
-    navigate(`/dashboard/manajemen-kurikulum/guru/${id}/edit`);
-  };
 
   if (isLoading) {
     return (
@@ -186,9 +183,6 @@ const GuruDetailPage: React.FC = () => {
                 <CardDescription>Detail lengkap mengenai guru ini.</CardDescription>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" onClick={handleEdit}>
-                  <Edit className="mr-2 h-4 w-4" /> Edit
-                </Button>
                 <Button variant="outline" onClick={() => navigate(-1)}>
                   <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
                 </Button>
