@@ -1,5 +1,6 @@
 import { smpApi } from '../baseApi';
 import { TeacherApiResponse, SingleTeacherApiResponse, StaffApiResponse, Staff } from '@/types/teacher';
+import { PaginationParams } from '@/types/master-data';
 
 interface AllStaffApiResponse {
   message: string;
@@ -12,9 +13,26 @@ export const teacherApi = smpApi.injectEndpoints({
       query: () => 'main/staff/teachers/roles',
       providesTags: ['Teacher'],
     }),
-    getStaffs: builder.query<Staff[], void>({
-      query: () => 'main/staff',
-      transformResponse: (response: AllStaffApiResponse) => response.data,
+    getStaffs: builder.query<Staff[], PaginationParams | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params) {
+          if (params.page) queryParams.append('page', params.page.toString());
+          if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+          if (params.search) queryParams.append('search', params.search);
+        }
+        const queryString = queryParams.toString();
+        return `main/staff${queryString ? `?${queryString}` : ''}`;
+      },
+      transformResponse: (response: any) => {
+        if (Array.isArray(response?.data)) {
+          return response.data;
+        }
+        if (Array.isArray(response?.data?.data)) {
+          return response.data.data;
+        }
+        return [];
+      },
       providesTags: ['Staff'],
     }),
     getTeacherById: builder.query<StaffApiResponse, string>({

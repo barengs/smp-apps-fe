@@ -78,7 +78,7 @@ const SantriEditPage: React.FC = () => {
       hostel_id: undefined,
       program_id: undefined,
       status: '',
-      photo: '',
+      photo: undefined as any,
       user_id: undefined,
       deleted_at: undefined,
     },
@@ -112,7 +112,7 @@ const SantriEditPage: React.FC = () => {
         hostel_id: santri.hostel_id ?? undefined,
         program_id: santri.program_id ?? undefined,
         status: santri.status ?? '',
-        photo: santri.photo ?? '',
+        photo: santri.photo || undefined,
         user_id: santri.user_id ?? undefined,
         deleted_at: santri.deleted_at ?? undefined,
       });

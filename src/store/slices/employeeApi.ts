@@ -1,4 +1,5 @@
 import { smpApi } from '../baseApi';
+import { PaginationParams } from '@/types/master-data';
 
 // Define API response structures
 interface RoleApiData {
@@ -106,9 +107,28 @@ export interface CreateUpdateEmployeeRequest {
 
 export const employeeApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEmployees: builder.query<StaffInListResponse[], void>({
-      query: () => `main/staff`,
-      transformResponse: (response: GetEmployeesRawResponse) => response.data,
+    getEmployees: builder.query<StaffInListResponse[], PaginationParams | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params) {
+          if (params.page) queryParams.append('page', params.page.toString());
+          if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+          if (params.search) queryParams.append('search', params.search);
+          if (params.sort_by) queryParams.append('sort_by', params.sort_by);
+          if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        }
+        const queryString = queryParams.toString();
+        return `main/staff${queryString ? `?${queryString}` : ''}`;
+      },
+      transformResponse: (response: any) => {
+        if (Array.isArray(response?.data)) {
+          return response.data;
+        }
+        if (Array.isArray(response?.data?.data)) {
+          return response.data.data;
+        }
+        return [];
+      },
       providesTags: (result) =>
         result && Array.isArray(result)
           ? [

@@ -59,7 +59,7 @@ interface Staff {
 }
 
 const StaffTable: React.FC = () => {
-  const { data: employeesData, error, isLoading } = useGetEmployeesQuery();
+  const { data: employeesData, error, isLoading } = useGetEmployeesQuery({ per_page: 1000 });
   const [deleteEmployee] = useDeleteEmployeeMutation();
   const [exportEmployees, { isLoading: isExporting }] = useExportEmployeesMutation();
   const [backupEmployees, { isLoading: isBackingUp }] = useBackupEmployeesMutation();
@@ -85,18 +85,18 @@ const StaffTable: React.FC = () => {
             id: (staffData as any)?.id ?? 0,
             staff: {
               id: (staffData as any)?.id ?? 0,
-              first_name: staffData.first_name || '',
-              last_name: staffData.last_name || '',
-              code: staffData.code || '',
-              nik: staffData.nik || '',
-              phone: staffData.phone || '',
-              address: staffData.address || '',
-              zip_code: staffData.zip_code || '',
-              gender: (staffData as any).gender ?? null,
+              first_name: staffData?.first_name || '',
+              last_name: staffData?.last_name || '',
+              code: staffData?.code || '',
+              nik: staffData?.nik || '',
+              phone: staffData?.phone || '',
+              address: staffData?.address || '',
+              zip_code: staffData?.zip_code || '',
+              gender: (staffData as any)?.gender ?? null,
             },
-            email: staffData.email || '',
+            email: staffData?.email || '',
             roles: apiEmployee.roles || [],
-            fullName: `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim(),
+            fullName: staffData ? `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() : apiEmployee.name || '',
             name: apiEmployee.name || '',
           };
         });

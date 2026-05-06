@@ -24,14 +24,14 @@ const StudentCardTemplateSettingsPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [authorizedOfficialId, setAuthorizedOfficialId] = useState<string>('0');
 
-  const { data: usersData } = useGetStaffsQuery();
+  const { data: usersData } = useGetStaffsQuery({ per_page: 1000 });
 
   // Extract staff data from usersData which has a 'staff' property
   const staffs = useMemo(() => {
-    if (!usersData) return [];
+    if (!usersData || !Array.isArray(usersData)) return [];
     // The endpoint returns an array of User objects, each having a 'staff' relation
     return (usersData as any[])
-      .filter((u) => u.staff)
+      .filter((u) => u && u.staff)
       .map((u) => u.staff);
   }, [usersData]);
 
