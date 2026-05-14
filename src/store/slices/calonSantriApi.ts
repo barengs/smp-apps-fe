@@ -10,6 +10,7 @@ export interface ProcessRegistrationPaymentRequest {
   transaction_type_id: number;
   channel: string;
   registration_number: string;
+  card_number?: string;
 }
 
 export const calonSantriApi = smpApi.injectEndpoints({

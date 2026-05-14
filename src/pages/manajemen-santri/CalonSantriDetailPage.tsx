@@ -41,6 +41,7 @@ import { useGetTransactionTypesQuery } from '@/store/slices/transactionTypeApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { useGetEducationLevelsQuery } from '@/store/slices/educationApi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 
 const BASE_IMAGE_URL = import.meta.env.VITE_STORAGE_BASE_URL;
 
@@ -77,6 +78,7 @@ const CalonSantriDetailPage: React.FC = () => {
   const [isPaymentProcessDialogOpen, setIsPaymentProcessDialogOpen] = useState(false); // State baru untuk dialog pembayaran
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [selectedTransactionTypeId, setSelectedTransactionTypeId] = useState<string>('');
+  const [cardNumber, setCardNumber] = useState<string>('');
 
   const { data: produkBankData, isLoading: isLoadingProdukBank } = useGetProdukBankQuery({});
   const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery({});
@@ -208,6 +210,7 @@ const CalonSantriDetailPage: React.FC = () => {
         transaction_type_id: Number(selectedTransactionTypeId),
         channel: 'TELLER', // As per requirement
         registration_number: calonSantri.registration_number,
+        card_number: cardNumber,
       }).unwrap();
       toast.showSuccess('Proses pembayaran registrasi berhasil!');
       setIsPaymentProcessDialogOpen(false); // Tutup dialog setelah berhasil
@@ -496,6 +499,19 @@ const CalonSantriDetailPage: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="card-number" className="text-right">
+                Nomor Kartu (Opsional)
+              </label>
+              <Input
+                id="card-number"
+                placeholder="Masukkan nomor kartu ATM santri"
+                className="col-span-3 font-mono"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                disabled={isProcessingPayment}
+              />
             </div>
           </div>
           <DialogFooter>

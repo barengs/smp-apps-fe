@@ -1,8 +1,5 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import TopUpCashPage from '@/pages/keuangan/TopUpCashPage';
-import TopUpTransferPage from '@/pages/keuangan/TopUpTransferPage';
-import TopUpVerificationPage from '@/pages/keuangan/TopUpVerificationPage';
 import Index from "@/pages/landing/Index";
 import NotFound from "@/pages/utility/NotFound";
 import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard";
@@ -53,7 +50,6 @@ import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
 import BeritaPage from '@/pages/informasi/BeritaPage';
 import InformasiSantriPage from '@/pages/manajemen-santri/InformasiSantriPage';
 import NilaiAbsensiPage from '@/pages/manajemen-santri/NilaiAbsensiPage';
-import BankSantriPage from '@/pages/keuangan/BankSantriPage';
 import PengumumanPage from '@/pages/informasi/PengumumanPage';
 import WaliSantriSettingsPage from '@/pages/utility/WaliSantriSettingsPage';
 import GuruTugasPage from '@/pages/manajemen-santri/GuruTugasPage';
@@ -65,19 +61,11 @@ import PenanggungJawabPage from './pages/manajemen-magang/PenanggungJawabPage';
 import InstitusiTugasPage from './pages/manajemen-magang/InstitusiTugasPage';
 import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPage';
 import CalonSantriEditPage from './pages/manajemen-santri/CalonSantriEditPage';
-import TransaksiPage from '@/pages/keuangan/TransaksiPage';
-import ProdukPage from '@/pages/keuangan/ProdukPage';
-import CoaPage from '@/pages/keuangan/CoaPage';
-import JenisTransaksiPage from '@/pages/keuangan/JenisTransaksiPage';
-import RekeningPage from '@/pages/keuangan/RekeningPage';
-import RekeningDetailPage from './pages/keuangan/RekeningDetailPage';
-import LaporanPage from '@/pages/keuangan/LaporanPage';
 import LaporanPelanggaranPage from '@/pages/manajemen-kamtib/LaporanPelanggaranPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
 import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppProfilePage from './pages/utility/AppProfilePage';
-import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
 import GuruPage from '@/pages/manajemen-kurikulum/GuruPage';
 import GuruFormPage from '@/pages/manajemen-kurikulum/GuruFormPage'; // Import the new GuruFormPage
 import GuruDetailPage from '@/pages/manajemen-kurikulum/GuruDetailPage'; // Import the new GuruDetailPage
@@ -110,15 +98,6 @@ import RegistrationPage from '@/pages/wali-santri/RegistrationPage';
 import RegistrationHistoryPage from '@/pages/wali-santri/RegistrationHistoryPage';
 import TagihanPage from '@/pages/wali-santri/TagihanPage';
 import TopupPage from '@/pages/wali-santri/TopupPage';
-import PaketPembayaranPage from '@/pages/keuangan/PaketPembayaranPage';
-import PembayaranPage from '@/pages/keuangan/PembayaranPage';
-import KoperasiPage from '@/pages/keuangan/KoperasiPage';
-import SettingPage from '@/pages/keuangan/SettingPage';
-import LaporanJurnalPage from '@/pages/keuangan/laporan/LaporanJurnalPage';
-import LaporanMutasiNasabahPage from '@/pages/keuangan/laporan/LaporanMutasiNasabahPage';
-import LaporanRekapSaldoPage from '@/pages/keuangan/laporan/LaporanRekapSaldoPage';
-import LaporanRekapKasirPage from '@/pages/keuangan/laporan/LaporanRekapKasirPage';
-import TransactionConfigPage from '@/pages/keuangan/laporan/TransactionConfigPage';
 import { StatistikSantriPage } from '@/pages/kesantrian/laporan/StatistikSantriPage';
 import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pages/kesantrian/laporan/LaporanPelanggaranPage';
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
@@ -209,27 +188,6 @@ function App() {
 
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
-              <Route path="/dashboard/bank-santri/dashboard" element={<BankSantriPage />} />
-              <Route path="/dashboard/bank-santri/top-up/cash" element={<TopUpCashPage />} />
-              <Route path="/dashboard/bank-santri/top-up/transfer" element={<TopUpTransferPage />} />
-              <Route path="/dashboard/bank-santri/top-up/verifikasi" element={<TopUpVerificationPage />} />
-              <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
-              <Route path="/dashboard/bank-santri/transaksi/:id" element={<TransaksiDetailPage />} />
-              <Route path="/dashboard/bank-santri/produk" element={<ProdukPage />} />
-              <Route path="/dashboard/bank-santri/coa" element={<CoaPage />} />
-              <Route path="/dashboard/bank-santri/jenis-transaksi" element={<JenisTransaksiPage />} />
-              <Route path="/dashboard/bank-santri/rekening" element={<RekeningPage />} />
-              <Route path="/dashboard/bank-santri/rekening/:accountNumber" element={<RekeningDetailPage />} />
-              <Route path="/dashboard/bank-santri/paket" element={<PaketPembayaranPage />} />
-              <Route path="/dashboard/bank-santri/pembayaran" element={<PembayaranPage />} />
-              <Route path="/dashboard/bank-santri/koperasi" element={<KoperasiPage />} />
-              <Route path="/dashboard/bank-santri/laporan" element={<LaporanPage />} />
-              <Route path="/dashboard/bank-santri/laporan/jurnal" element={<LaporanJurnalPage />} />
-              <Route path="/dashboard/bank-santri/laporan/mutasi" element={<LaporanMutasiNasabahPage />} />
-              <Route path="/dashboard/bank-santri/laporan/saldo" element={<LaporanRekapSaldoPage />} />
-              <Route path="/dashboard/bank-santri/laporan/kasir" element={<LaporanRekapKasirPage />} />
-              <Route path="/dashboard/bank-santri/laporan/config" element={<TransactionConfigPage />} />
-              <Route path="/dashboard/bank-santri/pengaturan" element={<SettingPage />} />
               <Route path="/dashboard/settings" element={<WaliSantriSettingsPage />} />
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
               <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
