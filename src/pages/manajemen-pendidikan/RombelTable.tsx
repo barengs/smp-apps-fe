@@ -145,7 +145,7 @@ const RombelTable: React.FC = () => {
         },
       },
       {
-        accessorFn: row => row.classroom.name,
+        accessorFn: row => row.classroom?.name ?? '',
         id: 'classroomName',
         header: 'Kelas',
         // Exact match untuk filter kelas

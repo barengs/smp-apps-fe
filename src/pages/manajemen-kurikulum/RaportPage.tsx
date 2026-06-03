@@ -70,8 +70,8 @@ const RaportPage: React.FC = () => {
 
     const classColumns: ColumnDef<any>[] = useMemo(() => [
         { accessorKey: 'name', header: 'Nama Rombel' },
-        { accessorKey: 'classroom.name', header: 'Kelas' },
-        { accessorKey: 'advisor.user.name', header: 'Wali Kelas', cell: ({ row }: any) => row.original.advisor?.user?.name || 'Belum Ditentukan' },
+        { id: 'classroomName', accessorFn: (row: any) => row?.classroom?.name || '-', header: 'Kelas' },
+        { id: 'advisorName', accessorFn: (row: any) => row?.advisor?.user?.name || 'Belum Ditentukan', header: 'Wali Kelas' },
         { accessorKey: 'total_students', header: 'Total Siswa' },
         {
             id: 'actions',

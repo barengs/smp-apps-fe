@@ -80,15 +80,16 @@ const JadwalPelajaranPage: React.FC = () => {
       id: 'classroom.name',
       accessorFn: (row: any) => row?.classroom?.name || '',
       header: t('lessonSchedulePage.class'),
-      cell: ({ row }) => <div className="capitalize">{row.original.classroom.name}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.classroom?.name || '-'}</div>,
     },
     {
       id: 'class_group.name',
       accessorFn: (row: any) => row?.class_group?.name || '',
       header: t('lessonSchedulePage.classGroup'),
-      cell: ({ row }) => <div className="capitalize">{row.original.class_group.name}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.class_group?.name || '-'}</div>,
     },
     {
+      id: 'day',
       accessorKey: 'day',
       header: t('lessonSchedulePage.day'),
       cell: ({ row }) => <div className="capitalize">{row.getValue('day')}</div>,
@@ -97,18 +98,21 @@ const JadwalPelajaranPage: React.FC = () => {
       id: 'study.name',
       accessorFn: (row: any) => row?.study?.name || '',
       header: t('lessonSchedulePage.subject'),
-      cell: ({ row }) => <div className="capitalize">{row.original.study.name}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.study?.name || '-'}</div>,
     },
     {
+      id: 'teacher',
       accessorKey: 'teacher',
       header: t('lessonSchedulePage.teacher'),
       cell: ({ row }) => {
         const teacher = row.original.teacher;
-        const teacherName = `${teacher.first_name} ${teacher.last_name}`.trim();
-        return <div className="capitalize">{teacherName}</div>;
+        if (!teacher) return <div className="text-gray-400">-</div>;
+        const teacherName = `${teacher.first_name || ''} ${teacher.last_name || ''}`.trim();
+        return <div className="capitalize">{teacherName || '-'}</div>;
       },
     },
     {
+      id: 'lesson_hour',
       accessorKey: 'lesson_hour',
       header: t('lessonSchedulePage.time'),
       cell: ({ row }) => {
