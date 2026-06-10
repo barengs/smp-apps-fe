@@ -80,7 +80,7 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                     } as React.CSSProperties}
                 >
                     {!templates?.guardian_back_template && <div className="absolute inset-0 bg-orange-50/10" />}
-                    
+
                     {/* Dynamic QR for back side */}
                     <div className="absolute bottom-[10%] right-[8%] opacity-80">
                         {qrDataUrl && <img src={qrDataUrl} alt="QR Small" className="w-[35px] h-[35px]" />}
@@ -195,12 +195,12 @@ const WaliSantriCard = React.forwardRef<HTMLDivElement, WaliSantriCardProps>(
                                     )}
                                 </div>
                                 <div className="relative z-20">
-                                    <div className="font-semibold mb-[1px]">Ketua Umum Pengurus</div>
-                                    <div className="font-bold underline decoration-1">
-                                        {templates?.authorized_official 
+                                    <div className="font-bold underline decoration-1 mb-[1px]">
+                                        {templates?.authorized_official
                                             ? `${templates.authorized_official.first_name} ${templates.authorized_official.last_name || ''}`.trim()
                                             : 'Drs. KH. Moh. Noer Hidayat, M.Si.'}
                                     </div>
+                                    <div className="font-semibold mb-[1px]">Ketua Umum Pengurus</div>
                                 </div>
                             </div>
 

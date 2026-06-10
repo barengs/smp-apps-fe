@@ -228,10 +228,10 @@ const StaffDetailPage: React.FC = () => {
                 first_name: staffData.first_name,
                 last_name: staffData.last_name,
                 nik: staffData.nik,
-                code: staffData.code,
+                nip: staffData.nip,
+                address: staffData.address,
                 phone: staffData.phone,
                 photo: staffData.photo,
-                roles: staffData.user?.roles || [],
               }}
               side={selectedCardSide}
             />
@@ -266,10 +266,10 @@ const StaffDetailPage: React.FC = () => {
               first_name: staffData.first_name,
               last_name: staffData.last_name,
               nik: staffData.nik,
-              code: staffData.code,
+              nip: staffData.nip,
+              address: staffData.address,
               phone: staffData.phone,
               photo: staffData.photo,
-              roles: staffData.user?.roles || [],
             }}
             side={selectedCardSide}
           />

@@ -6,9 +6,9 @@ export interface StaffCardData {
     first_name: string;
     last_name: string | null;
     nik: string | null;
-    code: string;
+    nip: string | null;
+    address: string | null;
     phone?: string | null;
-    roles?: Array<{ name: string }>;
 }
 
 interface StaffCardProps {
@@ -33,7 +33,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
             : null;
 
         useEffect(() => {
-            const value = String(data.code || '').trim();
+            const value = String(data.nip || '').trim();
             if (!value) return;
             (async () => {
                 try {
@@ -48,7 +48,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                     console.error('QR Generation failed', err);
                 }
             })();
-        }, [data.code]);
+        }, [data.nip]);
 
         const today = new Date();
         const months = [
@@ -128,9 +128,9 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                     <div className="w-[80%] pl-16 flex flex-col justify-start">
                         <div className="text-[7.5px] leading-[1.3] font-bold text-black space-y-[0.5px]">
                             <div className="flex items-start">
-                                <span className="w-[35px] shrink-0">CODE</span>
+                                <span className="w-[35px] shrink-0">NIP</span>
                                 <span className="mr-1 shrink-0">:</span>
-                                <span className="uppercase">{data.code}</span>
+                                <span className="uppercase">{data.nip || '-'}</span>
                             </div>
                             <div className="flex items-start">
                                 <span className="w-[35px] shrink-0">NAMA</span>
@@ -138,26 +138,15 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                                 <span className="uppercase font-black tracking-wide text-[8.5px]">{fullName}</span>
                             </div>
                             <div className="flex items-start">
-                                <span className="w-[35px] shrink-0">STATUS</span>
+                                <span className="w-[35px] shrink-0">ALAMAT</span>
                                 <span className="mr-1 shrink-0">:</span>
-                                <span className="uppercase">
-                                    {data.roles && data.roles.length > 0
-                                        ? data.roles[0].name
-                                        : 'Staf / Pengurus'}
-                                </span>
+                                <span className="uppercase">{data.address || '-'}</span>
                             </div>
                             {data.nik && (
                                 <div className="flex items-start">
                                     <span className="w-[35px] shrink-0">NIK</span>
                                     <span className="mr-1 shrink-0">:</span>
                                     <span>{data.nik}</span>
-                                </div>
-                            )}
-                            {data.phone && (
-                                <div className="flex items-start">
-                                    <span className="w-[35px] shrink-0">TELP</span>
-                                    <span className="mr-1 shrink-0">:</span>
-                                    <span>{data.phone}</span>
                                 </div>
                             )}
                         </div>
@@ -182,12 +171,12 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                                     )}
                                 </div>
                                 <div className="relative z-20">
-                                    <div className="font-semibold mb-[1px]">Ketua Umum Pengurus</div>
                                     <div className="font-bold underline decoration-1">
                                         {templates?.authorized_official
                                             ? `${templates.authorized_official.first_name} ${templates.authorized_official.last_name || ''}`.trim()
                                             : 'Drs. KH. Moh. Noer Hidayat, M.Si.'}
                                     </div>
+                                    <div className="font-semibold mb-[1px]">Ketua Umum Pengurus</div>
                                 </div>
                             </div>
                         </div>
