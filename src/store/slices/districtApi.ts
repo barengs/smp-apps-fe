@@ -60,6 +60,10 @@ export const districtApi = smpApi.injectEndpoints({
       }),
       invalidatesTags: ['District', 'City'],
     }),
+    getDistrictByNik: builder.query<DistrictApiData | null, string>({
+      query: (nik) => `master/district/${nik}/nik`,
+      transformResponse: (response: { status: string; data: DistrictApiData | null }) => response.data,
+    }),
   }),
 });
 
@@ -68,4 +72,5 @@ export const {
   useCreateDistrictMutation,
   useUpdateDistrictMutation,
   useDeleteDistrictMutation,
+  useLazyGetDistrictByNikQuery,
 } = districtApi;

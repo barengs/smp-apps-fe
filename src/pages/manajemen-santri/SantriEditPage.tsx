@@ -26,6 +26,8 @@ import { useGetHostelsQuery } from '@/store/slices/hostelApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
 import PhotoDropzone from '@/components/PhotoDropzone';
 import FormStepIndicator from '@/components/FormStepIndicator';
+import { useLazyGetDistrictByNikQuery } from '@/store/slices/districtApi';
+import { MapPin } from 'lucide-react';
 
 const toDateInputValue = (value?: string | null): string => {
   if (!value) return '';
@@ -48,6 +50,7 @@ const SantriEditPage: React.FC = () => {
 
   const { data: santri, isLoading, error } = useGetStudentByIdQuery(santriId);
   const [updateStudent, { isLoading: isSaving }] = useUpdateStudentMutation();
+  const [getDistrictByNik, { isFetching: isFetchingDistrict }] = useLazyGetDistrictByNikQuery();
 
   // Ambil opsi Asrama dan Program
   const { data: hostelPage, isLoading: isHostelLoading } = useGetHostelsQuery();
@@ -118,6 +121,36 @@ const SantriEditPage: React.FC = () => {
       });
     }
   }, [santri]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const watchedNik = form.watch('nik');
+  useEffect(() => {
+    if (watchedNik && watchedNik.length >= 6) {
+      const currentDistrict = form.getValues('district');
+      if (!currentDistrict) {
+        getDistrictByNik(watchedNik).then((result) => {
+          if (result.data) {
+            form.setValue('district', result.data.name, { shouldValidate: true, shouldDirty: true });
+          }
+        });
+      }
+    }
+  }, [watchedNik, getDistrictByNik]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-fill district from NIK when moving to step 2
+  const handleFillFromNik = async () => {
+    const nik = form.getValues('nik');
+    if (!nik || nik.length < 6) {
+      toast.showError('NIK harus minimal 6 digit untuk mencari kecamatan.');
+      return;
+    }
+    const result = await getDistrictByNik(nik);
+    if (result.data) {
+      form.setValue('district', result.data.name);
+      toast.showSuccess(`Kecamatan ditemukan: ${result.data.name}`);
+    } else {
+      toast.showError('Kecamatan tidak ditemukan untuk NIK tersebut.');
+    }
+  };
 
   const handleSubmit = async (values: CreateUpdateStudentRequest) => {
     // Pastikan tipe numerik benar
@@ -407,9 +440,20 @@ const SantriEditPage: React.FC = () => {
                       name="district"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kecamatan</FormLabel>
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Kecamatan</FormLabel>
+                            <button
+                              type="button"
+                              onClick={handleFillFromNik}
+                              disabled={isFetchingDistrict}
+                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                            >
+                              <MapPin className="h-3 w-3" />
+                              {isFetchingDistrict ? 'Mencari...' : 'Isi dari NIK'}
+                            </button>
+                          </div>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} placeholder="Nama kecamatan" />
                           </FormControl>
                         </FormItem>
                       )}
