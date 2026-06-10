@@ -9,6 +9,8 @@ export interface StaffCardData {
     nip: string | null;
     address: string | null;
     phone?: string | null;
+    birth_place?: string | null;
+    birth_date?: string | null;
 }
 
 interface StaffCardProps {
@@ -56,6 +58,27 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
         ];
         const printDate = `Pamekasan, ${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+        
+        const formatBirthInfo = () => {
+            if (!data.birth_place && !data.birth_date) return '-';
+            
+            let formattedDate = '';
+            if (data.birth_date) {
+                const dateObj = new Date(data.birth_date);
+                if (!isNaN(dateObj.getTime())) {
+                    const day = dateObj.getDate();
+                    const month = months[dateObj.getMonth()];
+                    const year = dateObj.getFullYear();
+                    formattedDate = `${day} ${month} ${year}`;
+                }
+            }
+            
+            const place = data.birth_place ? data.birth_place.trim() : '';
+            if (place && formattedDate) {
+                return `${place}, ${formattedDate}`;
+            }
+            return place || formattedDate || '-';
+        };
 
         if (side === 'back') {
             return (
@@ -97,7 +120,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
             >
                 {!templates?.staff_front_template && <div className="absolute inset-0 bg-slate-100" />}
 
-                <div className="absolute top-[30%] left-[10%] w-[88%] h-[63%] flex">
+                <div className="absolute top-[27%] left-[10%] w-[88%] h-[68%] flex">
                     <div className="w-[20%] h-auto flex flex-col items-center pt-0.5">
                         <div className="w-full aspect-[3/4] bg-gray-200 border-[1px] border-white overflow-hidden shadow-sm">
                             {photoUrl ? (
@@ -114,7 +137,7 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                         </div>
 
                         {/* QR Code di bawah foto */}
-                        <div className="mt-1.5 bg-white p-[2px] rounded-sm shadow-sm">
+                        <div className="mt-3 bg-white p-[2px] rounded-sm shadow-sm">
                             {qrDataUrl ? (
                                 <img src={qrDataUrl} alt="QR Code" className="w-[42px] h-[42px] block" />
                             ) : (
@@ -142,13 +165,11 @@ const StaffCard = React.forwardRef<HTMLDivElement, StaffCardProps>(
                                 <span className="mr-1 shrink-0">:</span>
                                 <span className="uppercase">{data.address || '-'}</span>
                             </div>
-                            {data.nik && (
-                                <div className="flex items-start">
-                                    <span className="w-[35px] shrink-0">NIK</span>
-                                    <span className="mr-1 shrink-0">:</span>
-                                    <span>{data.nik}</span>
-                                </div>
-                            )}
+                            <div className="flex items-start">
+                                <span className="w-[35px] shrink-0">TTL</span>
+                                <span className="mr-1 shrink-0">:</span>
+                                <span className="uppercase">{formatBirthInfo()}</span>
+                            </div>
                         </div>
 
                         <div className="mt-auto flex justify-between items-end pb-1 w-full relative">

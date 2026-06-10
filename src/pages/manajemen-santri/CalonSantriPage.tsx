@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
-import { UserPlus, MoreHorizontal, Check, X, Edit, FileText } from 'lucide-react';
+import { UserPlus, MoreHorizontal, Check, X, Edit, FileText, Download, Upload } from 'lucide-react';
+import RegistrationImportDialog from './RegistrationImportDialog';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -24,12 +25,13 @@ import { getRegistrationStatusLabel, getPaymentStatusLabel } from '@/utils/statu
 
 const CalonSantriPage: React.FC = () => {
   const navigate = useNavigate();
+  const [importOpen, setImportOpen] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const { data: apiResponse, isLoading, isError, error, isFetching } = useGetCalonSantriQuery({
+  const { data: apiResponse, isLoading, isError, error, isFetching, refetch } = useGetCalonSantriQuery({
     page: pagination.pageIndex + 1,
     per_page: pagination.pageSize,
   });
@@ -198,19 +200,47 @@ const CalonSantriPage: React.FC = () => {
             {isLoading ? (
               <TableLoadingSkeleton />
             ) : (
-              <DataTable
-                columns={columns}
-                data={calonSantriData}
-                exportFileName="calon_santri"
-                exportTitle="Data Calon Santri"
-                onAddData={handleAddData}
-                onRowClick={handleRowClick}
-                pagination={pagination}
-                onPaginationChange={setPagination}
-                pageCount={apiResponse?.data?.last_page || 0}
-                totalItems={apiResponse?.data?.total || 0}
-                isLoading={isLoading || isFetching}
-              />
+              <>
+                <DataTable
+                  columns={columns}
+                  data={calonSantriData}
+                  exportImportElement={
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={async () => {
+                          const { exportToExcel } = await import('@/utils/export');
+                          exportToExcel(calonSantriData as Record<string, any>[], 'calon_santri', 'Data Calon Santri');
+                        }}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Export Excel
+                      </Button>
+                      <Button onClick={() => setImportOpen(true)} variant="outline" size="sm">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Import
+                      </Button>
+                    </div>
+                  }
+                  onAddData={handleAddData}
+                  onRowClick={handleRowClick}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  pageCount={apiResponse?.data?.last_page || 0}
+                  totalItems={apiResponse?.data?.total || 0}
+                  isLoading={isLoading || isFetching}
+                />
+                <RegistrationImportDialog
+                  open={importOpen}
+                  onOpenChange={setImportOpen}
+                  onImported={async () => {
+                    const loadingId = toast.showLoading('Memuat data terbaru...');
+                    await refetch();
+                    toast.dismissToast(loadingId);
+                  }}
+                />
+              </>
             )}
           </CardContent>
         </Card>

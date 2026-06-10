@@ -36,6 +36,8 @@ interface StaffInListResponse {
     marital_status: string;
     job_id: string | null;
     status: string;
+    birth_place: string | null;
+    birth_date: string | null;
     deleted_at: string | null;
     created_at: string;
     updated_at: string;
@@ -62,6 +64,8 @@ interface StaffDetailResponse {
   marital_status: string;
   job_id: string | null;
   status: string;
+  birth_place: string | null;
+  birth_date: string | null;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -103,6 +107,10 @@ export interface CreateUpdateEmployeeRequest {
   password?: string;
   password_confirmation?: string;
   photo?: string;
+  nip?: string;
+  gender?: string;
+  birth_place?: string;
+  birth_date?: string;
 }
 
 export const employeeApi = smpApi.injectEndpoints({
@@ -141,20 +149,23 @@ export const employeeApi = smpApi.injectEndpoints({
       query: (id) => `main/staff/${id}`,
       providesTags: (result, error, id) => [{ type: 'Employee', id }],
     }),
-    createEmployee: builder.mutation<GetEmployeeByIdResponse, CreateUpdateEmployeeRequest>({
-      query: (newEmployee) => ({
+    createEmployee: builder.mutation<GetEmployeeByIdResponse, FormData>({
+      query: (formData) => ({
         url: 'main/staff',
         method: 'POST',
-        body: newEmployee,
+        body: formData,
       }),
       invalidatesTags: [{ type: 'Employee', id: 'LIST' }],
     }),
-    updateEmployee: builder.mutation<GetEmployeeByIdResponse, { id: number; data: CreateUpdateEmployeeRequest }>({
-      query: ({ id, data }) => ({
-        url: `main/staff/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
+    updateEmployee: builder.mutation<GetEmployeeByIdResponse, { id: number; data: FormData }>({
+      query: ({ id, data }) => {
+        data.append('_method', 'PUT');
+        return {
+          url: `main/staff/${id}`,
+          method: 'POST',
+          body: data,
+        };
+      },
       invalidatesTags: (result, error, { id }) => [{ type: 'Employee', id }, { type: 'Employee', id: 'LIST' }],
     }),
     deleteEmployee: builder.mutation<void, number>({

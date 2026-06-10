@@ -117,7 +117,7 @@ const SantriEditPage: React.FC = () => {
         deleted_at: santri.deleted_at ?? undefined,
       });
     }
-  }, [santri, form]);
+  }, [santri]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (values: CreateUpdateStudentRequest) => {
     // Pastikan tipe numerik benar

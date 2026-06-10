@@ -9,7 +9,6 @@ import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBr
 import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { useGetTeachersQuery, useDeleteTeacherMutation } from '@/store/slices/teacherApi';
-import { useLocalPagination } from '@/hooks/useLocalPagination';
 import { UserWithStaffAndRoles } from '@/types/teacher';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -49,9 +48,7 @@ const GuruPage: React.FC = () => {
   // Data diambil dari API, jika tidak ada, gunakan array kosong
   const teachersData: UserWithStaffAndRoles[] = apiResponse?.data || [];
 
-  // Kontrol pagination lokal (page index & page size) untuk tabel Guru
-  const { paginatedData, pagination, setPagination, pageCount } =
-    useLocalPagination<UserWithStaffAndRoles>(teachersData, 10);
+
 
   // Buat peta staffId -> studies untuk menampilkan dan mengubah penugasan mapel
   const assignments = React.useMemo(() => assignmentsResponse?.data || [], [assignmentsResponse]);
@@ -106,6 +103,11 @@ const GuruPage: React.FC = () => {
       accessorFn: row => `${row.staff.first_name} ${row.staff.last_name}`.toUpperCase(),
       id: 'full_name',
       header: 'Nama Lengkap',
+    },
+    {
+      accessorFn: row => row.staff.nip || '-',
+      id: 'nip',
+      header: 'NIP',
     },
     {
       accessorFn: row => row.staff.email, // Mengubah dari accessorKey
@@ -261,16 +263,13 @@ const GuruPage: React.FC = () => {
               <>
                 <DataTable
                   columns={columns}
-                  data={paginatedData}
+                  data={teachersData}
                   exportFileName="data_guru"
                   exportTitle="Data Guru"
                   onAddData={handleAddData}
                   onRowClick={handleRowClick}
                   addButtonLabel="Tambah Guru"
-                  // Aktifkan pagination manual agar kontrol page-size & navigasi konsisten
-                  pageCount={pageCount}
-                  pagination={pagination}
-                  onPaginationChange={setPagination}
+                  totalItems={teachersData.length}
                 />
                 <AssignStudyModal
                   isOpen={isModalOpen}

@@ -37,7 +37,6 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { DataTable } from '@/components/DataTable';
 import { useNavigate } from 'react-router-dom';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
-import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 interface Staff {
   id: number;
@@ -47,6 +46,9 @@ interface Staff {
     last_name: string;
     code: string;
     nik: string;
+    nip: string | null;
+    birth_place?: string | null;
+    birth_date?: string | null;
     phone: string;
     address: string;
     zip_code: string;
@@ -89,6 +91,9 @@ const StaffTable: React.FC = () => {
               last_name: staffData?.last_name || '',
               code: staffData?.code || '',
               nik: staffData?.nik || '',
+              nip: (staffData as any)?.nip ?? null,
+              birth_place: (staffData as any)?.birth_place ?? null,
+              birth_date: (staffData as any)?.birth_date ?? null,
               phone: staffData?.phone || '',
               address: staffData?.address || '',
               zip_code: staffData?.zip_code || '',
@@ -104,8 +109,7 @@ const StaffTable: React.FC = () => {
     return [];
   }, [employeesData]);
 
-  // Pagination lokal seperti halaman santri
-  const { paginatedData, pagination, setPagination, pageCount } = useLocalPagination(staffData, 10);
+
 
   const handleAddData = () => {
     setEditingStaff(undefined);
@@ -166,6 +170,11 @@ const StaffTable: React.FC = () => {
         accessorFn: row => row.staff.code,
         id: 'code',
         header: 'Kode Staf',
+      },
+      {
+        accessorFn: row => row.staff.nip || '-',
+        id: 'nip',
+        header: 'NIP',
       },
       {
         accessorKey: 'fullName',
@@ -260,14 +269,11 @@ const StaffTable: React.FC = () => {
     <>
       <DataTable
         columns={columns}
-        data={paginatedData}
+        data={staffData}
         onAddData={handleAddData}
         addButtonLabel="Tambah Staf"
         onRowClick={handleRowClick}
-        // aktifkan manual pagination (lokal)
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        pageCount={pageCount}
+        totalItems={staffData.length}
         exportImportElement={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

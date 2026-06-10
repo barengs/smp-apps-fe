@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useGetEmployeeByIdQuery } from '@/store/slices/employeeApi';
+import { useGetEmployeeByIdQuery, useUpdateEmployeeMutation } from '@/store/slices/employeeApi';
 import * as toast from '@/utils/toast';
 import { Button } from '@/components/ui/button';
-import { User, Briefcase, UsersRound, ArrowLeft, Edit } from 'lucide-react';
+import { User, Briefcase, UsersRound, ArrowLeft, Edit, Camera, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
@@ -15,6 +15,29 @@ import StaffCard from './StaffCard';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Printer, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string | undefined;
+
+const buildPhotoUrl = (photo?: string | null): string | null => {
+  if (!photo) return null;
+  const src = String(photo).trim();
+
+  if (src.startsWith('data:') || /^https?:\/\//.test(src)) return src;
+
+  if (src.startsWith('/storage/')) {
+    return `${window.location.origin}${src}`;
+  }
+
+  if (src.startsWith('uploads/')) {
+    const base = STORAGE_BASE_URL || `${window.location.origin}/storage/`;
+    const safeBase = base.endsWith('/') ? base : `${base}/`;
+    return `${safeBase}${src}`;
+  }
+
+  const base = STORAGE_BASE_URL || `${window.location.origin}/storage/`;
+  const safeBase = base.endsWith('/') ? base : `${base}/`;
+  return `${safeBase}uploads/logos/large/${src}`;
+};
 
 const DetailRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
   <div className="grid grid-cols-[150px_1fr] items-center gap-x-4 py-2 border-b last:border-b-0">
@@ -57,6 +80,43 @@ const StaffDetailPage: React.FC = () => {
 
   const handleEdit = () => {
     navigate(`/dashboard/staf/${staffId}/edit`);
+  };
+
+  const [updateEmployee, { isLoading: isUpdatingPhoto }] = useUpdateEmployeeMutation();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handlePhotoClick = () => {
+    if (isUpdatingPhoto) return;
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.showError('File harus berupa gambar.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.showError('Ukuran file maksimal 2 MB.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    try {
+      await updateEmployee({ id: staffId, data: formData }).unwrap();
+      toast.showSuccess('Foto profil berhasil diperbarui.');
+    } catch (err: any) {
+      console.error(err);
+      toast.showError('Gagal memperbarui foto profil.');
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   // Printing logic
@@ -125,6 +185,7 @@ const StaffDetailPage: React.FC = () => {
   }
 
   const roles = staffData.user?.roles || [];
+  const photoUrl = buildPhotoUrl(staffData.photo);
 
   return (
     <DashboardLayout title="Detail Staf" role="administrasi">
@@ -152,13 +213,40 @@ const StaffDetailPage: React.FC = () => {
           </CardHeader>
           <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1 flex flex-col items-center text-center">
-              <div className="aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border">
-                {staffData.photo ? (
-                  <img src={staffData.photo} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
+              <div 
+                onClick={handlePhotoClick}
+                className="group relative aspect-[3/4] w-full max-w-[240px] bg-muted rounded-lg flex items-center justify-center overflow-hidden border cursor-pointer transition-all hover:border-primary"
+              >
+                {photoUrl ? (
+                  <img src={photoUrl} alt={`Foto ${fullName}`} className="h-full w-full object-cover" />
                 ) : (
                   <User className="h-24 w-24 text-muted-foreground" />
                 )}
+                
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Camera className="h-8 w-8 mb-1" />
+                  <span className="text-xs font-semibold">Ubah Foto</span>
+                </div>
+
+                {/* Loading overlay */}
+                {isUpdatingPhoto && (
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-10">
+                    <Loader2 className="h-8 w-8 animate-spin mb-1" />
+                    <span className="text-xs font-semibold">Mengunggah...</span>
+                  </div>
+                )}
               </div>
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handlePhotoChange}
+                accept="image/*"
+                className="hidden"
+              />
+
               <h3 className="mt-4 text-xl font-bold">{fullName}</h3>
               <p className="text-sm text-muted-foreground">{staffData.email || '-'}</p>
             </div>
@@ -231,7 +319,9 @@ const StaffDetailPage: React.FC = () => {
                 nip: staffData.nip,
                 address: staffData.address,
                 phone: staffData.phone,
-                photo: staffData.photo,
+                photo: photoUrl,
+                birth_place: staffData.birth_place,
+                birth_date: staffData.birth_date,
               }}
               side={selectedCardSide}
             />
@@ -269,7 +359,9 @@ const StaffDetailPage: React.FC = () => {
               nip: staffData.nip,
               address: staffData.address,
               phone: staffData.phone,
-              photo: staffData.photo,
+              photo: photoUrl,
+              birth_place: staffData.birth_place,
+              birth_date: staffData.birth_date,
             }}
             side={selectedCardSide}
           />

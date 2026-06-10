@@ -526,7 +526,7 @@ const GuruFormPage: React.FC = () => {
   const isBusy = isAdding || isUpdating || isLoadingTeacher || isCheckingNik;
 
   const stepFields: (keyof GuruFormValues)[][] = [
-    ['first_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date'],
+    ['first_name', 'last_name', 'gender', 'phone_number', 'email', 'birth_place', 'birth_date', 'nik', 'nip'],
     ['address', 'province_code', 'city_code', 'district_code', 'village_code'],
     ['marital_status', 'job_id', 'role_id', 'status', 'username', 'password', 'password_confirmation'],
   ];

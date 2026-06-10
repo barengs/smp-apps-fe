@@ -33,7 +33,6 @@ import MataPelajaranForm from './MataPelajaranForm';
 import MataPelajaranImportDialog from './MataPelajaranImportDialog'; // Import dialog impor
 import * as toast from '@/utils/toast';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
-import { useLocalPagination } from '@/hooks/useLocalPagination';
 
 const MataPelajaranTable: React.FC = () => {
   const { data: studies, isLoading, isError, refetch } = useGetStudiesQuery({});
@@ -42,10 +41,8 @@ const MataPelajaranTable: React.FC = () => {
   const [selectedStudy, setSelectedStudy] = useState<MataPelajaran | undefined>(undefined);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State untuk dialog impor
 
-  // Siapkan data dan kontrol pagination lokal
+  // Siapkan data
   const studiesData = studies || [];
-  const { paginatedData, pagination, setPagination, pageCount } =
-    useLocalPagination<MataPelajaran>(studiesData, 10);
 
   const [exportStudies, { isLoading: isExporting }] = useExportStudiesMutation();
   const [backupStudies, { isLoading: isBackingUp }] = useBackupStudiesMutation();
@@ -79,8 +76,9 @@ const MataPelajaranTable: React.FC = () => {
     {
       id: 'no',
       header: 'No',
-      cell: ({ row }) => {
-        return (pagination.pageIndex * pagination.pageSize) + row.index + 1;
+      cell: ({ row, table }) => {
+        const { pageIndex, pageSize } = table.getState().pagination;
+        return (pageIndex * pageSize) + row.index + 1;
       },
     },
     {
@@ -166,13 +164,10 @@ const MataPelajaranTable: React.FC = () => {
       </Dialog>
       <DataTable
         columns={columns}
-        data={paginatedData}
+        data={studiesData}
         onAddData={handleAddDataClick}
         addButtonLabel="Tambah Mata Pelajaran"
-        // Aktifkan pagination manual agar page size & navigasi konsisten
-        pageCount={pageCount}
-        pagination={pagination}
-        onPaginationChange={setPagination}
+        totalItems={studiesData.length}
         exportImportElement={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
