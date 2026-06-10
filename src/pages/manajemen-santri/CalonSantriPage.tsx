@@ -8,7 +8,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { DataTable } from '@/components/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { useGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
+import { useGetCalonSantriQuery, useLazyGetCalonSantriQuery } from '@/store/slices/calonSantriApi';
 import { CalonSantri } from '@/types/calonSantri';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,6 +30,8 @@ const CalonSantriPage: React.FC = () => {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const [triggerGetCalonSantri] = useLazyGetCalonSantriQuery();
 
   const { data: apiResponse, isLoading, isError, error, isFetching, refetch } = useGetCalonSantriQuery({
     page: pagination.pageIndex + 1,
@@ -208,8 +210,19 @@ const CalonSantriPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Button
                         onClick={async () => {
-                          const { exportToExcel } = await import('@/utils/export');
-                          exportToExcel(calonSantriData as Record<string, any>[], 'calon_santri', 'Data Calon Santri');
+                          const loadingId = toast.showLoading('Mengambil semua data untuk diexport...');
+                          try {
+                            const res = await triggerGetCalonSantri({ page: 1, per_page: 999999 }).unwrap();
+                            const allData = res?.data?.data || [];
+                            const { exportToExcel } = await import('@/utils/export');
+                            exportToExcel(allData as Record<string, any>[], 'calon_santri', 'Data Calon Santri');
+                            toast.showSuccess('Data pendaftaran berhasil diexport.');
+                          } catch (err) {
+                            console.error('Export error:', err);
+                            toast.showError('Gagal mengambil data untuk diexport.');
+                          } finally {
+                            toast.dismissToast(loadingId);
+                          }
                         }}
                         variant="outline"
                         size="sm"

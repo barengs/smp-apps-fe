@@ -61,4 +61,4 @@ export const calonSantriApi = smpApi.injectEndpoints({
   overrideExisting: true,
 });
 
-export const { useGetCalonSantriQuery, useRegisterSantriMutation, useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation, useUpdateCalonSantriMutation, useLazyCheckStudentByNikQuery } = calonSantriApi;
+export const { useGetCalonSantriQuery, useLazyGetCalonSantriQuery, useRegisterSantriMutation, useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation, useUpdateCalonSantriMutation, useLazyCheckStudentByNikQuery } = calonSantriApi;
