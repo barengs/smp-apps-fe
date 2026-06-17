@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import WaliSantriLayout from '@/layouts/WaliSantriLayout';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/slices/authSlice';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useGetCalonSantriByIdQuery, useProcessRegistrationPaymentMutation } from '@/store/slices/calonSantriApi'; // Import new mutation
@@ -49,6 +52,11 @@ const CalonSantriDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
   const navigate = useNavigate();
+
+  const currentUser = useSelector(selectCurrentUser);
+  const isOrangTua = currentUser?.roles?.some((r: any) => r.name === 'orangtua');
+  const Layout = isOrangTua ? WaliSantriLayout : DashboardLayout;
+  const layoutRole = isOrangTua ? 'wali-santri' : 'administrasi';
 
   const { data: apiResponse, isLoading, isError, error } = useGetCalonSantriByIdQuery(santriId);
   const calonSantri = apiResponse?.data;
@@ -129,43 +137,49 @@ const CalonSantriDetailPage: React.FC = () => {
     }
   }, [isPaymentProcessDialogOpen, calonSantri, produkBankData, transactionTypesData, programMap]);
 
-  const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Dashboard', href: '/dashboard/administrasi' },
-    { label: 'Pendaftaran Santri Baru', href: '/dashboard/pendaftaran-santri' },
-    { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
-  ];
+  const breadcrumbItems: BreadcrumbItemData[] = isOrangTua
+    ? [
+        { label: 'Dashboard', href: '/dashboard/wali-santri' },
+        { label: 'Pendaftaran Santri Baru', href: '/dashboard/wali-santri/pendaftaran-santri' },
+        { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
+      ]
+    : [
+        { label: 'Dashboard', href: '/dashboard/administrasi' },
+        { label: 'Pendaftaran Santri Baru', href: '/dashboard/pendaftaran-santri' },
+        { label: 'Detail Calon Santri', icon: <User className="h-4 w-4" /> },
+      ];
 
   if (isLoading) {
     return (
-      <DashboardLayout title="Detail Calon Santri" role="administrasi">
+      <Layout title="Detail Calon Santri" role={layoutRole as any}>
         <div className="container mx-auto px-4 pb-4">
           <CustomBreadcrumb items={breadcrumbItems} />
           <TableLoadingSkeleton />
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
   if (isError) {
     console.error("Error fetching calon santri detail:", error);
     return (
-      <DashboardLayout title="Detail Calon Santri" role="administrasi">
+      <Layout title="Detail Calon Santri" role={layoutRole as any}>
         <div className="container mx-auto px-4 pb-4">
           <CustomBreadcrumb items={breadcrumbItems} />
           <div className="text-red-500">Terjadi kesalahan saat memuat detail data.</div>
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
   if (!calonSantri) {
     return (
-      <DashboardLayout title="Detail Calon Santri" role="administrasi">
+      <Layout title="Detail Calon Santri" role={layoutRole as any}>
         <div className="container mx-auto px-4 pb-4">
           <CustomBreadcrumb items={breadcrumbItems} />
           <div className="text-gray-500">Data calon santri tidak ditemukan.</div>
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
@@ -227,7 +241,7 @@ const CalonSantriDetailPage: React.FC = () => {
   const pdfFileName = `Formulir Pendaftaran - ${calonSantri.first_name} ${calonSantri.last_name || ''}.pdf`;
 
   return (
-    <DashboardLayout title="Detail Calon Santri" role="administrasi">
+    <Layout title="Detail Calon Santri" role={layoutRole as any}>
       <div className="container mx-auto px-4 pb-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <Card>
@@ -237,7 +251,7 @@ const CalonSantriDetailPage: React.FC = () => {
               <CardDescription>Informasi lengkap mengenai calon santri.</CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate('/dashboard/pendaftaran-santri')}>
+              <Button variant="outline" onClick={() => navigate(isOrangTua ? '/dashboard/wali-santri/pendaftaran-santri' : '/dashboard/pendaftaran-santri')}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Kembali
               </Button>
@@ -526,7 +540,7 @@ const CalonSantriDetailPage: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </Layout>
   );
 };
 

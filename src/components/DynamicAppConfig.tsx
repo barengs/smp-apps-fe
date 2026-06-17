@@ -18,9 +18,14 @@ const DynamicAppConfig = () => {
   useEffect(() => {
     if (settings) {
       // Set Favicon
-      const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-      if (favicon && settings.app_favicon) {
-        favicon.href = settings.app_favicon;
+      let favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        document.head.appendChild(favicon);
+      }
+      if (settings.app_favicon) {
+        favicon.href = `${import.meta.env.VITE_STORAGE_BASE_URL}uploads/logos/${settings.app_favicon}`;
       }
 
       // Set Theme and Language

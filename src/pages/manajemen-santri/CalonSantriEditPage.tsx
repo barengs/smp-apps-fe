@@ -3,6 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { santriFormSchema, SantriFormValues, step1Fields, step2Fields, step3Fields, step4Fields, step5Fields } from './form-schemas';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import WaliSantriLayout from '../../layouts/WaliSantriLayout';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/slices/authSlice';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { UserPlus, UserCheck, School, FileText, X, ArrowLeft, ArrowRight, Save, Loader2, BookOpenText, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,6 +39,11 @@ const CalonSantriEditPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const santriId = Number(id);
+
+  const currentUser = useSelector(selectCurrentUser);
+  const isOrangTua = currentUser?.roles?.some((r: any) => r.name === 'orangtua');
+  const Layout = isOrangTua ? WaliSantriLayout : DashboardLayout;
+  const layoutRole = isOrangTua ? 'wali-santri' : 'administrasi';
 
   const { data: santriDataResponse, isLoading: isLoadingSantri, isError } = useGetCalonSantriByIdQuery(santriId, { skip: !santriId });
   const [updateSantri, { isLoading: isUpdating }] = useUpdateCalonSantriMutation();
@@ -156,7 +164,7 @@ const CalonSantriEditPage: React.FC = () => {
   }, [santriDataResponse, form]);
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Pendaftaran Santri', href: '/dashboard/pendaftaran-santri', icon: <UserPlus className="h-4 w-4" /> },
+    { label: 'Pendaftaran Santri', href: isOrangTua ? '/dashboard/wali-santri/pendaftaran-santri' : '/dashboard/pendaftaran-santri', icon: <UserPlus className="h-4 w-4" /> },
     { label: 'Edit Formulir', icon: <Edit className="h-4 w-4" /> },
   ];
 
@@ -229,7 +237,7 @@ const CalonSantriEditPage: React.FC = () => {
     try {
       await updateSantri({ id: santriId, formData }).unwrap();
       showSuccess('Data calon santri berhasil diperbarui!');
-      navigate('/dashboard/pendaftaran-santri');
+      navigate(isOrangTua ? '/dashboard/wali-santri/pendaftaran-santri' : '/dashboard/pendaftaran-santri');
     } catch (error: any) {
       const errorMessage = error?.data?.message || 'Terjadi kesalahan saat memperbarui data.';
       showError(errorMessage);
@@ -265,22 +273,22 @@ const CalonSantriEditPage: React.FC = () => {
 
   if (isLoadingSantri) {
     return (
-      <DashboardLayout title="Edit Pendaftaran Santri" role="administrasi">
+      <Layout title="Edit Pendaftaran Santri" role={layoutRole as any}>
         <div className="p-4"><TableLoadingSkeleton /></div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
   if (isError || !santriDataResponse) {
     return (
-      <DashboardLayout title="Edit Pendaftaran Santri" role="administrasi">
+      <Layout title="Edit Pendaftaran Santri" role={layoutRole as any}>
         <div className="p-4 text-red-500">Gagal memuat data calon santri.</div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
   return (
-    <DashboardLayout title="Edit Pendaftaran Santri" role="administrasi">
+    <Layout title="Edit Pendaftaran Santri" role={layoutRole as any}>
       <div className="container mx-auto pb-8 px-4">
         <CustomBreadcrumb items={breadcrumbItems} />
         <div className="mb-4">
@@ -317,7 +325,7 @@ const CalonSantriEditPage: React.FC = () => {
 
             <div className="flex justify-between max-w-6xl mx-auto mt-8">
               <div className="flex space-x-2">
-                <Button type="button" variant="danger" onClick={() => navigate('/dashboard/pendaftaran-santri')} disabled={isUpdating}>
+                <Button type="button" variant="danger" onClick={() => navigate(isOrangTua ? '/dashboard/wali-santri/pendaftaran-santri' : '/dashboard/pendaftaran-santri')} disabled={isUpdating}>
                   <X className="mr-2 h-4 w-4" /> Batal
                 </Button>
                 <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1 || isUpdating}>
@@ -362,7 +370,7 @@ const CalonSantriEditPage: React.FC = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </DashboardLayout>
+    </Layout>
   );
 };
 
