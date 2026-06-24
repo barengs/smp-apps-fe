@@ -150,6 +150,7 @@ export const smpApi = createApi({
     'Teacher',
     'TeacherAssignment',
     'LessonHour',
+    'LessonSession',
     'ClassSchedule',
     'InstitusiPendidikan',
     'Staff',
@@ -178,6 +179,9 @@ export const smpApi = createApi({
     'AssessmentReport',
     'ReportCard',
     'AcademicQuarter',
+    'Organization',
+    'Position',
+    'PositionAssignment',
   ],
   endpoints: () => ({}),
 });

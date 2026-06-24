@@ -214,7 +214,7 @@ const PresensiDetailPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
                 <div className="font-semibold text-muted-foreground">Sesi</div>
-                <div className="font-medium truncate">{schedule.session || '-'}</div>
+                <div className="font-medium truncate">{schedule.lesson_session?.name || '-'}</div>
               </div>
               <div className="grid grid-cols-[160px_1fr] items-center rounded border bg-muted/40 px-3 py-2">
                 <div className="font-semibold text-muted-foreground">Tingkat Pendidikan</div>

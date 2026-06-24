@@ -13,6 +13,7 @@ import RoomAssignDialog from '@/components/RoomAssignDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Download, Upload, DatabaseBackup } from 'lucide-react';
 import SantriImportDialog from './SantriImportDialog';
+import { usePermissions } from '@/hooks/usePermissions';
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -39,6 +40,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const [importOpen, setImportOpen] = useState(false);
   const [exportStudents, { isLoading: isExporting }] = useExportStudentsMutation();
   const [backupStudents, { isLoading: isBackingUp }] = useBackupStudentsMutation();
+  const { canCreate, canEdit } = usePermissions();
 
   const handleExport = async () => {
     const loadingId = toast.showLoading('Mengunduh data export...');
@@ -242,6 +244,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         header: 'Aksi',
         cell: ({ row }) => {
           const santri = row.original;
+          if (!canEdit) return <span className="text-muted-foreground text-xs">No Access</span>;
           return (
             <div className="flex space-x-2">
               <Button
@@ -293,33 +296,35 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
           programName: { type: 'select', placeholder: 'Program', options: programOptions },
           roomName: { type: 'select', placeholder: 'Kamar', options: roomOptions },
         }}
-        onAddData={onAddData}
+        onAddData={canCreate ? onAddData : undefined}
         onSortingChange={setSorting}
         totalItems={santriList.length}
         addButtonLabel="Tambah Santri"
         exportImportElement={
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Import / Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => setImportOpen(true)}>
-                <Upload className="h-4 w-4 mr-2" />
-                Import
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
-                <Download className="h-4 w-4 mr-2" />
-                {isExporting ? 'Exporting...' : 'Export (XLSX)'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleBackup} disabled={isBackingUp}>
-                <DatabaseBackup className="h-4 w-4 mr-2" />
-                {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          canCreate ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Import / Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem onClick={() => setImportOpen(true)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
+                  <Download className="h-4 w-4 mr-2" />
+                  {isExporting ? 'Exporting...' : 'Export (XLSX)'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleBackup} disabled={isBackingUp}>
+                  <DatabaseBackup className="h-4 w-4 mr-2" />
+                  {isBackingUp ? 'Backing up...' : 'Backup (CSV)'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : undefined
         }
       />
 

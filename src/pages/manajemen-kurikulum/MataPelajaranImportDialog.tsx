@@ -27,10 +27,15 @@ const MataPelajaranImportDialog: React.FC<MataPelajaranImportDialogProps> = ({ i
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type === 'application/vnd.ms-excel') {
+      if (
+        file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.type === 'application/vnd.ms-excel' ||
+        file.type === 'text/csv' ||
+        file.name.endsWith('.csv')
+      ) {
         setSelectedFile(file);
       } else {
-        showError('Format file tidak valid. Harap unggah file Excel (.xlsx atau .xls).');
+        showError('Format file tidak valid. Harap unggah file Excel (.xlsx atau .xls) atau CSV (.csv).');
         setSelectedFile(null);
         if (event.target) {
             event.target.value = '';
@@ -72,7 +77,7 @@ const MataPelajaranImportDialog: React.FC<MataPelajaranImportDialogProps> = ({ i
         <DialogHeader>
           <DialogTitle>Impor Data Mata Pelajaran</DialogTitle>
           <DialogDescription>
-            Pilih file Excel untuk mengimpor data mata pelajaran secara massal. Pastikan format file sesuai dengan template yang disediakan.
+            Pilih file Excel atau CSV untuk mengimpor data mata pelajaran secara massal. Pastikan format file sesuai dengan template yang disediakan.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -88,7 +93,7 @@ const MataPelajaranImportDialog: React.FC<MataPelajaranImportDialogProps> = ({ i
             <Input
               id="excel-file"
               type="file"
-              accept=".xlsx, .xls"
+              accept=".xlsx, .xls, .csv"
               onChange={handleFileChange}
               className="cursor-pointer"
             />

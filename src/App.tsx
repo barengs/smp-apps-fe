@@ -63,7 +63,9 @@ import CalonSantriDetailPage from '@/pages/manajemen-santri/CalonSantriDetailPag
 import CalonSantriEditPage from './pages/manajemen-santri/CalonSantriEditPage';
 import LaporanPelanggaranPage from '@/pages/manajemen-kamtib/LaporanPelanggaranPage';
 import KamarPage from '@/pages/manajemen-kepesantrenan/KamarPage';
-import OrganisasiPage from '@/pages/manajemen-staf/OrganisasiPage';
+import OrganizationPage from '@/pages/manajemen-organisasi/OrganizationPage';
+import PositionPage from '@/pages/manajemen-organisasi/PositionPage';
+import KepengurusanPage from '@/pages/manajemen-organisasi/KepengurusanPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppProfilePage from './pages/utility/AppProfilePage';
 import GuruPage from '@/pages/manajemen-kurikulum/GuruPage';
@@ -73,6 +75,7 @@ import LaporanPelanggaranDetailPage from '@/pages/manajemen-kamtib/LaporanPelang
 import PenugasanGuruPage from '@/pages/manajemen-kurikulum/PenugasanGuruPage'; // Import the new PenugasanGuruPage
 import TeachingHoursPage from '@/pages/manajemen-kurikulum/TeachingHoursPage'; // Import the new TeachingHoursPage
 import JamPelajaranPage from '@/pages/manajemen-kurikulum/JamPelajaranPage';
+import SesiPelajaranPage from '@/pages/manajemen-kurikulum/SesiPelajaranPage';
 import SiswaPage from '@/pages/manajemen-kurikulum/SiswaPage';
 import SiswaDetailPage from '@/pages/manajemen-kurikulum/SiswaDetailPage';
 import PresensiPage from './pages/manajemen-kurikulum/PresensiPage';
@@ -156,9 +159,10 @@ function App() {
               <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
               <Route path="/dashboard/peran" element={<PeranPage />} />
               <Route path="/dashboard/peran/:id" element={<PeranDetailPage />} />
-              <Route path="/dashboard/peran/add" element={<PeranAddPage />} />
               <Route path="/dashboard/peran/:id/edit" element={<PeranEditPage />} />
-              <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
+              <Route path="/dashboard/organisasi/lembaga" element={<OrganizationPage />} />
+              <Route path="/dashboard/organisasi/jabatan" element={<PositionPage />} />
+              <Route path="/dashboard/organisasi/kepengurusan" element={<KepengurusanPage />} />
 
               {/* Rute Manajemen Santri */}
               <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
@@ -216,6 +220,7 @@ function App() {
               <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/add" element={<MataPelajaranForm />} />
               <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/:id/edit" element={<MataPelajaranForm />} />
               <Route path="/dashboard/manajemen-kurikulum/jam-pelajaran" element={<JamPelajaranPage />} />
+              <Route path="/dashboard/manajemen-kurikulum/sesi-pelajaran" element={<SesiPelajaranPage />} />
               <Route path="/dashboard/manajemen-kurikulum/siswa" element={<SiswaPage />} />
               <Route path="/dashboard/manajemen-kurikulum/siswa/detail" element={<SiswaDetailPage />} />
               <Route path="/dashboard/manajemen-kurikulum/guru" element={<GuruPage />} />

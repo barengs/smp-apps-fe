@@ -15,6 +15,7 @@ import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
 import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
+import { useGetLessonSessionsQuery } from '@/store/slices/lessonSessionApi';
 import { useCreateClassScheduleMutation, type CreateClassScheduleRequest } from '@/store/slices/classScheduleApi';
 
 interface LessonScheduleDetail {
@@ -38,7 +39,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
 
   // Form state
   const [educationalInstitutionId, setEducationalInstitutionId] = useState<string>('');
-  const [session, setSession] = useState<string>('');
+  const [lessonSessionId, setLessonSessionId] = useState<string>('');
   const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
   // Selection state for year and quarter
@@ -52,6 +53,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: classGroupsData } = useGetClassGroupsQuery();
   const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery({});
   const { data: lessonHoursData } = useGetLessonHoursQuery();
+  const { data: lessonSessionsData } = useGetLessonSessionsQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
   const { data: academicYears = [] } = useGetTahunAjaranQuery();
 
@@ -119,7 +121,6 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   }, [classroomsData, educationalInstitutionId]);
 
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-  const sessions = ['Pagi', 'Siang', 'Sore', 'Malam'];
 
   const handleDetailChange = (index: number, field: keyof LessonScheduleDetail, value: string | number) => {
     const newDetails = [...details];
@@ -149,7 +150,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   const handleSubmit = async () => {
-    if (!selectedAcademicYearId || !selectedQuarterId || !educationalInstitutionId || !session) {
+    if (!selectedAcademicYearId || !selectedQuarterId || !educationalInstitutionId || !lessonSessionId) {
       showError('Harap isi semua bidang yang diperlukan di header.');
       return;
     }
@@ -167,7 +168,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
       academic_year_id: parseInt(selectedAcademicYearId),
       academic_quarter_id: parseInt(selectedQuarterId),
       educational_institution_id: parseInt(educationalInstitutionId),
-      session: session.toLowerCase(),
+      lesson_session_id: parseInt(lessonSessionId),
       status: 'active',
       details: details.map((detail) => ({
         classroom_id: parseInt(detail.classroomId),
@@ -193,7 +194,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   useEffect(() => {
     if (isOpen) {
       setEducationalInstitutionId('');
-      setSession('');
+      setLessonSessionId('');
       setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     }
   }, [isOpen]);
@@ -224,7 +225,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const handleClose = () => {
     // Reset form state before closing
     setEducationalInstitutionId('');
-    setSession('');
+    setLessonSessionId('');
     setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     onClose();
   };
@@ -280,13 +281,13 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               </div>
               <div>
                 <Label htmlFor="session">{t('lessonScheduleForm.session')}</Label>
-                <Select value={session} onValueChange={setSession}>
+                <Select value={lessonSessionId} onValueChange={setLessonSessionId}>
                   <SelectTrigger id="session" className="w-full">
                     <SelectValue placeholder={t('lessonScheduleForm.selectSession')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {sessions.map(s => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    {(lessonSessionsData || []).filter(s => s.is_active).map(s => (
+                      <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

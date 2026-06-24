@@ -58,7 +58,7 @@ const JadwalPelajaranPage: React.FC = () => {
           study: detail.study,
           teacher: detail.teacher,
           lesson_hour: detail.lesson_hour,
-          session: schedule.session,
+          lesson_session: schedule.lesson_session?.name || '-',
           status: schedule.status,
         });
       });

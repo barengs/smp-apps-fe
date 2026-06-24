@@ -104,6 +104,12 @@ export const menuApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     getMenu: builder.query<GetMenuResponse, void>({
       query: () => 'master/menu',
+      transformResponse: (response: GetMenuResponse) => {
+        return {
+          ...response,
+          data: transformMenuData(response.data)
+        };
+      },
       providesTags: ['Menu'],
     }),
     getUserMenus: builder.query<MenuItem[], void>({

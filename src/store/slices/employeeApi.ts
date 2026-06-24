@@ -10,6 +10,31 @@ interface RoleApiData {
   updated_at: string;
 }
 
+export interface Staff {
+  id: number;
+  user_id: string;
+  code: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  nik: string | null;
+  nip: string | null;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  village_id: string | null;
+  zip_code: string | null;
+  photo: string | null;
+  marital_status: string;
+  job_id: string | null;
+  status: string;
+  birth_place: string | null;
+  birth_date: string | null;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // Structure for LIST response items
 interface StaffInListResponse {
   id: number;
@@ -18,30 +43,7 @@ interface StaffInListResponse {
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
-  staff: {
-    id: number;
-    user_id: string;
-    code: string;
-    first_name: string;
-    last_name: string;
-    gender: string;
-    nik: string | null;
-    nip: string | null;
-    email: string;
-    phone: string | null;
-    address: string | null;
-    village_id: string | null;
-    zip_code: string | null;
-    photo: string | null;
-    marital_status: string;
-    job_id: string | null;
-    status: string;
-    birth_place: string | null;
-    birth_date: string | null;
-    deleted_at: string | null;
-    created_at: string;
-    updated_at: string;
-  };
+  staff: Staff;
   roles: RoleApiData[];
 }
 

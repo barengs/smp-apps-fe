@@ -33,12 +33,11 @@ interface CreateClassScheduleDetailRequest {
   meeting_count: number; // Tambahkan properti meeting_count
 }
 
-// Struktur untuk body request POST
 export interface CreateClassScheduleRequest {
   academic_year_id: number;
   academic_quarter_id: number;
   educational_institution_id: number;
-  session: string;
+  lesson_session_id: number;
   status: string;
   details: CreateClassScheduleDetailRequest[];
 }
@@ -123,17 +122,17 @@ export interface ClassScheduleDetail {
   meeting_schedules?: MeetingSchedule[];
 }
 
-// Struktur utama untuk satu item dalam array 'data' dari respons GET
 export interface ClassScheduleData {
   id: number;
   academic_year_id: string;
   educational_institution_id: string;
-  session: string;
+  lesson_session_id: string;
   status: string;
   created_at: string;
   updated_at: string;
   academic_year: AcademicYear;
   education: InstitusiPendidikan;
+  lesson_session: { id: number; name: string };
   details: ClassScheduleDetail[];
 }
 
