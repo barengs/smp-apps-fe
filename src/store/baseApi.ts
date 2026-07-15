@@ -161,6 +161,8 @@ export const smpApi = createApi({
     'ViolationCategory',
     // ADDED: Sanction
     'Sanction',
+    // ADDED: SanctionType
+    'SanctionType',
     // ADDED: StudentViolation
     'StudentViolation',
     // NEW: StudentLeave

@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Sanction, SanctionType, CreateUpdateSanctionRequest, useCreateSanctionMutation, useUpdateSanctionMutation } from '@/store/slices/sanctionApi';
+import { Sanction, CreateUpdateSanctionRequest, useCreateSanctionMutation, useUpdateSanctionMutation } from '@/store/slices/sanctionApi';
+import { useGetSanctionTypesQuery } from '@/store/slices/sanctionTypeApi';
 import * as toast from '@/utils/toast';
 
 type Props = {
@@ -19,17 +20,16 @@ type Props = {
   onCancel: () => void;
 };
 
-const sanctionTypes = ['peringatan', 'skorsing', 'pembinaan', 'denda', 'lainnya'] as const;
-
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Nama sanksi minimal 2 karakter.' }),
   description: z.string().optional(),
-  type: z.enum(sanctionTypes, { message: 'Jenis sanksi tidak valid.' }),
+  sanction_type_id: z.coerce.number().int().positive({ message: 'Pilih jenis sanksi.' }),
   duration_days: z.coerce.number().int().min(1, { message: 'Durasi minimal 1 hari.' }),
   is_active: z.boolean(),
 });
 
 const SanksiForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
+  const { data: sanctionTypes = [] } = useGetSanctionTypesQuery();
   const [createSanction, { isLoading: isCreating }] = useCreateSanctionMutation();
   const [updateSanction, { isLoading: isUpdating }] = useUpdateSanctionMutation();
 
@@ -39,14 +39,14 @@ const SanksiForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
       ? {
           name: initialData.name,
           description: initialData.description ?? '',
-          type: initialData.type,
-          duration_days: initialData.duration_days,
+          sanction_type_id: initialData.sanction_type_id,
+          duration_days: Number(initialData.duration_days),
           is_active: initialData.is_active,
         }
       : {
           name: '',
           description: '',
-          type: 'peringatan',
+          sanction_type_id: 0,
           duration_days: 1,
           is_active: true,
         },
@@ -58,7 +58,7 @@ const SanksiForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
     const payload: CreateUpdateSanctionRequest = {
       name: values.name,
       description: values.description ?? '',
-      type: values.type as SanctionType,
+      sanction_type_id: values.sanction_type_id,
       duration_days: values.duration_days,
       is_active: values.is_active,
     };
@@ -96,19 +96,19 @@ const SanksiForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="type"
+            name="sanction_type_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Jenis Sanksi</FormLabel>
                 <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value ? String(field.value) : ''} onValueChange={(val) => field.onChange(Number(val))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih jenis sanksi" />
                     </SelectTrigger>
                     <SelectContent>
-                      {sanctionTypes.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t.charAt(0).toUpperCase() + t.slice(1)}
+                      {sanctionTypes.filter(t => t.is_active).map((t) => (
+                        <SelectItem key={t.id} value={String(t.id)}>
+                          {t.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

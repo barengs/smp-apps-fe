@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlusCircle, Trash2 } from 'lucide-react';
+import { Combobox } from '@/components/ui/combobox';
 import { showSuccess, showError } from '@/utils/toast';
 
 // Import API hooks
@@ -119,6 +120,16 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
       (c) => Number(c.educational_institution_id) === instId
     );
   }, [classroomsData, educationalInstitutionId]);
+
+  // Guru yang difilter berdasarkan Lembaga Pendidikan terpilih
+  const filteredTeachers = React.useMemo(() => {
+    if (!teacherAssignmentsData?.data) return [];
+    if (!educationalInstitutionId) return [];
+    const instId = parseInt(educationalInstitutionId, 10);
+    return teacherAssignmentsData.data.filter(
+      (teacher: any) => teacher.educational_institutions?.some((ei: any) => ei.id === instId)
+    );
+  }, [teacherAssignmentsData, educationalInstitutionId]);
 
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
@@ -412,21 +423,18 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                           </Select>
                         </TableCell>
                         <TableCell className="py-1 min-w-[150px]">
-                          <Select
+                          <Combobox
+                            options={educationalInstitutionId ? filteredTeachers.map(teacher => ({
+                              value: String(teacher.id),
+                              label: `${teacher.first_name} ${teacher.last_name}`.trim()
+                            })) : []}
                             value={detail.teacherId}
-                            onValueChange={(value) => handleDetailChange(index, 'teacherId', value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={t('lessonScheduleForm.selectTeacher')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {teacherAssignmentsData?.data.map(teacher => (
-                                <SelectItem key={teacher.id} value={String(teacher.id)}>
-                                  {`${teacher.first_name} ${teacher.last_name}`.trim()}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handleDetailChange(index, 'teacherId', value)}
+                            placeholder={t('lessonScheduleForm.selectTeacher')}
+                            searchPlaceholder="Cari guru..."
+                            notFoundMessage={educationalInstitutionId ? "Guru tidak ditemukan" : "Pilih lembaga pendidikan terlebih dahulu"}
+                            disabled={!educationalInstitutionId}
+                          />
                         </TableCell>
                         <TableCell className="py-1 min-w-[150px]">
                           <Select

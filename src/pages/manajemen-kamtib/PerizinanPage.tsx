@@ -397,7 +397,7 @@ const ReturnReportDialog: React.FC<{
 
 const PerizinanPage: React.FC = () => {
   const { t } = useTranslation();
-  const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 200 });
+  const { data: students = [], isFetching: isFetchingStudents } = useGetStudentsQuery({ page: 1, per_page: 10000 });
   const { data: leaves = [], isFetching: isFetchingLeaves, refetch: refetchLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
   const { data: settingsResponse } = useGetStudentCardSettingsQuery();
   const settings = settingsResponse?.data;

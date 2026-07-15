@@ -43,11 +43,11 @@ import { paymentPackageApi } from './slices/paymentPackageApi';
 import { paymentApi } from './slices/paymentApi';
 import { settingApi } from './slices/settingApi';
 import { koperasiApi } from './slices/koperasiApi';
-import { topUpApi } from './slices/topUpApi';
-import { dashboardBankApi } from './slices/dashboardBankApi';
 import { transactionApi } from './slices/transactionApi';
-
-
+import { leaveTypeApi } from './slices/leaveTypeApi';
+import { violationApi } from './slices/violationApi';
+import { sanctionApi } from './slices/sanctionApi';
+import { sanctionTypeApi } from './slices/sanctionTypeApi';
 
 export const store = configureStore({
   reducer: {
@@ -58,7 +58,10 @@ export const store = configureStore({
     // No need to list them individually here.
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(smpApi.middleware, bankSmpApi.middleware),
+    getDefaultMiddleware().concat(
+      smpApi.middleware,
+      bankSmpApi.middleware
+    ),
 });
 
 setupListeners(store.dispatch);

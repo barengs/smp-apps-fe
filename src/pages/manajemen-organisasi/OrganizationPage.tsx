@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
 import { useGetOrganizationsQuery } from '@/store/slices/organizationApi';
+import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import CustomBreadcrumb, { BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Building } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function OrganizationPage() {
 
   const { data: hierarchy, isLoading } = useGetOrganizationHierarchyQuery();
   const { data: flatOrganizations } = useGetOrganizationsQuery();
+  const { data: institutions } = useGetInstitusiPendidikanQuery({ page: 1, per_page: 100 });
   const [createOrganization] = useCreateOrganizationMutation();
   const [updateOrganization] = useUpdateOrganizationMutation();
   const [deleteOrganization] = useDeleteOrganizationMutation();
@@ -39,6 +41,7 @@ export default function OrganizationPage() {
         code: org.code,
         description: org.description,
         parent_id: org.parent_id,
+        educational_institution_id: org.educational_institution_id,
         level: org.level,
       });
     } else {
@@ -162,32 +165,53 @@ export default function OrganizationPage() {
               <Label>Nama Organisasi</Label>
               <Input 
                 value={formData.name || ''} 
-                onChange={(e) => setFormData({...formData, name: e.target.value})} 
+                onChange={(e) => {
+                  const name = e.target.value;
+                  const updates: any = { name };
+                  if (!formData.id) {
+                    const prefix = name.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
+                    if (prefix.length > 0) {
+                      const matches = flatOrganizations?.filter(o => o.code?.startsWith(prefix)) || [];
+                      const nextNum = matches.length + 1;
+                      updates.code = `${prefix}${nextNum.toString().padStart(3, '0')}`;
+                    } else {
+                      updates.code = '';
+                    }
+                  }
+                  setFormData({...formData, ...updates});
+                }} 
                 required 
               />
             </div>
             <div>
-              <Label>Kode</Label>
+              <Label>Kode (Terisi Otomatis)</Label>
               <Input 
                 value={formData.code || ''} 
                 onChange={(e) => setFormData({...formData, code: e.target.value})} 
               />
             </div>
             <div>
-              <Label>Level</Label>
+              <Label>Level (Otomatis)</Label>
               <Input 
                 type="number"
-                min="1"
                 value={formData.level || 1} 
-                onChange={(e) => setFormData({...formData, level: parseInt(e.target.value)})} 
-                required 
+                disabled
+                className="bg-gray-50 cursor-not-allowed"
               />
             </div>
             <div>
               <Label>Induk Organisasi (Parent)</Label>
               <Select 
                 value={formData.parent_id ? formData.parent_id.toString() : 'null'} 
-                onValueChange={(val) => setFormData({...formData, parent_id: val === 'null' ? null : parseInt(val)})}
+                onValueChange={(val) => {
+                  const parentId = val === 'null' ? null : parseInt(val);
+                  let level = 1;
+                  if (parentId && flatOrganizations) {
+                    const parentOrg = flatOrganizations.find(o => o.id === parentId);
+                    if (parentOrg) level = parentOrg.level + 1;
+                  }
+                  setFormData({...formData, parent_id: parentId, level});
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih Induk Organisasi" />
@@ -196,6 +220,23 @@ export default function OrganizationPage() {
                   <SelectItem value="null">-- Tidak Ada (Root) --</SelectItem>
                   {flatOrganizations?.map(org => (
                     <SelectItem key={org.id} value={org.id.toString()}>{org.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Institusi Pendidikan (Opsional)</Label>
+              <Select 
+                value={formData.educational_institution_id ? formData.educational_institution_id.toString() : 'null'} 
+                onValueChange={(val) => setFormData({...formData, educational_institution_id: val === 'null' ? null : parseInt(val)})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Institusi Pendidikan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="null">-- Tidak Ada (Tingkat Yayasan) --</SelectItem>
+                  {institutions?.map(inst => (
+                    <SelectItem key={inst.id} value={inst.id.toString()}>{inst.institution_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -88,6 +88,7 @@ import InstitusiPendidikanForm from './pages/manajemen-kurikulum/InstitusiPendid
 import RaportPage from '@/pages/manajemen-kurikulum/RaportPage';
 import RaportPrintView from '@/pages/manajemen-kurikulum/RaportPrintView';
 import SanksiPage from '@/pages/manajemen-kamtib/SanksiPage';
+import JenisSanksiPage from './pages/manajemen-kamtib/JenisSanksiPage';
 import PerizinanPage from '@/pages/manajemen-kamtib/PerizinanPage';
 import TipeIzinPage from '@/pages/manajemen-kamtib/TipeIzinPage';
 import PerizinanDetailPage from '@/pages/manajemen-kamtib/PerizinanDetailPage';
@@ -105,6 +106,8 @@ import { StatistikSantriPage } from '@/pages/kesantrian/laporan/StatistikSantriP
 import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pages/kesantrian/laporan/LaporanPelanggaranPage';
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
 import { StatistikPresensiPage } from '@/pages/kesantrian/laporan/StatistikPresensiPage';
+import TransaksiPage from '@/pages/keuangan/TransaksiPage';
+import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
 
 
 // Redux imports
@@ -243,6 +246,7 @@ function App() {
               <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
+              <Route path="/dashboard/manajemen-kamtib/jenis-sanksi" element={<JenisSanksiPage />} />
               <Route path="/dashboard/manajemen-kamtib/laporan" element={<LaporanPelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/laporan/:id" element={<LaporanPelanggaranDetailPage />} />
               <Route path="/dashboard/manajemen-kamtib/perizinan" element={<PerizinanPage />} />
@@ -257,6 +261,10 @@ function App() {
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
               {/* Manajemen Informasi */}
               <Route path="/dashboard/berita" element={<BeritaPage />} />
+
+              {/* Bank Santri */}
+              <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
+              <Route path="/dashboard/bank-santri/transaksi/:id" element={<TransaksiDetailPage />} />
 
               {/* Laporan Pesantren */}
               <Route path="/dashboard/kesantrian/laporan/statistik-santri" element={<StatistikSantriPage />} />

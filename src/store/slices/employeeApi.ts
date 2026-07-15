@@ -71,6 +71,7 @@ interface StaffDetailResponse {
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
+  educational_institutions?: any[];
   user: {
     id: number;
     name: string;

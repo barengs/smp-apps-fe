@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { BookCopy, CalendarClock, Download, Upload, DatabaseBackup } from 'lucide-react';
+import { BookCopy, CalendarClock, Download, Upload, DatabaseBackup, Printer } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import * as toast from '@/utils/toast';
@@ -15,11 +15,14 @@ import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/sl
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useReactToPrint } from 'react-to-print';
+import { PrintJadwalPelajaran } from './PrintJadwalPelajaran';
 
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
+  const printComponentRef = React.useRef<HTMLDivElement>(null);
 
   // Get active academic year for initial default
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
@@ -188,6 +191,11 @@ const JadwalPelajaranPage: React.FC = () => {
     [data]
   );
 
+  const handlePrint = useReactToPrint({
+    contentRef: printComponentRef,
+    documentTitle: `Jadwal_Pelajaran_${activeAcademicYear?.year || ''}`,
+  });
+
   return (
     <DashboardLayout title={t('sidebar.lessonSchedule')} role="administrasi">
       <div className="container mx-auto py-4 px-4">
@@ -263,6 +271,10 @@ const JadwalPelajaranPage: React.FC = () => {
                         <Download className="h-4 w-4 mr-2" />
                         {isExporting ? 'Exporting...' : 'Export (XLSX)'}
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handlePrint}>
+                        <Printer className="h-4 w-4 mr-2" />
+                        Cetak PDF
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={async () => {
                           const loadingId = toast.showLoading('Mengunduh backup data...');
@@ -323,6 +335,11 @@ const JadwalPelajaranPage: React.FC = () => {
       <LessonScheduleForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
+      />
+      <PrintJadwalPelajaran 
+        ref={printComponentRef} 
+        data={data} 
+        academicYear={academicYears?.find((ay: any) => ay.id.toString() === selectedAcademicYearId)} 
       />
     </DashboardLayout>
   );

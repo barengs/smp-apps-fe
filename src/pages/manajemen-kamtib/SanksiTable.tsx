@@ -88,7 +88,7 @@ const SanksiTable: React.FC = () => {
                 sanctions.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell className="capitalize">{item.type}</TableCell>
+                    <TableCell className="capitalize">{item.sanction_type?.name || '-'}</TableCell>
                     <TableCell>{item.duration_days}</TableCell>
                     <TableCell>
                       {item.is_active ? (

@@ -29,7 +29,7 @@ const LaporanPelanggaranPage: React.FC = () => {
   ];
 
   // Fetch data untuk mapping tampilan
-  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 200 });
+  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 10000 });
   const { data: violations = [] } = useGetViolationsQuery();
   useGetTahunAjaranQuery(); // prefetch
 

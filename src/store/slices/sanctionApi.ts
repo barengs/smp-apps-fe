@@ -1,12 +1,14 @@
 import { smpApi } from '../baseApi';
 
-export type SanctionType = 'peringatan' | 'skorsing' | 'pembinaan' | 'denda' | 'lainnya';
-
 export interface Sanction {
   id: number;
   name: string;
   description: string;
-  type: SanctionType;
+  sanction_type_id: number;
+  sanction_type?: {
+    id: number;
+    name: string;
+  };
   duration_days: number;
   is_active: boolean;
 }
@@ -14,7 +16,7 @@ export interface Sanction {
 export interface CreateUpdateSanctionRequest {
   name: string;
   description: string;
-  type: SanctionType;
+  sanction_type_id: number;
   duration_days: number;
   is_active: boolean;
 }
@@ -46,7 +48,8 @@ export const sanctionApi = smpApi.injectEndpoints({
           id: item.id,
           name: item.name,
           description: item.description,
-          type: item.type as SanctionType,
+          sanction_type_id: item.sanction_type_id,
+          sanction_type: item.sanction_type,
           duration_days:
             typeof item.duration_days === 'string' ? Number(item.duration_days) : item.duration_days,
           is_active: item.is_active,
@@ -63,7 +66,8 @@ export const sanctionApi = smpApi.injectEndpoints({
         id: response.data.id,
         name: response.data.name,
         description: response.data.description,
-        type: response.data.type as SanctionType,
+        sanction_type_id: response.data.sanction_type_id,
+        sanction_type: response.data.sanction_type,
         duration_days:
           typeof response.data.duration_days === 'string'
             ? Number(response.data.duration_days)
@@ -82,7 +86,8 @@ export const sanctionApi = smpApi.injectEndpoints({
         id: response.data.id,
         name: response.data.name,
         description: response.data.description,
-        type: response.data.type as SanctionType,
+        sanction_type_id: response.data.sanction_type_id,
+        sanction_type: response.data.sanction_type,
         duration_days:
           typeof response.data.duration_days === 'string'
             ? Number(response.data.duration_days)

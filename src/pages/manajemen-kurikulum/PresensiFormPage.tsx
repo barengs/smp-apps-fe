@@ -11,7 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetClassSchedulesQuery, useUpdatePresenceMutation, useSaveAttendanceMutation } from '@/store/slices/classScheduleApi';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
-import { BookCopy, UserCheck, ArrowLeft, Save, AlertTriangle } from 'lucide-react';
+import { BookCopy, UserCheck, ArrowLeft, Save, AlertTriangle, Printer } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
+import { useRef } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
@@ -25,6 +27,12 @@ const PresensiFormPage: React.FC = () => {
   const { detailId, meetingNumber } = useParams<{ detailId: string; meetingNumber: string }>();
   const navigate = useNavigate();
   const { register, handleSubmit, setValue, watch, reset } = useForm<FormData>();
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Presensi_Pertemuan_${meetingNumber}`,
+  });
 
   const { data: schedulesResponse, isLoading: isLoadingSchedules } = useGetClassSchedulesQuery({});
   const [updatePresence, { isLoading: isSaving }] = useUpdatePresenceMutation();
@@ -173,13 +181,18 @@ const PresensiFormPage: React.FC = () => {
       <div className="container mx-auto py-4 px-4 space-y-4">
         <div className="flex justify-between items-center">
           <CustomBreadcrumb items={breadcrumbItems} />
-          <Button onClick={() => navigate(-1)} variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
-          </Button>
+          <div className="flex gap-2">
+            <Button type="button" onClick={() => handlePrint()} variant="outline">
+              <Printer className="mr-2 h-4 w-4" /> Print
+            </Button>
+            <Button type="button" onClick={() => navigate(-1)} variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+            </Button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Card>
+          <Card ref={printRef}>
             <CardHeader>
               <CardTitle>Presensi Pertemuan ke-{meetingNumber}</CardTitle>
               <CardDescription>

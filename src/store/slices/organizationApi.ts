@@ -11,9 +11,11 @@ export interface Organization {
   parent_id: number | null;
   level: number;
   is_active: boolean;
+  educational_institution_id: number | null;
   parent?: Organization;
   children?: Organization[];
   positions?: Position[];
+  educationalInstitution?: any;
 }
 
 interface GetOrganizationsResponse {

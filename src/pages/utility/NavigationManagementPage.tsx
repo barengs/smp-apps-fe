@@ -46,31 +46,26 @@ type FlattenedItem = Omit<MenuItem, 'child'> & {
  * Ini memastikan item dengan parent_id ditempatkan di dalam array 'child' dari induknya.
  */
 function buildTreeFromApi(items: import('@/store/slices/menuApi').MenuItem[]): MenuItem[] {
-  const itemsById: { [key: number]: MenuItem } = {};
-  const rootItems: MenuItem[] = [];
+  const result: MenuItem[] = [];
 
-  // Pass 1: Buat map dari semua item berdasarkan ID dan inisialisasi array child.
   items.forEach(item => {
-    itemsById[item.id] = {
+    const processedItem: MenuItem = {
       ...item,
-      child: [],
       title: item.id_title,
       order: typeof item.order === 'string' ? parseInt(item.order) : item.order,
-      parent_id: item.parent_id ? (typeof item.parent_id === 'string' ? parseInt(item.parent_id) : item.parent_id) : null
+      parent_id: item.parent_id ? (typeof item.parent_id === 'string' ? parseInt(item.parent_id) : item.parent_id) : null,
+      child: []
     };
-  });
 
-  // Pass 2: Hubungkan anak ke induknya.
-  items.forEach(item => {
-    const node = itemsById[item.id];
-    if (item.parent_id && itemsById[item.parent_id]) {
-      itemsById[item.parent_id].child.push(node);
-    } else {
-      rootItems.push(node);
+    const children = item.children || item.child || [];
+    if (children.length > 0) {
+      processedItem.child = buildTreeFromApi(children);
     }
+
+    result.push(processedItem);
   });
 
-  return rootItems;
+  return result;
 }
 
 function flattenTree(items: MenuItem[], parentId: number | null = null, depth = 0): FlattenedItem[] {
@@ -112,8 +107,12 @@ const SortableItem: React.FC<{
   item: FlattenedItem;
   isDragging?: boolean;
   onEdit: (item: MenuItem) => void;
+  onMoveUp?: (id: number) => void;
+  onMoveDown?: (id: number) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
   style?: React.CSSProperties; // Add style prop
-}> = ({ item, isDragging, onEdit, style }) => {
+}> = ({ item, isDragging, onEdit, onMoveUp, onMoveDown, canMoveUp, canMoveDown, style }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const IconComponent = item.icon ? (LucideIcons as any)[item.icon] : null;
 
@@ -140,6 +139,12 @@ const SortableItem: React.FC<{
         <div className="col-span-1">{item.position}</div>
         <div className="col-span-1"><Badge variant={item.status === 'active' ? 'default' : 'secondary'}>{item.status}</Badge></div>
         <div className="col-span-3 flex space-x-1 justify-end">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMoveUp?.(item.id)} disabled={!canMoveUp}>
+            <LucideIcons.ArrowUp className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMoveDown?.(item.id)} disabled={!canMoveDown}>
+            <LucideIcons.ArrowDown className="h-4 w-4" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit({ ...item, child: [] })}>
             <Edit className="h-4 w-4" />
           </Button>
@@ -198,6 +203,39 @@ const NavigationManagementPage: React.FC = () => {
   const handleFormSuccess = () => {
     setIsModalOpen(false);
     setEditingMenuItem(undefined);
+  };
+
+  const handleMove = (id: number, direction: 'up' | 'down') => {
+    const tree = buildTree(items);
+    
+    const swapInTree = (nodes: MenuItem[]): boolean => {
+      const idx = nodes.findIndex(n => n.id === id);
+      if (idx !== -1) {
+        if (direction === 'up' && idx > 0) {
+          const temp = nodes[idx];
+          nodes[idx] = nodes[idx - 1];
+          nodes[idx - 1] = temp;
+          return true;
+        }
+        if (direction === 'down' && idx < nodes.length - 1) {
+          const temp = nodes[idx];
+          nodes[idx] = nodes[idx + 1];
+          nodes[idx + 1] = temp;
+          return true;
+        }
+        return false;
+      }
+      for (const node of nodes) {
+        if (node.child && node.child.length > 0) {
+          if (swapInTree(node.child)) return true;
+        }
+      }
+      return false;
+    };
+    
+    if (swapInTree(tree)) {
+      updateStructure(flattenTree(tree));
+    }
   };
 
   const updateStructure = async (updatedItems: FlattenedItem[]) => {
@@ -418,18 +456,28 @@ const NavigationManagementPage: React.FC = () => {
               </div>
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragMove={handleDragMove} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                 <SortableContext items={items.map(({ id }) => id)}>
-                  {items.map((item) => (
-                    <SortableItem
-                      key={item.id}
-                      item={item}
-                      onEdit={handleEditData}
-                      // Pass down projected depth if this is the active item
-                      style={activeId === item.id ? {
-                        marginLeft: `${(projected?.depth ?? item.depth) * INDENTATION_WIDTH}px`,
-                        opacity: 0.3 // Ghost appearance
-                      } : undefined}
-                    />
-                  ))}
+                  {items.map((item) => {
+                    const siblings = items.filter((i) => i.parentId === item.parentId);
+                    const isFirst = siblings[0]?.id === item.id;
+                    const isLast = siblings[siblings.length - 1]?.id === item.id;
+                    
+                    return (
+                      <SortableItem
+                        key={item.id}
+                        item={item}
+                        onEdit={handleEditData}
+                        onMoveUp={(id) => handleMove(id, 'up')}
+                        onMoveDown={(id) => handleMove(id, 'down')}
+                        canMoveUp={!isFirst}
+                        canMoveDown={!isLast}
+                        // Pass down projected depth if this is the active item
+                        style={activeId === item.id ? {
+                          marginLeft: `${(projected?.depth ?? item.depth) * INDENTATION_WIDTH}px`,
+                          opacity: 0.3 // Ghost appearance
+                        } : undefined}
+                      />
+                    );
+                  })}
                 </SortableContext>
                 {createPortal(
                   <DragOverlay dropAnimation={null}>

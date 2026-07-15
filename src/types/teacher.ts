@@ -50,6 +50,7 @@ export interface Staff {
   marital_status: string;
   job_id: number;
   village: Village | null;
+  educational_institutions?: any[]; // Array institusi yang diampu
   user?: {
     id: number;
     name: string;
