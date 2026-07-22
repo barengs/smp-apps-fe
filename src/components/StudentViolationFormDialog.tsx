@@ -117,7 +117,7 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Laporan Pelanggaran' : 'Tambah Laporan Pelanggaran'}</DialogTitle>
           <DialogDescription>Isi form di bawah untuk {isEdit ? 'mengubah' : 'mencatat'} pelanggaran santri.</DialogDescription>
@@ -163,7 +163,7 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
                 <SelectContent>
                   {academicYears.map((ay) => (
                     <SelectItem key={ay.id} value={String(ay.id)}>
-                      {ay.year} — {ay.type}
+                      {ay.year} — {ay.description}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -6,7 +6,7 @@ import { BookCopy, Printer, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetStudentReportCardQuery } from '@/store/slices/reportCardApi';
-import { useReactToPrint } from 'react-to-print';
+import html2pdf from 'html2pdf.js';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const RaportPrintView: React.FC = () => {
@@ -25,10 +25,21 @@ const RaportPrintView: React.FC = () => {
         academic_year_id: academicYearId || undefined
     }, { skip: !classGroupId || !studentId });
 
-    const handlePrint = useReactToPrint({
-        contentRef: componentRef,
-        documentTitle: `Raport_${reportRes?.data?.student?.first_name}_${reportRes?.data?.student?.last_name}`,
-    });
+    const handlePrint = () => {
+        if (!componentRef.current) return;
+        const element = componentRef.current;
+        const fileName = `Raport_${reportRes?.data?.student?.first_name}_${reportRes?.data?.student?.last_name}.pdf`;
+        
+        const opt = {
+            margin:       10,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
 
     const breadcrumbItems: BreadcrumbItemData[] = [
         { label: 'Kurikulum', href: '/dashboard/manajemen-kurikulum/raport', icon: <BookCopy className="h-4 w-4" /> },

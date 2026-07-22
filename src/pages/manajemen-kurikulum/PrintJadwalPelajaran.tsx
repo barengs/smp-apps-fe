@@ -7,18 +7,18 @@ interface PrintJadwalPelajaranProps {
 
 export const PrintJadwalPelajaran = forwardRef<HTMLDivElement, PrintJadwalPelajaranProps>(
   ({ data, academicYear }, ref) => {
-    // Group data by Education -> Class
+    // Group data by Education -> Day
     const groupedData = data.reduce((acc, curr) => {
       const education = curr.education?.institution_name || 'Tanpa Jenjang';
-      const className = curr.classroom?.name || 'Tanpa Kelas';
+      const day = curr.day || '-';
       
       if (!acc[education]) {
         acc[education] = {};
       }
-      if (!acc[education][className]) {
-        acc[education][className] = [];
+      if (!acc[education][day]) {
+        acc[education][day] = [];
       }
-      acc[education][className].push(curr);
+      acc[education][day].push(curr);
       
       return acc;
     }, {} as Record<string, Record<string, any[]>>);
@@ -53,70 +53,76 @@ export const PrintJadwalPelajaran = forwardRef<HTMLDivElement, PrintJadwalPelaja
             </p>
           </div>
 
-          {Object.entries(groupedData).map(([education, classes], edIndex) => (
-            <div key={education} className={edIndex > 0 ? "page-break" : ""}>
-              <h2 className="text-xl font-bold mt-6 mb-2 border-b-2 border-black pb-1 uppercase">{education}</h2>
-              
-              {Object.entries(classes).map(([className, schedules]) => {
-                // Group by day for this class
-                const daysMap = schedules.reduce((acc, curr) => {
-                  const day = curr.day || '-';
-                  if (!acc[day]) acc[day] = [];
-                  acc[day].push(curr);
-                  return acc;
-                }, {} as Record<string, any[]>);
+          {Object.entries(groupedData).map(([education, daysData], edIndex) => {
+            const sortedDays = Object.keys(daysData).sort(sortDays);
 
-                const sortedDays = Object.keys(daysMap).sort(sortDays);
+            return (
+              <div key={education} className={edIndex > 0 ? "page-break" : ""}>
+                <h2 className="text-xl font-bold mt-6 mb-2 border-b-2 border-black pb-1 uppercase">{education}</h2>
+                
+                {sortedDays.map((day) => {
+                  const schedulesForDay = daysData[day];
+                  
+                  // Group by Class for this Day
+                  const classesMap = schedulesForDay.reduce((acc, curr) => {
+                    const className = curr.classroom?.name || 'Tanpa Kelas';
+                    if (!acc[className]) acc[className] = [];
+                    acc[className].push(curr);
+                    return acc;
+                  }, {} as Record<string, any[]>);
 
-                return (
-                  <div key={className} className="mb-6 avoid-break">
-                    <h3 className="text-lg font-semibold mb-2 bg-gray-100 p-2">Kelas: {className}</h3>
-                    <table className="w-full border-collapse border border-gray-300 text-sm">
-                      <thead className="bg-gray-200">
-                        <tr>
-                          <th className="border border-gray-300 p-2 text-left w-24">Hari</th>
-                          <th className="border border-gray-300 p-2 text-left w-32">Waktu</th>
-                          <th className="border border-gray-300 p-2 text-left">Mata Pelajaran</th>
-                          <th className="border border-gray-300 p-2 text-left">Guru</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedDays.map((day) => {
-                          const daySchedules = daysMap[day].sort((a, b) => {
-                            const timeA = a.lesson_hour?.start_time || '';
-                            const timeB = b.lesson_hour?.start_time || '';
-                            return timeA.localeCompare(timeB);
-                          });
+                  const sortedClasses = Object.keys(classesMap).sort((a, b) => a.localeCompare(b));
 
-                          return daySchedules.map((schedule, idx) => (
-                            <tr key={schedule.id}>
-                              {idx === 0 && (
-                                <td className="border border-gray-300 p-2 font-medium capitalize" rowSpan={daySchedules.length}>
-                                  {day}
-                                </td>
-                              )}
-                              <td className="border border-gray-300 p-2">
-                                {schedule.lesson_hour ? `${schedule.lesson_hour.start_time} - ${schedule.lesson_hour.end_time}` : '-'}
-                              </td>
-                              <td className="border border-gray-300 p-2 capitalize">{schedule.study?.name || '-'}</td>
-                              <td className="border border-gray-300 p-2 capitalize">
-                                {schedule.teacher ? `${schedule.teacher.first_name || ''} ${schedule.teacher.last_name || ''}`.trim() : '-'}
-                              </td>
-                            </tr>
-                          ));
-                        })}
-                        {sortedDays.length === 0 && (
+                  return (
+                    <div key={day} className="mb-6 avoid-break">
+                      <h3 className="text-lg font-semibold mb-2 bg-gray-100 p-2 uppercase">Hari: {day}</h3>
+                      <table className="w-full border-collapse border border-gray-300 text-sm">
+                        <thead className="bg-gray-200">
                           <tr>
-                            <td colSpan={4} className="border border-gray-300 p-2 text-center text-gray-500">Tidak ada jadwal</td>
+                            <th className="border border-gray-300 p-2 text-left w-32">Kelas</th>
+                            <th className="border border-gray-300 p-2 text-left w-32">Waktu</th>
+                            <th className="border border-gray-300 p-2 text-left">Mata Pelajaran</th>
+                            <th className="border border-gray-300 p-2 text-left">Guru</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                        </thead>
+                        <tbody>
+                          {sortedClasses.map((className) => {
+                            const classSchedules = classesMap[className].sort((a, b) => {
+                              const timeA = a.lesson_hour?.start_time || '';
+                              const timeB = b.lesson_hour?.start_time || '';
+                              return timeA.localeCompare(timeB);
+                            });
+
+                            return classSchedules.map((schedule, idx) => (
+                              <tr key={schedule.id}>
+                                {idx === 0 && (
+                                  <td className="border border-gray-300 p-2 font-medium" rowSpan={classSchedules.length}>
+                                    {className}
+                                  </td>
+                                )}
+                                <td className="border border-gray-300 p-2">
+                                  {schedule.lesson_hour ? `${schedule.lesson_hour.start_time} - ${schedule.lesson_hour.end_time}` : '-'}
+                                </td>
+                                <td className="border border-gray-300 p-2 capitalize">{schedule.study?.name || '-'}</td>
+                                <td className="border border-gray-300 p-2 capitalize">
+                                  {schedule.teacher ? `${schedule.teacher.first_name || ''} ${schedule.teacher.last_name || ''}`.trim() : '-'}
+                                </td>
+                              </tr>
+                            ));
+                          })}
+                          {sortedClasses.length === 0 && (
+                            <tr>
+                              <td colSpan={4} className="border border-gray-300 p-2 text-center text-gray-500">Tidak ada jadwal</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
           
           {Object.keys(groupedData).length === 0 && (
             <div className="text-center p-8 text-gray-500 border border-gray-300">
