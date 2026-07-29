@@ -12,8 +12,10 @@ import PeranPage from "@/pages/manajemen-staf/PeranPage";
 import PeranDetailPage from "@/pages/manajemen-staf/PeranDetailPage";
 import PeranAddPage from "@/pages/manajemen-staf/PeranAddPage";
 import PeranEditPage from "@/pages/manajemen-staf/PeranEditPage";
+import OrganisasiPage from "@/pages/manajemen-staf/OrganisasiPage";
 import ManajemenSantriPage from "@/pages/manajemen-santri/ManajemenSantriPage";
 import ManajemenPerjanjianPage from "@/pages/manajemen-santri/ManajemenPerjanjianPage";
+import BoyongPage from "@/pages/manajemen-santri/BoyongPage";
 import WaliSantriListPage from "@/pages/manajemen-santri/WaliSantriListPage";
 import StaffDetailPage from "@/pages/manajemen-staf/StaffDetailPage";
 import SantriDetailPage from "@/pages/manajemen-santri/SantriDetailPage";
@@ -163,6 +165,7 @@ function App() {
               <Route path="/dashboard/peran" element={<PeranPage />} />
               <Route path="/dashboard/peran/:id" element={<PeranDetailPage />} />
               <Route path="/dashboard/peran/:id/edit" element={<PeranEditPage />} />
+              <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />
               <Route path="/dashboard/organisasi/lembaga" element={<OrganizationPage />} />
               <Route path="/dashboard/organisasi/jabatan" element={<PositionPage />} />
               <Route path="/dashboard/organisasi/kepengurusan" element={<KepengurusanPage />} />
@@ -170,6 +173,7 @@ function App() {
               {/* Rute Manajemen Santri */}
               <Route path="/dashboard/santri" element={<ManajemenSantriPage />} />
               <Route path="/dashboard/santri/perjanjian" element={<ManajemenPerjanjianPage />} />
+              <Route path="/dashboard/santri/boyong" element={<BoyongPage />} />
               <Route path="/dashboard/santri/:id" element={<SantriDetailPage />} />
               <Route path="/dashboard/santri/:id/agreement" element={<StudentAgreementPage />} />
               <Route path="/dashboard/santri/:id/edit" element={<SantriEditPage />} />

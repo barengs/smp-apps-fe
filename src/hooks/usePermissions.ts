@@ -19,6 +19,7 @@ export const usePermissions = (): Permissions => {
   const { data: userMenus, isLoading } = useGetUserMenusQuery();
 
   const userPermissions = currentUser?.permissions || [];
+  const isSuperAdmin = currentUser?.roles?.some(role => role.name === 'superadmin') || false;
 
   // Flatten menus to easily search by route
   const flattenMenus = (menus: MenuItem[]): MenuItem[] => {
@@ -52,12 +53,13 @@ export const usePermissions = (): Permissions => {
   };
 
   return {
-    canView: hasStandardPerm('VIEW'),
-    canCreate: hasStandardPerm('CREATE'),
-    canEdit: hasStandardPerm('EDIT'),
-    canDelete: hasStandardPerm('DELETE'),
-    canApprove: hasStandardPerm('APPROVE'),
+    canView: isSuperAdmin || hasStandardPerm('VIEW'),
+    canCreate: isSuperAdmin || hasStandardPerm('CREATE'),
+    canEdit: isSuperAdmin || hasStandardPerm('EDIT'),
+    canDelete: isSuperAdmin || hasStandardPerm('DELETE'),
+    canApprove: isSuperAdmin || hasStandardPerm('APPROVE'),
     hasCustomPermission: (permission: string) => {
+      if (isSuperAdmin) return true;
       if (!menuId) return false;
       return userPermissions.includes(`${permission.toLowerCase()}_menu_${menuId}`);
     },

@@ -21,10 +21,10 @@ import TimePicker from '@/components/TimePicker'; // Import TimePicker
 import { useAddLessonHourMutation, useUpdateLessonHourMutation } from '@/store/slices/lessonHourApi';
 
 const formSchema = z.object({
-  order: z.coerce.number().min(0, { message: "Jam ke harus angka positif atau 0 untuk istirahat." }),
+  name: z.string().min(1, { message: "Nama jam pelajaran tidak boleh kosong." }),
   start_time: z.string().min(1, { message: "Waktu mulai tidak boleh kosong." }).regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Format waktu mulai tidak valid (HH:MM)." }),
   end_time: z.string().min(1, { message: "Waktu selesai tidak boleh kosong." }).regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Format waktu selesai tidak valid (HH:MM)." }),
-  name: z.string().optional(),
+  description: z.string().optional(),
 });
 
 interface JamPelajaranFormProps {
@@ -41,27 +41,27 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      order: initialData?.order ?? 0,
+      name: initialData?.name || '',
       start_time: initialData?.start_time || '',
       end_time: initialData?.end_time || '',
-      name: initialData?.name || '',
+      description: initialData?.description || '',
     },
   });
 
   useEffect(() => {
     if (initialData) {
       form.reset({
-        order: initialData.order,
+        name: initialData.name,
         start_time: initialData.start_time,
         end_time: initialData.end_time,
-        name: initialData.name,
+        description: initialData.description,
       });
     } else {
       form.reset({
-        order: 0,
+        name: '',
         start_time: '',
         end_time: '',
-        name: '',
+        description: '',
       });
     }
   }, [initialData, form]);
@@ -71,19 +71,21 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
       if (initialData) {
         const updatePayload = {
           id: initialData.id,
-          order: values.order,
+          name: values.name,
           start_time: values.start_time,
           end_time: values.end_time,
-          name: values.name,
+          description: values.description,
+          order: null,
         };
         await updateLessonHour(updatePayload).unwrap();
         toast.showSuccess(t('lessonHoursForm.successEdit'));
       } else {
         const addPayload = {
-          order: values.order,
+          name: values.name,
           start_time: values.start_time,
           end_time: values.end_time,
-          name: values.name,
+          description: values.description,
+          order: null,
         };
         await addLessonHour(addPayload).unwrap();
         toast.showSuccess(t('lessonHoursForm.successAdd'));
@@ -100,14 +102,14 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="order"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('lessonHoursForm.lessonHourLabel')}</FormLabel>
+              <FormLabel>Nama Jam Pelajaran</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
-                  placeholder={t('lessonHoursForm.lessonHourPlaceholder')}
+                  type="text"
+                  placeholder="Misal: Jam ke-1, Istirahat, dll"
                   {...field}
                 />
               </FormControl>
@@ -155,7 +157,7 @@ const JamPelajaranForm: React.FC<JamPelajaranFormProps> = ({ initialData, onSucc
         </div>
         <FormField
           control={form.control}
-          name="name"
+          name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('lessonHoursForm.descriptionLabel')}</FormLabel>

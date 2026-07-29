@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { BookCopy, CalendarClock, Download, Upload, DatabaseBackup, Printer } from 'lucide-react';
+import { BookCopy, CalendarClock, Download, Upload, DatabaseBackup, Printer, Edit2, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import * as toast from '@/utils/toast';
@@ -10,17 +10,19 @@ import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import LessonScheduleForm from './LessonScheduleForm';
-import { useGetClassSchedulesQuery, useExportClassSchedulesMutation, useBackupClassSchedulesMutation, type ClassScheduleData } from '@/store/slices/classScheduleApi';
+import { useGetClassSchedulesQuery, useExportClassSchedulesMutation, useBackupClassSchedulesMutation, useDeleteClassScheduleMutation, type ClassScheduleData } from '@/store/slices/classScheduleApi';
 import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useReactToPrint } from 'react-to-print';
 import { PrintJadwalPelajaran } from './PrintJadwalPelajaran';
+import { Badge } from '@/components/ui/badge';
 
 const JadwalPelajaranPage: React.FC = () => {
   const { t } = useTranslation();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null);
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
   const printComponentRef = React.useRef<HTMLDivElement>(null);
 
@@ -40,6 +42,7 @@ const JadwalPelajaranPage: React.FC = () => {
   });
   const [exportClassSchedules, { isLoading: isExporting }] = useExportClassSchedulesMutation();
   const [backupClassSchedules, { isLoading: isBackingUp }] = useBackupClassSchedulesMutation();
+  const [deleteClassSchedule] = useDeleteClassScheduleMutation();
   const navigate = useNavigate();
 
   const breadcrumbItems: BreadcrumbItemData[] = [
@@ -54,6 +57,7 @@ const JadwalPelajaranPage: React.FC = () => {
       schedule.details.forEach(detail => {
         flattened.push({
           id: detail.id,
+          scheduleId: schedule.id,
           education: schedule.education,
           classroom: detail.classroom,
           class_group: detail.class_group,
@@ -67,6 +71,26 @@ const JadwalPelajaranPage: React.FC = () => {
       });
     });
     return flattened;
+  };
+
+  const handleEdit = (scheduleId: number) => {
+    setSelectedScheduleId(scheduleId);
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = async (scheduleId: number) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus jadwal ini? Semua detail dan pertemuan terkait akan ikut terhapus.')) {
+      const loadingId = toast.showLoading('Menghapus jadwal...');
+      try {
+        await deleteClassSchedule(scheduleId).unwrap();
+        toast.showSuccess('Jadwal berhasil dihapus');
+      } catch (error: any) {
+        console.error('Gagal menghapus jadwal:', error);
+        toast.showError(error?.data?.message || 'Gagal menghapus jadwal');
+      } finally {
+        toast.dismissToast(loadingId);
+      }
+    }
   };
 
   const columns: ColumnDef<any>[] = [
@@ -127,9 +151,55 @@ const JadwalPelajaranPage: React.FC = () => {
         return <div className="capitalize">{`${lessonHour.start_time} - ${lessonHour.end_time}`}</div>;
       },
     },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+          <Badge variant={status === 'active' ? 'success' : 'secondary'}>
+            {status === 'active' ? 'Aktif' : 'Belum Terbit'}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const scheduleId = row.original.scheduleId;
+        const isActive = status === 'active';
+        return (
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleEdit(scheduleId)}
+              disabled={isActive}
+              title={isActive ? 'Jadwal sudah terbit/aktif tidak dapat diubah' : 'Edit Jadwal'}
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-500 hover:text-red-700"
+              onClick={() => handleDelete(scheduleId)}
+              disabled={isActive}
+              title={isActive ? 'Jadwal sudah terbit/aktif tidak dapat dihapus' : 'Hapus Jadwal'}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
   ];
 
   const handleAddSchedule = () => {
+    setSelectedScheduleId(null);
     setIsFormOpen(true);
   };
 
@@ -336,7 +406,11 @@ const JadwalPelajaranPage: React.FC = () => {
       </div>
       <LessonScheduleForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedScheduleId(null);
+        }}
+        scheduleId={selectedScheduleId}
       />
       <PrintJadwalPelajaran 
         ref={printComponentRef} 

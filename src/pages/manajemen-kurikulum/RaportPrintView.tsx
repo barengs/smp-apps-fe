@@ -14,6 +14,7 @@ const RaportPrintView: React.FC = () => {
     const [searchParams] = useSearchParams();
     const semester = searchParams.get('semester') || '1';
     const academicYearId = searchParams.get('academic_year_id');
+    const academicQuarterId = searchParams.get('academic_quarter_id');
     const navigate = useNavigate();
 
     const componentRef = useRef<HTMLDivElement>(null);
@@ -21,7 +22,7 @@ const RaportPrintView: React.FC = () => {
     const { data: reportRes, isLoading } = useGetStudentReportCardQuery({
         classGroupId: Number(classGroupId),
         studentId: Number(studentId),
-        semester,
+        academic_quarter_id: academicQuarterId || undefined,
         academic_year_id: academicYearId || undefined
     }, { skip: !classGroupId || !studentId });
 
@@ -33,9 +34,9 @@ const RaportPrintView: React.FC = () => {
         const opt = {
             margin:       10,
             filename:     fileName,
-            image:        { type: 'jpeg', quality: 0.98 },
+            image:        { type: 'jpeg' as const, quality: 0.98 },
             html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
         };
 
         html2pdf().set(opt).from(element).save();
@@ -137,21 +138,26 @@ const RaportPrintView: React.FC = () => {
                                         <tr className="bg-gray-200 print:bg-gray-200">
                                             <th className="border border-black px-2 py-2 w-10 text-center">No</th>
                                             <th className="border border-black px-2 py-2">Mata Pelajaran</th>
-                                            <th className="border border-black px-2 py-2 w-20 text-center">KKM/Pengetahuan</th>
-                                            <th className="border border-black px-2 py-2 w-20 text-center">Keterampilan</th>
-                                            <th className="border border-black px-2 py-2 w-20 text-center">Nilai Akhir</th>
+                                            <th className="border border-black px-2 py-2 w-24 text-center">Nilai Akhir</th>
+                                            <th className="border border-black px-2 py-2 w-24 text-center">Predikat</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {assessments?.length > 0 ? assessments.map((assessment: any, idx: number) => {
                                             const mapelName = assessment.class_schedule_detail?.study?.name || '-';
+                                            const finalScore = Number(assessment.final_score || 0);
+                                            let predikat = '-';
+                                            if (finalScore >= 90) predikat = 'A';
+                                            else if (finalScore >= 80) predikat = 'B';
+                                            else if (finalScore >= 70) predikat = 'C';
+                                            else if (finalScore > 0) predikat = 'D';
+
                                             return (
                                                 <tr key={assessment.id}>
                                                     <td className="border border-black px-2 py-1 text-center">{idx + 1}</td>
                                                     <td className="border border-black px-2 py-1">{mapelName}</td>
-                                                    <td className="border border-black px-2 py-1 text-center font-semibold">{Number(assessment.final_knowledge_score || 0).toFixed(0)}</td>
-                                                    <td className="border border-black px-2 py-1 text-center font-semibold">{Number(assessment.final_skill_score || 0).toFixed(0)}</td>
-                                                    <td className="border border-black px-2 py-1 text-center font-bold">{Number(assessment.final_score || 0).toFixed(0)}</td>
+                                                    <td className="border border-black px-2 py-1 text-center font-bold">{finalScore.toFixed(0)}</td>
+                                                    <td className="border border-black px-2 py-1 text-center font-semibold">{predikat}</td>
                                                 </tr>
                                             );
                                         }) : (

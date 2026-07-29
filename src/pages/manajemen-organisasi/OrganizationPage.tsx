@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGetOrganizationHierarchyQuery, useCreateOrganizationMutation, useUpdateOrganizationMutation, useDeleteOrganizationMutation, Organization } from '@/store/slices/organizationApi';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -159,6 +159,9 @@ export default function OrganizationPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{formData.id ? 'Edit Organisasi' : 'Tambah Organisasi'}</DialogTitle>
+            <DialogDescription className="sr-only">
+              Formulir untuk menambah atau mengedit data organisasi.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

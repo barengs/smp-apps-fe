@@ -20,6 +20,8 @@ interface PenilaianData {
     rombel: string;
     tahunAjaran: string;
     status: string;
+    study_id?: number;
+    rombel_id?: number;
 }
 
 const PenilaianPage: React.FC = () => {
@@ -50,6 +52,7 @@ const PenilaianPage: React.FC = () => {
         }
 
         const processedData: PenilaianData[] = [];
+        const seenKeys = new Set<string>();
 
         schedulesArray.forEach((schedule) => {
             if (schedule.details && Array.isArray(schedule.details)) {
@@ -66,9 +69,28 @@ const PenilaianPage: React.FC = () => {
                     const academicYear = schedule.academic_year;
                     const education = schedule.education;
 
+                    const studyId = study?.id || 0;
+                    const classGroupId = classGroup?.id || 0;
+                    const key = `${classGroupId}_${studyId}`;
+
+                    if (seenKeys.has(key)) {
+                        const existing = processedData.find(d => `${d.rombel_id}_${d.study_id}` === key);
+                        if (existing && teacher) {
+                            const newTeacherName = `${teacher.first_name} ${teacher.last_name || ''}`.trim();
+                            if (existing.guruPengampu && !existing.guruPengampu.includes(newTeacherName)) {
+                                existing.guruPengampu += `, ${newTeacherName}`;
+                            }
+                        }
+                        return;
+                    }
+
+                    seenKeys.add(key);
+
                     processedData.push({
                         id: detail.id,
                         mataPelajaran: study ? study.name : 'Tidak diketahui',
+                        study_id: studyId,
+                        rombel_id: classGroupId,
                         guruPengampu: teacher ? `${teacher.first_name} ${teacher.last_name || ''}`.trim() : 'Tidak diketahui',
                         jenjangPendidikan: education ? (education as any).institution_name : 'Tidak diketahui',
                         kelas: classroom ? classroom.name : 'Tidak diketahui',

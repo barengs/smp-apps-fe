@@ -5,7 +5,7 @@ import { useGetPositionsQuery } from '@/store/slices/positionApi';
 import { useGetEmployeesQuery } from '@/store/slices/employeeApi';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,7 +24,7 @@ export default function KepengurusanPage() {
   const { data: assignments, isLoading } = useGetPositionAssignmentsQuery();
   const { data: organizations } = useGetOrganizationsQuery();
   const { data: positions } = useGetPositionsQuery();
-  const { data: employees } = useGetEmployeesQuery();
+  const { data: employees } = useGetEmployeesQuery({ per_page: 1000 });
   
   const [createAssignment] = useCreatePositionAssignmentMutation();
   const [updateAssignment] = useUpdatePositionAssignmentMutation();
@@ -35,6 +35,7 @@ export default function KepengurusanPage() {
   
   // Filter state
   const [selectedOrgFilter, setSelectedOrgFilter] = useState<string>('all');
+  const [staffSearch, setStaffSearch] = useState<string>('');
 
   const handleOpenDialog = (assignment?: PositionAssignment) => {
     if (assignment) {
@@ -57,6 +58,11 @@ export default function KepengurusanPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.staff_id || !formData.position_id) {
+      toast.error('Pegawai dan Jabatan harus dipilih');
+      return;
+    }
+    
     try {
       if (formData.id) {
         await updateAssignment({ id: formData.id, data: formData }).unwrap();
@@ -67,7 +73,12 @@ export default function KepengurusanPage() {
       }
       setIsDialogOpen(false);
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Terjadi kesalahan');
+      if (error?.data?.data) {
+        const errors = Object.values(error.data.data).flat().join(', ');
+        toast.error(errors || error?.data?.message || 'Terjadi kesalahan');
+      } else {
+        toast.error(error?.data?.message || 'Terjadi kesalahan');
+      }
     }
   };
 
@@ -133,7 +144,7 @@ export default function KepengurusanPage() {
             ) : filteredAssignments && filteredAssignments.length > 0 ? (
               filteredAssignments.map(assignment => (
                 <TableRow key={assignment.id}>
-                  <TableCell className="font-medium">{assignment.staff?.name}</TableCell>
+                  <TableCell className="font-medium">{assignment.staff?.first_name} {assignment.staff?.last_name}</TableCell>
                   <TableCell>{assignment.position?.name}</TableCell>
                   <TableCell>{assignment.position?.organization?.name}</TableCell>
                   <TableCell>{assignment.start_date}</TableCell>
@@ -165,8 +176,9 @@ export default function KepengurusanPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{formData.id ? 'Edit Kepengurusan' : 'Tetapkan Kepengurusan'}</DialogTitle>
+            <DialogDescription className="sr-only">Form untuk mengelola data kepengurusan.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-describedby="dialog-description">
             <div>
               <Label>Pegawai / Staff</Label>
               <Select 
@@ -178,8 +190,17 @@ export default function KepengurusanPage() {
                   <SelectValue placeholder="Pilih Pegawai" />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees?.map(emp => (
-                    <SelectItem key={emp.id} value={emp.id.toString()}>{emp.name}</SelectItem>
+                  <div className="p-2">
+                    <Input 
+                      placeholder="Cari staff..." 
+                      value={staffSearch}
+                      onChange={(e) => setStaffSearch(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  {employees?.filter(emp => emp.staff?.id && emp.name.toLowerCase().includes(staffSearch.toLowerCase())).map(emp => (
+                    <SelectItem key={emp.staff.id} value={emp.staff.id.toString()}>{emp.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

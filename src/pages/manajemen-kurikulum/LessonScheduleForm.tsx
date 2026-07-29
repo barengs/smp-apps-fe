@@ -17,7 +17,7 @@ import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentA
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
 import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useGetLessonSessionsQuery } from '@/store/slices/lessonSessionApi';
-import { useCreateClassScheduleMutation, type CreateClassScheduleRequest } from '@/store/slices/classScheduleApi';
+import { useCreateClassScheduleMutation, useUpdateClassScheduleMutation, useGetClassScheduleByIdQuery, type CreateClassScheduleRequest } from '@/store/slices/classScheduleApi';
 
 interface LessonScheduleDetail {
   day: string;
@@ -32,15 +32,18 @@ interface LessonScheduleDetail {
 interface LessonScheduleFormProps {
   isOpen: boolean;
   onClose: () => void;
+  scheduleId?: number | null;
 }
 
-const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose }) => {
+const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose, scheduleId }) => {
   const { t } = useTranslation();
   const [createClassSchedule, { isLoading: isCreating }] = useCreateClassScheduleMutation();
+  const [updateClassSchedule, { isLoading: isUpdating }] = useUpdateClassScheduleMutation();
 
   // Form state
   const [educationalInstitutionId, setEducationalInstitutionId] = useState<string>('');
   const [lessonSessionId, setLessonSessionId] = useState<string>('');
+  const [status, setStatus] = useState<string>('inactive');
   const [details, setDetails] = useState<LessonScheduleDetail[]>([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
 
   // Selection state for year and quarter
@@ -58,6 +61,47 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
   const { data: academicYears = [] } = useGetTahunAjaranQuery();
 
+  const { data: scheduleResponse, isLoading: isFetching } = useGetClassScheduleByIdQuery(Number(scheduleId), {
+    skip: !scheduleId || !isOpen,
+  });
+
+  // Populate form fields in Edit Mode
+  useEffect(() => {
+    if (isOpen && scheduleId && scheduleResponse?.data) {
+      const schedule = scheduleResponse.data;
+      setEducationalInstitutionId(String(schedule.educational_institution_id));
+      setLessonSessionId(String(schedule.lesson_session_id));
+      setStatus(schedule.status || 'inactive');
+
+      const ayId = Number(schedule.academic_year_id);
+      const ay = academicYears.find(a => a.id === ayId);
+      if (ay) {
+        setSelectedYear(ay.year);
+        setSelectedAcademicYearId(String(ay.id));
+        const activeQ = ay.academic_quarters?.find(q => q.active) || ay.academic_quarters?.[0];
+        if (activeQ) {
+          setSelectedQuarterId(String(activeQ.id));
+        }
+      }
+
+      if (schedule.details && schedule.details.length > 0) {
+        const mappedDetails = schedule.details.map(detail => {
+          const capitalizedDay = detail.day.charAt(0).toUpperCase() + detail.day.slice(1).toLowerCase();
+          return {
+            day: capitalizedDay,
+            classroomId: String(detail.classroom_id),
+            classGroupId: String(detail.class_group_id),
+            lessonHourId: String(detail.lesson_hour_id),
+            teacherId: String(detail.teacher_id),
+            subjectId: String(detail.study_id),
+            meetingCount: detail.meeting_schedules?.length || 16,
+          };
+        });
+        setDetails(mappedDetails);
+      }
+    }
+  }, [isOpen, scheduleId, scheduleResponse, academicYears]);
+
   // Unique years for selection
   const yearOptions = React.useMemo(() => {
     const years = new Set<string>();
@@ -65,9 +109,9 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     return Array.from(years).sort((a, b) => b.localeCompare(a));
   }, [academicYears]);
 
-  // Set defaults when active academic year is loaded or when dialog opens
+  // Set defaults when active academic year is loaded or when dialog opens (Create Mode only)
   useEffect(() => {
-    if (isOpen && activeAcademicYear) {
+    if (isOpen && activeAcademicYear && !scheduleId) {
       setSelectedYear(activeAcademicYear.year);
       setSelectedAcademicYearId(String(activeAcademicYear.id));
       
@@ -79,7 +123,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         setSelectedQuarterId(String(activeAcademicYear.academic_quarters[0].id));
       }
     }
-  }, [isOpen, activeAcademicYear]);
+  }, [isOpen, activeAcademicYear, scheduleId]);
 
   // Update available quarters when year changes
   const quarterOptions = React.useMemo(() => {
@@ -180,7 +224,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
       academic_quarter_id: parseInt(selectedQuarterId),
       educational_institution_id: parseInt(educationalInstitutionId),
       lesson_session_id: parseInt(lessonSessionId),
-      status: 'active',
+      status: status,
       details: details.map((detail) => ({
         classroom_id: parseInt(detail.classroomId),
         class_group_id: parseInt(detail.classGroupId),
@@ -193,8 +237,13 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     };
 
     try {
-      await createClassSchedule(payload).unwrap();
-      showSuccess(t('lessonScheduleForm.success.scheduleSaved'));
+      if (scheduleId) {
+        await updateClassSchedule({ id: scheduleId, data: payload }).unwrap();
+        showSuccess('Jadwal berhasil diperbarui');
+      } else {
+        await createClassSchedule(payload).unwrap();
+        showSuccess(t('lessonScheduleForm.success.scheduleSaved'));
+      }
       onClose();
     } catch (error: any) {
       console.error('Gagal menyimpan jadwal:', error);
@@ -203,12 +252,13 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !scheduleId) {
       setEducationalInstitutionId('');
       setLessonSessionId('');
+      setStatus('inactive');
       setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     }
-  }, [isOpen]);
+  }, [isOpen, scheduleId]);
 
   // Reset kelas/rombel ketika Lembaga Pendidikan berubah atau ketika kelas tidak lagi valid
   useEffect(() => {
@@ -237,6 +287,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     // Reset form state before closing
     setEducationalInstitutionId('');
     setLessonSessionId('');
+    setStatus('inactive');
     setDetails([{ day: '', classroomId: '', classGroupId: '', lessonHourId: '', teacherId: '', subjectId: '', meetingCount: 16 }]);
     onClose();
   };
@@ -245,65 +296,80 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-screen-xl">
         <DialogHeader>
-          <DialogTitle>{t('lessonScheduleForm.title')}</DialogTitle>
+          <DialogTitle>{scheduleId ? 'Edit Jadwal Pelajaran' : t('lessonScheduleForm.title')}</DialogTitle>
           <DialogDescription>{t('lessonScheduleForm.description')}</DialogDescription>
         </DialogHeader>
         <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
-          <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-5xl">
-              <div>
-                <Label htmlFor="academicYear">{t('sidebar.academicYear')}</Label>
-                <Select value={selectedYear} onValueChange={handleYearChange}>
-                  <SelectTrigger id="academicYear" className="w-full">
-                    <SelectValue placeholder="Pilih Tahun" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {yearOptions.map(year => (
-                      <SelectItem key={year} value={year}>{year}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          {isFetching ? (
+            <div className="py-12 text-center text-gray-500">Memuat data jadwal pelajaran...</div>
+          ) : (
+            <div className="grid gap-6 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 max-w-5xl">
+                <div>
+                  <Label htmlFor="academicYear">{t('sidebar.academicYear')}</Label>
+                  <Select value={selectedYear} onValueChange={handleYearChange}>
+                    <SelectTrigger id="academicYear" className="w-full">
+                      <SelectValue placeholder="Pilih Tahun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearOptions.map(year => (
+                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                 <div>
+                  <Label htmlFor="quarter">Periode / Kuartal</Label>
+                  <Select value={selectedQuarterId} onValueChange={setSelectedQuarterId}>
+                    <SelectTrigger id="quarter" className="w-full">
+                      <SelectValue placeholder="Pilih Kuartal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {quarterOptions.map(q => (
+                        <SelectItem key={q.id} value={String(q.id)}>{q.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="educationalInstitution">Lembaga Pendidikan</Label>
+                  <Select value={educationalInstitutionId} onValueChange={setEducationalInstitutionId}>
+                    <SelectTrigger id="educationalInstitution" className="w-full">
+                      <SelectValue placeholder="Pilih lembaga pendidikan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(institutionsData || []).map(institution => (
+                        <SelectItem key={institution.id} value={String(institution.id)}>{institution.institution_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="session">{t('lessonScheduleForm.session')}</Label>
+                  <Select value={lessonSessionId} onValueChange={setLessonSessionId}>
+                    <SelectTrigger id="session" className="w-full">
+                      <SelectValue placeholder={t('lessonScheduleForm.selectSession')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(lessonSessionsData || []).filter(s => s.is_active).map(s => (
+                        <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger id="status" className="w-full">
+                      <SelectValue placeholder="Pilih Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="inactive">Belum Terbit (Draft)</SelectItem>
+                      <SelectItem value="active">Aktif (Terbit)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-               <div>
-                <Label htmlFor="quarter">Periode / Kuartal</Label>
-                <Select value={selectedQuarterId} onValueChange={setSelectedQuarterId}>
-                  <SelectTrigger id="quarter" className="w-full">
-                    <SelectValue placeholder="Pilih Kuartal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {quarterOptions.map(q => (
-                      <SelectItem key={q.id} value={String(q.id)}>{q.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="educationalInstitution">Lembaga Pendidikan</Label>
-                <Select value={educationalInstitutionId} onValueChange={setEducationalInstitutionId}>
-                  <SelectTrigger id="educationalInstitution" className="w-full">
-                    <SelectValue placeholder="Pilih lembaga pendidikan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(institutionsData || []).map(institution => (
-                      <SelectItem key={institution.id} value={String(institution.id)}>{institution.institution_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="session">{t('lessonScheduleForm.session')}</Label>
-                <Select value={lessonSessionId} onValueChange={setLessonSessionId}>
-                  <SelectTrigger id="session" className="w-full">
-                    <SelectValue placeholder={t('lessonScheduleForm.selectSession')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(lessonSessionsData || []).filter(s => s.is_active).map(s => (
-                      <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
             <div className="mt-4">
               <Label className="text-lg font-semibold">{t('lessonScheduleForm.detailsTitle')}</Label>
@@ -484,11 +550,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
               </Button>
             </div>
           </div>
-        </div>
+        )}
+      </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>{t('cancelButton')}</Button>
-          <Button onClick={handleSubmit} disabled={isCreating}>
-            {isCreating ? 'Menyimpan...' : t('saveChanges')}
+          <Button onClick={handleSubmit} disabled={isCreating || isUpdating}>
+            {isCreating || isUpdating ? 'Menyimpan...' : (scheduleId ? 'Simpan Perubahan' : t('saveChanges'))}
           </Button>
         </DialogFooter>
       </DialogContent>

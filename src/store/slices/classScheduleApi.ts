@@ -136,6 +136,12 @@ export interface ClassScheduleData {
   details: ClassScheduleDetail[];
 }
 
+interface GetSingleClassScheduleResponse {
+  message: string;
+  status: number;
+  data: ClassScheduleData;
+}
+
 // Respons GET lengkap
 interface GetClassSchedulesRawResponse {
   message: string;
@@ -217,6 +223,10 @@ export const classScheduleApi = smpApi.injectEndpoints({
           ]
           : [{ type: 'ClassSchedule', id: 'LIST' }],
     }),
+    getClassScheduleById: builder.query<GetSingleClassScheduleResponse, number>({
+      query: (id) => `main/class-schedule/${id}`,
+      providesTags: (result, error, id) => [{ type: 'ClassSchedule', id }],
+    }),
     getPresenceByScheduleId: builder.query<GetPresenceResponse, number>({
       query: (classScheduleId) => `main/presence?class_schedule_id=${classScheduleId}`,
       providesTags: (result, error, id) => [{ type: 'Presence', id: id }, { type: 'ClassSchedule', id: id }],
@@ -226,6 +236,21 @@ export const classScheduleApi = smpApi.injectEndpoints({
         url: 'main/class-schedule',
         method: 'POST',
         body: newSchedule,
+      }),
+      invalidatesTags: [{ type: 'ClassSchedule', id: 'LIST' }],
+    }),
+    updateClassSchedule: builder.mutation<CreateClassScheduleResponse, { id: number; data: CreateClassScheduleRequest }>({
+      query: ({ id, data }) => ({
+        url: `main/class-schedule/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'ClassSchedule', id: 'LIST' }],
+    }),
+    deleteClassSchedule: builder.mutation<{ message: string; status: number }, number>({
+      query: (id) => ({
+        url: `main/class-schedule/${id}`,
+        method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'ClassSchedule', id: 'LIST' }],
     }),
@@ -264,8 +289,11 @@ export const classScheduleApi = smpApi.injectEndpoints({
 
 export const {
   useGetClassSchedulesQuery,
+  useGetClassScheduleByIdQuery,
   useGetPresenceByScheduleIdQuery,
   useCreateClassScheduleMutation,
+  useUpdateClassScheduleMutation,
+  useDeleteClassScheduleMutation,
   useSaveAttendanceMutation,
   useUpdatePresenceMutation,
   useExportClassSchedulesMutation,

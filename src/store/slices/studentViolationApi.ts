@@ -119,7 +119,7 @@ export const studentViolationApi = smpApi.injectEndpoints({
       invalidatesTags: ['StudentViolation'],
     }),
     getStudentViolationReport: builder.query<StudentViolationReportData, number>({
-      query: (studentId) => `main/student-violation/student/${studentId}/report`,
+      query: (studentId) => `main/student-violation/student/${studentId}`,
       transformResponse: (response: StudentViolationReportResponse) => response.data,
       providesTags: (result, _error, studentId) => [{ type: 'StudentViolation', id: studentId }],
     }),

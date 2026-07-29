@@ -4,4 +4,5 @@ export interface JamPelajaran {
   start_time: string;
   end_time: string;
   name?: string;
+  description?: string;
 }

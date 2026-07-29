@@ -135,8 +135,24 @@ const isRouteActive = (route: string | undefined, currentPath: string) => {
     return cleanPath === cleanRoute || cleanPath === '/dashboard';
   }
 
+  if (cleanPath === cleanRoute) return true;
+
+  // Differentiate /dashboard/santri from separate submenus (boyong, perjanjian, mutasi-asrama)
+  if (cleanRoute === '/dashboard/santri') {
+    const remainder = cleanPath.slice(cleanRoute.length + 1);
+    const nextSegment = remainder.split('/')[0];
+    return /^\d+$/.test(nextSegment);
+  }
+
+  // Differentiate /dashboard/staf from other paths
+  if (cleanRoute === '/dashboard/staf') {
+    const remainder = cleanPath.slice(cleanRoute.length + 1);
+    const nextSegment = remainder.split('/')[0];
+    return /^\d+$/.test(nextSegment);
+  }
+
   // Exact match or sub-path match (ensure segment boundary)
-  return cleanPath === cleanRoute || cleanPath.startsWith(`${cleanRoute}/`);
+  return cleanPath.startsWith(`${cleanRoute}/`);
 };
 
 const SidebarRecursiveDropdownItem: React.FC<{ item: SidebarNavItem }> = ({ item }) => {

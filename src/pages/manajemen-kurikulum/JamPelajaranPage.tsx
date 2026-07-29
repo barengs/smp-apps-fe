@@ -73,13 +73,9 @@ const JamPelajaranPage: React.FC = () => {
 
   const columns: ColumnDef<JamPelajaran>[] = useMemo(() => [
     {
-      accessorKey: 'order',
-      header: t('lessonHoursPage.lessonHour'),
-      cell: ({ row }) => {
-        const jam = row.original;
-        return jam.order === 0 ? <Badge variant="outline">Istirahat</Badge> : `Jam ke-${jam.order}`;
-      },
-      size: 100,
+      accessorKey: 'name',
+      header: 'Nama Jam Pelajaran',
+      size: 150,
     },
     {
       accessorKey: 'start_time',
@@ -92,7 +88,7 @@ const JamPelajaranPage: React.FC = () => {
       size: 150,
     },
     {
-      accessorKey: 'name',
+      accessorKey: 'description',
       header: t('lessonHoursPage.description'),
     },
     {

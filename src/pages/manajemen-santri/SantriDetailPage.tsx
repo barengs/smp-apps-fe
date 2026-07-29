@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ActionButton from '@/components/ActionButton';
 import SantriViolationTimeline from '@/components/SantriViolationTimeline';
+import SantriEducationTab from '@/components/SantriEducationTab';
 import StudentPhotoUploadDialog from '@/components/StudentPhotoUploadDialog';
 import AssignRoomDialog from '@/components/AssignRoomDialog';
 import { useReactToPrint } from 'react-to-print';
@@ -232,14 +233,12 @@ const SantriDetailPage: React.FC = () => {
                   <CardHeader><CardTitle>Informasi Tambahan</CardTitle></CardHeader>
                   <CardContent>
                     <Tabs defaultValue="pendidikan">
-                      <TabsList className="grid w-full grid-cols-3">
+                      <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="pendidikan">Pendidikan</TabsTrigger>
-                        <TabsTrigger value="prestasi">Prestasi</TabsTrigger>
                         <TabsTrigger value="pelanggaran">Pelanggaran</TabsTrigger>
                       </TabsList>
+                      <TabsContent value="pendidikan" className="mt-4"><SantriEducationTab studentId={santri.id} /></TabsContent>
                       <TabsContent value="pelanggaran" className="mt-4"><SantriViolationTimeline studentId={santri.id} /></TabsContent>
-                      <TabsContent value="pendidikan" className="mt-4"><p className="text-sm text-gray-500">Data pendidikan.</p></TabsContent>
-                      <TabsContent value="prestasi" className="mt-4"><p className="text-sm text-gray-500">Data prestasi.</p></TabsContent>
                     </Tabs>
                   </CardContent>
                 </Card>
