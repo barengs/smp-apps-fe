@@ -163,6 +163,7 @@ function App() {
               <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
               <Route path="/dashboard/hak-akses" element={<HakAksesPage />} />
               <Route path="/dashboard/peran" element={<PeranPage />} />
+              <Route path="/dashboard/peran/add" element={<PeranAddPage />} />
               <Route path="/dashboard/peran/:id" element={<PeranDetailPage />} />
               <Route path="/dashboard/peran/:id/edit" element={<PeranEditPage />} />
               <Route path="/dashboard/organisasi" element={<OrganisasiPage />} />

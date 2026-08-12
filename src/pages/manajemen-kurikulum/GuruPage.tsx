@@ -51,7 +51,7 @@ const GuruPage: React.FC = () => {
 
 
   // Buat peta staffId -> studies untuk menampilkan dan mengubah penugasan mapel
-  const assignments = React.useMemo(() => assignmentsResponse?.data || [], [assignmentsResponse]);
+  const assignments = React.useMemo(() => assignmentsResponse || [], [assignmentsResponse]);
   const assignmentsMap = React.useMemo(() => {
     const map = new Map<string, Study[]>();
     assignments.forEach((staffDetail) => {

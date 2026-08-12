@@ -1,0 +1,26 @@
+{
+  "name": "pesantren-ecosystem",
+  "description": "Knowledge base ekosistem sistem manajemen pesantren",
+  "version": "1.0.0",
+  "created_at": "2026-08-08",
+  "repositories": {
+    "smp-be": "c:\\Users\\DELL\\Developer\\pesantren\\smp-be",
+    "smp-fe": "c:\\Users\\DELL\\Developer\\pesantren\\smp-fe",
+    "bank-santri": "c:\\Users\\DELL\\Developer\\pesantren\\bank-santri"
+  },
+  "references": [
+    "c:\\Users\\DELL\\Developer\\pesantren\\smp-be\\routes\\api.php",
+    "c:\\Users\\DELL\\Developer\\pesantren\\bank-santri\\routes\\api.php",
+    "c:\\Users\\DELL\\Developer\\pesantren\\smp-fe\\src\\App.tsx",
+    "c:\\Users\\DELL\\Developer\\pesantren\\smp-be\\relations.txt",
+    "c:\\Users\\DELL\\Developer\\pesantren\\smp-fe\\AI_RULES.md"
+  ],
+  "known_issues": [
+    {
+      "repo": "bank-santri",
+      "issue": "npm install fails due to Vite 8 vs laravel-vite-plugin peer dependency conflict",
+      "solution": "npm install --legacy-peer-deps OR downgrade vite to ^7.0.0",
+      "conversation_ref": "ece94834-dc26-4c69-8756-a5483522f11b"
+    }
+  ]
+}

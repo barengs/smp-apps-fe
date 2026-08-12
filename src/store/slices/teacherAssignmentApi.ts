@@ -1,49 +1,39 @@
 import { smpApi } from '../baseApi';
 import { TeacherAssignmentApiResponse, StaffDetailFromApi } from '@/types/teacherAssignment';
-import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
-const asPaginatedStaff = (data: any): PaginatedResponse<StaffDetailFromApi> => {
-  if (data && typeof data === 'object' && 'data' in data) return data as PaginatedResponse<StaffDetailFromApi>;
-  const arr = Array.isArray(data) ? data : [];
-  return {
-    current_page: 1,
-    data: arr,
-    first_page_url: '',
-    from: arr.length ? 1 : 0,
-    last_page: 1,
-    last_page_url: '',
-    links: [],
-    next_page_url: null,
-    path: '',
-    per_page: arr.length || 10,
-    prev_page_url: null,
-    to: arr.length,
-    total: arr.length,
-  };
-};
 
 export interface AssignStudiesRequest {
   staffId: string;
   studyIds: string[];
 }
 
+/**
+ * Params untuk getTeacherAssignments.
+ * educational_institution_id — jika diisi, backend memfilter guru yang terkait
+ * dengan institusi tersebut via dua jalur:
+ *   1) staff_educational_institutions pivot
+ *   2) PositionAssignment aktif → Position → Organization
+ */
+export interface TeacherAssignmentParams {
+  educational_institution_id?: string;
+}
+
 export const teacherAssignmentApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTeacherAssignments: builder.query<PaginatedResponse<StaffDetailFromApi>, PaginationParams>({ // Update return type and add params
+    getTeacherAssignments: builder.query<StaffDetailFromApi[], TeacherAssignmentParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-        if (params.search) queryParams.append('search', params.search);
-        if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-        if (params.sort_order) queryParams.append('sort_order', params.sort_order);
+        // Filter institusi — diserahkan ke backend (dual-path query)
+        if (params.educational_institution_id) {
+          queryParams.append('educational_institution_id', params.educational_institution_id);
+        }
         return `/master/staff-study?${queryParams.toString()}`;
       },
-      transformResponse: (response: TeacherAssignmentApiResponse) => asPaginatedStaff(response.data),
+      transformResponse: (response: TeacherAssignmentApiResponse) => response.data,
       providesTags: (result) =>
-        result?.data
+        result
           ? [
-              ...result.data.map(({ id }) => ({ type: 'TeacherAssignment' as const, id })),
+              ...result.map(({ id }) => ({ type: 'TeacherAssignment' as const, id })),
               { type: 'TeacherAssignment', id: 'LIST' },
             ]
           : [{ type: 'TeacherAssignment', id: 'LIST' }],

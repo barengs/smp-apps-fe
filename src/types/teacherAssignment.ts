@@ -30,6 +30,10 @@ export interface StaffDetailFromApi {
   created_at: string;
   updated_at: string;
   studies: Study[]; // Array mata pelajaran yang diajarkan staf ini
+  educational_institutions?: {
+    id: number;
+    name?: string;
+  }[];
   user: {
     id: number;
     name: string;

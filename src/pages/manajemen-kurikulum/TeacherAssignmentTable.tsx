@@ -138,7 +138,7 @@ const TeacherAssignmentTable: React.FC = () => {
   }
 
   const assignments = React.useMemo(() => {
-    return data?.data || [];
+    return data || [];
   }, [data]);
 
   return (

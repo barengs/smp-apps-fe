@@ -14,6 +14,7 @@ import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidik
 import { useGetClassroomsQuery } from '@/store/slices/classroomApi';
 import { useGetClassGroupsQuery } from '@/store/slices/classGroupApi';
 import { useGetTeacherAssignmentsQuery } from '@/store/slices/teacherAssignmentApi';
+import type { StaffDetailFromApi } from '@/types/teacherAssignment';
 import { useGetLessonHoursQuery } from '@/store/slices/lessonHourApi';
 import { useGetActiveTahunAjaranQuery, useGetTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useGetLessonSessionsQuery } from '@/store/slices/lessonSessionApi';
@@ -55,7 +56,12 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   const { data: institutionsData } = useGetInstitusiPendidikanQuery({});
   const { data: classroomsData } = useGetClassroomsQuery();
   const { data: classGroupsData } = useGetClassGroupsQuery();
-  const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery({});
+  // Kirim educational_institution_id agar backend memfilter guru berdasarkan institusi
+  // via dua jalur: staff_educational_institutions pivot + PositionAssignment → Organization
+  const { data: teacherAssignmentsData } = useGetTeacherAssignmentsQuery(
+    { educational_institution_id: educationalInstitutionId || undefined },
+    { skip: !educationalInstitutionId } // Jangan fetch sampai institusi dipilih
+  );
   const { data: lessonHoursData } = useGetLessonHoursQuery();
   const { data: lessonSessionsData } = useGetLessonSessionsQuery();
   const { data: activeAcademicYear } = useGetActiveTahunAjaranQuery();
@@ -165,21 +171,19 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
     );
   }, [classroomsData, educationalInstitutionId]);
 
-  // Guru yang difilter berdasarkan Lembaga Pendidikan terpilih
+  // Backend sudah memfilter guru berdasarkan institusi (dual-path: pivot + PositionAssignment).
+  // Frontend tidak perlu filter lagi — cukup gunakan data dari response.
   const filteredTeachers = React.useMemo(() => {
-    if (!teacherAssignmentsData?.data) return [];
     if (!educationalInstitutionId) return [];
-    const instId = parseInt(educationalInstitutionId, 10);
-    return teacherAssignmentsData.data.filter(
-      (teacher: any) => teacher.educational_institutions?.some((ei: any) => ei.id === instId)
-    );
+    return teacherAssignmentsData ?? [];
   }, [teacherAssignmentsData, educationalInstitutionId]);
 
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
   const handleDetailChange = (index: number, field: keyof LessonScheduleDetail, value: string | number) => {
     const newDetails = [...details];
-    (newDetails[index] as any)[field] = value;
+    // @ts-expect-error - dynamic assignment
+    newDetails[index][field] = value;
     // Reset class group when class changes
     if (field === 'classroomId') {
       newDetails[index].classGroupId = '';
@@ -245,9 +249,10 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
         showSuccess(t('lessonScheduleForm.success.scheduleSaved'));
       }
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Gagal menyimpan jadwal:', error);
-      showError(error?.data?.message || 'Gagal menyimpan jadwal.');
+      const err = error as { data?: { message?: string } };
+      showError(err?.data?.message || 'Gagal menyimpan jadwal.');
     }
   };
 
@@ -274,7 +279,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
   }, [educationalInstitutionId, filteredClassrooms]);
 
   // Helper function to format academic year display
-  const formatAcademicYearDisplay = (academicYear: any) => {
+  const formatAcademicYearDisplay = (academicYear: { year?: string } | undefined | null) => {
     if (!academicYear) return 'Loading...';
     if (academicYear.year) {
       return academicYear.year;
@@ -395,7 +400,7 @@ const LessonScheduleForm: React.FC<LessonScheduleFormProps> = ({ isOpen, onClose
                     ) || [];
 
                     // Find the selected teacher to get their assigned studies
-                    const selectedTeacher = teacherAssignmentsData?.data.find(
+                    const selectedTeacher = teacherAssignmentsData?.find(
                       (teacher) => String(teacher.id) === detail.teacherId
                     );
                     const teacherStudies = selectedTeacher?.studies || [];
