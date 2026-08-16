@@ -110,6 +110,9 @@ import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
 import { StatistikPresensiPage } from '@/pages/kesantrian/laporan/StatistikPresensiPage';
 import TransaksiPage from '@/pages/keuangan/TransaksiPage';
 import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
+import PendidikanDashboard from "@/pages/dashboard/PendidikanDashboard";
+import KamtibDashboard from "@/pages/dashboard/KamtibDashboard";
+import KurikulumDashboard from "@/pages/dashboard/KurikulumDashboard";
 
 
 // Redux imports
@@ -158,6 +161,9 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
               <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
+              <Route path="/dashboard/pendidikan/dashboard" element={<PendidikanDashboard />} />
+              <Route path="/dashboard/manajemen-kamtib/dashboard" element={<KamtibDashboard />} />
+              <Route path="/dashboard/manajemen-kurikulum/dashboard" element={<KurikulumDashboard />} />
               <Route path="/dashboard/staf" element={<StafPage />} />
               <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
               <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />

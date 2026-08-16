@@ -20,7 +20,15 @@ export interface Student {
   born_at?: string | null;
   phone?: string | null;
   address?: string | null;
-  parents?: any;
+  parents?: {
+    user_id: string | number;
+    first_name: string;
+    last_name?: string | null;
+  } | {
+    user_id: string | number;
+    first_name: string;
+    last_name?: string | null;
+  }[] | null;
   parent_id?: string;
   kk?: string;
   last_education?: string;
@@ -35,6 +43,12 @@ export interface Student {
 
   current_room?: {
     room_name?: string;
+  } | null;
+  current_class?: {
+    class_name?: string;
+  } | null;
+  education_class?: {
+    name?: string;
   } | null;
   agreement?: StudentAgreement | null;
 }
@@ -154,12 +168,14 @@ export const studentApi = smpApi.injectEndpoints({
         return `main/student?${queryParams.toString()}`;
       },
       // Normalisasi berbagai bentuk respons: { data: Student[] } atau { data: { data: Student[] } }
-      transformResponse: (response: any): Student[] => {
-        if (Array.isArray(response?.data)) {
-          return response.data as Student[];
+      transformResponse: (response: unknown): Student[] => {
+        const res = response as { data?: unknown };
+        if (Array.isArray(res?.data)) {
+          return res.data as Student[];
         }
-        if (Array.isArray(response?.data?.data)) {
-          return response.data.data as Student[];
+        const innerRes = res?.data as { data?: unknown } | undefined;
+        if (Array.isArray(innerRes?.data)) {
+          return innerRes.data as Student[];
         }
         return [];
       },
@@ -277,7 +293,7 @@ export const studentApi = smpApi.injectEndpoints({
       query: (id) => `main/student/${id}/agreement`,
       providesTags: (result, error, id) => [{ type: 'Student', id: `AGREEMENT_${id}` }],
     }),
-    updateStudentAgreementStep: builder.mutation<{ success: boolean; data: StudentAgreement }, { id: number; data: any }>({
+    updateStudentAgreementStep: builder.mutation<{ success: boolean; data: StudentAgreement }, { id: number; data: UpdateAgreementStepRequest }>({
       query: ({ id, data }) => ({
         url: `main/student/${id}/agreement`,
         method: 'POST',

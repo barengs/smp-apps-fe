@@ -10,6 +10,7 @@ import { format, subMonths } from "date-fns";
 import { id } from "date-fns/locale";
 import { Search, Loader2, UserCircle, Receipt, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import * as toast from "@/utils/toast";
+import { extractNisFromScan } from '@/utils/scanUtils';
 
 const LaporanMutasiNasabahPage: React.FC = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -52,7 +53,7 @@ const LaporanMutasiNasabahPage: React.FC = () => {
                   <Input 
                     placeholder="Masukkan NIS Santri..." 
                     value={accountNumber} 
-                    onChange={(e) => setAccountNumber(e.target.value)} 
+                    onChange={(e) => setAccountNumber(extractNisFromScan(e.target.value))} 
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   />
                   <Button onClick={handleSearch} disabled={isLoading || isFetching}>

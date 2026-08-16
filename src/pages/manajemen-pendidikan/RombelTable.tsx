@@ -27,6 +27,8 @@ import { useGetClassGroupsQuery, useDeleteClassGroupMutation, useExportClassGrou
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useLocalPagination } from '@/hooks/useLocalPagination';
+import ClassGroupStudentsModal from './ClassGroupStudentsModal';
+import { Users } from 'lucide-react';
 
 interface Rombel {
   id: number;
@@ -55,6 +57,9 @@ const RombelTable: React.FC = () => {
   const [editingRombel, setEditingRombel] = useState<Rombel | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [rombelToDelete, setRombelToDelete] = useState<Rombel | undefined>(undefined);
+  
+  const [isStudentsModalOpen, setIsStudentsModalOpen] = useState(false);
+  const [selectedRombelForStudents, setSelectedRombelForStudents] = useState<{id: number, name: string} | null>(null);
 
   const rombels: Rombel[] = useMemo(() => {
     return classGroupsData?.data || [];
@@ -99,6 +104,11 @@ const RombelTable: React.FC = () => {
   const handleDeleteClick = (rombel: Rombel) => {
     setRombelToDelete(rombel);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleViewStudents = (rombel: Rombel) => {
+    setSelectedRombelForStudents({ id: rombel.id, name: rombel.name });
+    setIsStudentsModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -181,6 +191,14 @@ const RombelTable: React.FC = () => {
           const rombel = row.original;
           return (
             <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleViewStudents(rombel)}
+                title="Lihat Daftar Siswa"
+              >
+                <Users className="h-4 w-4 lg:mr-1" /> <span className="hidden lg:inline">Siswa</span>
+              </Button>
               <Button
                 variant="outline"
                 className="h-8 px-2 text-xs"
@@ -323,6 +341,16 @@ const RombelTable: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ClassGroupStudentsModal
+        isOpen={isStudentsModalOpen}
+        onClose={() => {
+          setIsStudentsModalOpen(false);
+          setSelectedRombelForStudents(null);
+        }}
+        classGroupId={selectedRombelForStudents?.id ?? null}
+        classGroupName={selectedRombelForStudents?.name ?? ''}
+      />
     </>
   );
 };

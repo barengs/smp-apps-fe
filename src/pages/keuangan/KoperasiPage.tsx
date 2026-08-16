@@ -23,6 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+import { extractNisFromScan } from '@/utils/scanUtils';
+
 const KoperasiPage: React.FC = () => {
   const [nisInput, setNisInput] = useState('');
   const [amountInput, setAmountInput] = useState<number | ''>('');
@@ -93,7 +95,7 @@ const KoperasiPage: React.FC = () => {
                       className="pl-10 text-lg font-bold" 
                       placeholder="Scan Kartu atau Ketik NIS..." 
                       value={nisInput}
-                      onChange={(e) => setNisInput(e.target.value)}
+                      onChange={(e) => setNisInput(extractNisFromScan(e.target.value))}
                       autoFocus
                     />
                   </div>

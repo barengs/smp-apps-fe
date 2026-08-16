@@ -16,15 +16,17 @@ import {
     AlertCircle,
     Info
 } from 'lucide-react';
-import { useCheckoutByNisMutation, useCheckinByNisMutation } from '@/store/slices/holidayApi';
+import { useCheckoutByNisMutation, useCheckinByNisMutation, HolidayScanResult } from '@/store/slices/holidayApi';
 import { showError, showSuccess } from '@/utils/toast';
 import { format } from 'date-fns';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 
+import { extractNisFromScan } from '@/utils/scanUtils';
+
 const HolidayVerificationPage: React.FC = () => {
     const [nis, setNis] = useState('');
     const [mode, setMode] = useState<'checkout' | 'checkin'>('checkout');
-    const [lastScan, setLastScan] = useState<any>(null);
+    const [lastScan, setLastScan] = useState<HolidayScanResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,15 +43,17 @@ const HolidayVerificationPage: React.FC = () => {
 
     const handleScan = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!nis.trim() || isLoading) return;
+        
+        const extractedNis = extractNisFromScan(nis);
+        if (!extractedNis || isLoading) return;
 
         setError(null);
         try {
             let result;
             if (mode === 'checkout') {
-                result = await checkout({ nis }).unwrap();
+                result = await checkout({ nis: extractedNis }).unwrap();
             } else {
-                result = await checkin({ nis }).unwrap();
+                result = await checkin({ nis: extractedNis }).unwrap();
             }
 
             setLastScan(result.data);
@@ -58,7 +62,8 @@ const HolidayVerificationPage: React.FC = () => {
             
             // Re-focus after short delay to ensure UI updates don't steal focus
             setTimeout(() => inputRef.current?.focus(), 100);
-        } catch (err: any) {
+        } catch (error) {
+            const err = error as { data?: HolidayScanResult & { message?: string } };
             setError(err.data?.message || 'Terjadi kesalahan saat verifikasi');
             setLastScan(err.data || null);
             setNis('');
@@ -89,7 +94,7 @@ const HolidayVerificationPage: React.FC = () => {
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleScan} className="space-y-4">
-                                    <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="w-full">
+                                    <Tabs value={mode} onValueChange={(v) => setMode(v as 'checkout' | 'checkin')} className="w-full">
                                         <TabsList className="grid w-full grid-cols-2">
                                             <TabsTrigger value="checkout" className="flex items-center gap-2">
                                                 <LogOut className="h-4 w-4" /> Checkout
@@ -104,7 +109,7 @@ const HolidayVerificationPage: React.FC = () => {
                                         <Input
                                             ref={inputRef}
                                             value={nis}
-                                            onChange={(e) => setNis(e.target.value)}
+                                            onChange={(e) => setNis(extractNisFromScan(e.target.value))}
                                             placeholder="Input NIS..."
                                             className="text-lg h-14 pl-4 pr-12 focus:ring-2 focus:ring-primary font-mono tracking-widest"
                                             autoComplete="off"

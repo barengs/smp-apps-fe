@@ -99,15 +99,13 @@ import * as toast from "@/utils/toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { selectCurrentUser } from "@/store/slices/authSlice";
-import {
-  LockScreenProvider,
-  useLockScreen,
-} from "@/contexts/LockScreenContext";
+import { LockScreenProvider, useLockScreen } from "@/contexts/LockScreenContext";
 import LockScreen from "@/components/LockScreen";
-import { useGetControlPanelSettingsQuery } from "@/store/slices/controlPanelApi";
-import { useGetUserMenusQuery } from "@/store/slices/menuApi";
+import { useGetControlPanelSettingsQuery, ControlPanelSettings } from "@/store/slices/controlPanelApi";
+import { useGetUserMenusQuery, MenuItem } from "@/store/slices/menuApi";
 import { smpApi } from "../store/baseApi";
 import { getIconComponent } from "@/utils/iconMapper";
+import { usePermission } from "@/hooks/usePermission";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -311,7 +309,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, isCollapsed }) => {
   const sidebarNavItems: SidebarNavItem[] = React.useMemo(() => {
     if (!userMenus) return [];
 
-    const mapToSidebarItems = (menus: any[], level = 0): SidebarNavItem[] => {
+    const mapToSidebarItems = (menus: MenuItem[], level = 0): SidebarNavItem[] => {
       return menus.map((menu) => ({
         titleKey: menu.id_title,
         href: menu.route || undefined,
@@ -538,7 +536,7 @@ const DashboardHeader: React.FC<{
   isMobile: boolean;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
-  settings: any;
+  settings: ControlPanelSettings | undefined;
 }> = ({ title, role, isMobile, isCollapsed, setIsCollapsed, settings }) => {
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
@@ -549,6 +547,7 @@ const DashboardHeader: React.FC<{
   const currentUser = useSelector((state: RootState) =>
     selectCurrentUser(state),
   );
+  const { hasRole } = usePermission();
   const [hijriDate, setHijriDate] = useState(""); // Menambahkan deklarasi state untuk hijriDate
 
   // Mengambil nama dari properti profile, dengan fallback ke name atau placeholder
@@ -709,12 +708,14 @@ const DashboardHeader: React.FC<{
                 <span>{t("header.profile")}</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard/settings/app-profile">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>{t("header.settings")}</span>
-              </Link>
-            </DropdownMenuItem>
+            {hasRole('superadmin') && (
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/settings/app-profile">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>{t("header.settings")}</span>
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />

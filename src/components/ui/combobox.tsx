@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
+import { extractNisFromScan } from '@/utils/scanUtils';
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -20,9 +21,9 @@ import {
 } from "@/components/ui/popover"
 
 interface ComboboxProps {
-  options: { value: any; label: string }[];
-  value?: any;
-  onChange: (value: any) => void;
+  options: { value: string | number; label: string }[];
+  value?: string | number;
+  onChange: (value: string | number) => void;
   placeholder?: string;
   searchPlaceholder?: string;
   notFoundMessage?: string;
@@ -42,6 +43,7 @@ export function Combobox({
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [selectedLabel, setSelectedLabel] = React.useState<string>("")
+  const [searchValue, setSearchValue] = React.useState<string>("")
 
   // Update selected label when value or options change
   React.useEffect(() => {
@@ -84,7 +86,11 @@ export function Combobox({
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-1">
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+          <CommandInput 
+            placeholder={searchPlaceholder} 
+            value={searchValue}
+            onValueChange={(val) => setSearchValue(extractNisFromScan(val))}
+          />
           <CommandList>
             <CommandEmpty>{notFoundMessage}</CommandEmpty>
             <CommandGroup>

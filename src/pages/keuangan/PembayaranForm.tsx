@@ -34,6 +34,7 @@ import { accountApi } from '@/store/slices/accountApi';
 import * as toast from '@/utils/toast';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { extractNisFromScan } from '@/utils/scanUtils';
 
 const formSchema = z.object({
   account_number: z.string().min(1, 'NIS Santri wajib diisi'),
@@ -137,7 +138,7 @@ const PembayaranForm: React.FC<PembayaranFormProps> = ({ isOpen, onClose }) => {
                   <Input 
                     placeholder="Masukkan NIS..." 
                     value={nisInput}
-                    onChange={(e) => setNisInput(e.target.value)}
+                    onChange={(e) => setNisInput(extractNisFromScan(e.target.value))}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearchAccount())}
                   />
                   <Button type="button" variant="secondary" onClick={handleSearchAccount} disabled={isFetchingAccount}>

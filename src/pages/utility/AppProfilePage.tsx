@@ -14,12 +14,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTranslation } from 'react-i18next';
 import { Separator } from '@/components/ui/separator';
+import { usePermission } from '@/hooks/usePermission';
+import { Navigate } from 'react-router-dom';
 
 const AppProfilePage: React.FC = () => {
   const { t } = useTranslation();
   const { data: apiResponse, isLoading, isError, refetch } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel menjadi apiResponse
   const settings = apiResponse?.data; // Mengambil data sebenarnya dari properti 'data'
   const [updateSettings, { isLoading: isUpdating }] = useUpdateControlPanelSettingsMutation();
+  const { hasRole } = usePermission();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [formState, setFormState] = useState<Partial<ControlPanelSettings>>({});
@@ -168,6 +171,10 @@ const AppProfilePage: React.FC = () => {
       <div className="md:col-span-2">{children}</div>
     </div>
   );
+
+  if (!hasRole('superadmin')) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   if (isLoading) {
     return (

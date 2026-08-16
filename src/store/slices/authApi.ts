@@ -241,14 +241,14 @@ export const authApi = smpApi.injectEndpoints({
     // Menghapus updateProfilePhoto karena sudah digabungkan ke updateProfile
     forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
       query: (data) => ({
-        url: 'forgot-password',
+        url: 'auth/forgot-password',
         method: 'POST',
         body: data,
       }),
     }),
     changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordRequest>({
       query: (data) => ({
-        url: 'change-password',
+        url: 'auth/change-password',
         method: 'POST',
         body: data,
       }),

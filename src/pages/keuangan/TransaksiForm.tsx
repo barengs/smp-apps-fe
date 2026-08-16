@@ -30,6 +30,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAddTransactionMutation } from '@/store/slices/bankApi';
 import * as toast from '@/utils/toast';
+import { extractNisFromScan } from '@/utils/scanUtils';
 
 const formSchema = z.object({
   destination_account: z.string().min(1, 'Nomor rekening tujuan harus diisi.'),
@@ -95,7 +96,11 @@ const TransaksiForm: React.FC<TransaksiFormProps> = ({ isOpen, onClose }) => {
                 <FormItem>
                   <FormLabel>Nomor Rekening Tujuan</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan nomor rekening tujuan" {...field} />
+                    <Input 
+                      placeholder="Masukkan nomor rekening tujuan" 
+                      {...field} 
+                      onChange={(e) => field.onChange(extractNisFromScan(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

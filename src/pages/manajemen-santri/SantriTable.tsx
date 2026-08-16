@@ -23,9 +23,11 @@ interface Santri {
   roomName: string;
   assignedRoomName?: string;
   period: string;
-  gender: string;
+  gender?: string;
   status: string;
   programName: string;
+  address: string;
+  className: string;
   created_at: string;
   updated_at: string;
 }
@@ -92,7 +94,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         fullName: `${student.first_name} ${student.last_name || ''}`.trim(),
         nis: student.nis,
         roomName: student.hostel?.name ?? 'Belum diatur',
-        assignedRoomName: (student as any)?.current_room?.room_name ?? '',
+        assignedRoomName: student?.current_room?.room_name ?? '',
         period: student.period,
         gender:
           student.gender === 'L'
@@ -102,6 +104,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
               : 'Tidak Diketahui',
         status: student.status,
         programName: student.program ? student.program.name : '',
+        address: student.address || '-',
+        className: student.current_class?.class_name || student.education_class?.name || '-',
         created_at: student.created_at,
         updated_at: student.updated_at,
       }));
@@ -159,86 +163,60 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const columns: ColumnDef<Santri>[] = useMemo(
     () => [
       {
+        accessorKey: 'nis',
+        header: 'NIS',
+      },
+      {
         accessorKey: 'fullName',
         header: 'Nama Lengkap',
       },
       {
-        accessorKey: 'nis',
-        header: 'NIS',
+        accessorKey: 'address',
+        header: 'Alamat',
       },
       {
         accessorKey: 'programName',
         header: 'Program',
       },
       {
-        accessorKey: 'roomName',
-        header: 'Asrama',
-        cell: ({ row }) => (
-          <span className={row.original.roomName === 'Belum diatur' ? 'text-muted-foreground' : ''}>
-            {row.original.roomName || 'Belum diatur'}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'assignedRoomName',
-        header: 'Kamar',
+        id: 'asramaKamar',
+        header: 'Asrama (Kamar)',
         cell: ({ row }) => {
+          const roomName = row.original.roomName || 'Belum diatur';
           const assigned = row.original.assignedRoomName;
-          if (assigned) {
-            return (
-              <div
-                onMouseDown={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-                className="inline-block"
-              >
-                <span>{assigned}</span>
-              </div>
-            );
-          }
+          
           return (
-            <div
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-              className="inline-block"
-            >
-              <RoomAssignDialog
-                studentId={row.original.id}
-                triggerLabel="Tentukan Kamar"
-              />
+            <div className="flex flex-col">
+              <span className={roomName === 'Belum diatur' ? 'text-muted-foreground' : 'font-medium'}>
+                {roomName}
+              </span>
+              {assigned ? (
+                <span className="text-xs text-muted-foreground">{assigned}</span>
+              ) : (
+                <div
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-1"
+                >
+                  <RoomAssignDialog
+                    studentId={row.original.id}
+                    triggerLabel="Tentukan Kamar"
+                  />
+                </div>
+              )}
             </div>
           );
         },
       },
       {
-        accessorKey: 'period',
-        header: 'Periode',
-      },
-      {
-        accessorKey: 'gender',
-        header: 'Jenis Kelamin',
+        accessorKey: 'className',
+        header: 'Kelas',
       },
       {
         accessorKey: 'status',
         header: 'Status',
       },
-      {
-        accessorKey: 'created_at',
-        header: 'Dibuat Pada',
-        cell: ({ row }) => {
-          const date = new Date(row.original.created_at);
-          return date.toLocaleString('id-ID');
-        },
-        enableSorting: true,
-      },
-      {
-        accessorKey: 'updated_at',
-        header: 'Terakhir Diperbarui',
-        cell: ({ row }) => {
-          const date = new Date(row.original.updated_at);
-          return date.toLocaleString('id-ID');
-        },
-        enableSorting: true,
-      },
+
       {
         id: 'actions',
         header: 'Aksi',

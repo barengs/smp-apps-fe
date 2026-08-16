@@ -20,6 +20,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download } from
 // import { exportToExcel } from '@/utils/export'; // Removed static import
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { extractNisFromScan } from '@/utils/scanUtils';
 
 // Tambah tipe konfigurasi filter agar mendukung select
 type FilterConfig = {
@@ -136,10 +137,11 @@ export function DataTable<TData, TValue>({
   const globalSearch = searchQuery !== undefined ? searchQuery : internalSearch;
 
   const handleSearchChange = (value: string) => {
+    const extractedValue = extractNisFromScan(value);
     if (onSearchChange) {
-      onSearchChange(value);
+      onSearchChange(extractedValue);
     } else {
-      setInternalSearch(value);
+      setInternalSearch(extractedValue);
     }
   };
 

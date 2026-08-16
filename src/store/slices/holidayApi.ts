@@ -36,6 +36,20 @@ export interface StudentHolidayCheck {
     is_all_met: boolean;
 }
 
+export interface HolidayScanResult {
+    student: {
+        first_name: string;
+        last_name: string;
+        nis: string;
+        photo?: string | null;
+        room?: {
+            name: string;
+        } | null;
+    };
+    total_requirements: number;
+    requirements_met: number;
+}
+
 export const holidayApi = smpApi.injectEndpoints({
     endpoints: (builder) => ({
         getHolidayPeriods: builder.query<{ status: string; data: HolidayPeriod[] }, void>({
@@ -97,7 +111,7 @@ export const holidayApi = smpApi.injectEndpoints({
             }),
             invalidatesTags: (_result, _error, { periodId }) => [{ type: 'HolidayStudent', id: periodId }],
         }),
-        checkoutByNis: builder.mutation<{ status: string; message: string; data: any }, { nis: string }>({
+        checkoutByNis: builder.mutation<{ status: string; message: string; data: HolidayScanResult }, { nis: string }>({
             query: (data) => ({
                 url: 'main/holiday/checkout-nis',
                 method: 'POST',
@@ -105,7 +119,7 @@ export const holidayApi = smpApi.injectEndpoints({
             }),
             invalidatesTags: ['HolidayStudent'],
         }),
-        checkinByNis: builder.mutation<{ status: string; message: string; data: any }, { nis: string }>({
+        checkinByNis: builder.mutation<{ status: string; message: string; data: HolidayScanResult }, { nis: string }>({
             query: (data) => ({
                 url: 'main/holiday/checkin-nis',
                 method: 'POST',

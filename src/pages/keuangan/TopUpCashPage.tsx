@@ -20,6 +20,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { extractNisFromScan } from '@/utils/scanUtils';
 
 const cashTopUpSchema = z.object({
   account_number: z.string().min(1, 'Nomor rekening / NIS wajib diisi'),
@@ -117,7 +118,11 @@ const TopUpCashPage = () => {
                         <FormItem className="flex-1">
                           <FormLabel>Nomor Rekening / NIS</FormLabel>
                           <FormControl>
-                            <Input placeholder="Masukkan NIS Santri" {...field} />
+                            <Input 
+                              placeholder="Masukkan NIS Santri" 
+                              {...field} 
+                              onChange={(e) => field.onChange(extractNisFromScan(e.target.value))}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

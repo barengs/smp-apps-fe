@@ -21,6 +21,7 @@ import {
 import ActionButton from '@/components/ActionButton';
 import SantriViolationTimeline from '@/components/SantriViolationTimeline';
 import SantriEducationTab from '@/components/SantriEducationTab';
+import { TransactionHistoryTable } from '@/components/TransactionHistoryTable';
 import StudentPhotoUploadDialog from '@/components/StudentPhotoUploadDialog';
 import AssignRoomDialog from '@/components/AssignRoomDialog';
 import { useReactToPrint } from 'react-to-print';
@@ -95,8 +96,9 @@ const SantriDetailPage: React.FC = () => {
       await createCard(santriId).unwrap();
       toast.showSuccess('Kartu santri berhasil dibuat.');
       refetchCard();
-    } catch (err: any) {
-      toast.showError(err?.data?.message || 'Gagal membuat kartu santri.')
+    } catch (err) {
+      const error = err as { data?: { message?: string } };
+      toast.showError(error?.data?.message || 'Gagal membuat kartu santri.')
     }
   };
 
@@ -108,8 +110,9 @@ const SantriDetailPage: React.FC = () => {
       await deactivateCard(cardResponse.data.card.id).unwrap();
       toast.showSuccess('Kartu santri berhasil dinonaktifkan.');
       refetchCard();
-    } catch (err: any) {
-      toast.showError(err?.data?.message || 'Gagal menonaktifkan kartu santri.');
+    } catch (err) {
+      const error = err as { data?: { message?: string } };
+      toast.showError(error?.data?.message || 'Gagal menonaktifkan kartu santri.');
     }
   };
 
@@ -131,13 +134,19 @@ const SantriDetailPage: React.FC = () => {
     { label: fullName, icon: <User className="h-4 w-4" /> },
   ];
 
-  const getParentLinks = (parentsData: any): React.ReactNode => {
+  interface ParentData {
+    user_id: string | number;
+    first_name: string;
+    last_name?: string;
+  }
+
+  const getParentLinks = (parentsData: ParentData | ParentData[] | null | undefined): React.ReactNode => {
     if (!parentsData) return 'Tidak ada data orang tua';
     const parentsArray = Array.isArray(parentsData) ? parentsData : [parentsData];
 
     const links = parentsArray
-      .filter((p: any) => p && p.user_id)
-      .map((p: any, index: number) => (
+      .filter((p) => p && p.user_id)
+      .map((p, index: number) => (
         <React.Fragment key={p.user_id}>
           <Link to={`/dashboard/wali-santri/${p.user_id}`} className="text-blue-600 hover:underline">
             {`${p.first_name} ${p.last_name || ''}`.trim()}
@@ -233,12 +242,20 @@ const SantriDetailPage: React.FC = () => {
                   <CardHeader><CardTitle>Informasi Tambahan</CardTitle></CardHeader>
                   <CardContent>
                     <Tabs defaultValue="pendidikan">
-                      <TabsList className="grid w-full grid-cols-2">
+                      <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="pendidikan">Pendidikan</TabsTrigger>
                         <TabsTrigger value="pelanggaran">Pelanggaran</TabsTrigger>
+                        <TabsTrigger value="keuangan">Keuangan</TabsTrigger>
                       </TabsList>
                       <TabsContent value="pendidikan" className="mt-4"><SantriEducationTab studentId={santri.id} /></TabsContent>
                       <TabsContent value="pelanggaran" className="mt-4"><SantriViolationTimeline studentId={santri.id} /></TabsContent>
+                      <TabsContent value="keuangan" className="mt-4">
+                        {santri.nis ? (
+                          <TransactionHistoryTable accountNumber={santri.nis} />
+                        ) : (
+                          <div className="text-center text-muted-foreground p-4">NIS tidak tersedia untuk menampilkan data keuangan.</div>
+                        )}
+                      </TabsContent>
                     </Tabs>
                   </CardContent>
                 </Card>
