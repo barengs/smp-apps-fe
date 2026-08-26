@@ -11,6 +11,7 @@ import {
     useCheckinStudentMutation
 } from '@/store/slices/holidayApi';
 import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
+import { useGetProgramsQuery } from '@/store/slices/programApi';
 import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { format } from 'date-fns';
 import { openHolidayPermitPdf } from '@/components/HolidayPermitPdf';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const LiburSantriPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -28,6 +31,9 @@ const LiburSantriPage: React.FC = () => {
     const settings = settingsResponse?.data;
     const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
     const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
+    
+    const { data: programsResponse } = useGetProgramsQuery({ per_page: 100 });
+    const programs = programsResponse?.data || [];
 
     const selectedPeriod = useMemo(() => {
         if (periods.length === 0) return null;
@@ -40,6 +46,9 @@ const LiburSantriPage: React.FC = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [programId, setProgramId] = useState<string>('all');
+    const [page, setPage] = useState(1);
+    const perPage = 10;
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -48,8 +57,18 @@ const LiburSantriPage: React.FC = () => {
         return () => clearTimeout(handler);
     }, [searchTerm]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch, programId]);
+
     const { data: studentsResponse, isLoading } = useGetHolidayStudentsQuery(
-        { id: selectedPeriod?.id || 0, search: debouncedSearch },
+        { 
+            id: selectedPeriod?.id || 0, 
+            search: debouncedSearch, 
+            program_id: programId === 'all' ? '' : programId, 
+            page, 
+            per_page: perPage 
+        },
         { skip: !selectedPeriod?.id }
     );
 
@@ -87,7 +106,12 @@ const LiburSantriPage: React.FC = () => {
         }
     };
 
-    const filteredStudents = studentsResponse?.data || [];
+    const rawStudents = studentsResponse?.data || [];
+    const isServerPaginated = studentsResponse && studentsResponse.total !== undefined;
+    const totalStudents = isServerPaginated ? studentsResponse.total : rawStudents.length;
+    const lastPage = isServerPaginated ? studentsResponse.last_page : Math.ceil(totalStudents / perPage);
+    const currentPage = isServerPaginated ? studentsResponse.current_page : page;
+    const filteredStudents = isServerPaginated ? rawStudents : rawStudents.slice((page - 1) * perPage, page * perPage);
 
     const breadcrumbItems = [
         { label: 'Manajemen Kamtib', href: '#' },
@@ -146,7 +170,17 @@ const LiburSantriPage: React.FC = () => {
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <Button variant="outline"><Filter className="mr-2 h-4 w-4" /> Filter</Button>
+                                <Select value={programId} onValueChange={setProgramId}>
+                                    <SelectTrigger className="w-[200px] sm:w-[250px]">
+                                        <SelectValue placeholder="Semua Program" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Program</SelectItem>
+                                        {programs.map(p => (
+                                            <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -244,6 +278,35 @@ const LiburSantriPage: React.FC = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {totalStudents > 0 && (
+                                <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-4 border-t gap-4">
+                                    <div className="text-sm text-muted-foreground">
+                                        Menampilkan {((currentPage - 1) * perPage) + 1} - {Math.min(currentPage * perPage, totalStudents)} dari {totalStudents} santri
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </Button>
+                                        <div className="flex items-center justify-center text-sm font-medium px-2">
+                                            Halaman {currentPage} / {lastPage}
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setPage(p => Math.min(lastPage, p + 1))}
+                                            disabled={currentPage === lastPage}
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>

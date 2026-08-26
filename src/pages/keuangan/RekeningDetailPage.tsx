@@ -46,8 +46,8 @@ const RekeningDetailPage: React.FC = () => {
   });
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Keuangan', href: '/dashboard/bank-santri', icon: <Briefcase className="h-4 w-4" /> },
-    { label: 'Rekening', href: '/dashboard/bank-santri/rekening', icon: <Banknote className="h-4 w-4" /> },
+    { label: 'Manajemen Santri', href: '/dashboard/santri', icon: <User className="h-4 w-4" /> },
+    { label: 'Rekening', href: '/dashboard/santri/rekening', icon: <Banknote className="h-4 w-4" /> },
     { label: 'Detail Rekening', icon: <FileText className="h-4 w-4" /> },
   ];
 

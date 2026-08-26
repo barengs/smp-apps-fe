@@ -83,10 +83,17 @@ export const holidayApi = smpApi.injectEndpoints({
             }),
             invalidatesTags: ['HolidayPeriod'],
         }),
-        getHolidayStudents: builder.query<{ status: string; data: StudentHolidayCheck[] }, { id: number | string; search?: string }>({
-            query: ({ id, search }) => ({
+        getHolidayStudents: builder.query<{ 
+            status: string; 
+            data: StudentHolidayCheck[];
+            current_page: number;
+            last_page: number;
+            total: number;
+            per_page: number;
+        }, { id: number | string; search?: string; program_id?: string; page?: number; per_page?: number }>({
+            query: ({ id, search, program_id, page, per_page }) => ({
                 url: `main/holiday/${id}/students`,
-                params: { search },
+                params: { search, program_id, page, per_page },
             }),
             providesTags: (_result, _error, { id }) => [{ type: 'HolidayStudent', id }],
         }),

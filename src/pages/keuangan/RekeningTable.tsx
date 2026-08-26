@@ -3,15 +3,10 @@ import { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'
 import { DataTable } from '@/components/DataTable';
 import { Account } from '@/types/keuangan';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface RekeningTableProps {
   data: Account[];
-  onEdit: (account: Account) => void;
-  onDelete: (account: Account) => void;
   onViewDetails: (account: Account) => void;
   pagination?: PaginationState;
   onPaginationChange?: (updater: PaginationState) => void;
@@ -20,7 +15,7 @@ interface RekeningTableProps {
   onSortingChange?: (updater: SortingState) => void;
 }
 
-export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDelete, onViewDetails, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
+export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onViewDetails, pagination, onPaginationChange, pageCount, sorting, onSortingChange }) => {
   const navigate = useNavigate();
 
   const columns: ColumnDef<Account>[] = [
@@ -77,40 +72,10 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onEdit, onDe
         return <Badge variant={variant} className="capitalize">{row.original.status}</Badge>;
       },
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const account = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onViewDetails(account)}>
-                <Eye className="mr-2 h-4 w-4" />
-                Lihat Detail
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(account)}>
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(account)} className="text-red-600">
-                Hapus
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
   ];
 
   const handleRowClick = (account: Account) => {
-    navigate(`/dashboard/bank-santri/rekening/${account.account_number}`);
+    navigate(`/dashboard/santri/rekening/${account.account_number}`);
   };
 
   return (

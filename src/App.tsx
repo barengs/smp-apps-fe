@@ -102,14 +102,12 @@ import DataSantriPage from '@/pages/wali-santri/DataSantriPage';
 import DataSantriDetailPage from '@/pages/wali-santri/DataSantriDetailPage';
 import RegistrationPage from '@/pages/wali-santri/RegistrationPage';
 import RegistrationHistoryPage from '@/pages/wali-santri/RegistrationHistoryPage';
-import TagihanPage from '@/pages/wali-santri/TagihanPage';
-import TopupPage from '@/pages/wali-santri/TopupPage';
 import { StatistikSantriPage } from '@/pages/kesantrian/laporan/StatistikSantriPage';
 import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pages/kesantrian/laporan/LaporanPelanggaranPage';
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
 import { StatistikPresensiPage } from '@/pages/kesantrian/laporan/StatistikPresensiPage';
-import TransaksiPage from '@/pages/keuangan/TransaksiPage';
-import TransaksiDetailPage from '@/pages/keuangan/TransaksiDetailPage';
+import RekeningPage from '@/pages/keuangan/RekeningPage';
+import RekeningDetailPage from '@/pages/keuangan/RekeningDetailPage';
 import PendidikanDashboard from "@/pages/dashboard/PendidikanDashboard";
 import KamtibDashboard from "@/pages/dashboard/KamtibDashboard";
 import KurikulumDashboard from "@/pages/dashboard/KurikulumDashboard";
@@ -185,6 +183,8 @@ function App() {
               <Route path="/dashboard/santri/:id/agreement" element={<StudentAgreementPage />} />
               <Route path="/dashboard/santri/:id/edit" element={<SantriEditPage />} />
               <Route path="/dashboard/santri/mutasi-asrama" element={<MutasiAsramaPage />} />
+              <Route path="/dashboard/santri/rekening" element={<RekeningPage />} />
+              <Route path="/dashboard/santri/rekening/:accountNumber" element={<RekeningDetailPage />} />
 
               {/* Rute Pendaftaran Santri */}
               <Route path="/dashboard/pendaftaran-santri" element={<CalonSantriPage />} />
@@ -199,10 +199,8 @@ function App() {
               {/* Wali Santri Specific Routes */}
               <Route path="/dashboard/wali-santri/data-santri" element={<DataSantriPage />} />
               <Route path="/dashboard/wali-santri/data-santri/:id" element={<DataSantriDetailPage />} />
-              <Route path="/dashboard/wali-santri/tagihan" element={<TagihanPage />} />
               <Route path="/dashboard/wali-santri/pendaftaran-santri" element={<RegistrationHistoryPage />} />
               <Route path="/dashboard/wali-santri/pendaftaran-santri/baru" element={<RegistrationPage />} />
-              <Route path="/dashboard/wali-santri/transaksi" element={<TopupPage />} />
 
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />
@@ -273,9 +271,7 @@ function App() {
               {/* Manajemen Informasi */}
               <Route path="/dashboard/berita" element={<BeritaPage />} />
 
-              {/* Bank Santri */}
-              <Route path="/dashboard/bank-santri/transaksi" element={<TransaksiPage />} />
-              <Route path="/dashboard/bank-santri/transaksi/:id" element={<TransaksiDetailPage />} />
+
 
               {/* Laporan Pesantren */}
               <Route path="/dashboard/kesantrian/laporan/statistik-santri" element={<StatistikSantriPage />} />
