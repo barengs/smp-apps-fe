@@ -41,10 +41,20 @@ const HolidayVerificationPage: React.FC = () => {
         }
     }, [mode]);
 
-    const handleScan = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleScan(e);
+        }
+    };
+
+    const handleScan = async (e?: React.FormEvent | React.KeyboardEvent) => {
+        if (e) e.preventDefault();
         
-        const extractedNis = extractNisFromScan(nis);
+        // Use ref value directly because fast scanners can trigger Enter before React state batches update
+        const currentInputValue = inputRef.current?.value || nis;
+        const extractedNis = extractNisFromScan(currentInputValue);
+        
         if (!extractedNis || isLoading) return;
 
         setError(null);
@@ -109,7 +119,8 @@ const HolidayVerificationPage: React.FC = () => {
                                         <Input
                                             ref={inputRef}
                                             value={nis}
-                                            onChange={(e) => setNis(extractNisFromScan(e.target.value))}
+                                            onChange={(e) => setNis(e.target.value)}
+                                            onKeyDown={handleKeyDown}
                                             placeholder="Input NIS..."
                                             className="text-lg h-14 pl-4 pr-12 focus:ring-2 focus:ring-primary font-mono tracking-widest"
                                             autoComplete="off"
@@ -124,7 +135,7 @@ const HolidayVerificationPage: React.FC = () => {
                                     <Button 
                                         type="submit" 
                                         className="w-full h-12 text-lg font-semibold"
-                                        disabled={!nis || isLoading}
+                                        disabled={isLoading}
                                     >
                                         Verifikasi
                                     </Button>

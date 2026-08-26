@@ -179,7 +179,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         header: 'Program',
       },
       {
-        id: 'asramaKamar',
+        accessorKey: 'roomName',
         header: 'Asrama (Kamar)',
         cell: ({ row }) => {
           const roomName = row.original.roomName || 'Belum diatur';
@@ -250,7 +250,7 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         },
       },
     ],
-    [navigate]
+    [navigate, canEdit]
   );
 
   if (isLoading || isFetching) return <TableLoadingSkeleton numCols={8} />;
