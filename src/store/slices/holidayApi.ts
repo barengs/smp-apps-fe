@@ -90,10 +90,10 @@ export const holidayApi = smpApi.injectEndpoints({
             last_page: number;
             total: number;
             per_page: number;
-        }, { id: number | string; search?: string; program_id?: string; page?: number; per_page?: number }>({
-            query: ({ id, search, program_id, page, per_page }) => ({
+        }, { id: number | string; search?: string; program_id?: string; room_id?: string; page?: number; per_page?: number }>({
+            query: ({ id, search, program_id, room_id, page, per_page }) => ({
                 url: `main/holiday/${id}/students`,
-                params: { search, program_id, page, per_page },
+                params: { search, program_id, room_id, page, per_page },
             }),
             providesTags: (_result, _error, { id }) => [{ type: 'HolidayStudent', id }],
         }),

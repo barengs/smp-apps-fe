@@ -12,6 +12,7 @@ import {
 } from '@/store/slices/holidayApi';
 import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
 import { useGetProgramsQuery } from '@/store/slices/programApi';
+import { useGetRoomsQuery } from '@/store/slices/roomApi';
 import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +36,9 @@ const LiburSantriPage: React.FC = () => {
     const { data: programsResponse } = useGetProgramsQuery({ per_page: 100 });
     const programs = programsResponse?.data || [];
 
+    const { data: roomsResponse } = useGetRoomsQuery({ per_page: 100 });
+    const rooms = roomsResponse?.data || [];
+
     const selectedPeriod = useMemo(() => {
         if (periods.length === 0) return null;
         if (id) {
@@ -47,6 +51,7 @@ const LiburSantriPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [programId, setProgramId] = useState<string>('all');
+    const [roomId, setRoomId] = useState<string>('all');
     const [page, setPage] = useState(1);
     const perPage = 10;
 
@@ -59,13 +64,14 @@ const LiburSantriPage: React.FC = () => {
 
     useEffect(() => {
         setPage(1);
-    }, [debouncedSearch, programId]);
+    }, [debouncedSearch, programId, roomId]);
 
     const { data: studentsResponse, isLoading } = useGetHolidayStudentsQuery(
         { 
             id: selectedPeriod?.id || 0, 
             search: debouncedSearch, 
-            program_id: programId === 'all' ? '' : programId, 
+            program_id: programId === 'all' ? '' : programId,
+            room_id: roomId === 'all' ? '' : roomId,
             page, 
             per_page: perPage 
         },
@@ -178,6 +184,17 @@ const LiburSantriPage: React.FC = () => {
                                         <SelectItem value="all">Semua Program</SelectItem>
                                         {programs.map(p => (
                                             <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Select value={roomId} onValueChange={setRoomId}>
+                                    <SelectTrigger className="w-[200px] sm:w-[250px]">
+                                        <SelectValue placeholder="Semua Asrama" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Asrama</SelectItem>
+                                        {rooms.map(r => (
+                                            <SelectItem key={r.id} value={r.id.toString()}>{r.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
