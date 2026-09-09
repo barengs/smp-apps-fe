@@ -26,6 +26,8 @@ import LeaveStatusUpdateDialog from '@/components/LeaveStatusUpdateDialog';
 import { useGetStudentLeaveStatisticsQuery } from '@/store/slices/studentLeaveApi';
 import LeaveStatsCard from '@/components/LeaveStatsCard';
 import { useGetStudentCardSettingsQuery } from '@/store/slices/studentCardApi';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/slices/authSlice';
 
 const IssuePermissionDialog: React.FC<{
   open: boolean;
@@ -42,9 +44,13 @@ const IssuePermissionDialog: React.FC<{
   const [leaveTypeId, setLeaveTypeId] = React.useState<string>('');
   const [academicYearId, setAcademicYearId] = React.useState<string>('');
   const [startDate, setStartDate] = React.useState('');
+  const [startTime, setStartTime] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
+  const [endTime, setEndTime] = React.useState('');
   const [reason, setReason] = React.useState('');
-  const [destination, setDestination] = React.useState('');
+  const [kelasDiniyah, setKelasDiniyah] = React.useState('');
+  const [kelasMiq, setKelasMiq] = React.useState('');
+  const [kelasAmmiyah, setKelasAmmiyah] = React.useState('');
   const [contactPerson, setContactPerson] = React.useState('');
   const [contactPhone, setContactPhone] = React.useState('');
   const [notes, setNotes] = React.useState('');
@@ -58,9 +64,13 @@ const IssuePermissionDialog: React.FC<{
     setLeaveTypeId('');
     setAcademicYearId('');
     setStartDate('');
+    setStartTime('');
     setEndDate('');
+    setEndTime('');
     setReason('');
-    setDestination('');
+    setKelasDiniyah('');
+    setKelasMiq('');
+    setKelasAmmiyah('');
     setContactPerson('');
     setContactPhone('');
     setNotes('');
@@ -75,17 +85,29 @@ const IssuePermissionDialog: React.FC<{
       return;
     }
 
+    const startIso = new Date(`${startDate}T${startTime || '00:00'}:00+07:00`).toISOString();
+    const endIso = new Date(`${endDate}T${endTime || '00:00'}:00+07:00`).toISOString();
+
+    const notesObj = {
+      kelasDiniyah,
+      kelasMiq,
+      kelasAmmiyah,
+      startTime,
+      endTime,
+      notes,
+    };
+
     const payload = {
       student_id: Number(studentId),
       leave_type_id: Number(leaveTypeId),
       academic_year_id: Number(academicYearId),
-      start_date: new Date(`${startDate}T00:00:00Z`).toISOString(),
-      end_date: new Date(`${endDate}T00:00:00Z`).toISOString(),
+      start_date: startIso,
+      end_date: endIso,
       reason,
-      destination,
+      destination: '',
       contact_person: contactPerson,
       contact_phone: contactPhone,
-      notes,
+      notes: JSON.stringify(notesObj),
     };
 
     // KIRIM KE BACKEND
@@ -108,17 +130,29 @@ const IssuePermissionDialog: React.FC<{
       return;
     }
 
+    const startIso = new Date(`${startDate}T${startTime || '00:00'}:00+07:00`).toISOString();
+    const endIso = new Date(`${endDate}T${endTime || '00:00'}:00+07:00`).toISOString();
+
+    const notesObj = {
+      kelasDiniyah,
+      kelasMiq,
+      kelasAmmiyah,
+      startTime,
+      endTime,
+      notes,
+    };
+
     const payload = {
       student_id: Number(studentId),
       leave_type_id: Number(leaveTypeId),
       academic_year_id: Number(academicYearId),
-      start_date: new Date(`${startDate}T00:00:00Z`).toISOString(),
-      end_date: new Date(`${endDate}T00:00:00Z`).toISOString(),
+      start_date: startIso,
+      end_date: endIso,
       reason,
-      destination,
+      destination: '',
       contact_person: contactPerson,
       contact_phone: contactPhone,
-      notes,
+      notes: JSON.stringify(notesObj),
     };
 
     // KIRIM KE BACKEND, lalu print
@@ -192,30 +226,47 @@ const IssuePermissionDialog: React.FC<{
 
           <div>
             <label className="block text-sm mb-1">{t('permission.form.startDate')}</label>
-            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            <div className="flex gap-2">
+              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-2/3" />
+              <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-1/3" />
+            </div>
           </div>
 
           <div>
             <label className="block text-sm mb-1">Tanggal Selesai</label>
-            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            <div className="flex gap-2">
+              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-2/3" />
+              <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-1/3" />
+            </div>
           </div>
 
-          <div className="md:col-span-2">
-            <label className="block text-sm mb-1">{t('permission.form.destination')}</label>
-            <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder={t('permission.form.destinationPlaceholder')} />
+          <div>
+            <label className="block text-sm mb-1">Kelas Pend. Diniyah</label>
+            <Input value={kelasDiniyah} onChange={(e) => setKelasDiniyah(e.target.value)} placeholder="Contoh: 1 Ula" />
           </div>
 
-          <div className="md:col-span-2">
-            <label className="block text-sm mb-1">Alasan</label>
+          <div>
+            <label className="block text-sm mb-1">Kelas MIQ</label>
+            <Input value={kelasMiq} onChange={(e) => setKelasMiq(e.target.value)} placeholder="Contoh: Jilid 4" />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Kelas Pend. 'Ammiyah</label>
+            <Input value={kelasAmmiyah} onChange={(e) => setKelasAmmiyah(e.target.value)} placeholder="Contoh: VII SMP" />
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Alasan Izin</label>
             <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Contoh: Mengunjungi keluarga" />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Kontak</label>
-            <Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} placeholder="Nama kontak" />
+            <label className="block text-sm mb-1">Penjemput</label>
+            <Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} placeholder="Nama penjemput" />
           </div>
+          
           <div>
-            <label className="block text-sm mb-1">Nomor Kontak</label>
+            <label className="block text-sm mb-1">No. HP</label>
             <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="Contoh: 08123456789" />
           </div>
 
@@ -246,6 +297,7 @@ const ReturnReportDialog: React.FC<{
   onSubmitted?: () => void;
 }> = ({ open, onOpenChange, leaves, onSubmitted }) => {
   const { t } = useTranslation();
+  const currentUser = useSelector(selectCurrentUser);
   const openLeaves = leaves.filter((l) => !l.actual_return_date);
 
   const [selectedLeaveId, setSelectedLeaveId] = React.useState<string>('');
@@ -255,6 +307,24 @@ const ReturnReportDialog: React.FC<{
   const [reportNotes, setReportNotes] = React.useState('');
   const [condition, setCondition] = React.useState<'sehat' | 'sakit' | 'lainnya'>('sehat');
   const [reportedTo, setReportedTo] = React.useState<string>(''); // id petugas
+
+  React.useEffect(() => {
+    if (open) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      setReportDate(`${year}-${month}-${day}`);
+      
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setReportTime(`${hours}:${minutes}`);
+
+      if (currentUser?.id) {
+        setReportedTo(String(currentUser.id));
+      }
+    }
+  }, [open, currentUser]);
 
   // UPDATED: gunakan hook langsung dari import
   const [submitReport, { isLoading: isSubmitting }] = useSubmitStudentLeaveReportMutation();
@@ -326,24 +396,16 @@ const ReturnReportDialog: React.FC<{
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-sm mb-1">{t('permission.form.permitId')}</label>
-            <Select value={selectedLeaveId} onValueChange={setSelectedLeaveId}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t('permission.form.permitIdPlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {openLeaves.length === 0 ? (
-                  <SelectItem value="__none__" disabled>
-                    Tidak ada perizinan aktif
-                  </SelectItem>
-                ) : (
-                  openLeaves.map((l) => (
-                    <SelectItem key={l.id} value={String(l.id)}>
-                      {l.student.nis} — {l.student.name} — {l.leave_type?.name} — {l.start_date}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={openLeaves.map((l) => ({
+                value: String(l.id),
+                label: `${l.id} — ${l.student.nis} — ${l.student.name} — ${l.leave_type?.name} — ${l.start_date.split('T')[0]}`,
+              }))}
+              value={selectedLeaveId}
+              onChange={(val) => setSelectedLeaveId(String(val))}
+              placeholder={t('permission.form.permitIdPlaceholder')}
+              allowCustomValue={true}
+            />
           </div>
 
           <div>

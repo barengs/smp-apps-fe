@@ -20,6 +20,7 @@ export const teacherApi = smpApi.injectEndpoints({
           if (params.page) queryParams.append('page', params.page.toString());
           if (params.per_page) queryParams.append('per_page', params.per_page.toString());
           if (params.search) queryParams.append('search', params.search);
+          if (params.is_headmaster !== undefined) queryParams.append('is_headmaster', params.is_headmaster ? '1' : '0');
         }
         const queryString = queryParams.toString();
         return `main/staff${queryString ? `?${queryString}` : ''}`;

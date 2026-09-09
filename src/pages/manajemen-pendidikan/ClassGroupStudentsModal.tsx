@@ -40,7 +40,10 @@ const ClassGroupStudentsModal: React.FC<ClassGroupStudentsModalProps> = ({
     {
       accessorKey: 'gender',
       header: 'Jenis Kelamin',
-      cell: ({ row }) => (row.original.gender === 'L' ? 'Laki-laki' : 'Perempuan'),
+      cell: ({ row }) => {
+        const g = row.original?.gender;
+        return g === 'L' ? 'Laki-laki' : (g === 'P' ? 'Perempuan' : '-');
+      },
     },
   ];
 

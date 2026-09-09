@@ -15,6 +15,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -54,8 +63,11 @@ import {
   RefreshCw,
   Download,
   AlertTriangle,
+  Camera,
 } from 'lucide-react';
 import * as toast from '@/utils/toast';
+import WebcamCapture from '@/components/WebcamCapture';
+import { dataURLtoFile } from '@/lib/utils';
 
 const BoyongPage: React.FC = () => {
   const { t } = useTranslation();
@@ -65,7 +77,13 @@ const BoyongPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [perPage, setPerPage] = useState('10');
   const [page, setPage] = useState(1);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, typeFilter, perPage]);
 
   // Queries
   const { data: studentsResponse } = useGetStudentsQuery({ page: 1, per_page: 10000 });
@@ -75,11 +93,13 @@ const BoyongPage: React.FC = () => {
     refetch: refetchResignations,
   } = useGetStudentResignationsQuery({
     page,
-    per_page: 25,
+    per_page: parseInt(perPage, 10),
     search: search || undefined,
     status: statusFilter === 'all' ? undefined : statusFilter,
     submission_type: typeFilter === 'all' ? undefined : typeFilter,
   });
+
+  const summary = resignationsResponse?.data?.summary;
 
   const { data: settingsResponse } = useGetStudentCardSettingsQuery();
   const cardSettings = settingsResponse?.data;
@@ -96,6 +116,7 @@ const BoyongPage: React.FC = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedResignationId, setSelectedResignationId] = useState<number | null>(null);
+  const [isWebcamOpen, setIsWebcamOpen] = useState(false);
 
   // Form States
   const [formStudentId, setFormStudentId] = useState('');
@@ -175,17 +196,15 @@ const BoyongPage: React.FC = () => {
       toast.showError('Silakan pilih santri terlebih dahulu.');
       return;
     }
-    if (!formFile) {
-      toast.showError('Silakan unggah dokumen persyaratan.');
-      return;
-    }
 
     try {
       const formData = new FormData();
       formData.append('student_id', formStudentId);
       formData.append('submission_type', formType);
       formData.append('note', formNote);
-      formData.append('attachment', formFile);
+      if (formFile) {
+        formData.append('attachment', formFile);
+      }
 
       await createResignation(formData).unwrap();
       toast.showSuccess('Pengajuan keluar santri berhasil dibuat');
@@ -269,7 +288,7 @@ const BoyongPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               <div className="text-3xl font-extrabold">
-                {resignationsResponse?.data?.data?.filter((r) => r.status === 'pending').length ?? 0}
+                {summary?.pending ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -279,7 +298,7 @@ const BoyongPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               <div className="text-3xl font-extrabold">
-                {resignationsResponse?.data?.data?.filter((r) => r.status === 'proses').length ?? 0}
+                {summary?.proses ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -289,7 +308,7 @@ const BoyongPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               <div className="text-3xl font-extrabold">
-                {resignationsResponse?.data?.data?.filter((r) => r.status === 'disetujui').length ?? 0}
+                {summary?.disetujui ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -299,7 +318,7 @@ const BoyongPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-4 pt-2">
               <div className="text-3xl font-extrabold">
-                {resignationsResponse?.data?.data?.filter((r) => r.status === 'ditolak').length ?? 0}
+                {summary?.ditolak ?? 0}
               </div>
             </CardContent>
           </Card>
@@ -349,6 +368,19 @@ const BoyongPage: React.FC = () => {
                     <SelectItem value="all">Semua Posisi</SelectItem>
                     <SelectItem value="biasa">Santri Biasa (Belum Tugas)</SelectItem>
                     <SelectItem value="pasca_tugas">Santri Pasca Tugas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-full md:w-32">
+                <Select value={perPage} onValueChange={setPerPage}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Data per Halaman" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 / Hal</SelectItem>
+                    <SelectItem value="25">25 / Hal</SelectItem>
+                    <SelectItem value="50">50 / Hal</SelectItem>
+                    <SelectItem value="100">100 / Hal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -413,6 +445,76 @@ const BoyongPage: React.FC = () => {
                 </TableBody>
               </Table>
             </div>
+
+            {/* Pagination Controls */}
+            {resignationsResponse?.data?.last_page && resignationsResponse.data.last_page > 1 && (
+              <div className="mt-4 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        href="#" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (page > 1) setPage(page - 1);
+                        }}
+                        className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+                    
+                    {[...Array(resignationsResponse.data.last_page)].map((_, i) => {
+                      const pageNum = i + 1;
+                      // Show first, last, current, and adjacent pages
+                      if (
+                        pageNum === 1 || 
+                        pageNum === resignationsResponse.data.last_page || 
+                        (pageNum >= page - 1 && pageNum <= page + 1)
+                      ) {
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink 
+                              href="#"
+                              isActive={page === pageNum}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setPage(pageNum);
+                              }}
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      }
+                      
+                      // Show ellipsis for gaps
+                      if (
+                        pageNum === page - 2 || 
+                        pageNum === page + 2
+                      ) {
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        );
+                      }
+                      
+                      return null;
+                    })}
+
+                    <PaginationItem>
+                      <PaginationNext 
+                        href="#" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (page < resignationsResponse.data.last_page) setPage(page + 1);
+                        }}
+                        className={page >= resignationsResponse.data.last_page ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -430,7 +532,7 @@ const BoyongPage: React.FC = () => {
               <Combobox
                 options={studentsList}
                 value={formStudentId}
-                onChange={setFormStudentId}
+                onChange={(val) => setFormStudentId(String(val))}
                 placeholder="Cari santri berdasarkan NIS atau Nama..."
               />
             </div>
@@ -450,12 +552,21 @@ const BoyongPage: React.FC = () => {
 
             <div className="space-y-2">
               <div className="text-sm font-semibold mb-1">Unggah Lampiran (PDF / Gambar maks 2MB)</div>
-              <Input
-                type="file"
-                accept="application/pdf,image/*"
-                onChange={(e) => setFormFile(e.target.files?.[0] ?? null)}
-                required
-              />
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept="application/pdf,image/*"
+                  onChange={(e) => setFormFile(e.target.files?.[0] ?? null)}
+                />
+                <Button type="button" variant="outline" onClick={() => setIsWebcamOpen(true)}>
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
+              {formFile && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  File terpilih: {formFile.name}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -824,6 +935,15 @@ const BoyongPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <WebcamCapture
+        open={isWebcamOpen}
+        onOpenChange={setIsWebcamOpen}
+        onCapture={(imageSrc) => {
+          const file = dataURLtoFile(imageSrc, 'scan-dokumen.jpg');
+          setFormFile(file);
+        }}
+      />
     </DashboardLayout>
   );
 };

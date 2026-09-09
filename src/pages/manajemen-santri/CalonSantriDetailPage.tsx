@@ -6,8 +6,13 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/slices/authSlice';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useGetCalonSantriByIdQuery } from '@/store/slices/calonSantriApi'; // Import new mutation
-import { User, Pencil, ArrowLeft, Printer, Download } from 'lucide-react';
+import { 
+  useGetCalonSantriByIdQuery, 
+  useProcessRegistrationPaymentMutation, 
+  useGetProdukBankQuery, 
+  useGetTransactionTypesQuery 
+} from '@/store/slices/calonSantriApi';
+import { User, Pencil, ArrowLeft, Printer, Download, DollarSign } from 'lucide-react';
 import TableLoadingSkeleton from '@/components/TableLoadingSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -79,6 +84,14 @@ const CalonSantriDetailPage: React.FC = () => {
   }, [calonSantri?.registration_number]);
 
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [isPaymentProcessDialogOpen, setIsPaymentProcessDialogOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [selectedTransactionTypeId, setSelectedTransactionTypeId] = useState<string>('');
+  const [cardNumber, setCardNumber] = useState<string>('');
+
+  const [processPayment, { isLoading: isProcessingPayment }] = useProcessRegistrationPaymentMutation();
+  const { data: produkBankData, isLoading: isLoadingProdukBank } = useGetProdukBankQuery();
+  const { data: transactionTypesData, isLoading: isLoadingTransactionTypes } = useGetTransactionTypesQuery();
 
   const { data: programsResp } = useGetProgramsQuery({});
   const { data: educationLevels } = useGetEducationLevelsQuery({});
@@ -94,6 +107,80 @@ const CalonSantriDetailPage: React.FC = () => {
     (educationLevels ?? []).forEach((level) => map.set(level.id, level.name));
     return map;
   }, [educationLevels]);
+
+  // Auto-select product and transaction type when dialog opens
+  React.useEffect(() => {
+    if (isPaymentProcessDialogOpen && calonSantri) {
+      // Auto-select Product based on Program
+      const products = Array.isArray(produkBankData) ? produkBankData : [];
+      if (products.length > 0) {
+        const programName = programMap.get(Number(calonSantri.program_id))?.toLowerCase();
+        const matchingProduct = products.find((p: any) => 
+          p.product_name?.toLowerCase().includes(programName || '')
+        );
+        if (matchingProduct) {
+          setSelectedProductId(String(matchingProduct.id));
+        } else {
+          setSelectedProductId(String(products[0].id));
+        }
+      }
+
+      // Auto-select Transaction Type (REG-FEE / Biaya Pendaftaran)
+      const types = Array.isArray(transactionTypesData) ? transactionTypesData : [];
+      if (types.length > 0) {
+        const regFeeType = types.find((t: any) => 
+          t.code === 'REG-FEE' || t.name?.toLowerCase().includes('pendaftaran')
+        );
+        if (regFeeType) {
+          setSelectedTransactionTypeId(String(regFeeType.id));
+        } else {
+          setSelectedTransactionTypeId(String(types[0].id));
+        }
+      }
+    }
+  }, [isPaymentProcessDialogOpen, calonSantri, produkBankData, transactionTypesData, programMap]);
+
+  const handleProcessPayment = () => {
+    setIsPaymentProcessDialogOpen(true);
+  };
+
+  const handleContinuePaymentProcess = async () => {
+    if (!calonSantri || !selectedProductId || !selectedTransactionTypeId || selectedProductId === '' || selectedTransactionTypeId === '') {
+      toast.showError('Harap pilih Produk Tabungan dan Jenis Transaksi.');
+      return;
+    }
+
+    // Get current Hijri year
+    const today = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { year: 'numeric' });
+    let hijriYear = 0;
+    const parts = formatter.formatToParts(today);
+    for (const part of parts) {
+      if (part.type === 'year') {
+        hijriYear = parseInt(part.value);
+        break;
+      }
+    }
+
+    try {
+      await processPayment({
+        registration_id: calonSantri.id,
+        product_id: Number(selectedProductId),
+        hijri_year: hijriYear,
+        amount: 0,
+        transaction_type_id: Number(selectedTransactionTypeId),
+        channel: 'TELLER',
+        registration_number: calonSantri.registration_number,
+        card_number: cardNumber,
+      }).unwrap();
+      toast.showSuccess('Proses pembayaran registrasi berhasil!');
+      setIsPaymentProcessDialogOpen(false);
+    } catch (err: any) {
+      console.error('Gagal memproses pembayaran:', err);
+      const apiError = err?.data?.error || err?.data?.message || 'Gagal memproses pembayaran registrasi.';
+      toast.showError(apiError);
+    }
+  };
 
 
 
@@ -193,6 +280,20 @@ const CalonSantriDetailPage: React.FC = () => {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Cetak Formulir</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={handleProcessPayment} 
+                      size="icon" 
+                      disabled={isProcessingPayment || calonSantri.payment_status === 'paid' || Number(calonSantri.payment_amount) > 0}
+                    >
+                      <DollarSign className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Proses Pembayaran</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -364,6 +465,87 @@ const CalonSantriDetailPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog Proses Pembayaran */}
+      <Dialog open={isPaymentProcessDialogOpen} onOpenChange={setIsPaymentProcessDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-12 w-12 text-yellow-500" />
+              Proses Pembayaran
+            </DialogTitle>
+            <DialogDescription>
+              Pilih produk tabungan dan jenis transaksi untuk membuat akun santri dan memproses pembayaran.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="produk-tabungan" className="text-right text-sm">
+                Produk Tabungan
+              </label>
+              <Select
+                value={selectedProductId}
+                onValueChange={setSelectedProductId}
+                disabled={isLoadingProdukBank || isProcessingPayment}
+              >
+                <SelectTrigger id="produk-tabungan" className="col-span-3">
+                  <SelectValue placeholder={isLoadingProdukBank ? "Memuat produk..." : "Pilih produk tabungan"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Array.isArray(produkBankData) ? produkBankData : []).map((produk: any) => (
+                    <SelectItem key={produk.id} title={produk.product_name} value={String(produk.id)}>
+                      {produk.product_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="jenis-transaksi" className="text-right text-sm">
+                Jenis Transaksi
+              </label>
+              <Select
+                value={selectedTransactionTypeId}
+                onValueChange={setSelectedTransactionTypeId}
+                disabled={isLoadingTransactionTypes || isProcessingPayment}
+              >
+                <SelectTrigger id="jenis-transaksi" className="col-span-3">
+                  <SelectValue placeholder={isLoadingTransactionTypes ? "Memuat jenis transaksi..." : "Pilih jenis transaksi"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Array.isArray(transactionTypesData) ? transactionTypesData : []).map((type: any) => (
+                    <SelectItem key={type.id} title={type.name} value={String(type.id)}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="card-number" className="text-right text-sm">
+                Nomor Kartu (Opsional)
+              </label>
+              <Input
+                id="card-number"
+                placeholder="Masukkan nomor kartu ATM santri"
+                className="col-span-3 font-mono"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                disabled={isProcessingPayment}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={isProcessingPayment}>
+                Batal
+              </Button>
+            </DialogClose>
+            <Button type="button" onClick={handleContinuePaymentProcess} disabled={isProcessingPayment || !selectedProductId || !selectedTransactionTypeId}>
+              {isProcessingPayment ? 'Memproses...' : 'Lanjutkan'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

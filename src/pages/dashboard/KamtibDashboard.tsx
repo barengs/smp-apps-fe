@@ -262,6 +262,76 @@ const KamtibDashboard: React.FC = () => {
         </Card>
       </div>
       
+      {holiday && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Kepulangan Berdasarkan Program</CardTitle>
+              <CardDescription>Rincian status kepulangan per program pendidikan</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Program</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="text-right">Pulang</TableHead>
+                      <TableHead className="text-right text-green-600">Kembali</TableHead>
+                      <TableHead className="text-right text-red-500">Belum</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {holiday.by_program?.map((item) => (
+                      <TableRow key={item.name}>
+                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell className="text-right">{item.total}</TableCell>
+                        <TableCell className="text-right">{item.checkout_count}</TableCell>
+                        <TableCell className="text-right text-green-600 font-medium">{item.checkin_count}</TableCell>
+                        <TableCell className="text-right text-red-500 font-medium">{item.not_returned_count}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Kepulangan Berdasarkan Asrama</CardTitle>
+              <CardDescription>Rincian status kepulangan per asrama/kamar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Asrama</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="text-right">Pulang</TableHead>
+                      <TableHead className="text-right text-green-600">Kembali</TableHead>
+                      <TableHead className="text-right text-red-500">Belum</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {holiday.by_asrama?.map((item) => (
+                      <TableRow key={item.name}>
+                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell className="text-right">{item.total}</TableCell>
+                        <TableCell className="text-right">{item.checkout_count}</TableCell>
+                        <TableCell className="text-right text-green-600 font-medium">{item.checkin_count}</TableCell>
+                        <TableCell className="text-right text-red-500 font-medium">{item.not_returned_count}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
       <HolidayStudentsModal 
         isOpen={modalStatus !== null} 
         onClose={() => setModalStatus(null)} 

@@ -24,6 +24,14 @@ interface GetStudentStatisticsByPeriodResponse {
   data: StudentStatistic[];
 }
 
+export interface KamtibGroupStat {
+  name: string;
+  total: number;
+  checkout_count: number;
+  checkin_count: number;
+  not_returned_count: number;
+}
+
 export interface KamtibHolidayStats {
   title: string;
   start_date: string;
@@ -32,6 +40,8 @@ export interface KamtibHolidayStats {
   checkout_count: number;
   checkin_count: number;
   not_returned_count: number;
+  by_program: KamtibGroupStat[];
+  by_asrama: KamtibGroupStat[];
 }
 
 export interface KamtibTrend {

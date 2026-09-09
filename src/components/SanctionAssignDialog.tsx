@@ -12,14 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/datepicker";
+import MultiSelect from "@/components/MultiSelect";
 import { useGetSanctionsQuery } from "@/store/slices/sanctionApi";
 import { useAssignSanctionToViolationMutation } from "@/store/slices/studentViolationApi";
 import * as toast from "@/utils/toast";
@@ -39,14 +33,14 @@ const SanctionAssignDialog: React.FC<SanctionAssignDialogProps> = ({
   const { data: sanctions = [] } = useGetSanctionsQuery();
   const [assignSanction, { isLoading }] = useAssignSanctionToViolationMutation();
 
-  const [sanctionId, setSanctionId] = React.useState<number | null>(null);
+  const [selectedSanctions, setSelectedSanctions] = React.useState<number[]>([]);
   const [startDate, setStartDate] = React.useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = React.useState<Date | undefined>(undefined);
   const [notes, setNotes] = React.useState<string>("");
 
   const handleSubmit = async () => {
-    if (!sanctionId) {
-      toast.showError("Pilih sanksi terlebih dahulu.");
+    if (selectedSanctions.length === 0) {
+      toast.showError("Pilih minimal satu sanksi.");
       return;
     }
     if (!startDate || !endDate) {
@@ -63,7 +57,7 @@ const SanctionAssignDialog: React.FC<SanctionAssignDialogProps> = ({
       await assignSanction({
         id: violationId,
         data: {
-          sanction_id: sanctionId,
+          sanction_ids: selectedSanctions,
           start_date: startDate.toISOString(),
           end_date: endDate.toISOString(),
           notes,
@@ -77,7 +71,7 @@ const SanctionAssignDialog: React.FC<SanctionAssignDialogProps> = ({
   };
 
   const resetForm = () => {
-    setSanctionId(null);
+    setSelectedSanctions([]);
     setStartDate(undefined);
     setEndDate(undefined);
     setNotes("");
@@ -94,20 +88,12 @@ const SanctionAssignDialog: React.FC<SanctionAssignDialogProps> = ({
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label>Sanksi</Label>
-            <Select
-              onValueChange={(v) => setSanctionId(Number(v))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih sanksi" />
-              </SelectTrigger>
-              <SelectContent>
-                {sanctions.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MultiSelect
+              options={sanctions.map((s) => ({ value: String(s.id), label: s.name }))}
+              selected={selectedSanctions.map(String)}
+              onChange={(vals) => setSelectedSanctions(vals.map(Number))}
+              placeholder="Pilih satu atau lebih sanksi"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

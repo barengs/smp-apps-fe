@@ -95,7 +95,8 @@ export interface StudentViolationStatistics {
 
 // NEW: Payload untuk assign sanksi
 export interface AssignSanctionRequest {
-  sanction_id: number;
+  sanction_id?: number;
+  sanction_ids?: number[];
   start_date: string;
   end_date: string;
   notes?: string;

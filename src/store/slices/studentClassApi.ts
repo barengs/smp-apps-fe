@@ -153,9 +153,17 @@ export const studentClassApi = smpApi.injectEndpoints({
     getClassGroupStudents: builder.query<Student[], number>({
       query: (classGroupId) => `main/student-class/class-group/${classGroupId}/students`,
       transformResponse: (response: any): Student[] => {
-        if (Array.isArray(response?.data)) return response.data as Student[];
-        if (Array.isArray(response)) return response as Student[];
-        return [];
+        let items: any[] = [];
+        if (Array.isArray(response?.data)) items = response.data;
+        else if (Array.isArray(response)) items = response;
+        
+        return items.map((item: any) => {
+          // Un-wrap if the backend returns { id, student: {...}, class_group: {...} }
+          if (item.student) {
+            return item.student;
+          }
+          return item;
+        }) as Student[];
       },
       providesTags: (result) =>
         result && Array.isArray(result)

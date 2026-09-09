@@ -57,6 +57,12 @@ export interface ResignationListResponse {
     last_page: number;
     per_page: number;
     total: number;
+    summary?: {
+      pending: number;
+      proses: number;
+      disetujui: number;
+      ditolak: number;
+    };
   };
 }
 

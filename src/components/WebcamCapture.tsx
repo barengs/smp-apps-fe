@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import Webcam from 'react-webcam';
 import {
   Dialog,
@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Camera } from 'lucide-react';
+import { Camera, RefreshCw } from 'lucide-react';
 
 interface WebcamCaptureProps {
   open: boolean;
@@ -17,14 +17,9 @@ interface WebcamCaptureProps {
   onCapture: (imageSrc: string) => void;
 }
 
-const videoConstraints = {
-  width: 540,
-  height: 360,
-  facingMode: 'user',
-};
-
 const WebcamCapture: React.FC<WebcamCaptureProps> = ({ open, onOpenChange, onCapture }) => {
   const webcamRef = useRef<Webcam>(null);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
@@ -34,25 +29,41 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ open, onOpenChange, onCap
     }
   }, [webcamRef, onCapture, onOpenChange]);
 
+  const toggleCamera = () => {
+    setFacingMode((prevMode) => (prevMode === 'user' ? 'environment' : 'user'));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Ambil Foto via Kamera</DialogTitle>
           <DialogDescription>
-            Posisikan wajah Anda di dalam bingkai dan klik tombol "Ambil Foto".
+            Posisikan dokumen di dalam bingkai dan klik tombol "Ambil Foto".
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col items-center gap-4 py-4">
+        <div className="flex flex-col items-center gap-4 py-4 relative">
           <Webcam
             audio={false}
             ref={webcamRef}
             screenshotFormat="image/jpeg"
-            videoConstraints={videoConstraints}
-            className="rounded-md border"
+            videoConstraints={{
+              width: 1280,
+              height: 720,
+              facingMode: facingMode,
+            }}
+            className="rounded-md border w-full max-h-[60vh] object-cover"
           />
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-6 right-6 rounded-full shadow-md"
+            onClick={toggleCamera}
+          >
+            <RefreshCw className="h-5 w-5" />
+          </Button>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex justify-between w-full sm:justify-between">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Batal
           </Button>

@@ -271,6 +271,7 @@ const LaporanPelanggaranPage: React.FC = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         initialData={editingData}
+        students={students}
         onSuccess={() => {
           // RTK Query invalidation akan otomatis refresh tabel
         }}

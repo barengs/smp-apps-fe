@@ -8,7 +8,7 @@ import { DatePicker } from '@/components/ui/datepicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ActionButton from '@/components/ActionButton';
 import { Combobox } from '@/components/ui/combobox';
-import { useGetStudentsQuery } from '@/store/slices/studentApi';
+import { useGetStudentsQuery, Student } from '@/store/slices/studentApi';
 import { useGetViolationsQuery } from '@/store/slices/violationApi';
 import { useGetTahunAjaranQuery, useGetActiveTahunAjaranQuery } from '@/store/slices/tahunAjaranApi';
 import { useCreateStudentViolationReportMutation, useUpdateStudentViolationMutation, StudentViolation } from '@/store/slices/studentViolationApi';
@@ -23,9 +23,25 @@ interface StudentViolationFormDialogProps {
   onOpenChange: (open: boolean) => void;
   initialData?: StudentViolation | null;
   onSuccess?: () => void;
+  students?: Student[];
 }
 
-const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({ open, onOpenChange, initialData, onSuccess }) => {
+function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
+const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({ 
+  open, 
+  onOpenChange, 
+  initialData, 
+  onSuccess,
+  students: propStudents,
+}) => {
   const isEdit = !!initialData?.id;
   const currentUser = useSelector(selectCurrentUser);
 
@@ -37,8 +53,26 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
   const [location, setLocation] = React.useState<string>(initialData?.location || '');
   const [description, setDescription] = React.useState<string>(initialData?.description || '');
   const [notes, setNotes] = React.useState<string>(initialData?.notes || '');
+  const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const { data: students = [] } = useGetStudentsQuery({ page: 1, per_page: 200 });
+  // Jika parent mengirimkan data penuh, kita bisa tetap pakai itu atau beralih ke server-side query.
+  // Tapi untuk server-side search yang aman dari jumlah besar, kita gunakan query sendiri jika parent tidak kirim.
+  const hasPropStudents = !!propStudents && propStudents.length > 0;
+  const { data: fetchedStudents = [], isLoading: isLoadingStudents } = useGetStudentsQuery(
+    { page: 1, per_page: 20, search: debouncedSearch },
+    { skip: hasPropStudents && !debouncedSearch } // Jika ada propStudents dan tidak sedang mencari, skip.
+  );
+
+  // Gabungkan hasil pencarian dengan `propStudents` agar initialData.student tidak hilang jika tidak ada di 20 teratas.
+  const students = React.useMemo(() => {
+    const base = fetchedStudents.length > 0 ? fetchedStudents : (propStudents || []);
+    // Jika ada initialData?.student_id yang tidak ada di list, sisipkan secara manual.
+    if (initialData?.student_id && initialData?.student && !base.some(s => s.id === initialData.student_id)) {
+      return [...base, initialData.student as Student];
+    }
+    return base;
+  }, [fetchedStudents, propStudents, initialData]);
   const { data: violations = [] } = useGetViolationsQuery();
   const { data: academicYears = [] } = useGetTahunAjaranQuery();
   const { data: activeYear } = useGetActiveTahunAjaranQuery();
@@ -60,13 +94,28 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
       setLocation(initialData?.location || '');
       setDescription(initialData?.description || '');
       setNotes(initialData?.notes || '');
+      setSearchQuery('');
     }
   }, [open, initialData, activeYear]);
 
-  const studentOptions = students.map((s) => ({
-    value: s.id,
-    label: `${s.nis} — ${s.first_name}${s.last_name ? ' ' + s.last_name : ''}`,
-  }));
+  const studentOptions = React.useMemo(() => {
+    return students.map((s) => {
+      const name = [s.first_name, s.last_name].filter(Boolean).join(' ').trim();
+      const nis = s.nis ? s.nis.trim() : '';
+      const label = nis ? `${nis} — ${name}` : name;
+      return {
+        value: s.id,
+        label: label || `Santri #${s.id}`,
+        keywords: [
+          nis,
+          s.nik || '',
+          s.first_name || '',
+          s.last_name || '',
+          name,
+        ].filter(Boolean),
+      };
+    });
+  }, [students]);
 
   const violationOptions = violations.map((v) => ({
     value: v.id,
@@ -126,16 +175,18 @@ const StudentViolationFormDialog: React.FC<StudentViolationFormDialogProps> = ({
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium mb-2 block">Santri</label>
-            <Combobox
-              options={studentOptions}
-              value={studentId}
-              onChange={(val) => setStudentId(Number(val))}
-              placeholder="Pilih santri..."
-              searchPlaceholder="Cari santri..."
-              notFoundMessage="Santri tidak ditemukan."
-              isLoading={false}
-            />
-          </div>
+              <Combobox
+                options={studentOptions}
+                value={studentId}
+                onChange={(val) => setStudentId(Number(val))}
+                onSearchChange={setSearchQuery}
+                shouldFilter={hasPropStudents && !debouncedSearch}
+                placeholder="Pilih santri..."
+                searchPlaceholder="Cari nama, NIS, atau NIK..."
+                notFoundMessage="Santri tidak ditemukan."
+                isLoading={isLoadingStudents}
+              />
+            </div>
 
           <div>
             <label className="text-sm font-medium mb-2 block">Pelanggaran</label>
