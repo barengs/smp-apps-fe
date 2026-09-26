@@ -60,6 +60,7 @@ export default function KenaikanKelasPage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [actionType, setActionType] = useState<'transfer' | 'promote'>('transfer');
   // Tambahkan state pagination (pageIndex berbasis 0, pageSize default 10)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -249,13 +250,15 @@ export default function KenaikanKelasPage() {
 
   // Fungsi untuk menangani kenaikan kelas
   const handlePromotion = (data: PromotionData) => {
-    // Implementasi logika kenaikan kelas akan ditambahkan di sini
-    showSuccess(`Aksi "Naik Kelas" dipilih untuk siswa "${data.siswa}".`);
+    setSelectedPromotion(data);
+    setActionType('promote');
+    setIsTransferModalOpen(true);
   };
 
   // Fungsi untuk menangani pindah kelas
   const handleTransferClass = (data: PromotionData) => {
     setSelectedPromotion(data);
+    setActionType('transfer');
     setIsTransferModalOpen(true);
   };
 
@@ -541,6 +544,7 @@ export default function KenaikanKelasPage() {
         isOpen={isTransferModalOpen}
         onClose={() => setIsTransferModalOpen(false)}
         selected={selectedPromotion ?? undefined}
+        actionType={actionType}
         onSuccess={() => {
           setIsTransferModalOpen(false);
         }}

@@ -82,9 +82,11 @@ export const calonSantriBankApi = bankSmpApi.injectEndpoints({
     getTransactionTypes: builder.query<any[], { direction?: string; status?: string; per_page?: number } | void>({
       query: (params) => {
         const qp = new URLSearchParams();
-        if (params?.direction) qp.append('direction', params.direction);
-        if (params?.status) qp.append('status', params.status);
-        if (params?.per_page) qp.append('per_page', String(params.per_page));
+        if (params) {
+          if (params.direction) qp.append('direction', params.direction);
+          if (params.status) qp.append('status', params.status);
+          if (params.per_page) qp.append('per_page', String(params.per_page));
+        }
         const queryStr = qp.toString();
         return `main/transaction-type${queryStr ? `?${queryStr}` : ''}`;
       },

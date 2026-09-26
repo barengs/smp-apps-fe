@@ -24,9 +24,11 @@ interface TransferClassModalProps {
   onClose: () => void;
   selected?: PromotionData;
   onSuccess?: () => void;
+  actionType?: 'transfer' | 'promote';
 }
 
-const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose, selected, onSuccess }) => {
+const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose, selected, onSuccess, actionType = 'transfer' }) => {
+  const isPromote = actionType === 'promote';
   const [educationId, setEducationId] = React.useState<string>(selected?.education_id ? String(selected.education_id) : "");
   const [classroomId, setClassroomId] = React.useState<string>(selected?.class_id ? String(selected.class_id) : "");
   const [classGroupId, setClassGroupId] = React.useState<string>(selected?.class_group_id ? String(selected.class_group_id) : "");
@@ -45,6 +47,13 @@ const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose
     setClassGroupId(selected?.class_group_id ? String(selected.class_group_id) : "");
   }, [selected]);
 
+  // Set default education for promotion
+  React.useEffect(() => {
+    if (isPromote && selected?.education_id) {
+      setEducationId(String(selected.education_id));
+    }
+  }, [isPromote, selected?.education_id]);
+
   const classroomOptions = React.useMemo(() => {
     const list = Array.isArray(classroomsResponse?.data) ? classroomsResponse.data : Array.isArray(classroomsResponse) ? classroomsResponse : [];
     return list.map((c: any) => ({ id: c.id, name: c.name }));
@@ -55,9 +64,8 @@ const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose
     return list.map((e: any) => ({ id: e.id, name: e.institution_name }));
   }, [institusiPendidikan]);
 
-  const classGroupOptions = React.useMemo(() => {
+  const targetClassGroups = React.useMemo(() => {
     const list = Array.isArray(classGroupsResponse?.data) ? classGroupsResponse.data : Array.isArray(classGroupsResponse) ? classGroupsResponse : [];
-    // Filter berdasarkan pilihan pendidikan dan kelas jika tersedia
     return list
       .filter((g: any) => {
         const eduOk = educationId ? String(g?.educational_institution?.id ?? g?.education_id) === educationId : true;
@@ -67,26 +75,27 @@ const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose
       .map((g: any) => ({
         id: g.id,
         name: g.name,
-        educationName: g?.educational_institution?.institution_name,
-        classroomName: g?.classroom?.name,
       }));
   }, [classGroupsResponse, educationId, classroomId]);
 
   const handleSubmit = async () => {
-    const edu = Number(educationId);
+    const edu = isPromote ? Number(selected?.education_id) : Number(educationId);
     const cls = Number(classroomId);
     const grp = Number(classGroupId);
 
     if (!selected?.id) {
-      showError("Data siswa tidak ditemukan.");
+      showError('Data siswa tidak ditemukan.');
       return;
     }
-    if (!edu || !cls || !grp) {
-      showError("Silakan pilih jenjang pendidikan, kelas, dan rombel tujuan.");
+    if (!cls || !grp || (!isPromote && !edu)) {
+      showError('Silakan pilih kelas dan rombel tujuan' + (isPromote ? '' : ', serta jenjang pendidikan.'));
       return;
     }
 
-    const toastId = showLoading("Memindahkan kelas...");
+    const actionText = isPromote ? 'Menaikkan kelas' : 'Memindahkan kelas';
+    const actionPastText = isPromote ? 'dinaikkan kelas' : 'dipindahkan';
+    
+    const toastId = showLoading(`${actionText}...`);
     setIsSubmitting(true);
     try {
       await updateStudentClass({
@@ -98,43 +107,47 @@ const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose
         },
       }).unwrap();
       dismissToast(toastId);
-      showSuccess(`Siswa "${selected.siswa}" berhasil dipindahkan.`);
+      showSuccess(`Siswa "${selected.siswa}" berhasil ${actionPastText}.`);
       setIsSubmitting(false);
       onSuccess?.();
       onClose();
     } catch (err) {
       dismissToast(toastId);
       setIsSubmitting(false);
-      showError("Gagal memindahkan siswa.");
+      showError(`Gagal ${actionText.toLowerCase()} siswa.`);
       console.error(err);
     }
   };
+
+  const actionText = isPromote ? 'Naik Kelas' : 'Pindah Kelas';
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Pindah Kelas</DialogTitle>
+          <DialogTitle>{isPromote ? 'Naik Kelas' : 'Pindah Kelas'}</DialogTitle>
           <DialogDescription>
-            Pilih tujuan jenjang pendidikan, kelas, dan rombel untuk memindahkan siswa{selected?.siswa ? ` "${selected.siswa}"` : ""}.
+            Pilih tujuan {isPromote ? 'kelas' : 'jenjang pendidikan, kelas'} dan rombel untuk {isPromote ? 'menaikkan kelas' : 'memindahkan'} siswa{selected?.siswa ? ` "${selected.siswa}"` : ''}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-2">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="education" className="text-right">Jenjang Pendidikan</Label>
-            <Select value={educationId} onValueChange={setEducationId}>
-              <SelectTrigger id="education" className="col-span-3">
-                <SelectValue placeholder="Pilih jenjang pendidikan" />
-              </SelectTrigger>
-              <SelectContent>
-                {educationOptions.map((opt) => (
-                  <SelectItem key={opt.id} value={String(opt.id)}>
-                    {opt.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {!isPromote && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="education" className="text-right">Jenjang Pendidikan</Label>
+              <Select value={educationId} onValueChange={setEducationId}>
+                <SelectTrigger id="education" className="col-span-3">
+                  <SelectValue placeholder="Pilih jenjang pendidikan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {educationOptions.map((opt) => (
+                    <SelectItem key={opt.id} value={String(opt.id)}>
+                      {opt.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="classroom" className="text-right">Kelas</Label>
             <Select value={classroomId} onValueChange={setClassroomId}>
@@ -142,24 +155,24 @@ const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose
                 <SelectValue placeholder="Pilih kelas" />
               </SelectTrigger>
               <SelectContent>
-                {classroomOptions.map((opt) => (
-                  <SelectItem key={opt.id} value={String(opt.id)}>
-                    {opt.name}
+                {classroomOptions.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    {c.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="class_group" className="text-right">Rombel Tujuan</Label>
+            <Label htmlFor="classGroup" className="text-right">Rombel</Label>
             <Select value={classGroupId} onValueChange={setClassGroupId}>
-              <SelectTrigger id="class_group" className="col-span-3">
-                <SelectValue placeholder="Pilih rombel tujuan" />
+              <SelectTrigger id="classGroup" className="col-span-3">
+                <SelectValue placeholder="Pilih rombel" />
               </SelectTrigger>
               <SelectContent>
-                {classGroupOptions.map((opt) => (
-                  <SelectItem key={opt.id} value={String(opt.id)}>
-                    {opt.name} {opt.classroomName || opt.educationName ? `(${opt.educationName ?? "-"} - ${opt.classroomName ?? "-"})` : ""}
+                {targetClassGroups.map((g) => (
+                  <SelectItem key={g.id} value={String(g.id)}>
+                    {g.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -167,9 +180,9 @@ const TransferClassModal: React.FC<TransferClassModalProps> = ({ isOpen, onClose
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Batal</Button>
-          <Button variant="success" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Memproses..." : "Simpan"}
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>Batal</Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? 'Memproses...' : actionText}
           </Button>
         </DialogFooter>
       </DialogContent>

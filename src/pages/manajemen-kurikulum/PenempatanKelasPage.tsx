@@ -145,6 +145,25 @@ export default function PenempatanKelasPage() {
     }
   };
 
+  const equalsStringFilter: FilterFn<PlacementData> = (row, columnId, filterValue) => {
+    if (!filterValue) return true;
+    const cellValue = row.getValue(columnId);
+    if (cellValue == null) return false;
+    return String(cellValue).toLowerCase() === String(filterValue).toLowerCase();
+  };
+
+  const educationOptions = React.useMemo(() => 
+    Array.from(new Set(placementData.map((p) => p.jenjangPendidikan).filter(Boolean))).map((v) => ({ label: String(v), value: String(v) })),
+  [placementData]);
+  
+  const classOptions = React.useMemo(() => 
+    Array.from(new Set(placementData.map((p) => p.kelas).filter(Boolean))).map((v) => ({ label: String(v), value: String(v) })),
+  [placementData]);
+  
+  const groupOptions = React.useMemo(() => 
+    Array.from(new Set(placementData.map((p) => p.rombel).filter(Boolean))).map((v) => ({ label: String(v), value: String(v) })),
+  [placementData]);
+
   const columns: ColumnDef<PlacementData>[] = [
     {
       id: 'select',
@@ -183,9 +202,9 @@ export default function PenempatanKelasPage() {
       size: 32,
     },
     { accessorKey: 'tahunAjaran', header: 'Tahun Ajaran' },
-    { accessorKey: 'jenjangPendidikan', header: 'Pendidikan' },
-    { accessorKey: 'kelas', header: 'Kelas' },
-    { accessorKey: 'rombel', header: 'Rombel' },
+    { accessorKey: 'jenjangPendidikan', header: 'Pendidikan', filterFn: equalsStringFilter },
+    { accessorKey: 'kelas', header: 'Kelas', filterFn: equalsStringFilter },
+    { accessorKey: 'rombel', header: 'Rombel', filterFn: equalsStringFilter },
     { accessorKey: 'siswa', header: 'Siswa' },
     {
         accessorKey: 'statusApproval',
@@ -241,6 +260,11 @@ export default function PenempatanKelasPage() {
                 pagination={pagination}
                 onPaginationChange={setPagination}
                 pageCount={studentClassesResponse?.last_page || 0}
+                filterableColumns={{
+                  jenjangPendidikan: { type: 'select', placeholder: 'Pendidikan', options: educationOptions },
+                  kelas: { type: 'select', placeholder: 'Kelas', options: classOptions },
+                  rombel: { type: 'select', placeholder: 'Rombel', options: groupOptions },
+                }}
               />
             )}
           </CardContent>
