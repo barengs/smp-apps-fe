@@ -127,9 +127,13 @@ export default function KenaikanKelasPage() {
     }
 
     // Membuat peta untuk pencarian cepat
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const studentMap = new Map(studentsResponse?.map((s: any) => [s.id, s]) || []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const academicYearMap = new Map(academicYears?.map((ay: any) => [ay.id, ay]) || []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const institusiPendidikanMap = new Map((institusiPendidikan || []).map((ip: any) => [ip.id, ip]) || []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const classroomMap = new Map((classroomsResponse?.data || []).map((c: any) => [c.id, c]) || []);
 
     return studentClassesResponse.data.map((studentClass): PromotionData => {
@@ -145,7 +149,7 @@ export default function KenaikanKelasPage() {
 
       const result = {
         id: studentClass.id,
-        class_id: studentClass.class_id,
+        class_id: studentClass.classroom_id ?? studentClass.class_id,
         siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
         tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
         jenjangPendidikan: jenjangPendidikan,
@@ -153,13 +157,13 @@ export default function KenaikanKelasPage() {
         rombel: classGroup ? classGroup.name : 'Tidak diketahui', // Tambahkan data rombel
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
-        education_id: studentClass.education_id,
-        class_group_id: classGroup?.id ?? null,
+        education_id: studentClass.educational_institution_id ?? studentClass.education_id,
+        class_group_id: classGroup?.id ?? studentClass.class_group_id ?? null,
       };
 
       return result;
     });
-  }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading, selectedAcademicYearId]);
+  }, [studentClassesResponse, studentsResponse, academicYears, institusiPendidikan, classroomsResponse, isLoading]);
 
   // Bersihkan seleksi jika data berubah drastis atau status jadi disetujui
   React.useEffect(() => {
@@ -173,7 +177,7 @@ export default function KenaikanKelasPage() {
         .map((p) => p.id)
     );
     setSelectedIds((prev) => prev.filter((id) => validIds.has(id)));
-  }, [promotionData]);
+  }, [promotionData, selectedIds.length]);
 
   // Hitung total halaman dari response paginasi backend
   const pageCount =
@@ -477,6 +481,7 @@ export default function KenaikanKelasPage() {
                   <SelectValue placeholder="Pilih Tahun Ajaran" />
                 </SelectTrigger>
                 <SelectContent>
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {academicYears.map((ay: any) => (
                     <SelectItem key={ay.id} value={ay.id.toString()}>
                       {ay.year} {ay.periode ? `(${ay.periode})` : ''}

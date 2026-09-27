@@ -33,20 +33,23 @@ interface WrappedStudentClassResponse {
 interface StudentClassData {
   id: number;
   academic_year_id: number;
-  education_id: number;
+  educational_institution_id: number; // Corrected column
+  education_id?: number; // legacy fallback
   student_id: number;
-  class_id: number;
+  classroom_id: number; // Corrected column
+  class_id?: number; // legacy fallback
+  class_group_id: number; // Added column
   approval_status: string;
   approval_note: string;
   approved_by: number;
   created_at: string;
   updated_at: string;
   // Tambahan properti dari backend response
-  students?: any;
-  academic_years?: any;
-  classrooms?: any;
-  educations?: any; // Add this property
-  class_group?: any;
+  students?: { id?: number; first_name?: string; last_name?: string | null; nis?: string; [key: string]: unknown };
+  academic_years?: { id?: number; year?: string; name?: string; [key: string]: unknown };
+  classrooms?: { id?: number; name?: string; [key: string]: unknown };
+  educations?: { id?: number; institution_name?: string; [key: string]: unknown };
+  class_group?: { id?: number; name?: string; [key: string]: unknown };
 }
 
 // Interface untuk request body
@@ -152,11 +155,14 @@ export const studentClassApi = smpApi.injectEndpoints({
     }),
     getClassGroupStudents: builder.query<Student[], number>({
       query: (classGroupId) => `main/student-class/class-group/${classGroupId}/students`,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       transformResponse: (response: any): Student[] => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let items: any[] = [];
         if (Array.isArray(response?.data)) items = response.data;
         else if (Array.isArray(response)) items = response;
         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return items.map((item: any) => {
           // Un-wrap if the backend returns { id, student: {...}, class_group: {...} }
           if (item.student) {

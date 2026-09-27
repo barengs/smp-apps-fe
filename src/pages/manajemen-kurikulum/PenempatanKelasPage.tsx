@@ -86,6 +86,7 @@ export default function PenempatanKelasPage() {
   const placementData = React.useMemo(() => {
     if (!studentClassesResponse?.data || !Array.isArray(studentClassesResponse.data)) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return studentClassesResponse.data.map((studentClass: any): PlacementData => {
       const student = studentClass.students;
       const academicYear = studentClass.academic_years;
@@ -95,7 +96,7 @@ export default function PenempatanKelasPage() {
 
       return {
         id: studentClass.id,
-        class_id: studentClass.class_id,
+        class_id: studentClass.classroom_id ?? studentClass.class_id,
         siswa: student ? `${student.first_name} ${student.last_name || ''}`.trim() : 'Tidak diketahui',
         tahunAjaran: academicYear ? (academicYear.year || academicYear.name) : 'Tidak diketahui',
         jenjangPendidikan: education?.institution_name || 'Tidak diketahui',
@@ -103,8 +104,8 @@ export default function PenempatanKelasPage() {
         rombel: classGroup ? classGroup.name : 'Tidak diketahui',
         statusApproval: studentClass.approval_status,
         tanggalPembuatan: new Date(studentClass.created_at).toLocaleDateString('id-ID'),
-        education_id: studentClass.education_id,
-        class_group_id: classGroup?.id ?? null,
+        education_id: studentClass.educational_institution_id ?? studentClass.education_id,
+        class_group_id: classGroup?.id ?? studentClass.class_group_id ?? null,
       };
     });
   }, [studentClassesResponse]);
@@ -242,6 +243,7 @@ export default function PenempatanKelasPage() {
               <Select value={selectedAcademicYearId} onValueChange={setSelectedAcademicYearId}>
                 <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {academicYears.map((ay: any) => (
                     <SelectItem key={ay.id} value={ay.id.toString()}>{ay.year}</SelectItem>
                   ))}

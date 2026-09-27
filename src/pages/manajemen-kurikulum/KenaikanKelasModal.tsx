@@ -44,8 +44,11 @@ type Classroom = {
 type StudentClassItem = {
   id: number; // assignment id
   student_id: number;
-  education_id?: number; // backend may use this for institution
-  class_id?: number;
+  educational_institution_id?: number; 
+  education_id?: number; // legacy fallback
+  classroom_id?: number;
+  class_id?: number; // legacy fallback
+  class_group_id?: number;
   classrooms?: { id: number; name: string };
   class_group?: { id: number; name: string };
   students?: { first_name: string; last_name?: string | null; nis?: string };
@@ -118,6 +121,7 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
   // Siapkan map students agar bisa fallback nama
   const studentMap = React.useMemo(() => {
     const arr = Array.isArray(studentsResponse) ? studentsResponse : [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new Map(arr.map((s: any) => [s.id, s]));
   }, [studentsResponse]);
 
@@ -127,9 +131,9 @@ const KenaikanKelasModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => 
     if (!sourceInstitutionId || !sourceClassroomId || !sourceClassGroupId) return [];
 
     return list.filter((item) => {
-      const institutionOk = String(item.education_id ?? '') === sourceInstitutionId;
-      const classOk = String(item.classrooms?.id ?? item.class_id ?? '') === sourceClassroomId;
-      const groupOk = String(item.class_group?.id ?? '') === sourceClassGroupId;
+      const institutionOk = String(item.educational_institution_id ?? item.education_id ?? '') === sourceInstitutionId;
+      const classOk = String(item.classroom_id ?? item.classrooms?.id ?? item.class_id ?? '') === sourceClassroomId;
+      const groupOk = String(item.class_group_id ?? item.class_group?.id ?? '') === sourceClassGroupId;
       return institutionOk && classOk && groupOk;
     });
   }, [studentClassesResponse, sourceInstitutionId, sourceClassroomId, sourceClassGroupId]);
