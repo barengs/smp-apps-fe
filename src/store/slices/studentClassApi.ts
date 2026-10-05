@@ -165,10 +165,15 @@ export const studentClassApi = smpApi.injectEndpoints({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return items.map((item: any) => {
           // Un-wrap if the backend returns { id, student: {...}, class_group: {...} }
-          if (item.student) {
-            return item.student;
-          }
-          return item;
+          const studentObj = item.student ? { ...item.student } : { ...item };
+          return {
+            ...studentObj,
+            headmaster_name: studentObj.headmaster_name || response?.headmaster?.name || null,
+            headmaster_nip: studentObj.headmaster_nip || response?.headmaster?.nip || null,
+            school_name: studentObj.school_name || response?.school?.name || null,
+            advisor_name: studentObj.advisor_name || response?.advisor?.name || null,
+            advisor_nip: studentObj.advisor_nip || response?.advisor?.nip || null,
+          };
         }) as Student[];
       },
       providesTags: (result) =>

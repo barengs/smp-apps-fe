@@ -51,6 +51,11 @@ export interface Student {
     name?: string;
   } | null;
   agreement?: StudentAgreement | null;
+  school_name?: string | null;
+  headmaster_name?: string | null;
+  headmaster_nip?: string | null;
+  advisor_name?: string | null;
+  advisor_nip?: string | null;
 }
 
 export interface StudentAgreement {

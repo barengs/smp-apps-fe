@@ -61,18 +61,35 @@ interface RombelStudentsPdfProps {
   classGroupName: string;
   students: Student[];
   kopSuratUrl?: string;
+  headmasterName?: string;
+  headmasterNip?: string;
+  schoolName?: string;
+  advisorName?: string;
+  advisorNip?: string;
 }
 
 export const RombelStudentsDocument: React.FC<RombelStudentsPdfProps> = ({
   classGroupName,
   students,
   kopSuratUrl,
+  headmasterName,
+  headmasterNip,
+  schoolName,
+  advisorName,
+  advisorNip,
 }) => {
   const currentDate = new Date().toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
+
+  const firstStudent = students[0];
+  const finalHeadmasterName = headmasterName || firstStudent?.headmaster_name || '';
+  const finalHeadmasterNip = headmasterNip || firstStudent?.headmaster_nip || '';
+  const finalSchoolName = schoolName || firstStudent?.school_name || '';
+  const finalAdvisorName = advisorName || firstStudent?.advisor_name || '';
+  const finalAdvisorNip = advisorNip || firstStudent?.advisor_nip || '';
 
   const getStudentAddress = (student: Student): string => {
     if (student.address && student.address.trim()) {
@@ -140,13 +157,27 @@ export const RombelStudentsDocument: React.FC<RombelStudentsPdfProps> = ({
 
         {/* Bagian Tanda Tangan */}
         <View style={styles.signatureSection} wrap={false}>
-          <View style={styles.signatureBox} />
+          <View style={styles.signatureBox}>
+            <Text>Mengetahui,</Text>
+            <Text style={{ marginTop: 2 }}>{finalSchoolName ? `Kepala ${finalSchoolName},` : 'Kepala Sekolah,'}</Text>
+            <View style={styles.signatureSpace} />
+            <Text style={styles.signatureName}>
+              {finalHeadmasterName || '__________________________'}
+            </Text>
+            <Text style={styles.signatureTitle}>
+              {finalHeadmasterNip ? `NIP / NIY. ${finalHeadmasterNip}` : 'NIP / NIY.'}
+            </Text>
+          </View>
           <View style={styles.signatureBox}>
             <Text>Pamekasan, {currentDate}</Text>
             <Text style={{ marginTop: 2 }}>Wali Kelas / Pengelola Rombel,</Text>
             <View style={styles.signatureSpace} />
-            <Text style={styles.signatureName}>__________________________</Text>
-            <Text style={styles.signatureTitle}>NIP / NIY.</Text>
+            <Text style={styles.signatureName}>
+              {finalAdvisorName || '__________________________'}
+            </Text>
+            <Text style={styles.signatureTitle}>
+              {finalAdvisorNip ? `NIP / NIY. ${finalAdvisorNip}` : 'NIP / NIY.'}
+            </Text>
           </View>
         </View>
 
@@ -160,13 +191,23 @@ export const RombelStudentsDocument: React.FC<RombelStudentsPdfProps> = ({
 export async function generateRombelStudentsPdf(
   classGroupName: string,
   students: Student[],
-  kopSuratUrl?: string
+  kopSuratUrl?: string,
+  headmasterName?: string,
+  headmasterNip?: string,
+  schoolName?: string,
+  advisorName?: string,
+  advisorNip?: string
 ) {
   const blob = await pdf(
     <RombelStudentsDocument
       classGroupName={classGroupName}
       students={students}
       kopSuratUrl={kopSuratUrl}
+      headmasterName={headmasterName}
+      headmasterNip={headmasterNip}
+      schoolName={schoolName}
+      advisorName={advisorName}
+      advisorNip={advisorNip}
     />
   ).toBlob();
 

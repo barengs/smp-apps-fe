@@ -50,7 +50,24 @@ const ClassGroupStudentsModal: React.FC<ClassGroupStudentsModalProps> = ({
         kopSuratUrl = (await imageUrlToBase64(fallbackUrl)) || fallbackUrl;
       }
 
-      await generateRombelStudentsPdf(classGroupName, students, kopSuratUrl);
+      // Extract headmaster and advisor from first student (attached by backend)
+      const firstStudent = students[0];
+      const headmasterName = (firstStudent as any)?.headmaster_name;
+      const headmasterNip = (firstStudent as any)?.headmaster_nip;
+      const schoolName = (firstStudent as any)?.school_name;
+      const advisorName = (firstStudent as any)?.advisor_name;
+      const advisorNip = (firstStudent as any)?.advisor_nip;
+
+      await generateRombelStudentsPdf(
+        classGroupName,
+        students,
+        kopSuratUrl,
+        headmasterName,
+        headmasterNip,
+        schoolName,
+        advisorName,
+        advisorNip
+      );
     } catch (err) {
       console.error('Gagal export PDF:', err);
     } finally {

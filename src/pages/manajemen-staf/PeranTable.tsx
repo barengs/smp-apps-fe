@@ -135,32 +135,25 @@ const PeranTable: React.FC = () => {
         header: 'Hak Akses',
         cell: ({ row }) => {
           const rights = row.original.accessRights;
+          const roleName = row.original.roleName.toLowerCase();
+          const isFullAccess = roleName === 'superadmin' || rights.length > 200;
+
           if (!rights || rights.length === 0) {
-            return <span className="text-muted-foreground">-</span>;
+            return <span className="text-muted-foreground text-xs">Belum Ada Akses</span>;
           }
 
-          if (rights.length === 1) {
-            return <Badge variant="outline">{rights[0]}</Badge>;
+          if (isFullAccess) {
+            return (
+              <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs">
+                Akses Penuh (Full Control)
+              </Badge>
+            );
           }
 
           return (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8">
-                  {rights.length} Hak Akses
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-2">
-                <div className="space-y-1">
-                  {rights.map((right, index) => (
-                    <Badge key={index} variant="secondary" className="block w-full text-left font-normal whitespace-normal">
-                      {right}
-                    </Badge>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-medium text-xs">
+              Akses Kustom ({rights.length} Izin)
+            </Badge>
           );
         },
       },

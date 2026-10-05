@@ -94,24 +94,34 @@ interface GetRoleMenusResponse {
 }
 
 // Permission Matrix Types
-interface PermissionMatrixItem {
+export interface PermissionMatrixItem {
   menu_id: number;
   permissions: string[];
   custom_permissions: string[];
 }
 
-interface SyncPermissionMatrixRequest {
+export interface ModuleNode {
+  id: number;
+  title: string;
+  route: string | null;
+  is_group: boolean;
+  permissions: string[];
+  custom_permissions: string[];
+  children: ModuleNode[];
+}
+
+export interface SyncPermissionMatrixRequest {
   matrix: PermissionMatrixItem[];
 }
 
-interface PermissionMatrixData {
+export interface PermissionMatrixData {
   menu_id: number;
   menu_title: string;
   permissions: string[];
   custom_permissions: string[];
 }
 
-interface PermissionMatrixResponse {
+export interface PermissionMatrixResponse {
   status: string;
   data: {
     role: {
@@ -119,7 +129,13 @@ interface PermissionMatrixResponse {
       name: string;
       category: string | null;
     };
-    matrix: PermissionMatrixData[];
+    summary?: {
+      total_menus: number;
+      assigned_menus: number;
+      is_full_access: boolean;
+    };
+    modules: ModuleNode[];
+    matrix?: PermissionMatrixData[];
   };
 }
 
@@ -229,7 +245,7 @@ export const roleApi = smpApi.injectEndpoints({
       transformResponse: (response: PermissionMatrixResponse) => {
         // Handle variations in response structure
         if (response && response.data) return response.data;
-        return response as any;
+        return response as unknown as PermissionMatrixResponse['data'];
       },
       providesTags: (result, error, roleId) => [{ type: "Role", id: roleId }],
     }),
@@ -250,9 +266,4 @@ export const { useAssignRoleMenusMutation } = roleApi;
 export const { useSyncPermissionMatrixMutation, useGetPermissionMatrixQuery } =
   roleApi;
 
-// Export types for use in components
-export type {
-  PermissionMatrixItem,
-  PermissionMatrixData,
-  SyncPermissionMatrixRequest,
-};
+// Export types for use in components (already exported directly at declaration)

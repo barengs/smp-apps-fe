@@ -42,13 +42,16 @@ const RoleMenusCell: React.FC<RoleMenusCellProps> = ({ roleId }) => {
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-56 p-2">
+        <PopoverContent className="w-64 p-3 max-h-72 overflow-y-auto">
+          <div className="text-xs font-semibold text-muted-foreground mb-2">
+            Daftar Menu ({titles.length})
+          </div>
           <div className="space-y-1">
             {titles.map((title, index) => (
               <Badge
                 key={`${title}-${index}`}
                 variant="secondary"
-                className="block w-full text-left font-normal whitespace-normal"
+                className="block w-full text-left font-normal whitespace-normal py-1"
               >
                 {title}
               </Badge>
