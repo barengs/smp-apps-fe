@@ -52,11 +52,11 @@ const ClassGroupStudentsModal: React.FC<ClassGroupStudentsModalProps> = ({
 
       // Extract headmaster and advisor from first student (attached by backend)
       const firstStudent = students[0];
-      const headmasterName = (firstStudent as any)?.headmaster_name;
-      const headmasterNip = (firstStudent as any)?.headmaster_nip;
-      const schoolName = (firstStudent as any)?.school_name;
-      const advisorName = (firstStudent as any)?.advisor_name;
-      const advisorNip = (firstStudent as any)?.advisor_nip;
+      const headmasterName = firstStudent?.headmaster_name;
+      const headmasterNip = firstStudent?.headmaster_nip;
+      const schoolName = firstStudent?.school_name;
+      const advisorName = firstStudent?.advisor_name;
+      const advisorNip = firstStudent?.advisor_nip;
 
       await generateRombelStudentsPdf(
         classGroupName,
