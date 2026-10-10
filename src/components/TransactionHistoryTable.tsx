@@ -22,7 +22,8 @@ const formatCurrency = (amount: string | number) => {
   }).format(numericAmount);
 };
 
-const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+const getStatusVariant = (status: string | undefined | null): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  if (!status) return 'outline';
   switch (status.toLowerCase()) {
     case 'completed':
     case 'success':
@@ -66,7 +67,7 @@ export const TransactionHistoryTable: React.FC<TransactionHistoryTableProps> = (
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.getValue('status') as string;
+        const status = (row.getValue('status') as string | undefined) ?? '-';
         return <Badge variant={getStatusVariant(status)} className="capitalize">{status}</Badge>;
       },
     },

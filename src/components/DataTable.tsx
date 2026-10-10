@@ -357,7 +357,7 @@ export function DataTable<TData, TValue>({
                 return (
                   <Select
                     key={columnId}
-                    value={currentValue ?? undefined}
+                    value={currentValue || CLEAR_FILTER_VALUE}
                     onValueChange={(value) => {
                       if (!colInstance) return;
                       colInstance.setFilterValue(value === CLEAR_FILTER_VALUE ? undefined : value);
@@ -382,7 +382,7 @@ export function DataTable<TData, TValue>({
                 <Input
                   key={columnId}
                   placeholder={cfg.placeholder || `Filter ${columnId}`}
-                  value={currentValue}
+                  value={currentValue || ''}
                   onChange={(event) =>
                     colInstance?.setFilterValue(event.target.value)
                   }
