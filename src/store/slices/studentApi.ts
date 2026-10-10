@@ -44,6 +44,24 @@ export interface Student {
   current_room?: {
     room_name?: string;
   } | null;
+  active_student_card?: {
+    id: number;
+    card_number: string;
+    is_active: boolean;
+    issued_at?: string | null;
+  } | null;
+  activeStudentCard?: {
+    id: number;
+    card_number: string;
+    is_active: boolean;
+    issued_at?: string | null;
+  } | null;
+  card?: {
+    id: number;
+    card_number: string;
+    is_active: boolean;
+    issued_at?: string | null;
+  } | null;
   current_class?: {
     class_name?: string;
   } | null;

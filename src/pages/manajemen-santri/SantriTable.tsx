@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'; // Import useState
 import { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table'; // Import PaginationState
 import { Button } from '@/components/ui/button';
-import { Edit, FileText } from 'lucide-react';
+import { CreditCard, Edit, FileText } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetStudentsQuery, useExportStudentsMutation, useBackupStudentsMutation } from '@/store/slices/studentApi';
@@ -28,6 +28,8 @@ interface Santri {
   programName: string;
   address: string;
   className: string;
+  hasActiveCard: boolean;
+  activeCardNumber?: string;
   created_at: string;
   updated_at: string;
 }
@@ -106,6 +108,8 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         programName: student.program ? student.program.name : '',
         address: student.address || '-',
         className: student.current_class?.class_name || student.education_class?.name || '-',
+        hasActiveCard: Boolean((student.active_student_card || student.activeStudentCard || student.card)?.is_active),
+        activeCardNumber: (student.active_student_card || student.activeStudentCard || student.card)?.card_number,
         created_at: student.created_at,
         updated_at: student.updated_at,
       }));
@@ -215,6 +219,28 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
       {
         accessorKey: 'status',
         header: 'Status',
+        cell: ({ row }) => {
+          const { status, hasActiveCard, activeCardNumber } = row.original;
+          return (
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-xs font-semibold text-foreground">{status}</span>
+              <span
+                className="inline-flex items-center"
+                title={
+                  hasActiveCard
+                    ? activeCardNumber
+                      ? `Kartu aktif: ${activeCardNumber}`
+                      : 'Sudah memiliki kartu aktif'
+                    : 'Belum memiliki kartu'
+                }
+              >
+                <CreditCard
+                  className={`h-4 w-4 ${hasActiveCard ? 'text-emerald-600' : 'text-slate-300'}`}
+                />
+              </span>
+            </div>
+          );
+        },
       },
 
       {

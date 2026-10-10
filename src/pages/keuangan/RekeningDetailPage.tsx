@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionHistoryTable } from '@/components/TransactionHistoryTable';
+import { TagihanSantriCard } from '@/components/TagihanSantriCard';
 
 const DetailItem = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b">
@@ -98,7 +99,7 @@ const RekeningDetailPage: React.FC = () => {
         <CustomBreadcrumb items={breadcrumbItems} />
         
         <Tabs defaultValue="rekening" className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="rekening">
               <Banknote className="mr-2 h-4 w-4" /> Informasi Rekening
             </TabsTrigger>
@@ -107,6 +108,9 @@ const RekeningDetailPage: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger value="produk">
               <Building className="mr-2 h-4 w-4" /> Informasi Produk
+            </TabsTrigger>
+            <TabsTrigger value="tagihan">
+              <FileText className="mr-2 h-4 w-4" /> Tagihan & Tunggakan
             </TabsTrigger>
           </TabsList>
 
@@ -132,6 +136,10 @@ const RekeningDetailPage: React.FC = () => {
                 <TransactionHistoryTable accountNumber={account.account_number} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="tagihan">
+            <TagihanSantriCard accountNumber={account.account_number} />
           </TabsContent>
 
           <TabsContent value="pemilik">

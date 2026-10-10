@@ -2,7 +2,7 @@ import { bankSmpApi } from '../bankBaseApi';
 import { TransaksiApiResponse, SingleTransaksiApiResponse, Transaksi } from '@/types/keuangan';
 import { PaginatedResponse, PaginationParams } from '@/types/master-data';
 
-const asPaginated = (data: any): PaginatedResponse<Transaksi> => {
+const asPaginated = (data: unknown): PaginatedResponse<Transaksi> => {
   if (data && typeof data === 'object' && 'data' in data) return data as PaginatedResponse<Transaksi>;
   const arr = Array.isArray(data) ? data : [];
   return {
@@ -72,13 +72,57 @@ export const bankApi = bankSmpApi.injectEndpoints({
       transformResponse: (response: TransaksiApiResponse) => asPaginated(response.data),
       providesTags: (result, error, accountNumber) => [{ type: 'Transaksi', id: `LIST-${accountNumber}-7DAYS` }],
     }),
-    addTransaction: builder.mutation<any, { destination_account: string; transaction_type: string; amount: string; description: string }>({
+    addTransaction: builder.mutation<{ status: string; message: string; data: Transaksi }, { destination_account: string; transaction_type: string; amount: string; description: string }>({
       query: (newTransaction) => ({
         url: 'main/transaction',
         method: 'POST',
         body: newTransaction,
       }),
       invalidatesTags: [{ type: 'Transaksi', id: 'LIST' }],
+    }),
+    getBillsByAccount: builder.query<{ status: string; data: {
+      account_number: string;
+      has_arrears: boolean;
+      total_arrears: number;
+      overdue_months_count: number;
+      oldest_overdue_period: string | null;
+      newest_overdue_period: string | null;
+      total_unpaid_all: number;
+      bills: Array<{
+        id: number;
+        period: string;
+        amount: number;
+        paid_amount: number;
+        remaining: number;
+        due_date: string | null;
+        status: string;
+        is_overdue: boolean;
+      }>;
+    } }, string>({
+      query: (accountNumber) => `main/bills/account/${accountNumber}`,
+      providesTags: (result, error, accountNumber) => [{ type: 'Transaksi', id: `BILLS-${accountNumber}` }],
+    }),
+    payBillsCash: builder.mutation<{ status: string; message: string; data: {
+      reference_number: string;
+      total_paid: number;
+      remaining_arrears: number;
+      has_arrears: boolean;
+      overdue_months: number;
+    } }, {
+      account_number: string;
+      bill_ids: number[];
+      notes?: string;
+    }>({
+      query: (body) => ({
+        url: 'main/bills/pay-cash',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { account_number }) => [
+        { type: 'Transaksi', id: `BILLS-${account_number}` },
+        { type: 'Transaksi', id: 'LIST' },
+        { type: 'Transaksi', id: `LIST-${account_number}` },
+      ],
     }),
   }),
 });
@@ -89,4 +133,6 @@ export const {
   useGetTransactionsByAccountQuery,
   useGetTransactionsByAccountLast7DaysQuery,
   useAddTransactionMutation,
+  useGetBillsByAccountQuery,
+  usePayBillsCashMutation,
 } = bankApi;
