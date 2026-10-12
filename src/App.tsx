@@ -103,6 +103,7 @@ import DataSantriDetailPage from '@/pages/wali-santri/DataSantriDetailPage';
 import RegistrationPage from '@/pages/wali-santri/RegistrationPage';
 import RegistrationHistoryPage from '@/pages/wali-santri/RegistrationHistoryPage';
 import TagihanPage from '@/pages/wali-santri/TagihanPage';
+import TransaksiPage from '@/pages/wali-santri/TransaksiPage';
 import { StatistikSantriPage } from '@/pages/kesantrian/laporan/StatistikSantriPage';
 import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pages/kesantrian/laporan/LaporanPelanggaranPage';
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
@@ -203,6 +204,7 @@ function App() {
               <Route path="/dashboard/wali-santri/pendaftaran-santri" element={<RegistrationHistoryPage />} />
               <Route path="/dashboard/wali-santri/pendaftaran-santri/baru" element={<RegistrationPage />} />
               <Route path="/dashboard/wali-santri/tagihan" element={<TagihanPage />} />
+              <Route path="/dashboard/wali-santri/transaksi" element={<TransaksiPage />} />
 
               <Route path="/dashboard/informasi-santri" element={<InformasiSantriPage />} />
               <Route path="/dashboard/nilai-absensi" element={<NilaiAbsensiPage />} />

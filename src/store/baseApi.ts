@@ -45,6 +45,8 @@ const baseQuery = fetchBaseQuery({
       'updateStudentCardSettings',
       // ADDED: importParents
       'importParents',
+      // ADDED: submit student top up uses FormData (payment proof file upload)
+      'submitStudentTopUp',
     ];
 
     if (!formDataEndpoints.includes(endpoint)) {

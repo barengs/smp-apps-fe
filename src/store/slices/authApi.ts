@@ -253,6 +253,60 @@ export interface GetStudentFinanceResponse {
   data: StudentFinanceData;
 }
 
+export interface PaymentPackageItem {
+  id: number;
+  item_name: string;
+  amount: number;
+  is_saku: boolean;
+}
+
+export interface PaymentPackage {
+  id: number;
+  package_name: string;
+  total_amount: number;
+  saku_amount: number;
+  description: string | null;
+  items?: PaymentPackageItem[];
+}
+
+export interface AddonItem {
+  id: number;
+  item_code: string;
+  item_name: string;
+  default_amount: number;
+  description: string | null;
+}
+
+export interface TopUpHistoryItem {
+  id: number;
+  account_number: string;
+  student_id: number;
+  amount: number;
+  channel: string;
+  status: 'waiting_verification' | 'success' | 'failed' | 'pending';
+  payment_ref: string;
+  payment_proof: string | null;
+  payment_package_id: number | null;
+  addon_item_ids: number[] | string | null;
+  notes: string | null;
+  created_at: string;
+  verified_at: string | null;
+  package?: {
+    id: number;
+    package_name: string;
+  } | null;
+}
+
+export interface TopUpHistoryResponse {
+  status: string;
+  data: {
+    data: TopUpHistoryItem[];
+    current_page: number;
+    last_page: number;
+    total: number;
+  } | TopUpHistoryItem[];
+}
+
 export const authApi = smpApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -331,6 +385,27 @@ export const authApi = smpApi.injectEndpoints({
       query: (id) => `main/student/${id}/finance`,
       providesTags: (result, error, id) => [{ type: 'Transaksi', id: `FINANCE-${id}` }],
     }),
+    getStudentPaymentPackages: builder.query<{ status: string; data: { data: PaymentPackage[] } | PaymentPackage[] }, string | number>({
+      query: (id) => `main/student/${id}/payment-packages`,
+    }),
+    getStudentAddonItems: builder.query<{ status: string; data: AddonItem[] }, string | number>({
+      query: (id) => `main/student/${id}/addon-items`,
+    }),
+    getStudentTopUpHistory: builder.query<TopUpHistoryResponse, string | number>({
+      query: (id) => `main/student/${id}/top-up-history`,
+      providesTags: (result, error, id) => [{ type: 'Transaksi', id: `TOPUP-HIST-${id}` }],
+    }),
+    submitStudentTopUp: builder.mutation<{ success: boolean; message: string; data: TopUpHistoryItem }, { id: string | number; formData: FormData }>({
+      query: ({ id, formData }) => ({
+        url: `main/student/${id}/top-up`,
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Transaksi', id: `TOPUP-HIST-${id}` },
+        { type: 'Transaksi', id: `FINANCE-${id}` },
+      ],
+    }),
   }),
 });
 
@@ -350,4 +425,8 @@ export const {
   useGetStudentViolationsQuery,
   useGetStudentLeavesQuery,
   useGetStudentFinanceQuery,
+  useGetStudentPaymentPackagesQuery,
+  useGetStudentAddonItemsQuery,
+  useGetStudentTopUpHistoryQuery,
+  useSubmitStudentTopUpMutation,
 } = authApi;
