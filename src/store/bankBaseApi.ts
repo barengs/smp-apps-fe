@@ -60,8 +60,12 @@ export const bankBaseQueryWithReauth: typeof baseQuery = async (args, api, extra
           api.dispatch(updateToken(newToken));
           result = await baseQuery(args, api, extraOptions);
         } else {
-          console.log('Refresh token gagal untuk Bank Santri, logout.');
-          api.dispatch(logOut());
+          // JANGAN dispatch logOut() di sini. Auth utama smp-fe berada di smpt (smp-be),
+          // bukan di bank-santri. Wali santri login memakai NIK ke smpt, sehingga request
+          // bank-santri yang gagal 401 tidak boleh mengakhiri sesi akademik pengguna.
+          console.warn(
+            'Bank Santri API: refresh token gagal (401). Sesi utama aplikasi tetap dipertahankan.'
+          );
         }
       } finally {
         release();

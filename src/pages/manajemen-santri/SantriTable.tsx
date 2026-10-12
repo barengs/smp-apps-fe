@@ -1,19 +1,66 @@
-import React, { useMemo, useState } from 'react'; // Import useState
-import { ColumnDef, SortingState, PaginationState } from '@tanstack/react-table'; // Import PaginationState
+import React, { useMemo, useState, useEffect, useRef } from 'react'; // Import useState, useEffect, useRef
+import { ColumnDef, SortingState, PaginationState, ColumnFiltersState } from '@tanstack/react-table'; // Import PaginationState, ColumnFiltersState
 import { Button } from '@/components/ui/button';
-import { CreditCard, Edit, FileText } from 'lucide-react';
+import { CreditCard, Edit, FileText, RefreshCw } from 'lucide-react';
 import * as toast from '@/utils/toast';
 import { DataTable } from '../../components/DataTable';
 import { useGetStudentsQuery, useExportStudentsMutation, useBackupStudentsMutation } from '@/store/slices/studentApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import TableLoadingSkeleton from '../../components/TableLoadingSkeleton';
 import { useNavigate } from 'react-router-dom';
-import { useLocalPagination } from '@/hooks/useLocalPagination';
 import RoomAssignDialog from '@/components/RoomAssignDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Download, Upload, DatabaseBackup } from 'lucide-react';
 import SantriImportDialog from './SantriImportDialog';
 import { usePermissions } from '@/hooks/usePermissions';
+
+// ---------------------------------------------------------------------------
+// Persistensi state tabel ke sessionStorage
+// Berguna agar saat kembali dari halaman detail santri, posisi halaman,
+// pencarian, dan filter tidak hilang sehingga tabel langsung tampil tanpa
+// menunggu loading skeleton yang lama.
+// ---------------------------------------------------------------------------
+const SESSION_KEY = 'santri_table_state';
+
+interface SantriTableSessionState {
+  pagination: PaginationState;
+  search: string;
+  filters: ColumnFiltersState;
+}
+
+const DEFAULT_SESSION_STATE: SantriTableSessionState = {
+  pagination: { pageIndex: 0, pageSize: 10 },
+  search: '',
+  filters: [],
+};
+
+function readSessionState(): SantriTableSessionState {
+  if (typeof window === 'undefined') return DEFAULT_SESSION_STATE;
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return DEFAULT_SESSION_STATE;
+    const parsed = JSON.parse(raw) as Partial<SantriTableSessionState>;
+    return {
+      pagination: {
+        pageIndex: Number(parsed.pagination?.pageIndex ?? 0),
+        pageSize: Number(parsed.pagination?.pageSize ?? 10),
+      },
+      search: typeof parsed.search === 'string' ? parsed.search : '',
+      filters: Array.isArray(parsed.filters) ? parsed.filters : [],
+    };
+  } catch {
+    return DEFAULT_SESSION_STATE;
+  }
+}
+
+function writeSessionState(state: SantriTableSessionState) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
+  } catch {
+    // Abaikan jika storage penuh/di-block
+  }
+}
 
 // Interface for the data displayed in the table
 interface Santri {
@@ -45,6 +92,24 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
   const [exportStudents, { isLoading: isExporting }] = useExportStudentsMutation();
   const [backupStudents, { isLoading: isBackingUp }] = useBackupStudentsMutation();
   const { canCreate, canEdit } = usePermissions();
+
+  // Pulihkan state tabel dari sessionStorage (pagination, search, filters)
+  const [sessionState] = useState<SantriTableSessionState>(() => readSessionState());
+  const [pagination, setPagination] = useState<PaginationState>(sessionState.pagination);
+  const [search, setSearch] = useState<string>(sessionState.search);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(sessionState.filters);
+
+  // Simpan state tabel ke sessionStorage setiap kali berubah
+  // (dijalankan setelah render agar tidak memblokir paint)
+  const hasMountedRef = useRef(false);
+  useEffect(() => {
+    // Jangan menimpa sessionStorage saat mount pertama (baru saja dibaca)
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+    writeSessionState({ pagination, search, filters: columnFilters });
+  }, [pagination, search, columnFilters]);
 
   const handleExport = async () => {
     const loadingId = toast.showLoading('Mengunduh data export...');
@@ -114,9 +179,9 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         updated_at: student.updated_at,
       }));
       // Urutkan berdasarkan tanggal dibuat (terbaru di atas)
-      mapped.sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
+      // Bandingkan sebagai string ISO agar tidak memanggil new Date().getTime()
+      // pada setiap iterasi (lebih hemat untuk ~15.000 baris)
+      mapped.sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0));
       return mapped;
     }
     return [];
@@ -279,15 +344,34 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
     [navigate, canEdit]
   );
 
-  if (isLoading || isFetching) return <TableLoadingSkeleton numCols={8} />;
+  // Tampilkan skeleton HANYA saat load awal benar-benar kosong.
+  // Saat hanya background revalidation (isFetching=true tapi data sudah ada),
+  // tetap tampilkan tabel agar pengguna tidak menunggu loading berulang.
+  if (isLoading && santriList.length === 0) {
+    return <TableLoadingSkeleton numCols={8} />;
+  }
 
-  const isNotFound = error && (error as FetchBaseQueryError).status === 404;
+  const isNotFound =
+    error != null &&
+    typeof error === 'object' &&
+    'status' in error &&
+    (error as FetchBaseQueryError).status === 404;
+
   if (error && !isNotFound) {
     return <div>Error: Gagal memuat data santri.</div>;
   }
 
+  // Indikator ringan ketika sedang sinkronisasi latar belakang (tanpa menutupi tabel)
+  const showSyncIndicator = isFetching && santriList.length > 0;
+
   return (
     <>
+      {showSyncIndicator && (
+        <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+          <span>Sinkronisasi data terbaru...</span>
+        </div>
+      )}
       <DataTable
         columns={columns}
         data={santriList}
@@ -304,6 +388,15 @@ const SantriTable: React.FC<SantriTableProps> = ({ onAddData }) => {
         onSortingChange={setSorting}
         totalItems={santriList.length}
         addButtonLabel="Tambah Santri"
+        initialPagination={sessionState.pagination}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        initialSearch={sessionState.search}
+        searchQuery={search}
+        onSearchChange={setSearch}
+        initialColumnFilters={sessionState.filters}
+        columnFilters={columnFilters}
+        onColumnFiltersChange={setColumnFilters}
         exportImportElement={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

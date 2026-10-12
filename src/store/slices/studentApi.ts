@@ -190,6 +190,7 @@ export const studentApi = smpApi.injectEndpoints({
         if (params.sort_order) queryParams.append('sort_order', params.sort_order);
         return `main/student?${queryParams.toString()}`;
       },
+      keepUnusedDataFor: 1800, // Cache 30 menit: mencegah re-fetch data 15.000 santri saat navigasi ke detail & kembali
       // Normalisasi berbagai bentuk respons: { data: Student[] } atau { data: { data: Student[] } }
       transformResponse: (response: unknown): Student[] => {
         const res = response as { data?: unknown };

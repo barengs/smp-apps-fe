@@ -8,7 +8,17 @@ import { selectCurrentUser } from '@/store/slices/authSlice';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, MapPin, Bed, BookOpen, Calendar } from 'lucide-react';
+import { User, MapPin, Bed, BookOpen, Calendar, GraduationCap } from 'lucide-react';
+
+// Bentuk URL foto santri yang aman (hormati VITE_STORAGE_BASE_URL)
+const getStudentPhotoUrl = (photo?: string | null): string | null => {
+  if (!photo) return null;
+  if (photo.startsWith('http')) return photo;
+  const base = (import.meta.env.VITE_STORAGE_BASE_URL as string) || '/storage/';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  const cleanPath = photo.replace(/^\/?storage\//, '');
+  return `${cleanBase}${cleanPath}`;
+};
 
 const DataSantriPage: React.FC = () => {
   const navigate = useNavigate();
@@ -79,7 +89,9 @@ const DataSantriPage: React.FC = () => {
               Gagal memuat data santri. Silakan coba lagi nanti.
               <br />
               <span className="text-sm text-gray-400">
-                {(error as any)?.data?.message || JSON.stringify(error)}
+                {error && typeof error === 'object' && 'data' in error
+                  ? String((error as { data?: { message?: string } }).data?.message || 'Terjadi kesalahan')
+                  : 'Terjadi kesalahan saat memuat data.'}
               </span>
             </div>
           </CardContent>
@@ -104,9 +116,8 @@ const DataSantriPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {students.map((student) => {
            const fullName = [student.first_name, student.last_name].filter(Boolean).join(' ');
-           const photoUrl = student.photo 
-             ? (student.photo.startsWith('http') ? student.photo : `${import.meta.env.VITE_API_URL || ''}/storage/${student.photo}`) 
-             : null;
+           const photoUrl = getStudentPhotoUrl(student.photo);
+           const isActive = !student.status || ['aktif', 'active'].includes(String(student.status).toLowerCase());
 
            return (
             <Card 
@@ -133,12 +144,20 @@ const DataSantriPage: React.FC = () => {
                 </div>
                 <div className="mt-4">
                   <h3 className="text-xl font-bold text-gray-900 line-clamp-1" title={fullName}>{fullName}</h3>
-                  <div className="flex flex-wrap items-center gap-y-1 text-sm text-muted-foreground mt-1">
+                  <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground mt-1">
                     <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 text-xs">
                       {student.nis}
                     </span>
-                    <span className="mx-2">•</span>
-                    <span>{student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</span>
+                    <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 text-xs">
+                      {student.gender === 'L' ? 'L' : 'P'}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      }`}
+                    >
+                      {student.status || 'Aktif'}
+                    </span>
                   </div>
                   {student.born_at && (
                     <div className="flex items-center text-sm text-muted-foreground mt-1">
@@ -162,12 +181,24 @@ const DataSantriPage: React.FC = () => {
                       <p className="font-medium text-gray-700">{student.program?.name || '-'}</p>
                     </div>
                   </div>
-                  
+
+                  <div className="flex items-center text-sm">
+                    <GraduationCap className="h-4 w-4 mr-3 text-emerald-500 flex-shrink-0" />
+                    <div>
+                      <p className="text-muted-foreground text-xs">Kelas</p>
+                      <p className="font-medium text-gray-700">{student.current_class?.class_name || '-'}</p>
+                    </div>
+                  </div>
+
                   <div className="flex items-center text-sm">
                     <Bed className="h-4 w-4 mr-3 text-indigo-500 flex-shrink-0" />
                     <div>
-                      <p className="text-muted-foreground text-xs">Asrama</p>
-                      <p className="font-medium text-gray-700">{student.hostel?.name || '-'}</p>
+                      <p className="text-muted-foreground text-xs">Asrama / Kamar</p>
+                      <p className="font-medium text-gray-700">
+                        {student.current_room
+                          ? `${student.current_room.room_name} (${student.current_room.hostel_name})`
+                          : student.hostel?.name || '-'}
+                      </p>
                     </div>
                   </div>
                 </div>

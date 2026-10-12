@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import WaliSantriLayout from '@/layouts/WaliSantriLayout';
-import { useGetBillsByAccountQuery } from '@/store/slices/bankApi';
-import { useGetSantriByParentNikQuery, useGetProfileDetailsQuery } from '@/store/slices/authApi';
+import { 
+  useGetStudentFinanceQuery, 
+  useGetSantriByParentNikQuery, 
+  useGetProfileDetailsQuery, 
+  StudentFinanceBill, 
+  StudentFinanceArrears, 
+  StudentFinanceAccount 
+} from '@/store/slices/authApi';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/slices/authSlice';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -47,13 +53,14 @@ export default function TagihanPage() {
   const currentStudent = students.find((s) => String(s.id) === selectedStudentId) || students[0];
   const targetNis = currentStudent?.nis;
 
-  const { data: billsResponse, isLoading: isBillsLoading } = useGetBillsByAccountQuery(targetNis || '', {
-    skip: !targetNis,
+  const { data: financeResponse, isLoading: isFinanceLoading, isFetching: isFinanceFetching, refetch: refetchFinance } = useGetStudentFinanceQuery(currentStudent?.id ?? '', {
+    skip: !currentStudent?.id,
   });
 
   const isLoading = isProfileLoading || isSantriLoading;
-  const billsData = billsResponse?.data;
-  const bills = billsData?.bills || [];
+  const billsData: StudentFinanceArrears | undefined = financeResponse?.data?.arrears;
+  const account: StudentFinanceAccount | null = financeResponse?.data?.account ?? null;
+  const bills: StudentFinanceBill[] = billsData?.bills || [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -151,7 +158,21 @@ export default function TagihanPage() {
             )}
 
             {/* Rekap Saldo & Tunggakan */}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Sisa Saldo Rekening</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-600">
+                    {account ? formatRp(account.balance) : '-'}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {account?.status || 'Belum ada data'} • NIS {currentStudent.nis || '-'}
+                  </p>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">Total Tunggakan Jatuh Tempo</CardTitle>
@@ -190,7 +211,7 @@ export default function TagihanPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isBillsLoading ? (
+                {isFinanceLoading || isFinanceFetching ? (
                   <div className="space-y-2 py-4">
                     <Skeleton className="h-10 w-full" />
                     <Skeleton className="h-10 w-full" />

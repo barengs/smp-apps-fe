@@ -126,6 +126,7 @@ export interface Santri {
   gender: 'L' | 'P';
   born_at: string | null;
   photo: string | null;
+  status?: string;
   program?: {
     id: number;
     name: string;
@@ -133,6 +134,13 @@ export interface Santri {
   hostel?: {
     id: number;
     name: string;
+  };
+  current_room?: {
+    room_name: string;
+    hostel_name: string;
+  };
+  current_class?: {
+    class_name: string;
   };
 }
 
@@ -189,6 +197,60 @@ export interface StudentLeave {
     leave_type: {
         name: string;
     };
+}
+
+// --- Keuangan Santri (proxy smpt -> bank-santri) ---
+export interface StudentFinanceAccount {
+  account_number: string;
+  account_name: string | null;
+  balance: number;
+  status: string;
+}
+
+export interface StudentFinanceTransaction {
+  id: string;
+  reference_number: string;
+  transaction_type: string;
+  amount: number;
+  direction: string;
+  description: string | null;
+  status: string;
+  channel: string;
+  created_at: string;
+}
+
+export interface StudentFinanceBill {
+  id: number;
+  period: string;
+  amount: number;
+  paid_amount: number;
+  remaining: number;
+  due_date: string | null;
+  status: string;
+  is_overdue: boolean;
+}
+
+export interface StudentFinanceArrears {
+  account_number: string;
+  has_arrears: boolean;
+  total_arrears: number;
+  overdue_months_count: number;
+  oldest_overdue_period: string | null;
+  newest_overdue_period: string | null;
+  total_unpaid_all: number;
+  bills: StudentFinanceBill[];
+}
+
+export interface StudentFinanceData {
+  account: StudentFinanceAccount | null;
+  transactions: StudentFinanceTransaction[];
+  arrears: StudentFinanceArrears | null;
+}
+
+export interface GetStudentFinanceResponse {
+  success: boolean;
+  message: string;
+  data: StudentFinanceData;
 }
 
 export const authApi = smpApi.injectEndpoints({
@@ -265,6 +327,10 @@ export const authApi = smpApi.injectEndpoints({
     getStudentLeaves: builder.query<{ data: StudentLeave[] }, string>({
       query: (id) => `main/student-leave/student/${id}/report`,
     }),
+    getStudentFinance: builder.query<GetStudentFinanceResponse, string | number>({
+      query: (id) => `main/student/${id}/finance`,
+      providesTags: (result, error, id) => [{ type: 'Transaksi', id: `FINANCE-${id}` }],
+    }),
   }),
 });
 
@@ -283,4 +349,5 @@ export const {
   useGetStudentDetailQuery,
   useGetStudentViolationsQuery,
   useGetStudentLeavesQuery,
+  useGetStudentFinanceQuery,
 } = authApi;

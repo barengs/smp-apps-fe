@@ -43,9 +43,14 @@ const DataSantriDetailPage: React.FC = () => {
     });
   };
 
-  const photoUrl = student?.photo 
-    ? (student.photo.startsWith('http') ? student.photo : `${import.meta.env.VITE_API_URL || ''}/storage/${student.photo}`) 
-    : null;
+  const photoUrl = (() => {
+    if (!student?.photo) return null;
+    if (student.photo.startsWith('http')) return student.photo;
+    const base = (import.meta.env.VITE_STORAGE_BASE_URL as string) || '/storage/';
+    const cleanBase = base.endsWith('/') ? base : `${base}/`;
+    const cleanPath = student.photo.replace(/^\/?storage\//, '');
+    return `${cleanBase}${cleanPath}`;
+  })();
 
   if (isDetailLoading) {
     return (

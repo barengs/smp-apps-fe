@@ -12,6 +12,8 @@ import {
   ExpandedState,
   getExpandedRowModel,
   FilterFn,
+  ColumnFiltersState,
+  OnChangeFn,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -29,8 +31,16 @@ type FilterConfig = {
   options?: { label: string; value: string }[];
 };
 
+// Daftarkan filter kustom 'exact' ke tipe TanStack Table sehingga
+// `filterFn: 'exact'` valid secara tipis tanpa perlu cast `any`.
+declare module '@tanstack/react-table' {
+  interface FilterFns {
+    exact: FilterFn<unknown>;
+  }
+}
+
 // Filter tepat: nilai kolom harus sama persis dengan nilai filter (case-insensitive)
-const exactMatchFilter: FilterFn<any> = (row, columnId, filterValue) => {
+const exactMatchFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
   if (filterValue == null || filterValue === '') return true;
   const value = row.getValue(columnId);
   if (value == null) return false;
@@ -62,6 +72,19 @@ interface DataTableProps<TData, TValue> {
   pageCount?: number;
   pagination?: PaginationState;
   onPaginationChange?: (updater: PaginationState) => void;
+
+  // NEW: Nilai awal pagination/search saat komponen mount (untuk memulihkan state dari penyimpanan sementara)
+  initialPagination?: PaginationState;
+  initialSearch?: string;
+  initialColumnFilters?: ColumnFiltersState;
+
+  // NEW: Controlled column filters (untuk persistensi filter select/input di parent)
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: OnChangeFn<ColumnFiltersState>;
+
+  // NEW: Jika true, pencarian didelegasikan sepenuhnya ke parent (server-side / manual filtering).
+  // Default false: local search tetap berjalan walau onSearchChange disediakan (onSearchChange hanya listener).
+  manualSearch?: boolean;
 
   isLoading?: boolean;
 
@@ -103,6 +126,12 @@ export function DataTable<TData, TValue>({
   pageCount,
   pagination,
   onPaginationChange,
+  initialPagination,
+  initialSearch,
+  initialColumnFilters,
+  columnFilters,
+  onColumnFiltersChange,
+  manualSearch = false,
   isLoading,
   expanded,
   onExpandedChange,
@@ -123,15 +152,23 @@ export function DataTable<TData, TValue>({
   const manualPaginationEnabled = typeof pageCount === 'number' && pageCount >= 0 && !!pagination && !!onPaginationChange;
 
   // State paginasi internal (dikontrol oleh komponen DataTable ketika tidak dalam mode manual)
-  const [internalPagination, setInternalPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const [internalPagination, setInternalPagination] = React.useState<PaginationState>(
+    initialPagination || {
+      pageIndex: 0,
+      pageSize: 10,
+    }
+  );
 
   const currentPagination = manualPaginationEnabled ? pagination : internalPagination;
 
-  // Tambah state pencarian global (internal)
-  const [internalSearch, setInternalSearch] = React.useState<string>('');
+  // State column filters internal (dikontrol parent jika columnFilters/onColumnFiltersChange disediakan)
+  const [internalColumnFilters, setInternalColumnFilters] = React.useState<ColumnFiltersState>(
+    initialColumnFilters || []
+  );
+  const currentColumnFilters = columnFilters !== undefined ? columnFilters : internalColumnFilters;
+
+  // Tambah state pencarian global (internal, bisa diinisialisasi dari luar)
+  const [internalSearch, setInternalSearch] = React.useState<string>(initialSearch || '');
 
   // Use controlled search if provided, otherwise internal
   const globalSearch = searchQuery !== undefined ? searchQuery : internalSearch;
@@ -147,39 +184,44 @@ export function DataTable<TData, TValue>({
 
   // Filter data secara lokal berdasarkan pencarian global (kecuali kolom Aksi)
   const processedData = React.useMemo(() => {
-    // Jika controlled search digunakan (onSearchChange ada), asumsikan parent sudah memfilter data
+    // Jika manual search aktif (onSearchChange + manualSearch), asumsikan parent sudah memfilter data
     // sehingga DataTable tidak perlu memfilter lagi (tampilkan data apa adanya).
-    if (onSearchChange) return data;
+    if (manualSearch && onSearchChange) return data;
 
     if (!globalSearch) return data;
     const search = globalSearch.toLowerCase();
     const excludedIds = new Set(['aksi', 'action', 'actions']);
 
-    return (data as any[]).filter((row) => {
-      for (const col of columns as any[]) {
-        const id = (col.id as string) || (col.accessorKey as string) || '';
-        const hasAccessorFn = typeof (col as any).accessorFn === 'function';
+    type ColumnWithAccessor = ColumnDef<TData, TValue> & {
+      accessorKey?: string;
+      accessorFn?: (row: TData) => unknown;
+    };
+
+    return data.filter((row) => {
+      for (const col of columns as ColumnWithAccessor[]) {
+        const id = (col.id as string) || col.accessorKey || '';
+        const hasAccessorFn = typeof col.accessorFn === 'function';
 
         // Jangan ikutkan kolom aksi; tetap izinkan kolom tanpa id jika punya accessorFn
         if (id && excludedIds.has(id.toLowerCase())) continue;
         if (!id && !hasAccessorFn) continue;
 
-        let value: any;
+        let value: unknown;
 
         // Prioritaskan accessorFn bila ada
-        if (hasAccessorFn) {
+        if (hasAccessorFn && col.accessorFn) {
           try {
-            value = (col as any).accessorFn(row);
+            value = col.accessorFn(row);
           } catch {
             value = undefined;
           }
         } else {
           // Jika tidak, gunakan path accessorKey/id pada objek row
-          const path = (col.accessorKey as string) || id;
+          const path = col.accessorKey || id;
           value = row;
-          if (path) {
+          if (path && typeof value === 'object' && value !== null) {
             for (const key of path.split('.')) {
-              value = value?.[key];
+              value = (value as Record<string, unknown>)?.[key];
             }
           }
         }
@@ -199,12 +241,13 @@ export function DataTable<TData, TValue>({
       }
       return false;
     });
-  }, [data, columns, globalSearch]);
+  }, [data, columns, globalSearch, manualSearch, onSearchChange]);
 
   // Tetapkan filterFn='exact' untuk kolom yang dikonfigurasi sebagai select
   const processedColumns = React.useMemo(() => {
-    return (columns as ColumnDef<TData, TValue>[]).map((col: any) => {
-      const id = (col.id as string) || (col.accessorKey as string);
+    return columns.map((col) => {
+      const colWithKey = col as { id?: string; accessorKey?: string };
+      const id = colWithKey.id || colWithKey.accessorKey;
       if (id && filterableColumns && filterableColumns[id]?.type === 'select') {
         return { ...col, filterFn: 'exact' } as ColumnDef<TData, TValue>;
       }
@@ -219,9 +262,25 @@ export function DataTable<TData, TValue>({
       sorting: sorting,
       expanded: expanded,
       pagination: currentPagination,
+      columnFilters: currentColumnFilters,
     },
     onSortingChange,
-    onPaginationChange: manualPaginationEnabled ? onPaginationChange : setInternalPagination,
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(currentPagination) : updater;
+      if (manualPaginationEnabled) {
+        onPaginationChange!(next);
+      } else {
+        setInternalPagination(next);
+        onPaginationChange?.(next); // laporkan ke parent untuk persistensi walau mode lokal
+      }
+    },
+    onColumnFiltersChange: (updater) => {
+      if (onColumnFiltersChange) {
+        onColumnFiltersChange(updater);
+      } else {
+        setInternalColumnFilters(updater);
+      }
+    },
     onExpandedChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -230,7 +289,7 @@ export function DataTable<TData, TValue>({
     getExpandedRowModel: getExpandedRowModel(),
     manualPagination: manualPaginationEnabled,
     pageCount: manualPaginationEnabled ? pageCount : undefined,
-    getSubRows: getSubRows || ((row: any) => row.subRows),
+    getSubRows: getSubRows || ((row: TData) => (row as Record<string, unknown>)?.subRows as TData[] | undefined),
     // Daftarkan filter kustom agar bisa direferensikan dengan id 'exact'
     filterFns: { exact: exactMatchFilter },
   });
@@ -246,7 +305,7 @@ export function DataTable<TData, TValue>({
   const handleExport = async () => {
     if (exportFileName && exportTitle) {
       const { exportToExcel } = await import('@/utils/export');
-      exportToExcel(data as Record<string, any>[], exportFileName, exportTitle);
+      exportToExcel(data as unknown as Record<string, unknown>[], exportFileName, exportTitle);
     }
   };
 
