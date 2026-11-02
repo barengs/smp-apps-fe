@@ -24,7 +24,7 @@ import { DatePicker } from '@/components/ui/datepicker';
 import { format } from 'date-fns';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import * as toast from '@/utils/toast';
-import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
+import { useCreateEmployeeMutation, useUpdateEmployeeMutation } from '@/store/slices/employeeApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -71,7 +71,7 @@ const steps = [
   { id: 'Data Diri', fields: ['first_name', 'last_name', 'nik', 'nip', 'birth_place', 'birth_date', 'phone', 'code', 'gender', 'photo'] },
 
   { id: 'Alamat', fields: ['address', 'zip_code'] },
-  { id: 'Akun & Kredensial', fields: ['email', 'role_ids', 'educational_institution_ids', 'username', 'password'] },
+  { id: 'Akun & Kredensial', fields: ['email', 'role_ids', 'username', 'password'] },
 ];
 
 interface StaffFormProps {
@@ -91,7 +91,6 @@ interface StaffFormProps {
       zip_code: string;
       gender?: string | null;
       photo?: string | null;
-      educational_institutions?: any[];
     };
     email: string;
     roles: { id?: number; name: string }[];
@@ -148,7 +147,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: '',
       zip_code: '',
       role_ids: [],
-      educational_institution_ids: [],
       gender: 'Laki-laki' as const,
       username: '',
       password: '',
@@ -242,10 +240,10 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     try {
       if (initialData) {
         // Penting: gunakan staff.id untuk update
-        await updateEmployee({ id: initialData.staff.id, data: formData as any }).unwrap();
+        await updateEmployee({ id: initialData.staff.id, data: formData }).unwrap();
         toast.showSuccess(`Data staf "${values.first_name}" berhasil diperbarui.`);
       } else {
-        await createEmployee(formData as any).unwrap();
+        await createEmployee(formData).unwrap();
         toast.showSuccess(`Staf "${values.first_name}" berhasil ditambahkan.`);
       }
       onSuccess();

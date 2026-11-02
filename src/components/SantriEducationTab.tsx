@@ -8,6 +8,12 @@ interface Props {
 }
 
 const SantriEducationTab: React.FC<Props> = () => {
+  const tarbiyahWebUrl = import.meta.env.VITE_TARBIYAH_WEB_URL || 'http://localhost:8002';
+
+  const handleOpenTarbiyah = () => {
+    window.open(tarbiyahWebUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <Card className="border-dashed bg-muted/30">
       <CardContent className="pt-6 pb-6 text-center space-y-3">
@@ -24,7 +30,7 @@ const SantriEducationTab: React.FC<Props> = () => {
           variant="outline"
           size="sm"
           className="gap-1.5 text-xs"
-          onClick={() => window.open('http://localhost:8002', '_blank')}
+          onClick={handleOpenTarbiyah}
         >
           <span>Buka Portal Tarbiyah</span>
           <ExternalLink className="h-3.5 w-3.5" />
