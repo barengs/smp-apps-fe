@@ -113,6 +113,45 @@ export interface StudentAgreementResponse {
   };
 }
 
+export interface EducationHistoryItem {
+  id: number;
+  academic_year: string;
+  institution: string;
+  class_group: string;
+  grade_level?: string | null;
+  classroom: string;
+  homeroom_teacher: string;
+  joined_at?: string | null;
+  left_at?: string | null;
+  status: string;
+  note?: string | null;
+}
+
+export interface EducationReportItem {
+  id: number;
+  academic_year: string;
+  quarter: string;
+  class_group: string;
+  average_score: number | string;
+  rank?: number | string | null;
+  notes?: string | null;
+}
+
+export interface StudentEducationHistoryData {
+  nis: string | null;
+  name?: string;
+  current_class: EducationHistoryItem | null;
+  history: EducationHistoryItem[];
+  reports: EducationReportItem[];
+  is_offline?: boolean;
+}
+
+export interface StudentEducationHistoryResponse {
+  status: string;
+  message?: string;
+  data: StudentEducationHistoryData;
+}
+
 export interface CreateUpdateStudentRequest {
   parent_id?: string;
   nis: string;
@@ -332,6 +371,10 @@ export const studentApi = smpApi.injectEndpoints({
       }),
       providesTags: ['Student'],
     }),
+    getStudentEducationHistory: builder.query<StudentEducationHistoryResponse, number>({
+      query: (id) => `main/student/${id}/education-history`,
+      providesTags: (result, error, id) => [{ type: 'Student', id: `EDU_${id}` }],
+    }),
   }),
   overrideExisting: true,
 });
@@ -353,4 +396,5 @@ export const {
   useGetStudentAgreementQuery,
   useUpdateStudentAgreementStepMutation,
   useListStudentAgreementsQuery,
+  useGetStudentEducationHistoryQuery,
 } = studentApi;
