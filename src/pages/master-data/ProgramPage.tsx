@@ -3,11 +3,11 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import ProgramTable from './ProgramTable';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { GraduationCap, ClipboardList } from 'lucide-react';
+import { Database, ClipboardList } from 'lucide-react';
 
 const ProgramPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Manajemen Pendidikan', href: '/dashboard/pendidikan/program', icon: <GraduationCap className="h-4 w-4" /> },
+    { label: 'Master Data', href: '/dashboard/master-data/program', icon: <Database className="h-4 w-4" /> },
     { label: 'Program', icon: <ClipboardList className="h-4 w-4" /> },
   ];
 

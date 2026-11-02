@@ -3,11 +3,11 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import AsramaTable from './AsramaTable';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { GraduationCap, BedDouble } from 'lucide-react';
+import { Home, BedDouble } from 'lucide-react';
 
 const AsramaPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Manajemen Pendidikan', href: '/dashboard/pendidikan/program', icon: <GraduationCap className="h-4 w-4" /> },
+    { label: 'Kepesantrenan', href: '/dashboard/kepesantrenan/asrama', icon: <Home className="h-4 w-4" /> },
     { label: 'Asrama', icon: <BedDouble className="h-4 w-4" /> },
   ];
 

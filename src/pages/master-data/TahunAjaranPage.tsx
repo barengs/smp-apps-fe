@@ -3,11 +3,11 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import TahunAjaranTable from './TahunAjaranTable';
 import CustomBreadcrumb, { type BreadcrumbItemData } from '@/components/CustomBreadcrumb';
-import { GraduationCap, Calendar } from 'lucide-react';
+import { Database, Calendar } from 'lucide-react';
 
 const TahunAjaranPage: React.FC = () => {
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Manajemen Pendidikan', href: '/dashboard/pendidikan/tahun-ajaran', icon: <GraduationCap className="h-4 w-4" /> },
+    { label: 'Data Master', href: '/dashboard/master-data/tahun-ajaran', icon: <Database className="h-4 w-4" /> },
     { label: 'Tahun Ajaran', icon: <Calendar className="h-4 w-4" /> },
   ];
 

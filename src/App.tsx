@@ -4,6 +4,7 @@ import Index from "@/pages/landing/Index";
 import NotFound from "@/pages/utility/NotFound";
 import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard";
 import AdministrasiDashboard from "@/pages/dashboard/AdministrasiDashboard";
+import KamtibDashboard from "@/pages/dashboard/KamtibDashboard";
 import Login from "@/pages/auth/Login";
 import Daftar from "@/pages/auth/Daftar";
 import StafPage from "@/pages/manajemen-staf/StafPage";
@@ -26,18 +27,10 @@ import KotaPage from "@/pages/data-wilayah/KotaPage";
 import KecamatanPage from "@/pages/data-wilayah/KecamatanPage";
 import DesaPage from "@/pages/data-wilayah/DesaPage";
 import WaliSantriDetailPage from "@/pages/manajemen-santri/WaliSantriDetailPage";
-import ProgramPage from "@/pages/manajemen-pendidikan/ProgramPage";
-import TahunAjaranPage from "@/pages/manajemen-pendidikan/TahunAjaranPage";
-import AsramaPage from "@/pages/manajemen-pendidikan/AsramaPage";
-import JenjangPendidikanPage from "@/pages/manajemen-pendidikan/JenjangPendidikanPage";
-import KelasPage from "@/pages/manajemen-pendidikan/KelasPage";
-import JadwalKegiatanPage from "@/pages/manajemen-pendidikan/JadwalKegiatanPage";
-import RombelPage from "@/pages/manajemen-pendidikan/RombelPage";
-import KenaikanKelasPage from "@/pages/manajemen-kurikulum/KenaikanKelasPage";
-import PenempatanKelasPage from "@/pages/manajemen-kurikulum/PenempatanKelasPage";
-import JadwalPelajaranPage from "@/pages/manajemen-kurikulum/JadwalPelajaranPage";
-import MataPelajaranPage from "@/pages/manajemen-kurikulum/MataPelajaranPage";
-import MataPelajaranForm from "@/pages/manajemen-kurikulum/MataPelajaranForm";
+import ProgramPage from "@/pages/master-data/ProgramPage";
+import TahunAjaranPage from "@/pages/master-data/TahunAjaranPage";
+import AsramaPage from "@/pages/manajemen-kepesantrenan/AsramaPage";
+import JadwalKegiatanPage from "@/pages/manajemen-kepesantrenan/JadwalKegiatanPage";
 import PelanggaranPage from "@/pages/manajemen-kamtib/PelanggaranPage";
 import KategoriPelanggaranPage from '@/pages/manajemen-kamtib/KategoriPelanggaranPage';
 import NavigationManagementPage from "@/pages/utility/NavigationManagementPage";
@@ -47,7 +40,6 @@ import StaffEditPage from "@/pages/manajemen-staf/StaffEditPage";
 import SantriFormPage from "@/pages/manajemen-santri/SantriFormPage";
 import SantriEditPage from "@/pages/manajemen-santri/SantriEditPage";
 import WaliSantriEditPage from "@/pages/manajemen-santri/WaliSantriEditPage";
-import KelompokPendidikanPage from '@/pages/manajemen-pendidikan/KelompokPendidikanPage';
 import PekerjaanPage from '@/pages/master-data/PekerjaanPage';
 import BeritaPage from '@/pages/informasi/BeritaPage';
 import InformasiSantriPage from '@/pages/manajemen-santri/InformasiSantriPage';
@@ -70,25 +62,7 @@ import PositionPage from '@/pages/manajemen-organisasi/PositionPage';
 import KepengurusanPage from '@/pages/manajemen-organisasi/KepengurusanPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppProfilePage from './pages/utility/AppProfilePage';
-import GuruPage from '@/pages/manajemen-kurikulum/GuruPage';
-import GuruFormPage from '@/pages/manajemen-kurikulum/GuruFormPage'; // Import the new GuruFormPage
-import GuruDetailPage from '@/pages/manajemen-kurikulum/GuruDetailPage'; // Import the new GuruDetailPage
 import LaporanPelanggaranDetailPage from '@/pages/manajemen-kamtib/LaporanPelanggaranDetailPage';
-import PenugasanGuruPage from '@/pages/manajemen-kurikulum/PenugasanGuruPage'; // Import the new PenugasanGuruPage
-import TeachingHoursPage from '@/pages/manajemen-kurikulum/TeachingHoursPage'; // Import the new TeachingHoursPage
-import JamPelajaranPage from '@/pages/manajemen-kurikulum/JamPelajaranPage';
-import SesiPelajaranPage from '@/pages/manajemen-kurikulum/SesiPelajaranPage';
-import SiswaPage from '@/pages/manajemen-kurikulum/SiswaPage';
-import SiswaDetailPage from '@/pages/manajemen-kurikulum/SiswaDetailPage';
-import PresensiPage from './pages/manajemen-kurikulum/PresensiPage';
-import PresensiDetailPage from './pages/manajemen-kurikulum/PresensiDetailPage';
-import PresensiFormPage from './pages/manajemen-kurikulum/PresensiFormPage'; // Import baru
-import PenilaianPage from './pages/manajemen-kurikulum/PenilaianPage';
-import PenilaianDetailPage from './pages/manajemen-kurikulum/PenilaianDetailPage';
-import InstitusiPendidikanPage from './pages/manajemen-kurikulum/InstitusiPendidikanPage';
-import InstitusiPendidikanForm from './pages/manajemen-kurikulum/InstitusiPendidikanForm';
-import RaportPage from '@/pages/manajemen-kurikulum/RaportPage';
-import RaportPrintView from '@/pages/manajemen-kurikulum/RaportPrintView';
 import SanksiPage from '@/pages/manajemen-kamtib/SanksiPage';
 import JenisSanksiPage from './pages/manajemen-kamtib/JenisSanksiPage';
 import PerizinanPage from '@/pages/manajemen-kamtib/PerizinanPage';
@@ -107,15 +81,10 @@ import TransaksiPage from '@/pages/wali-santri/TransaksiPage';
 import { StatistikSantriPage } from '@/pages/kesantrian/laporan/StatistikSantriPage';
 import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pages/kesantrian/laporan/LaporanPelanggaranPage';
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
-import { StatistikPresensiPage } from '@/pages/kesantrian/laporan/StatistikPresensiPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import RekeningDetailPage from '@/pages/keuangan/RekeningDetailPage';
-import PendidikanDashboard from "@/pages/dashboard/PendidikanDashboard";
-import KamtibDashboard from "@/pages/dashboard/KamtibDashboard";
-import KurikulumDashboard from "@/pages/dashboard/KurikulumDashboard";
 
-
-// Redux imports
+// Theme & Global
 import { ThemeProvider } from './components/theme-provider';
 import { ToastContainer } from 'react-toastify';
 import AuthManager from './components/AuthManager';
@@ -124,8 +93,8 @@ import { useEffect } from 'react';
 import { useGetControlPanelSettingsQuery } from './store/slices/controlPanelApi';
 
 function App() {
-  const { data: settingsResponse } = useGetControlPanelSettingsQuery(); // Mengubah nama variabel
-  const settings = settingsResponse?.data; // Mengakses data dari properti 'data'
+  const { data: settingsResponse } = useGetControlPanelSettingsQuery();
+  const settings = settingsResponse?.data;
 
   useEffect(() => {
     if (settings?.app_description) {
@@ -161,9 +130,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
               <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
-              <Route path="/dashboard/pendidikan/dashboard" element={<PendidikanDashboard />} />
               <Route path="/dashboard/manajemen-kamtib/dashboard" element={<KamtibDashboard />} />
-              <Route path="/dashboard/manajemen-kurikulum/dashboard" element={<KurikulumDashboard />} />
               <Route path="/dashboard/staf" element={<StafPage />} />
               <Route path="/dashboard/staf/:id" element={<StaffDetailPage />} />
               <Route path="/dashboard/staf/:id/edit" element={<StaffEditPage />} />
@@ -212,50 +179,24 @@ function App() {
               <Route path="/dashboard/guru-tugas" element={<GuruTugasPage />} />
               <Route path="/dashboard/penanggung-jawab-magang" element={<PenanggungJawabPage />} />
               <Route path="/dashboard/institusi-tugas" element={<InstitusiTugasPage />} />
-              {/* Roue Management Wilayah */}
+
+              {/* Route Management Wilayah */}
               <Route path="/dashboard/wilayah/provinsi" element={<ProvinsiPage />} />
               <Route path="/dashboard/wilayah/kota" element={<KotaPage />} />
               <Route path="/dashboard/wilayah/kecamatan" element={<KecamatanPage />} />
               <Route path="/dashboard/wilayah/desa" element={<DesaPage />} />
-              {/* Route management pesantren */}
-              <Route path="/dashboard/pendidikan/program" element={<ProgramPage />} />
-              <Route path="/dashboard/pendidikan/asrama" element={<AsramaPage />} />
+
+              {/* Route Master Data */}
+              <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
+              <Route path="/dashboard/master-data/program" element={<ProgramPage />} />
+              <Route path="/dashboard/master-data/tahun-ajaran" element={<TahunAjaranPage />} />
+
+              {/* Route Kepesantrenan */}
+              <Route path="/dashboard/kepesantrenan/asrama" element={<AsramaPage />} />
               <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
-              {/* Route management pendidikan */}
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan" element={<InstitusiPendidikanPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/tambah" element={<InstitusiPendidikanForm onSuccess={() => { }} onCancel={() => { }} />} />
-              <Route path="/dashboard/manajemen-kurikulum/institusi-pendidikan/:id" element={<InstitusiPendidikanPage />} />
-              <Route path="/dashboard/pendidikan/tahun-ajaran" element={<TahunAjaranPage />} />
-              <Route path="/dashboard/pendidikan/jenjang" element={<JenjangPendidikanPage />} />
-              <Route path="/dashboard/pendidikan/kelas" element={<KelasPage />} />
-              <Route path="/dashboard/pendidikan/rombel" element={<RombelPage />} />
-              <Route path="/dashboard/pendidikan/kelompok-pendidikan" element={<KelompokPendidikanPage />} />
-              <Route path="/dashboard/jadwal" element={<JadwalKegiatanPage />} />
-              {/* Route kurikulum */}
-              <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran" element={<MataPelajaranPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/add" element={<MataPelajaranForm />} />
-              <Route path="/dashboard/manajemen-kurikulum/mata-pelajaran/:id/edit" element={<MataPelajaranForm />} />
-              <Route path="/dashboard/manajemen-kurikulum/jam-pelajaran" element={<JamPelajaranPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/sesi-pelajaran" element={<SesiPelajaranPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/siswa" element={<SiswaPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/siswa/detail" element={<SiswaDetailPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/guru" element={<GuruPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/guru/add" element={<GuruFormPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/guru/:id/edit" element={<GuruFormPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/guru/:id" element={<GuruDetailPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/penugasan-guru" element={<PenugasanGuruPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/jam-mengajar" element={<TeachingHoursPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/presensi" element={<PresensiPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/presensi/:detailId" element={<PresensiDetailPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/presensi/:detailId/pertemuan/:meetingNumber" element={<PresensiFormPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/penilaian" element={<PenilaianPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/penilaian/:detailId" element={<PenilaianDetailPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/jadwal-pelajaran" element={<JadwalPelajaranPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/penempatan-kelas" element={<PenempatanKelasPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/raport" element={<RaportPage />} />
-              <Route path="/dashboard/manajemen-kurikulum/raport/:classGroupId/cetak/:studentId" element={<RaportPrintView />} />
-              {/* Route manajemen kamtib */}
+              <Route path="/dashboard/kepesantrenan/jadwal-kegiatan" element={<JadwalKegiatanPage />} />
+
+              {/* Route Manajemen Kamtib */}
               <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/kategori-pelanggaran" element={<KategoriPelanggaranPage />} />
               <Route path="/dashboard/manajemen-kamtib/sanksi" element={<SanksiPage />} />
@@ -269,27 +210,25 @@ function App() {
               <Route path="/dashboard/manajemen-kamtib/libur-santri" element={<LiburSantriPage />} />
               <Route path="/dashboard/manajemen-kamtib/libur-santri/:id" element={<LiburSantriPage />} />
               <Route path="/dashboard/manajemen-kamtib/libur-verifikasi" element={<HolidayVerificationPage />} />
-              <Route path="/dashboard/master-data/pekerjaan" element={<PekerjaanPage />} />
+
+              {/* Utility & Settings */}
               <Route path="/dashboard/settings/navigation" element={<NavigationManagementPage />} />
               <Route path="/dashboard/settings/app-profile" element={<AppProfilePage />} />
+              <Route path="/dashboard/settings/student-card-template" element={<StudentCardTemplateSettingsPage />} />
+              <Route path="/utility/roles" element={<RoleManagementPage />} />
+              <Route path="/utility/roles/create" element={<RoleFormPage />} />
+              <Route path="/utility/roles/:id/edit" element={<RoleFormPage />} />
+              <Route path="/dashboard/profile" element={<UserProfilePage />} />
+              <Route path="/dashboard/profile/edit" element={<ProfileEditPage />} />
+
               {/* Manajemen Informasi */}
               <Route path="/dashboard/berita" element={<BeritaPage />} />
-
-
+              <Route path="/dashboard/pengumuman" element={<PengumumanPage />} />
 
               {/* Laporan Pesantren */}
               <Route path="/dashboard/kesantrian/laporan/statistik-santri" element={<StatistikSantriPage />} />
               <Route path="/dashboard/kesantrian/laporan/pelanggaran" element={<LaporanPelanggaranPesantrenPage />} />
               <Route path="/dashboard/kesantrian/laporan/izin" element={<LaporanIzinPage />} />
-              <Route path="/dashboard/kesantrian/laporan/presensi" element={<StatistikPresensiPage />} />
-
-              {/* Role Management Routes */}
-              <Route path="/utility/roles" element={<RoleManagementPage />} />
-              <Route path="/utility/roles/create" element={<RoleFormPage />} />
-              <Route path="/utility/roles/:id/edit" element={<RoleFormPage />} />
-              <Route path="/dashboard/settings/student-card-template" element={<StudentCardTemplateSettingsPage />} />
-              <Route path="/dashboard/profile" element={<UserProfilePage />} />
-              <Route path="/dashboard/profile/edit" element={<ProfileEditPage />} />
             </Route>
 
             {/* Rute Catch-all untuk halaman yang tidak ditemukan */}

@@ -17,10 +17,6 @@ import { programApi } from './slices/programApi';
 import { tahunAjaranApi } from './slices/tahunAjaranApi';
 import { hostelApi } from './slices/hostelApi';
 import { educationApi } from './slices/educationApi';
-import { classroomApi } from './slices/classroomApi';
-import { classGroupApi } from './slices/classGroupApi';
-import { educationGroupApi } from './slices/educationGroupApi';
-import { studyApi } from './slices/studyApi';
 import { activityApi } from './slices/activityApi';
 import { santriApi } from './slices/santriApi';
 import { parentApi } from './slices/parentApi';
@@ -35,7 +31,6 @@ import { bankApi } from './slices/bankApi';
 import { accountApi } from './slices/accountApi';
 import { roomApi } from './slices/roomApi';
 import { teacherApi } from './slices/teacherApi';
-import { studentClassApi } from './slices/studentClassApi';
 
 import { leaveTypeApi } from './slices/leaveTypeApi';
 import { violationApi } from './slices/violationApi';
