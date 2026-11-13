@@ -1,0 +1,13 @@
+.git
+.github
+.agents
+node_modules
+dist
+dist.zip
+build_error.txt
+.env
+.env.*
+!.env.production
+Dockerfile*
+docker-compose*.yml
+

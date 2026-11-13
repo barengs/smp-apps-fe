@@ -24,9 +24,8 @@ import { DatePicker } from '@/components/ui/datepicker';
 import { format } from 'date-fns';
 import ProfilePhotoCard from '@/components/ProfilePhotoCard';
 import * as toast from '@/utils/toast';
-import { useCreateEmployeeMutation, useUpdateEmployeeMutation, type CreateUpdateEmployeeRequest } from '@/store/slices/employeeApi';
+import { useCreateEmployeeMutation, useUpdateEmployeeMutation } from '@/store/slices/employeeApi';
 import { useGetRolesQuery } from '@/store/slices/roleApi';
-import { useGetInstitusiPendidikanQuery } from '@/store/slices/institusiPendidikanApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Progress } from '@/components/ui/progress';
@@ -45,7 +44,6 @@ const formSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   zip_code: z.string().optional().or(z.literal('')),
   role_ids: z.array(z.number()).min(1, { message: 'Setidaknya satu peran harus dipilih.' }),
-  educational_institution_ids: z.array(z.number()).optional(),
   gender: z.enum(['Laki-laki', 'Perempuan'], { required_error: 'Jenis kelamin harus dipilih.' }),
   photo: z.string().optional().or(z.literal('')),
 
@@ -73,7 +71,7 @@ const steps = [
   { id: 'Data Diri', fields: ['first_name', 'last_name', 'nik', 'nip', 'birth_place', 'birth_date', 'phone', 'code', 'gender', 'photo'] },
 
   { id: 'Alamat', fields: ['address', 'zip_code'] },
-  { id: 'Akun & Kredensial', fields: ['email', 'role_ids', 'educational_institution_ids', 'username', 'password'] },
+  { id: 'Akun & Kredensial', fields: ['email', 'role_ids', 'username', 'password'] },
 ];
 
 interface StaffFormProps {
@@ -93,7 +91,6 @@ interface StaffFormProps {
       zip_code: string;
       gender?: string | null;
       photo?: string | null;
-      educational_institutions?: any[];
     };
     email: string;
     roles: { id?: number; name: string }[];
@@ -108,7 +105,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const { data: rolesData = [], isLoading: isLoadingRoles } = useGetRolesQuery({});
-  const { data: institutionsData = [], isLoading: isLoadingInstitutions } = useGetInstitusiPendidikanQuery({ page: 1, per_page: 100 });
   const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
@@ -134,7 +130,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
         ? 'Perempuan'
         : 'Laki-laki',
       role_ids: [],
-      educational_institution_ids: initialData.staff.educational_institutions?.map((ei: any) => ei.id) || [],
       username: initialData.name || '',
       password: '',
       password_confirmation: '',
@@ -152,7 +147,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       address: '',
       zip_code: '',
       role_ids: [],
-      educational_institution_ids: [],
       gender: 'Laki-laki' as const,
       username: '',
       password: '',
@@ -232,12 +226,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
       formData.append('roles[]', roleName);
     });
 
-    if (values.educational_institution_ids && values.educational_institution_ids.length > 0) {
-      values.educational_institution_ids.forEach(id => {
-        formData.append('educational_institution_ids[]', String(id));
-      });
-    }
-
     if (values.password) {
       formData.append('password', values.password);
       formData.append('password_confirmation', values.password_confirmation || '');
@@ -252,10 +240,10 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     try {
       if (initialData) {
         // Penting: gunakan staff.id untuk update
-        await updateEmployee({ id: initialData.staff.id, data: formData as any }).unwrap();
+        await updateEmployee({ id: initialData.staff.id, data: formData }).unwrap();
         toast.showSuccess(`Data staf "${values.first_name}" berhasil diperbarui.`);
       } else {
-        await createEmployee(formData as any).unwrap();
+        await createEmployee(formData).unwrap();
         toast.showSuccess(`Staf "${values.first_name}" berhasil ditambahkan.`);
       }
       onSuccess();
@@ -302,15 +290,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
     onChange(Array.from(currentValues));
   };
 
-  const handleInstitutionToggle = (instId: number, currentFieldValues: number[] | undefined, onChange: (value: number[]) => void) => {
-    const currentValues = new Set(currentFieldValues || []);
-    if (currentValues.has(instId)) {
-      currentValues.delete(instId);
-    } else {
-      currentValues.add(instId);
-    }
-    onChange(Array.from(currentValues));
-  };
+
 
   return (
     <Form {...form}>
@@ -501,70 +481,6 @@ const StaffForm: React.FC<StaffFormProps> = ({ initialData, onSuccess, onCancel 
                                   className="mr-2"
                                 />
                                 {role.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="educational_institution_ids"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Institusi Pendidikan (Opsional)</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value?.length && "text-muted-foreground"
-                            )}
-                            disabled={isLoadingInstitutions}
-                          >
-                            {isLoadingInstitutions ? (
-                              "Memuat institusi..."
-                            ) : field.value && field.value.length > 0 ? (
-                              <div className="flex flex-wrap gap-1">
-                                {field.value.map((instId) => {
-                                  const inst = institutionsData.find(r => r.id === instId);
-                                  return inst ? (
-                                    <Badge key={inst.id} variant="secondary">
-                                      {inst.institution_name}
-                                    </Badge>
-                                  ) : null;
-                                })}
-                              </div>
-                            ) : (
-                              "Pilih institusi..."
-                            )}
-                            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
-                          <CommandInput placeholder="Cari institusi..." />
-                          <CommandEmpty>Tidak ada institusi ditemukan.</CommandEmpty>
-                          <CommandGroup>
-                            {institutionsData.map((inst) => (
-                              <CommandItem
-                                key={inst.id}
-                                onSelect={() => handleInstitutionToggle(inst.id, field.value, field.onChange)}
-                              >
-                                <Checkbox
-                                  checked={field.value?.includes(inst.id)}
-                                  onCheckedChange={(checked) => handleInstitutionToggle(inst.id, field.value, field.onChange)}
-                                  className="mr-2"
-                                />
-                                {inst.institution_name}
                               </CommandItem>
                             ))}
                           </CommandGroup>
