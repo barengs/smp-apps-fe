@@ -694,7 +694,6 @@ const DashboardHeader: React.FC<{
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar>
-                <AvatarImage src="/avatar-placeholder.png" alt="User Avatar" />
                 <AvatarFallback>
                   <User />
                 </AvatarFallback>
