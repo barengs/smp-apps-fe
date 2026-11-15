@@ -24,11 +24,14 @@ export const RekeningTable: React.FC<RekeningTableProps> = ({ data, onViewDetail
       header: 'Nomor Rekening',
     },
     {
-      accessorKey: 'customer',
+      accessorKey: 'customer_name',
       header: 'Nama Santri',
       cell: ({ row }) => {
         const customer = row.original.customer;
-        return customer ? `${customer.first_name} ${customer.last_name || ''}` : '-';
+        if (customer) {
+          return `${customer.first_name} ${customer.last_name || ''}`.trim();
+        }
+        return (row.original as any).customer_name || '-';
       },
     },
     {
