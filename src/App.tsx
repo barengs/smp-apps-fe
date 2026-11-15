@@ -85,7 +85,6 @@ import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pag
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import RekeningDetailPage from '@/pages/keuangan/RekeningDetailPage';
-import KenaikanKelasPage from '@/pages/kurikulum/KenaikanKelasPage';
 
 // Theme & Global
 import { ThemeProvider } from './components/theme-provider';
@@ -206,9 +205,6 @@ function App() {
               <Route path="/dashboard/kepesantrenan/asrama" element={<AsramaPage />} />
               <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
               <Route path="/dashboard/kepesantrenan/jadwal-kegiatan" element={<JadwalKegiatanPage />} />
-
-              {/* Route Kurikulum */}
-              <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
 
               {/* Alias / Redirect untuk kompatibilitas rute lama di MenuSeeder */}
               <Route path="/dashboard/pendidikan/asrama" element={<Navigate to="/dashboard/kepesantrenan/asrama" replace />} />
