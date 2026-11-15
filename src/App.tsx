@@ -1,5 +1,7 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/store/slices/authSlice";
 import Index from "@/pages/landing/Index";
 import NotFound from "@/pages/utility/NotFound";
 import WaliSantriDashboard from "@/pages/dashboard/WaliSantriDashboard";
@@ -83,6 +85,7 @@ import { LaporanPelanggaranPage as LaporanPelanggaranPesantrenPage } from '@/pag
 import { LaporanIzinPage } from '@/pages/kesantrian/laporan/LaporanIzinPage';
 import RekeningPage from '@/pages/keuangan/RekeningPage';
 import RekeningDetailPage from '@/pages/keuangan/RekeningDetailPage';
+import KenaikanKelasPage from '@/pages/kurikulum/KenaikanKelasPage';
 
 // Theme & Global
 import { ThemeProvider } from './components/theme-provider';
@@ -91,6 +94,13 @@ import AuthManager from './components/AuthManager';
 import DynamicAppConfig from './components/DynamicAppConfig';
 import { useEffect } from 'react';
 import { useGetControlPanelSettingsQuery } from './store/slices/controlPanelApi';
+
+function DashboardRedirect() {
+  const user = useSelector(selectCurrentUser);
+  const roles = user?.roles?.map((r: any) => r.name) || [];
+  const target = roles.includes('orangtua') ? '/dashboard/wali-santri' : '/dashboard/administrasi';
+  return <Navigate to={target} replace />;
+}
 
 function App() {
   const { data: settingsResponse } = useGetControlPanelSettingsQuery();
@@ -128,6 +138,7 @@ function App() {
 
             {/* Rute yang Dilindungi */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<DashboardRedirect />} />
               <Route path="/dashboard/wali-santri" element={<WaliSantriDashboard />} />
               <Route path="/dashboard/administrasi" element={<AdministrasiDashboard />} />
               <Route path="/dashboard/manajemen-kamtib/dashboard" element={<KamtibDashboard />} />
@@ -195,6 +206,16 @@ function App() {
               <Route path="/dashboard/kepesantrenan/asrama" element={<AsramaPage />} />
               <Route path="/dashboard/kepesantrenan/kamar" element={<KamarPage />} />
               <Route path="/dashboard/kepesantrenan/jadwal-kegiatan" element={<JadwalKegiatanPage />} />
+
+              {/* Route Kurikulum */}
+              <Route path="/dashboard/manajemen-kurikulum/kenaikan-kelas" element={<KenaikanKelasPage />} />
+
+              {/* Alias / Redirect untuk kompatibilitas rute lama di MenuSeeder */}
+              <Route path="/dashboard/pendidikan/asrama" element={<Navigate to="/dashboard/kepesantrenan/asrama" replace />} />
+              <Route path="/dashboard/pendidikan/program" element={<Navigate to="/dashboard/master-data/program" replace />} />
+              <Route path="/dashboard/pendidikan/tahun-ajaran" element={<Navigate to="/dashboard/master-data/tahun-ajaran" replace />} />
+              <Route path="/dashboard/jadwal" element={<Navigate to="/dashboard/kepesantrenan/jadwal-kegiatan" replace />} />
+              <Route path="/dashboard/bank-santri/transaksi" element={<Navigate to="/dashboard/santri/rekening" replace />} />
 
               {/* Route Manajemen Kamtib */}
               <Route path="/dashboard/manajemen-kamtib/pelanggaran" element={<PelanggaranPage />} />
