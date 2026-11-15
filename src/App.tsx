@@ -97,7 +97,7 @@ import { useGetControlPanelSettingsQuery } from './store/slices/controlPanelApi'
 
 function DashboardRedirect() {
   const user = useSelector(selectCurrentUser);
-  const roles = user?.roles?.map((r: any) => r.name) || [];
+  const roles = user?.roles?.map((r) => r.name) || [];
   const target = roles.includes('orangtua') ? '/dashboard/wali-santri' : '/dashboard/administrasi';
   return <Navigate to={target} replace />;
 }
