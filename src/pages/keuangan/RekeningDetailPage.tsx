@@ -42,7 +42,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructiv
 const RekeningDetailPage: React.FC = () => {
   const { accountNumber } = useParams<{ accountNumber: string }>();
   
-  const { data: account, isLoading, isError } = useGetAccountByIdQuery(Number(accountNumber), {
+  const { data: account, isLoading, isError } = useGetAccountByIdQuery(accountNumber || '', {
     skip: !accountNumber,
   });
 
@@ -91,7 +91,8 @@ const RekeningDetailPage: React.FC = () => {
     );
   }
 
-  const { customer, product } = account;
+  const customer = account.customer || (account as any).student;
+  const { product } = account;
 
   return (
     <DashboardLayout title={`Detail Rekening ${account.account_number}`} role="administrasi">
