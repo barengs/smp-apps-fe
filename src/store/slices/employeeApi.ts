@@ -162,7 +162,7 @@ export const employeeApi = smpApi.injectEndpoints({
     }),
     updateEmployee: builder.mutation<GetEmployeeByIdResponse, { id: number; data: FormData }>({
       query: ({ id, data }) => {
-        data.append('_method', 'PUT');
+        data.set('_method', 'PUT');
         return {
           url: `main/staff/${id}`,
           method: 'POST',

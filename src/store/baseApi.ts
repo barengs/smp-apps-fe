@@ -29,7 +29,11 @@ const baseQuery = fetchBaseQuery({
     // Daftar endpoint yang menggunakan FormData
     const formDataEndpoints = [
       'registerSantri',
+      'updateCalonSantri',
+      'createEmployee',
+      'updateEmployee',
       'importEmployee',
+      'updateProfile',
       'createBerita',
       'updateBerita',
       'updateControlPanelSettings',
@@ -43,8 +47,14 @@ const baseQuery = fetchBaseQuery({
       // ADDED: upload student photo uses FormData
       'updateStudentPhoto',
       'updateStudentCardSettings',
-      // ADDED: importParents
+      // ADDED: importParents & parent photo
       'importParents',
+      'updateParentPhoto',
+      // ADDED: imports & resignations using FormData
+      'importHostels',
+      'importRooms',
+      'createStudentResignation',
+      'updateStudentResignation',
       // ADDED: submit student top up uses FormData (payment proof file upload)
       'submitStudentTopUp',
     ];
