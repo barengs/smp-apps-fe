@@ -21,6 +21,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import * as toast from '@/utils/toast';
 import { openLeavePermitPdf } from '@/components/LeavePermitPdf';
+import { getFullStorageUrl } from '@/utils/pdfExport';
 import { useNavigate } from 'react-router-dom';
 import LeaveStatusUpdateDialog from '@/components/LeaveStatusUpdateDialog';
 import { useGetStudentLeaveStatisticsQuery } from '@/store/slices/studentLeaveApi';
@@ -33,8 +34,9 @@ const IssuePermissionDialog: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   students: Student[];
+  kopSuratUrl?: string;
   onCreated?: () => void; // TAMBAH: callback setelah sukses kirim
-}> = ({ open, onOpenChange, students, onCreated }) => {
+}> = ({ open, onOpenChange, students, kopSuratUrl, onCreated }) => {
   const { t } = useTranslation();
   const { data: leaveTypes = [] } = useGetLeaveTypesQuery({ page: 1, per_page: 200 });
   const { data: years = [] } = useGetTahunAjaranQuery();
@@ -155,14 +157,17 @@ const IssuePermissionDialog: React.FC<{
       notes: JSON.stringify(notesObj),
     };
 
-    // KIRIM KE BACKEND, lalu print
+    // KIRIM KE BACKEND, lalu print surat izin PDF
     try {
-      await createStudentLeave(payload).unwrap();
+      const res = await createStudentLeave(payload).unwrap();
+      const createdLeave = ((res as any)?.data ?? res) as StudentLeave | undefined;
       toast.showSuccess(t('permission.form.issueSuccess'));
       reset();
       onOpenChange(false);
       onCreated?.();
-      setTimeout(() => window.print(), 300);
+      if (createdLeave?.id) {
+        await openLeavePermitPdf(createdLeave, kopSuratUrl);
+      }
     } catch (error: any) {
       console.error('Failed to create student leave and print:', error);
       const message = error.data?.message || t('common.error.unexpected');
@@ -463,8 +468,7 @@ const PerizinanPage: React.FC = () => {
   const { data: leaves = [], isFetching: isFetchingLeaves, refetch: refetchLeaves } = useGetStudentLeavesQuery({ page: 1, per_page: 200 });
   const { data: settingsResponse } = useGetStudentCardSettingsQuery();
   const settings = settingsResponse?.data;
-  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
-  const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
+  const kopSuratUrl = getFullStorageUrl(settings?.kop_surat);
   
   const navigate = useNavigate();
   const { data: leaveStats, isLoading: isLoadingLeaveStats } = useGetStudentLeaveStatisticsQuery();
@@ -612,6 +616,7 @@ const PerizinanPage: React.FC = () => {
           open={issueOpen}
           onOpenChange={setIssueOpen}
           students={students}
+          kopSuratUrl={kopSuratUrl}
           onCreated={() => refetchLeaves()}
         />
         <ReturnReportDialog

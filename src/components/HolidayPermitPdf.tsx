@@ -3,6 +3,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, pdf } from '@react-pdf/renderer';
 import type { HolidayPeriod, StudentHolidayCheck } from '@/store/slices/holidayApi';
+import { resolveKopSuratBase64 } from '@/utils/pdfExport';
 
 const styles = StyleSheet.create({
     page: {
@@ -173,7 +174,9 @@ export async function openHolidayPermitPdf(period: HolidayPeriod, student: Stude
         console.error('QR Generate error', err);
     }
 
-    const blob = await pdf(<HolidayPermitDocument period={period} student={student} qrDataUrl={qrDataUrl} kopSuratUrl={kopSuratUrl} />).toBlob();
+    const kopBase64 = await resolveKopSuratBase64(kopSuratUrl);
+
+    const blob = await pdf(<HolidayPermitDocument period={period} student={student} qrDataUrl={qrDataUrl} kopSuratUrl={kopBase64} />).toBlob();
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
 }

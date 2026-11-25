@@ -6,23 +6,30 @@ import type { StudentLeave } from '@/store/slices/studentLeaveApi';
 import { Image } from '@react-pdf/renderer';
 // ADD: static import for pdf to avoid mixed dynamic+static warning
 import { pdf } from '@react-pdf/renderer';
+import { resolveKopSuratBase64 } from '@/utils/pdfExport';
 
 const styles = StyleSheet.create({
   page: {
-    paddingVertical: 30,
-    paddingHorizontal: 50,
+    paddingTop: 22,
+    paddingBottom: 24,
+    paddingHorizontal: 45,
     fontSize: 10,
-    lineHeight: 1.5,
+    lineHeight: 1.38,
     fontFamily: 'Helvetica',
+  },
+  kopContainer: {
+    marginBottom: 8,
+    alignItems: 'center',
   },
   kopImage: {
     width: '100%',
-    height: 'auto',
-    marginBottom: 10,
+    maxHeight: 105,
+    objectFit: 'contain',
   },
   titleContainer: {
     textAlign: 'center',
-    marginBottom: 15,
+    marginTop: 2,
+    marginBottom: 10,
   },
   title: {
     fontSize: 12,
@@ -34,12 +41,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   formContainer: {
-    marginTop: 10,
-    marginBottom: 15,
+    marginTop: 4,
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 5,
+    marginBottom: 3.5,
   },
   label: {
     width: 140,
@@ -52,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   signatureSection: {
-    marginTop: 20,
+    marginTop: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -62,14 +69,15 @@ const styles = StyleSheet.create({
   },
   dateLocation: {
     textAlign: 'right',
-    marginBottom: 30,
+    marginTop: 4,
+    marginBottom: 16,
   },
   signatureName: {
-    marginTop: 50,
+    marginTop: 42,
     textDecoration: 'underline',
   },
   keteranganBox: {
-    marginTop: 40,
+    marginTop: 20,
   },
   keteranganTitle: {
     fontWeight: 'bold',
@@ -91,12 +99,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   qrImage: {
-    width: 80,
-    height: 80,
+    width: 72,
+    height: 72,
     marginLeft: 10,
   },
   footer: {
-    marginTop: 20,
+    marginTop: 12,
     fontSize: 8,
     color: '#6b7280',
     textAlign: 'center',
@@ -157,7 +165,9 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: st
     <Document>
       <Page size={[612, 935.43]} style={styles.page}>
         {kopSuratUrl && (
-          <Image src={kopSuratUrl} style={styles.kopImage} />
+          <View style={styles.kopContainer}>
+            <Image src={kopSuratUrl} style={styles.kopImage} />
+          </View>
         )}
 
         <View style={styles.titleContainer}>
@@ -245,24 +255,6 @@ export const LeavePermitDocument: React.FC<{ leave: StudentLeave; qrDataUrl?: st
   );
 };
 
-async function imageUrlToPng(url: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return reject(new Error('Canvas 2D context not available'));
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL('image/png'));
-    };
-    img.onerror = reject;
-    img.src = url;
-  });
-}
-
 export async function openLeavePermitPdf(leave: StudentLeave, kopSuratUrl?: string) {
   // Generate QR
   let qrDataUrl: string | undefined;
@@ -277,16 +269,8 @@ export async function openLeavePermitPdf(leave: StudentLeave, kopSuratUrl?: stri
     });
   }
 
-  // Convert kop surat URL to base64 to avoid CORS issues in react-pdf
-  let kopBase64: string | undefined;
-  if (kopSuratUrl) {
-    try {
-      kopBase64 = await imageUrlToPng(kopSuratUrl);
-    } catch (e) {
-      console.warn('Gagal memuat kop surat:', e);
-      kopBase64 = undefined;
-    }
-  }
+  // Muat & konversi Kop Surat dari pengaturan (via image-proxy agar bebas CORS & WebP -> PNG)
+  const kopBase64 = await resolveKopSuratBase64(kopSuratUrl);
 
   const blob = await pdf(<LeavePermitDocument leave={leave} qrDataUrl={qrDataUrl} kopSuratUrl={kopBase64} />).toBlob();
   const url = URL.createObjectURL(blob);

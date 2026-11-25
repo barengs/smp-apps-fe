@@ -20,6 +20,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import CustomBreadcrumb from '@/components/CustomBreadcrumb';
 import { format } from 'date-fns';
 import { openHolidayPermitPdf } from '@/components/HolidayPermitPdf';
+import { getFullStorageUrl } from '@/utils/pdfExport';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -30,8 +31,7 @@ const LiburSantriPage: React.FC = () => {
     const periods = periodsResponse?.data || [];
     const { data: settingsResponse } = useGetStudentCardSettingsQuery();
     const settings = settingsResponse?.data;
-    const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
-    const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
+    const kopSuratUrl = getFullStorageUrl(settings?.kop_surat);
     
     const { data: programsResponse } = useGetProgramsQuery({ per_page: 100 });
     const programs = programsResponse?.data || [];

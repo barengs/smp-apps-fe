@@ -12,6 +12,7 @@ import { useGetStudentCardSettingsQuery } from "@/store/slices/studentCardApi";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer } from "lucide-react";
 import { openLeavePermitPdf } from "@/components/LeavePermitPdf";
+import { getFullStorageUrl } from "@/utils/pdfExport";
 import LeaveStatusUpdateDialog from "@/components/LeaveStatusUpdateDialog";
 import { CheckCircle } from "lucide-react";
 import LeaveActivityTimeline from "@/components/LeaveActivityTimeline";
@@ -38,8 +39,7 @@ const PerizinanDetailPage: React.FC = () => {
   const { data: leave, refetch } = useGetStudentLeaveByIdQuery(leaveId, { skip: isNaN(leaveId) });
   const { data: settingsResponse } = useGetStudentCardSettingsQuery();
   const settings = settingsResponse?.data;
-  const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_BASE_URL as string;
-  const kopSuratUrl = settings?.kop_surat ? `${STORAGE_BASE_URL}${settings.kop_surat}` : undefined;
+  const kopSuratUrl = getFullStorageUrl(settings?.kop_surat);
 
   const [statusOpen, setStatusOpen] = React.useState(false);
 
