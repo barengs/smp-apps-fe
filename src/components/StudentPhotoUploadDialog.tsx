@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { UploadCloud, Image as ImageIcon, Camera, RefreshCw } from 'lucide-react';
 import { useUpdateStudentPhotoMutation } from '@/store/slices/studentApi';
@@ -126,12 +126,17 @@ const StudentPhotoUploadDialog: React.FC<StudentPhotoUploadDialogProps> = ({
       toast.showError('Silakan pilih file foto atau ambil foto terlebih dahulu.');
       return;
     }
-    await updatePhoto({ id: studentId, photo: file }).unwrap();
-    toast.showSuccess('Foto santri berhasil diperbarui.');
-    onOpenChange(false);
-    setFile(null);
-    setCameraImage(null);
-    if (onUploaded) onUploaded();
+    try {
+      await updatePhoto({ id: studentId, photo: file }).unwrap();
+      toast.showSuccess('Foto santri berhasil diperbarui.');
+      onOpenChange(false);
+      setFile(null);
+      setCameraImage(null);
+      if (onUploaded) onUploaded();
+    } catch (err: any) {
+      const errMsg = err?.data?.error || err?.data?.message || 'Gagal memperbarui foto santri.';
+      toast.showError(errMsg);
+    }
   };
 
   const displayUrl = useMemo(() => previewUrl || currentPhotoUrl || null, [previewUrl, currentPhotoUrl]);
@@ -141,6 +146,9 @@ const StudentPhotoUploadDialog: React.FC<StudentPhotoUploadDialogProps> = ({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Perbarui Foto Santri</DialogTitle>
+          <DialogDescription>
+            Unggah berkas foto baru atau ambil foto langsung menggunakan kamera.
+          </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="upload" className="w-full" onValueChange={(val) => setIsCameraMode(val === 'camera')}>
